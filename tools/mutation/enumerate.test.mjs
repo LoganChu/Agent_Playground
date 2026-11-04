@@ -243,7 +243,31 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // CITES said "CARRIED FORWARD FROM 2025" in prose and whose
   // `carriedForwardFrom` field was absent, so the year they claimed was compared
   // with nothing. Three fields, three `2025` literals, three mutants.
-  assert.equal(mutants.length, 2_690, 'mutants the enumerator finds in the current tree');
+  //
+  // 2,715 ON DAY 72 — Kentucky's family size tax credit, and the twenty-five are
+  // DECOMPOSED rather than asserted, because the decomposition was the argument
+  // for how the rule is written. It was checked by dumping the enumeration
+  // before and after the change and diffing it, which is how this file's own
+  // header says the enumerator should be checked:
+  //
+  //   10  threshold percents  100 104 108 112 116 120 124 127 130 133 -> doubled
+  //    9  credit shares       0.9 ... 0.1                             -> halved
+  //    4  poverty guideline   15_650 / 5_500 / 15_960 / 5_680          -> doubled
+  //    1  the YEAR in `year === 2025 ? ... : ...`, which is not a parameter of
+  //       the tax at all, the same kind as New Mexico's carry-forward flags
+  //    1  in `engine.js`: the `/ 100` that turns a percentage point into a
+  //       fraction, doubled to 200. The only mutant this rule contributes
+  //       outside the state file, and it halves every cutoff in the staircase
+  //
+  // THE TEN AND THE NINE ARE THE POINT. KRS 141.066(3)'s steps are percentages,
+  // and `policyengine-us` stores them as `1.04 ... 1.33` — decimals at or above
+  // 1, which `mutantOf` declines. Written that way all ten would be invisible
+  // here and the blind-spot entry for this rule would be the largest in
+  // `blind-spots.mjs`. Written as PERCENTAGE POINTS they are integers at or
+  // above 100 and all ten are perturbable, for no cost: the integer form also
+  // makes the cutoff arithmetic exact. Two figures of twenty-three are blind,
+  // and both are declared.
+  assert.equal(mutants.length, 2_715, 'mutants the enumerator finds in the current tree');
   // THE NEW MEXICO FILE'S OWN COUNT, pinned for the reason the Louisiana and
   // Kansas anchors above are: the newest rule in the package is where the
   // enumerator's reach is least established.
@@ -598,5 +622,19 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // `carriedForwardFrom: 2025` flags above the floor, the same shape as the
   // seven the child credit added. **The two indexed provisions in this state
   // have now contributed eleven mutants that record a DEBT rather than a rule.**
-  assert.deepEqual(byKind, { money: 1_899, rate: 483, year: 308 });
+  // DAY 72: `money` 1,899 -> 1,914, `rate` 483 -> 492, `year` 308 -> 309, all of
+  // it Kentucky's family size tax credit — and THE SPLIT IS THE CHECK ON THE
+  // DECOMPOSITION ABOVE rather than a restatement of it. The total moved by 25
+  // and a total can be right for the wrong reasons; three kinds moving by 15, 9
+  // and 1 can only be the ten threshold percents plus four guideline amounts
+  // plus the engine's `/ 100` divisor, the nine credit shares, and the one
+  // `year === 2025` in the ternary. Nothing else in the rule is perturbable and
+  // the two figures that are not are declared in `blind-spots.mjs`.
+  //
+  // The `rate` kind had not moved since Day 60 before this. Nine of its 492
+  // entries are now the steps of one staircase, which is the largest single
+  // contribution any rule has made to that kind — and it is the direct result of
+  // writing the percentages as integers so that the SHARES rather than the
+  // thresholds are the decimals in (0,1).
+  assert.deepEqual(byKind, { money: 1_914, rate: 492, year: 309 });
 });

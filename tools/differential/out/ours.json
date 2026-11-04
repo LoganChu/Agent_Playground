@@ -279,11 +279,15 @@
    "earnedIncomeCredit": 313.93
   },
   "state": {
-   "tax": 469.2,
+   "tax": 0,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 469.2
     }
    ]
   },
@@ -1069,6 +1073,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -1849,6 +1857,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -2631,6 +2643,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -3411,6 +3427,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -4193,6 +4213,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -4969,11 +4993,15 @@
    "earnedIncomeCredit": 7152
   },
   "state": {
-   "tax": 1069.2,
+   "tax": 0,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 1069.2
     }
    ]
   },
@@ -5762,6 +5790,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -6552,6 +6584,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -7341,6 +7377,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -8129,11 +8169,15 @@
    "earnedIncomeCredit": 4080
   },
   "state": {
-   "tax": 349.2,
+   "tax": 0,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 349.2
     }
    ]
   },
@@ -8914,11 +8958,15 @@
    "earnedIncomeCredit": 4064.33
   },
   "state": {
-   "tax": 869.2,
+   "tax": 434.6,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 434.6
     }
    ]
   },
@@ -9699,6 +9747,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -10485,6 +10537,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 80
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 0
     }
    ]
   },
@@ -11278,6 +11334,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 80
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 0
     }
    ]
   },
@@ -12067,6 +12127,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 80
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -12856,6 +12920,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 80
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -13649,6 +13717,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 40
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 0
     }
    ]
   },
@@ -14430,6 +14502,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 40
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -15210,6 +15286,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -15992,6 +16072,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -16773,6 +16857,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -17550,6 +17638,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 80
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -18338,11 +18430,15 @@
    "earnedIncomeCredit": 92.85
   },
   "state": {
-   "tax": 869.2,
+   "tax": 434.6,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 434.6
     }
    ]
   },
@@ -19132,6 +19228,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -19916,11 +20016,15 @@
    "earnedIncomeCredit": 6038.98
   },
   "state": {
-   "tax": 1469.2,
+   "tax": 1028.44,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 440.76
     }
    ]
   },
@@ -20709,6 +20813,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -21499,6 +21607,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -22279,6 +22391,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -23061,6 +23177,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -23837,6 +23957,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -24619,6 +24743,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -25399,6 +25527,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -26181,6 +26313,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -26961,11 +27097,15 @@
    "earnedIncomeCredit": 4328
   },
   "state": {
-   "tax": 589.2,
+   "tax": 0,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 589.2
     }
    ]
   },
@@ -27746,11 +27886,15 @@
    "earnedIncomeCredit": 3904.53
   },
   "state": {
-   "tax": 909.2,
+   "tax": 545.52,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 363.68
     }
    ]
   },
@@ -28532,6 +28676,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 40
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -29309,6 +29457,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -30085,6 +30237,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -30866,6 +31022,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -31656,6 +31816,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -32441,6 +32605,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 40
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -33222,6 +33390,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -34002,6 +34174,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -34787,11 +34963,15 @@
    "earnedIncomeCredit": 347.29
   },
   "state": {
-   "tax": 407.4,
+   "tax": 0,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 407.4
     }
    ]
   },
@@ -35577,6 +35757,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -36357,6 +36541,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -37139,6 +37327,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -37919,6 +38111,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -38701,6 +38897,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -39477,11 +39677,15 @@
    "earnedIncomeCredit": 7316
   },
   "state": {
-   "tax": 932.4,
+   "tax": 0,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 932.4
     }
    ]
   },
@@ -40270,6 +40474,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -41060,6 +41268,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -41849,6 +42061,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -42637,11 +42853,15 @@
    "earnedIncomeCredit": 4080
   },
   "state": {
-   "tax": 302.4,
+   "tax": 0,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 302.4
     }
    ]
   },
@@ -43422,11 +43642,15 @@
    "earnedIncomeCredit": 4249.62
   },
   "state": {
-   "tax": 757.4,
+   "tax": 302.96,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 454.44
     }
    ]
   },
@@ -44207,6 +44431,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -44993,6 +45221,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 80
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 0
     }
    ]
   },
@@ -45786,6 +46018,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 80
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 0
     }
    ]
   },
@@ -46575,6 +46811,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 80
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -47364,6 +47604,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 80
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -48157,6 +48401,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 40
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 0
     }
    ]
   },
@@ -48938,6 +49186,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 40
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -49718,6 +49970,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -50500,6 +50756,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -51281,6 +51541,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -52058,6 +52322,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 80
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -52846,11 +53114,15 @@
    "earnedIncomeCredit": 139.21
   },
   "state": {
-   "tax": 757.4,
+   "tax": 302.96,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 454.44
     }
    ]
   },
@@ -53640,6 +53912,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -54424,11 +54700,15 @@
    "earnedIncomeCredit": 6369.3
   },
   "state": {
-   "tax": 1282.4,
+   "tax": 769.44,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 512.96
     }
    ]
   },
@@ -55217,6 +55497,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -56007,6 +56291,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -56787,6 +57075,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -57569,6 +57861,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -58345,6 +58641,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -59127,6 +59427,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -59907,6 +60211,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -60689,6 +60997,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -61469,11 +61781,15 @@
    "earnedIncomeCredit": 4427
   },
   "state": {
-   "tax": 512.4,
+   "tax": 0,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 512.4
     }
    ]
   },
@@ -62254,11 +62570,15 @@
    "earnedIncomeCredit": 4089.82
   },
   "state": {
-   "tax": 792.4,
+   "tax": 475.44,
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure)",
+     "amount": 316.96
     }
    ]
   },
@@ -63040,6 +63360,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 40
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -63817,6 +64141,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -64593,6 +64921,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -65374,6 +65706,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]
@@ -66164,6 +66500,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -66949,6 +67289,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 40
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -67730,6 +68074,10 @@
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
      "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
+     "amount": 0
     }
    ]
   },
@@ -68510,6 +68858,10 @@
    "credits": [
     {
      "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    },
+    {
+     "name": "Kentucky family size tax credit (Schedule ITC Section C)",
      "amount": 0
     }
    ]

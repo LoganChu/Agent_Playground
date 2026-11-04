@@ -332,6 +332,44 @@ const DEPENDENT_AGE_STATES: readonly string[] = declaredBy(
   'earnedIncomeCredit.childlessMatchRate',
   'earnedIncomeCredit.matchRateByChildCount',
   'ownEarnedIncomeCredit.byChildCount',
+  // KENTUCKY, Day 72, and it is the clearest case on this list of a rule that
+  // reads a dependent COUNT and bands nothing by age. KRS 141.066's family size
+  // chooses the threshold amount the family size tax credit is measured
+  // against, so the count moves a credit that can forgive the WHOLE bill.
+  // Refused, a Kentucky joint return with two children aged 4 and 8 was charged
+  // $58.24 too much in 2026 — the figure the MCP's own guard printed when the
+  // credit landed, in the same hour, which is the second consecutive day this
+  // derivation has caught a gate on a new Kentucky rule.
+  'familySizeTaxCredit.maximumFamilySize',
+);
+
+/**
+ * The states that read `federalPovertyGuideline`, DERIVED — and it was a
+ * literal `['VA', 'MD']` until Day 72, when Kentucky drifted it.
+ *
+ * KRS 141.066(1)(e) sets the family size tax credit's threshold amount at the
+ * HHS guideline, so Kentucky reads this field like the other two — and the
+ * refusal was expensive, because unlike the other two credits this one is a
+ * percentage of the whole bill rather than a flat amount: the guard measured
+ * `$2,615.36` on a single Kentucky parent in 2025.
+ *
+ * **THE LESSON IS THE ONE THIS FILE KEEPS RECORDING AND IT IS NOW PAID FOR
+ * TWICE IN TWO DAYS.** Day 71's `filerAge` gate was caught by a derived list
+ * noticing a path it did not have; this one was a hand-written list that could
+ * not notice anything, and what caught it was the witness test rather than the
+ * derivation. A hand-written list of states is a claim about every state in the
+ * package, re-asserted every time a rule is added and checked by nobody.
+ *
+ * Kentucky also shows why the derivation has to read the RULE and not the
+ * guideline figures: the cap of four means the caller's own guideline is used
+ * only below family size five, and that is a property of the engine rather than
+ * of this list — see `familySizeCreditThreshold` in the engine for why one
+ * number cannot answer the capped question.
+ */
+const POVERTY_GUIDELINE_STATES: readonly string[] = declaredBy(
+  'lowIncomeCredit.povertyGuideline',
+  'povertyLevelCredit.povertyGuideline',
+  'familySizeTaxCredit.povertyGuideline',
 );
 
 /**
@@ -668,6 +706,12 @@ export const STATE_FIELDS: readonly StateField[] = [
       'Only New Mexico has this income concept, and only \u00a7 7-2-14\u2019s rebate reads it. Every other state in this package bands its credits on federal AGI, on its own AGI or on its own taxable income.',
   },
   {
+    name: 'kentuckyModifiedGrossIncome',
+    schema: number,
+    states: declaredBy('familySizeTaxCredit.povertyGuideline'),
+    doc: 'The modified gross income KRS 141.066 bands the family size tax credit on — the worksheet in the Form 740 instructions, lines (a) to (j). It is neither federal AGI nor Kentucky AGI but the LARGER of the two, which is the whole reason it is a base of its own: the pension exclusion and the Social Security subtraction come out of Kentucky AGI, and taking the larger figure stops a Kentucky subtraction from buying eligibility for a credit that forgives 100% of the bill below the threshold amount. Omitted, the server derives max(federal AGI, Kentucky AGI), which is EXACT for a return with no lump-sum distribution and no out-of-state municipal bond interest and a FLOOR otherwise — worksheet lines (c) and (d) are added on the form and are not added here. A floor on the income is a CEILING on the credit, so the derived answer can be too generous and cannot be too mean, and the credit line says so in its own name whenever the staircase has not already settled it at zero.',
+  },
+  {
     name: 'shortTermCapitalGains',
     schema: number,
     states: SHORT_TERM_CAPITAL_GAIN_STATES,
@@ -924,8 +968,8 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'federalPovertyGuideline',
     schema: number,
-    states: ['VA', 'MD'],
-    doc: 'Overrides the HHS guideline two credits are a cliff at. VA: the $300-a-head Credit for Low Income Individuals — pass 0 to switch it off for a filer barred from it by a military or state-employee subtraction this server cannot see. MD: the poverty level credit, which forgives the WHOLE Maryland bill, state and county, below the guideline. The guideline is republished every January for a year already under way, so a caller with the real figure should pass it.',
+    states: POVERTY_GUIDELINE_STATES,
+    doc: 'Overrides the HHS guideline three credits are measured against. VA: the $300-a-head Credit for Low Income Individuals — pass 0 to switch it off for a filer barred from it by a military or state-employee subtraction this server cannot see. MD: the poverty level credit, which forgives the WHOLE Maryland bill, state and county, below the guideline. KY: the threshold amount of the family size tax credit (KRS 141.066), which forgives 100% of the Kentucky tax at or below it and steps down to nothing at 133% — the only one of the three that is a PERCENTAGE of the bill rather than a flat amount, and the only one where the figure passed is used solely below family size five, because KRS 141.066(1)(e)4 caps the family at four and one number cannot say what the guideline would have been for a smaller household. The guideline is republished every January for a year already under way, so a caller with the real figure should pass it.',
   },
   {
     name: 'dependentsAttendingCollege',

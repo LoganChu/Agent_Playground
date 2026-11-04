@@ -197,7 +197,7 @@ test('a key resembling nothing names the count and the export, and that export e
   const notes = unknownNotes(stateIncomeTax({ ...OH, bookkeepingRef: 'XYZ' }));
   assert.equal(notes.length, 1);
   assert.doesNotMatch(notes[0], /Did you mean/);
-  assert.match(notes[0], /56 field names/);
+  assert.match(notes[0], /57 field names/);
   const quoted = notes[0].match(/`(\w+)`\.$/);
   assert.ok(quoted, 'the note should end by naming an export');
   assert.ok(Array.isArray(pkg[quoted[1]]), `${quoted[1]} is not an exported array`);
@@ -257,7 +257,7 @@ test('the list is exactly the interface, by a source parse independent of the co
     body.replace(/\/\*[\s\S]*?\*\//g, '').match(/^ {2}readonly ([A-Za-z0-9]+)\??:/gm) ?? []
   ).map((line) => line.trim().replace(/^readonly /, '').replace(/\??:$/, ''));
   assert.deepEqual([...declared].sort(), [...KNOWN_STATE_INPUT_FIELDS].sort());
-  assert.equal(declared.length, 56);
+  assert.equal(declared.length, 57);
 });
 
 // ---------------------------------------------------------------------------
@@ -327,7 +327,7 @@ test('the pruned fallback answers exactly what an unpruned full matrix does', ()
       key,
     );
   }
-  assert.ok(keys.length > 56 * 2);
+  assert.ok(keys.length > 57 * 2);
 });
 
 test('the window is five lengths wide, and what it is worth is read off the list', () => {
@@ -366,9 +366,16 @@ test('the window is five lengths wide, and what it is worth is read off the list
   // field widens the worst case depends on where its LENGTH falls, not on the
   // field count — which is exactly why both numbers below are asserted and
   // neither is inferred from the other.
+  //
+  // DAY 72's `kentuckyModifiedGrossIncome` DID NOT MOVE IT EITHER, at 27
+  // characters, and the pair of them is now the cheapest demonstration of the
+  // rule in this file: two fields added on two days, both named for a state's
+  // modified gross income, one 28 characters and one 27, and NEITHER touched a
+  // worst case that a 18-character field moved on Day 61. The count below is the
+  // only one of the three assertions that has changed in four additions.
   assert.equal(worst, 15, 'the worst-case window over this field list');
   assert.equal(worstAt, 16, 'and the key length that reaches it');
-  assert.equal(KNOWN_STATE_INPUT_FIELDS.length, 56, 'the premise: what the old version measured');
+  assert.equal(KNOWN_STATE_INPUT_FIELDS.length, 57, 'the premise: what the old version measured');
 });
 
 test('the prune compares the LOWERCASED lengths, and one code point proves it', () => {

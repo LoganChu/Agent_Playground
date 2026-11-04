@@ -2100,6 +2100,13 @@ test("README: the gap list cannot name a state this package covers", () => {
 
 /** Every release that has a "New in" paragraph, newest first, with its subject. */
 const RELEASE_HEADLINES = [
+  // 0.62.0 is the SECOND consecutive entry that is a rule this package never
+  // had, in the same state, found by the same instrument — and the first whose
+  // headline is a claim about the REFERENCE MODEL rather than about this one.
+  // `tools/anchors` found the gap on Day 71 and Day 71 refused to ship the fix;
+  // what made it shippable was re-deriving Kentucky's printed grid and checking
+  // the derivation against the state's own published figures.
+  ['0.62.0', /FAMILY SIZE TAX CREDIT/],
   // 0.61.0 is the first entry in this table that is not a state arriving and
   // not a figure being read. It is a RULE THIS PACKAGE NEVER HAD, found by the
   // first instrument here whose right answers come from outside this

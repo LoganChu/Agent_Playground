@@ -1298,6 +1298,49 @@ export interface StateIncomeTaxInput {
    */
   readonly newMexicoModifiedGrossIncome?: number;
   /**
+   * Kentucky only: **modified gross income**, the figure KRS 141.066 bands the
+   * family size tax credit on — the worksheet on the Form 740 instructions,
+   * lines (a) to (j).
+   *
+   * It is neither federal AGI nor Kentucky AGI, and the reason it is a base of
+   * its own is the direction it runs: it is the **LARGER** of the two.
+   *
+   * ```text
+   *   modified gross income = max(federal AGI, Kentucky AGI) + (c) + (d)
+   * ```
+   *
+   * Kentucky AGI is normally the smaller figure, because the KRS 141.019(1)
+   * pension exclusion and the Social Security subtraction come out of it. Taking
+   * the larger is what stops a Kentucky subtraction from buying eligibility for
+   * a credit that can forgive the entire bill: a retired couple with `$55,000`
+   * of pension have `$55,000` of federal AGI and almost no Kentucky AGI, and
+   * they are measured on the `$55,000`.
+   *
+   * **Absent, the engine derives `max(federal AGI, Kentucky AGI)` and says so in
+   * the name of the credit line.** That is EXACT for a return with no lump-sum
+   * distribution and no out-of-state municipal bond interest, which is the
+   * common case, and a **FLOOR** otherwise — two worksheet lines are added to it
+   * that nothing else on this return implies:
+   *
+   * - **line (c)**, tax-exempt interest on the municipal bonds of states other
+   *   than Kentucky. This package already takes the figure as
+   *   {@link outOfStateMunicipalInterest} — Illinois and Ohio read it — but
+   *   Kentucky does not, so it is not added here either. Which side of the
+   *   `max` it belongs on is not resolvable from a document this sandbox can
+   *   reach; it is in neither AGI, so the honest reading is both sides, which is
+   *   the same as adding it to the result.
+   * - **line (d)**, a lump-sum distribution reported on federal Form 4972,
+   *   which is not in federal AGI at all.
+   *
+   * A floor on the income is a **ceiling** on this credit, because the staircase
+   * is non-increasing in income — so the derived answer can be too generous and
+   * cannot be too mean, which is the same direction
+   * {@link newMexicoModifiedGrossIncome} runs and is declared for the same
+   * reason. The exposure is bounded by the whole Kentucky tax, because the first
+   * step of this staircase is 100%.
+   */
+  readonly kentuckyModifiedGrossIncome?: number;
+  /**
    * Net short-term capital gains — gains on assets held one year or less.
    *
    * Massachusetts taxes these at **8.5%**, not at the 5% every "Massachusetts is
@@ -1926,6 +1969,7 @@ export const KNOWN_STATE_INPUT_FIELDS = [
   'newJerseyGrossIncome',
   'massachusettsFivePercentIncome',
   'newMexicoModifiedGrossIncome',
+  'kentuckyModifiedGrossIncome',
   'shortTermCapitalGains',
   'collectiblesGains',
   'socialSecurityAndMedicarePaid',

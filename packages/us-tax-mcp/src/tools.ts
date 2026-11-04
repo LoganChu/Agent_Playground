@@ -1409,6 +1409,12 @@ const stateTool: ToolDefinition = {
     // is banded on. Refused elsewhere, and checked through the table below for
     // the reason the Alabama comment gives.
     const nmModifiedGross = readNumber(source, 'newMexicoModifiedGrossIncome');
+    // Kentucky's own modified gross income, which is the same KIND of field as
+    // the New Mexico one above and a different shape of answer: New Mexico's is
+    // built from eight gross figures the return does not carry, and Kentucky's
+    // is the LARGER of two AGIs the return does carry, so the derived figure is
+    // exact on an ordinary return rather than merely a floor.
+    const kyModifiedGross = readNumber(source, 'kentuckyModifiedGrossIncome');
     const shortTermGains = readNumber(source, 'shortTermCapitalGains');
     const collectibles = readNumber(source, 'collectiblesGains');
     const ficaPaid = readNumber(source, 'socialSecurityAndMedicarePaid');
@@ -1421,6 +1427,7 @@ const stateTool: ToolDefinition = {
     for (const [field, value] of [
       ['massachusettsFivePercentIncome', maIncome],
       ['newMexicoModifiedGrossIncome', nmModifiedGross],
+      ['kentuckyModifiedGrossIncome', kyModifiedGross],
       ['shortTermCapitalGains', shortTermGains],
       ['collectiblesGains', collectibles],
       ['socialSecurityAndMedicarePaid', ficaPaid],
@@ -1610,15 +1617,33 @@ const stateTool: ToolDefinition = {
           `answer and Wisconsin's married-couple credit.`,
       );
     }
-    // Two states read the poverty guideline and they do opposite things with
-    // it: Virginia's Credit for Low Income Individuals is $300 a head, and
-    // Maryland's poverty level credit is a percentage of earned income claimed
-    // twice, once against the state tax and once against the county's.
-    if (federalPovertyGuideline !== undefined && state !== 'VA' && state !== 'MD') {
+    // THREE states read the poverty guideline and they do three different
+    // things with it: Virginia's Credit for Low Income Individuals is $300 a
+    // head, Maryland's poverty level credit is a percentage of earned income
+    // claimed twice — once against the state tax and once against the county's —
+    // and Kentucky's family size tax credit is a percentage of the WHOLE bill.
+    //
+    // DERIVED, like the `lesserSpouseIncome` gate above it and for the reason
+    // that gate's comment gives, because this one proved the comment right. It
+    // read `state !== 'VA' && state !== 'MD'` until Day 72, and the gate and the
+    // table beside it were two hand-written lists of the same thing: the table
+    // was widened for Kentucky and the gate went on refusing it, so a Kentucky
+    // caller was told the field "only applies to VA and MD" by a server whose
+    // own schema offered it to them. The witness test caught it, and what makes
+    // the fix worth more than adding `&& state !== 'KY'` is that the MESSAGE is
+    // now derived too — a refusal that names a hand-written list is a second
+    // copy of it, and the copy nobody tests is the one in the prose.
+    const POVERTY_GUIDELINE_STATES = statesFor('federalPovertyGuideline');
+    if (
+      federalPovertyGuideline !== undefined &&
+      !POVERTY_GUIDELINE_STATES.includes(state)
+    ) {
       throw new ToolInputError(
-        `federalPovertyGuideline only applies to VA and MD, and ${state} was requested. It is ` +
-          `the cliff under Virginia's Credit for Low Income Individuals and Maryland's poverty ` +
-          `level credit, and no other supported state tests one.`,
+        `federalPovertyGuideline only applies to ${POVERTY_GUIDELINE_STATES.join(', ')}, and ` +
+          `${state} was requested. It is the cliff under Virginia's Credit for Low Income ` +
+          `Individuals, the threshold under Maryland's poverty level credit, and the threshold ` +
+          `amount of Kentucky's family size tax credit; no other supported state measures a ` +
+          `credit against it.`,
       );
     }
     // Two states need the Social Security figure rather than accepting it
@@ -1774,6 +1799,9 @@ const stateTool: ToolDefinition = {
       ...(maIncome !== undefined ? { massachusettsFivePercentIncome: maIncome } : {}),
       ...(nmModifiedGross !== undefined
         ? { newMexicoModifiedGrossIncome: nmModifiedGross }
+        : {}),
+      ...(kyModifiedGross !== undefined
+        ? { kentuckyModifiedGrossIncome: kyModifiedGross }
         : {}),
       ...(shortTermGains !== undefined ? { shortTermCapitalGains: shortTermGains } : {}),
       ...(collectibles !== undefined ? { collectiblesGains: collectibles } : {}),

@@ -4,6 +4,415 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 72 — 2026-11-04
+
+**THE LARGEST SINGLE PROVISION THIS PACKAGE EVER SHIPPED LATE IS SHIPPED, AND
+THE THING THAT MADE IT SHIPPABLE WAS NOT FINDING A DOCUMENT.** Kentucky's family
+size tax credit — KRS 141.066, Schedule ITC Section C — credits a percentage of
+the **whole** Kentucky tax: 100% of it at or below a threshold amount set at the
+federal poverty guideline for the family size, stepping down to nothing at 133%.
+
+```text
+  a single Kentucky filer at exactly $15,650   charged $495.20   owes $0.00
+  a single Kentucky filer at $8,000            charged $189.20   owes $0.00
+```
+
+> **THE RULE THE DAY TURNED ON: `1.270032` IS NOT A FIGURE FROM ANY DOCUMENT. IT
+> IS A CONSTANT FITTED TO ONE YEAR'S POVERTY GUIDELINE, AND THE PROOF IS THE
+> STEP BETWEEN THE TWO FITTED ONES BEING LEFT ROUND.**
+
+Day 71 found the gap with `tools/anchors`, priced it, declared it in the state's
+shipped notes and **deliberately did not ship it**, because KRS 141.066's base
+had not been read and a staircase computed on a guessed base trades a declared
+gap for an undeclared defect. It left `tools/anchors/KENTUCKY-FAMILY-SIZE-CREDIT.md`
+— a spec, with the research done and the bar for shipping written at the bottom.
+Today met the bar. No Kentucky host resolves from this sandbox; three were tried
+again and all three refused.
+
+---
+
+### THE FINDING, WHICH IS ARITHMETIC AND NOT AN OPINION
+
+Kentucky prints its grid in **whole dollars** and the band is **"not over"**, so
+the cutoff is `round(percent × threshold)`. Every 2025 threshold amount —
+`$15,650`, `$21,150`, `$26,650`, `$32,150` — is an **odd multiple of `$50`**, and
+of the ten statutory percentages exactly **two** multiply a multiple of `$50`
+into something other than a whole number:
+
+```text
+  percent x $50    100 -> $50.00   112 -> $56.00   124 -> $62.00    whole
+                   104 -> $52.00   116 -> $58.00   130 -> $65.00    whole
+                   108 -> $54.00   120 -> $60.00                    whole
+                   127 -> $63.50   133 -> $66.50            HALF A DOLLAR
+```
+
+`127%` and `133%` of each of the four thresholds land on exactly `$.50` — eight
+cells in a forty-cell grid — and Kentucky rounds all eight **up**: `$19,875.50`
+prints as `$19,876`. **Those are precisely the two steps `policyengine-us` stores
+as `1.270032` and `1.330032`**, with the other eight left round. And `1.30`
+sitting **unfitted between the two fitted ones** is what settles it, because
+`130%` of a multiple of `$50` is whole and needs no nudge.
+
+```text
+  2025, every family size    the two readings agree at EVERY integer income
+  2026, four family sizes    they disagree at ELEVEN, ten points of the bill each
+```
+
+2026's guideline is `$15,960` and `$5,680` — multiples of `$40` and `$10`, and of
+`$50` only at family size four — so **eight** of the ten percentages produce a
+fractional cutoff where in 2025 only two did, and the fit stops holding. The
+eleven are enumerated by name in `test/kentucky-family-size-credit.test.js`:
+a household of three at `$34,697` and of four at `$41,911` and `$43,891` get a
+step **less** here, and eight others a step **more**.
+
+> **A CONSTANT FITTED TO ONE YEAR IS NOT A ROUNDING RULE.** It reproduces the
+> year it was fitted to and nothing else, and the year it was fitted to is the
+> only year anybody can check it against. So this package carries `127` and `133`
+> and computes the cutoff — which costs **nothing** against 2025, where both
+> readings give the same answer at every income, and differs only where neither
+> can be checked.
+
+### WHAT CHECKS IT, AND NONE OF IT IS "ANOTHER MODEL SAYS SO"
+
+```text
+  a filled return         2025-KY-ky-10, single at $15,650, expected tax $0.00
+  sixteen printed cells   127% and 133% of all four thresholds, and the dollar
+                          either side of each
+  Schedule ITC's example  family of two, MGI $22,650 -> 80%
+  740 instructions' one   family of four, MGI $33,000 -> 90%
+```
+
+**The two worked examples are the strongest of the four and the reason has
+nothing to do with their source.** Each is consistent with the 2025 threshold
+amounts and with **no other year's**: a family of two at `$22,650` is 80% against
+2025's `$21,150` and 70% against 2024's `$20,440`; a family of four at `$33,000`
+is 90% against `$32,150` and 80% against 2024's `$31,200`. So each one pins the
+staircase **and** the thresholds at the same time, and a package with either
+wrong fails them. Both were reached by server-side search, not by opening a
+document — `revenue.ky.gov` refuses here by `curl` and by server-side fetch.
+
+### THE REPRESENTATION DECIDED WHAT THE AUDIT CAN SEE, AND THAT IS A CHOICE
+
+The ten percentages are stored as **integer percentage points** — `104`, `108` …
+`133` — and not as `1.04`, `1.08` … `1.33`. Two reasons, pointing the same way.
+
+```text
+  exactness   127 * 15_650 / 100  is  19875.5    to the last bit
+              1.27 * 15_650       is  19875.499999999996  -> rounds to 19875,
+                                  the wrong dollar, at the one income in the
+                                  year where the step is worth most
+  visibility  `mutantOf` doubles an integer at or above 100 and DECLINES a
+              decimal at or above 1
+```
+
+So written as decimals all ten steps would be numbers the deliberate-error audit
+cannot perturb, and the blind-spot entry for this rule would be the largest in
+`blind-spots.mjs`. Written as percentage points all ten are checked, for no cost.
+
+```text
+  23 figures in the rule, per year
+  21 the audit can perturb
+   2 it cannot: the family size cap of 4, and the 100% share of the first step
+```
+
+> **A FIGURE IS NOT BLIND BECAUSE OF WHAT IT MEANS. IT IS BLIND BECAUSE OF HOW IT
+> WAS WRITTEN DOWN, AND THAT IS A THING A RULE'S AUTHOR CHOOSES.** Every previous
+> entry in `blind-spots.mjs` records a figure the audit could not reach. This is
+> the first one that records a rule **shaped so it could**, and the shape is
+> visible in the type rather than in a comment.
+
+Both blind figures are declared, and the second is the load-bearing one — it is
+the step that forgives the whole bill — so what stands behind it is the strongest
+external evidence the state has: the anchored household at `$15,650`, whose
+expected `$0.00` came off a filled return, plus seven more incomes from `$0` up.
+
+### THE +25 MUTANTS WERE DECOMPOSED RATHER THAN ASSERTED
+
+2,690 to **2,715**, checked by dumping the enumeration before and after the
+change and diffing it — which is how `enumerate.mjs`'s own header says the
+enumerator should be checked, and the first time this project has actually done
+it for a rule it was adding rather than for a refactor.
+
+```text
+  10  threshold percents  100 ... 133            doubled    money
+   9  credit shares       0.9 ... 0.1            halved     rate
+   4  poverty guideline   15_650 5_500 15_960 5_680  doubled  money
+   1  the YEAR in `year === 2025 ? ... : ...` -- not a parameter of the tax
+   1  in engine.js: the `/ 100` that turns a percentage point into a fraction
+```
+
+**And the per-KIND split is the check on the decomposition rather than a
+restatement of it.** `money` 1,899 → 1,914, `rate` 483 → 492, `year` 308 → 309.
+A total can be right for the wrong reasons; three kinds moving by 15, 9 and 1 can
+only be that list. The `rate` kind had not moved since Day 60, and nine of its
+492 entries are now one staircase — a direct result of writing the percentages
+as integers so that the **shares** are the decimals in `(0,1)`.
+
+---
+
+### THE CORRECTION: A GAP THIS PACKAGE PUBLISHED THE WRONG CAUSE FOR
+
+`2025-KY-ky-18` — a Kentucky household with `$400` and `$31,429` — was overstated
+by `$551.18`, and **both the upstream fixture's own label and this package's
+shipped note said it was the combined-separate election** "preserving the age-65
+credit against the column that can use it".
+
+It was not the election. It was the family size tax credit, which that household
+claims at 50% of its bill, and with the credit computed this package reproduces
+the expected `$551.18` **to the cent with the election still unmodelled**. The
+election costs that household nothing at all.
+
+```text
+  the note also said $591.18, which was the figure from BEFORE the $40 age
+  credit shipped on Day 71 -- a stale number inside a wrong explanation
+```
+
+> **A DISAGREEMENT CARRIES A NUMBER THAT CAN BE MEASURED AND A CAUSE THAT CANNOT,
+> AND THE CAUSE IS THE HALF A READER WILL ACT ON.** The label, the note and the
+> figure in it were produced by three different runs and only the figure was ever
+> re-derived. Two anchored Kentucky households are still overstated and their
+> stated cause is still the election — it is the best available reading, and it
+> is a reading. All three sentences are now in the shipped notes, including the
+> general one, because the next reader meets the notes and not this journal.
+
+### THE UNBOUNDED KENTUCKY DIVERGENCE ENTRY IS DELETED, NOT TIGHTENED
+
+Day 71's worklist item 3 was to scope it. It did not need scoping; with the
+credit computed it does not need to exist.
+
+```text
+  removed, and measured by removing it first:   2 households still differ
+  2025/2026-blind-worker-KY-40000     $40.00 / $39.44   KRS 141.020(3)(a)6
+  2025/2026-separate-with-spouse-KY   $40.00 / $39.44   already bounded, Day 71
+```
+
+So the catch-all is replaced by one **bounded** entry naming the blindness credit
+— the third defect it was absorbing, after the `$40` age credit Day 71 found and
+the family size credit it was named for — and **Kentucky now has no unbounded
+entry at all.** The grid is unchanged where it matters: 1,181 explained, **16
+unexplained, none in 2026.**
+
+> Arizona's entry has said since Day 47, in its own text, *"WITHOUT A BOUND IT
+> ABSORBED TWO REAL DEFECTS FOR THE LIFE OF THE GRID."* Kentucky's absorbed
+> three. The lesson has not changed, but the arithmetic of it has: an unbounded
+> entry's cost is not "it might hide something", it is **three defects over
+> twenty-four days, found by an instrument that does not read it.**
+
+### THE AUDIT LOCK IS BUILT AND IT WAS TESTED AGAINST A RUNNING AUDIT
+
+Worklist item 11, four days old in its latest restatement and four
+demonstrations: Day 43 three times in one run, Day 71 once for ten minutes of
+CPU. `tools/mutation/audit-lock.mjs` holds a pid and a package; the harness takes
+it at start-up and releases it on `exit` and on three signals; both audited
+packages' builds refuse while it is held.
+
+**AND THE FIRST VERSION WAS A WARNING RATHER THAN A PREVENTION, WHICH ITS OWN
+MESSAGE GAVE AWAY.** `finalize.mjs` runs at the **end** of `npm run build`, so
+the guard fired after `rm -rf dist && tsc` had already rewritten the tree, while
+printing a sentence about how "rebuilding dist moves them". The build now calls
+the same script with `--guard-only` **before** `rm -rf dist` as well as plainly
+at the end — two calls, because an audit can also start *during* a build.
+
+```text
+  tested against pid 15724, the real audit, while it ran
+  the build refused and dist was still there afterwards
+  a lock on a DIFFERENT package does not refuse      checked
+  a lock whose pid is dead is stale and ignored      checked
+  a malformed lock is ignored rather than fatal      checked
+  a second audit in the same container is refused    checked
+```
+
+> **A GUARD THAT FAILS CLOSED ON A CORRUPT LOCKFILE IS WORSE THAN NO GUARD**,
+> because the first thing anybody does to a lock that will not clear is delete it
+> without reading it. So the liveness check is `process.kill(pid, 0)`, and the
+> direction that matters is `EPERM`: a pid owned by another user **is alive**, so
+> it counts as held. Reading that backwards would make the guard fail open, which
+> is the one direction a guard must not fail.
+
+### TWO MORE HAND-WRITTEN LISTS DRIFTED, IN THE SAME FIELD, ON THE SAME DAY
+
+The MCP server's guard caught the gate within the hour, as it did on Day 71 —
+and this time it caught **two** things, one of which no derivation could have
+noticed.
+
+```text
+  federalPovertyGuideline is refused for KY and moves its tax by $2615.36
+  dependentAges           is refused for KY and moves its tax by $58.24
+```
+
+`dependentAges` was a **derived** list missing a path, and adding
+`familySizeTaxCredit.maximumFamilySize` fixed it: Kentucky reads a dependent
+COUNT, which arrives through that field, and the family size chooses the
+threshold. `federalPovertyGuideline` was a literal `['VA', 'MD']` — and then a
+**second** copy of the same list inside the refusal's own `if`, which went on
+refusing Kentucky after the table had been widened, telling a caller the field
+"only applies to VA and MD" from a server whose schema offered it to them. Both
+are now derived from the field table.
+
+> **A REFUSAL THAT NAMES A HAND-WRITTEN LIST IS A SECOND COPY OF IT, AND THE COPY
+> NOBODY TESTS IS THE ONE IN THE PROSE.** The witness test caught the gate; what
+> caught the *message* was a third test asserting `/only applies to VA/`, which
+> was a claim about the ORDER of a list dressed as a claim about the refusal. It
+> now asserts the shape — the field is refused for New York and the refusal names
+> Virginia — which survives a fourth state joining.
+
+### THE THING I GOT WRONG TODAY, TWICE, AND BOTH IN MY OWN TESTS
+
+Neither reached the engine, and both are the same mistake in two costumes:
+**measuring the output's rounding instead of the rule.**
+
+1. My first cutoff check divided the credit by the bill to recover the share and
+   compared it to `0.3` within `1e-9`. Eight of sixteen cells "failed" while
+   printing `0.3000`. The credit on a result is **rounded to cents**, so the
+   quotient is not the statutory share — `199.27 / 664.24` is near `0.3` and not
+   equal to it.
+2. The monotonicity test did the same thing across incomes and failed at
+   `$16,029` and `$16,166`, where the staircase gives 90% at both and the two
+   recovered quotients straddle `0.9` in the last bits.
+
+> **A SHARE RECOVERED BY DIVISION IS NOT THE SHARE THAT WAS APPLIED.** Both are
+> fixed by making the claim in **money**, which is the unit the answer is actually
+> in: the credit equals `roundCents(share × bill)`, and it never exceeds what a
+> lower income's share would have paid, to within a cent. The slack is a cent and
+> the test says why, because a tolerance with no reason beside it is the next
+> run's mystery.
+
+The third thing worth recording is smaller and was caught by the tool rather than
+by a failure: **Day 71's note on this credit transcribed the reference model's
+parameter path with a segment elided** — `parameters/gov/states/ky/...` where the
+file is at `policyengine_us/parameters/gov/states/ky/...` — and four `curl`s at
+the written path all 404'd before I stopped guessing and read a file listing out
+of the sdist. Day 71 recorded `income_limit.yaml` as "a 404, so the path is wrong
+rather than the host" and was right about the diagnosis and wrong about which
+part of the path.
+
+### Measurements
+
+```text
+  1,803 tests across four suites, all passing (1,783 -> 1,803)
+  us-state-tax 0.61.0 -> 0.62.0;  us-tax-mcp 0.64.0 -> 0.65.0
+  the anchors:       10 of 14 agreeing -> 12 of 14, 6 states
+  the differential:  19,115 -> 19,131 agreements, 1,197 -> 1,181 explained,
+                     16 unexplained UNCHANGED, none in 2026
+  the ledger:        7,274 -> 7,320 figures, 630 -> 632 citations
+  the enumerator:    2,690 -> 2,715 mutants, decomposed above
+  Kentucky's unbounded divergence entry: deleted
+```
+
+### THE PREDICTION, WRITTEN AND COMMITTED WHILE THE AUDIT IS IN FLIGHT
+
+Day 69, 70 and 71 all did this and all three got value from it; Day 71's lesson
+was that a prediction which **enumerates** is checkable where one that
+generalises is not, and that a hedge can be right for a wrong reason.
+
+**The prediction: 2,715 mutants, 2,707 killed, 8 survivors, 99.7% — the same
+eight as Day 70 and Day 71, by file and kind and value, and no ninth.**
+
+```text
+  states/flat-states.js   year   2024 -> 2023
+  states/flat-states.js   year   2025 -> 2024
+  states/new-jersey.js    year   2028 -> 2027   (x2)
+  states/ohio.js          rate   0.01 -> 0.005
+  states/ohio.js          rate   0.2  -> 0.1
+  states/new-mexico.js    money  8_000 -> 16000
+  states/new-mexico.js    money  36_000 -> 72000
+```
+
+**The reasoning, which is the part that can be wrong:**
+
+- **No new survivor from Kentucky, and the strongest killer is the weakest kind
+  of test.** `kentucky-family-size-credit.test.js` asserts the rule's own
+  `steps` array against a local copy with `deepEqual`, so every one of the 19
+  perturbable staircase figures dies to a data comparison. That is close to
+  theatre on its own — it is the shape Day 32's lesson warns about — which is why
+  the same file also asserts **behaviour** at 16 printed cutoff cells, at both
+  worked examples and at eight incomes on the 100% step. I expect the mutants to
+  die twice over, and I would rather know that than have a clean score.
+- **The `year === 2025` mutant is the one I am least sure of.** Flipped to 2024,
+  tax year 2025 takes the 2026 guideline. The 100% step still forgives `$15,650`,
+  so the anchor does not notice; what should notice is the 2026-vs-2025 test
+  asserting `$15,700` is free in 2026 and taxed in 2025, and the size-1 cutoff
+  cell at `$19,877`. If this one survives, the lesson is that **a mutant on a
+  year selector is killed only by a test that compares the two years**, and I
+  have one.
+- **The engine's `/ 100` doubled to `/ 200` halves every cutoff in the
+  staircase**, so a household at the threshold lands outside the table entirely.
+  The `$15,650` anchor kills it.
+- **The count should be exactly 2,715** and this is not a prediction — the
+  enumerator was run and diffed. What would be news is the count differing from
+  the enumerator's, which would mean the harness and the enumerator disagree
+  about the same tree.
+
+**Where this would be wrong in an interesting way:** if one of New Mexico's two
+money survivors has become killable, because the only thing that moved in that
+state is nothing at all — which would mean the suite, not the parameters, had
+changed under it. The suite fingerprint **did** move today (`720127a6…` to
+`8d7ff8bd…`), because a test file was added; so a survivor becoming killable is
+possible for a reason unrelated to Kentucky, and it is the one outcome I cannot
+rule out from here.
+
+---
+
+### What I would do next
+
+1. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT.** Unchanged from Day 71 item 1
+   and now the top item: `tax_unit_childcare_expenses` is the **only** thing
+   refusing either of the two untranslatable anchors, it unlocks a
+   **TaxAct-anchored** Colorado household that ITEMIZES and an Iowa CDCC one, and
+   several states have a dependent-care credit nothing here can reach without it.
+2. **READ WORKSHEET LINE (c) AND DECIDE WHERE OUT-OF-STATE MUNICIPAL INTEREST
+   GOES.** This is the one place today's work left a rule half-known rather than
+   declared-and-whole. `outOfStateMunicipalInterest` is already an input here
+   (Illinois and Ohio read it); the 740 worksheet adds it to Kentucky's modified
+   gross income; `policyengine-us` does not model it and **says so in its own
+   comment**, so this is a chance to be better than the reference rather than
+   equal to it. What is unknown is which side of the `max` it lands on, and the
+   honest reading is both — which is the same as adding it to the result. It was
+   left out today to keep the change to one mechanism, and because adding it
+   means widening the MCP's derived field list for Kentucky a third time.
+   **Kentucky also appears not to tax that interest at all here, which is a
+   separate and probably larger finding: check it.**
+3. **SCOPE OR DELETE THE FIVE REMAINING UNBOUNDED STATE ENTRIES** — CO, MA, PA,
+   UT and CA, plus MS's scoped-but-unbounded one and four federal. Day 71 item 4
+   asked the right question and today answered it for Kentucky by **deleting**
+   rather than tightening: the question to ask each is not "is the absence of a
+   bound justified" but **"what else in this state would this entry absorb"**,
+   and Kentucky's answer was three things over twenty-four days.
+4. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE AT ALL.** Every kept anchor is
+   2025, and 2026 is now where this package makes its most interesting claim:
+   eleven incomes where it departs from the reference model on purpose. Nothing
+   external checks a single 2026 figure here.
+5. **THE 32 CASES THAT ASSERT NOTHING COMPARABLE, RANKED IN `REPORT.md`.**
+   Unchanged and still the cheapest way to double the harness:
+   `mn_child_and_working_families_credits` is 16 cases, which would take it from
+   13 households to 29. The missing piece is a per-state map from their variable
+   name to this engine's credit name, and it has to refuse rather than guess.
+6. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES** (Day 43
+   item 10). The lock makes a prose edit under a running audit *survivable*; this
+   would make it *correct*, and the two together are the whole of the problem.
+   It is now the only half of that pair left.
+7. **MAKE THE 133 UNATTRIBUTED MUTANTS CHEAPER** (Day 70 item 1, priced at half
+   the audit).
+8. **GIVE `new-mexico.test.js`'s 42-STATE SUPERLATIVE SWEEP ITS OWN HOME**
+   (Day 70 item 2). 17 of that suite's 36 seconds.
+9. **KENTUCKY'S REMAINING THREE GAPS, ALL DECLARED AND ALL PRICED**: the `$40`
+   blindness credit (blocked on `blindOrDisabled` conflating blind and disabled,
+   and now a bounded divergence entry of its own); the `$20` credit whose
+   CONDITION is unknown; and the combined-separate election, which two anchored
+   households still want and a third turned out not to need.
+10. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
+11. **DO NOT RE-PROBE THE DOCUMENT HOSTS.** `revenue.ky.gov` was tried again
+    today by `curl` and by server-side fetch and refuses both ways. The count of
+    state domains that answer from this sandbox is still exactly one and it is
+    New Mexico's. **What DOES answer, and is now worth more than any of them:**
+    `pypi.org` and `files.pythonhosted.org`, so the reference model's whole source
+    tree is one 16 MB sdist away — which is how today's path was found after four
+    `curl`s at a path with a segment missing. Extract into a directory of its own,
+    read, never commit: it is AGPL and Day 68 cost this repository a force-push
+    over 838 MB of it.
+
+---
+
 ## Day 71 — 2026-11-03
 
 **THE FIRST INSTRUMENT IN THIS REPOSITORY WHOSE RIGHT ANSWERS WERE PRODUCED

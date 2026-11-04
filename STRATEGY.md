@@ -3,8 +3,129 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-11-03 (Day 71). **The bet is unchanged and today is the first
-day the PROOF half of it can be stated without an asterisk.**
+Last reviewed: 2026-11-04 (Day 72). **The bet is unchanged. Day 71 could state the
+PROOF half of it without an asterisk; today is the first day the proof found
+something a buyer would recognise as a defect in the COMPETITION.**
+
+`us-federal-tax` mutation is at **100%** (716 mutants, 0 survivors) and
+`us-state-tax`'s rule parameters at **99.7%** (2690 mutants, 8 survivors) — both
+written by `check-scores.mjs` rather than copied by hand, which is the shape that
+tool owns and the reason the sentence reads like this rather than like a table.
+
+## THE ARGUMENT CHANGED SHAPE TODAY AND IT IS WORTH BEING PRECISE ABOUT HOW
+
+Day 66 wrote down the two things here that can be sold, because the code is MIT
+and cannot be:
+
+```text
+  FRESHNESS   the parameters re-read and re-verified every year, with the
+              provenance ledger saying which document and what date
+  PROOF       the instruments -- five of them now, one of whose right answers
+              come from outside this repository
+```
+
+Day 71 built the fifth instrument and it paid on its first run: Kentucky's `$40`
+personal tax credit for age, missing, every filer 65 or over overstated. Today it
+paid again, much larger — **Kentucky's family size tax credit, a percentage of the
+WHOLE bill, which forgave `$495.20` on a single filer at `$15,650` and `$189.20`
+on one at `$8,000`** — and in the process produced the first finding here that is
+not about this package at all.
+
+> **"WE FOUND A BUG IN OUR OWN CODE" IS A STATEMENT ABOUT OUR PROCESS. "THE
+> LEADING OPEN MODEL REPRODUCES KENTUCKY'S 2025 GRID WITH TWO CONSTANTS FITTED TO
+> ONE YEAR'S POVERTY GUIDELINE, AND WE CAN SHOW YOU THE ELEVEN 2026 INCOMES WHERE
+> THAT STOPS WORKING" IS A STATEMENT ABOUT THE ALTERNATIVE.** The second is the
+> one a buyer who is already using something else has to answer.
+
+And it is checkable rather than rhetorical, which is the only reason it is in this
+document. `policyengine-us` stores the eighth and tenth steps of KRS 141.066(3) as
+`1.270032` and `1.330032` and the other eight as round numbers. Kentucky prints
+its grid in whole dollars, every 2025 threshold amount is an odd multiple of `$50`,
+and of the ten statutory percentages exactly two multiply a multiple of `$50` into
+something other than a whole number — `127%` and `133%`, which land on `$.50` at
+all four family sizes. `130%`, sitting unfitted between the two fitted ones, is the
+proof: `130%` of a multiple of `$50` is whole and needs no nudge.
+
+```text
+  2025   the two readings agree at EVERY integer income, all four family sizes
+  2026   they disagree at ELEVEN incomes, ten points of the whole bill each
+```
+
+**Taking the rule that explains the printed grid therefore costs nothing against
+the only year either reading can be checked against.** That is what made it
+shippable where guessing a base was not, and it is the whole of the day's
+commercial argument.
+
+## THE FOUR KINDS OF EVIDENCE, AND WHY THE WEAKEST-SOUNDING TWO ARE THE STRONGEST
+
+```text
+  a filled return         single at $15,650, expected tax $0.00
+  sixteen printed cells   127% and 133% of all four thresholds, both sides
+  Schedule ITC's example  family of two at $22,650 -> 80%
+  740 instructions' one   family of four at $33,000 -> 90%
+```
+
+The two worked examples read like the softest evidence on the list — examples in
+a form's instructions, reached by search rather than by opening a document. They
+are the strongest, for a reason unrelated to their source: **each is consistent
+with the 2025 threshold amounts and with no other year's.** A family of two at
+`$22,650` is 80% against 2025's `$21,150` and 70% against 2024's `$20,440`. So
+each one pins the staircase and the thresholds together, and a package that had
+either wrong fails them.
+
+> **AN EXAMPLE THAT IS ONLY CONSISTENT WITH ONE YEAR'S PARAMETERS IS WORTH MORE
+> THAN A PARAMETER FILE, BECAUSE IT CANNOT BE SATISFIED BY COPYING.** This is the
+> generalisable part and it is a cheap test to apply to any figure found by
+> search: ask which other years it would also be true of. If the answer is
+> "several", it is corroboration; if it is "none", it is a measurement.
+
+## The instruments, with today's figures
+
+```text
+  us-federal-tax mutation         100%    716 mutants, 0 survivors
+  us-state-tax rule parameters   99.7%    2,690 mutants, 8 survivors (Day 70)
+  the differential          19,131 of 20,328 agree; 1,181 explained, 16 not
+  the anchors               12 of 14 agreeing, 6 states, right answers EXTERNAL
+  the provenance ledger     7,320 figures over 84 state-years, 632 citations
+  the suites                1,803 tests across four, all passing
+```
+
+The anchors moved 10 → 12 and both closures were this credit. One of them,
+`2025-KY-ky-18`, had been attributed by the **upstream fixture's own label** and
+by this package's shipped note to the combined-separate election; it agrees to
+the cent with that election still unmodelled, so the stated cause was wrong and
+the note carried a figure `$40` stale inside it. Both are corrected in the
+shipped notes, with the general lesson beside them: **a disagreement carries a
+number that can be measured and a cause that cannot, and the cause is the half a
+reader acts on.**
+
+## WHAT GOT CHEAPER TO SELL, AND IT IS THE SMALLEST ITEM ON THE LIST
+
+Kentucky's differential entry was **unbounded** — a catch-all that pardoned every
+difference in the state. Day 71 found it had absorbed a second defect for
+twenty-three days and left scoping it on the worklist. With the credit computed
+the entry does not need scoping: it needs deleting, which is what happened, and
+the two households that still differ are now covered by two **bounded** entries
+that each name one provision. **Kentucky has no unbounded entry at all**, and the
+grid is unchanged where it counts: 16 unexplained, none in 2026.
+
+Arizona's entry has said since Day 47, in its own text, that an absent bound
+"ABSORBED TWO REAL DEFECTS FOR THE LIFE OF THE GRID". Kentucky's absorbed three.
+The lesson is old; what is new is the price: **three defects over twenty-four
+days, every one of them found by an instrument that does not read that file.**
+
+## The bet, restated
+
+Sell FRESHNESS and PROOF around an MIT engine, to people who need a state tax
+figure to be right and need to show somebody why they believe it. Five
+instruments, one of them external, all of them re-derived in CI on every push,
+and a provenance ledger that maps every one of 7,320 figures to the document it
+came from. Nothing in that plan changed today; what changed is that it now
+includes a sentence about somebody else's model that we can prove.
+
+---
+
+# Earlier reviews
 
 ## THE PROOF ARGUMENT HAD A HOLE IN ITS MIDDLE AND NOBODY HAD TO BE TOLD
 

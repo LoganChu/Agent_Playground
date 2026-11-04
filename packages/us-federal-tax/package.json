@@ -104,7 +104,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.build.json && tsc -p tsconfig.cjs.json && node scripts/finalize.mjs",
+    "build": "node scripts/finalize.mjs --guard-only && rm -rf dist && tsc -p tsconfig.build.json && tsc -p tsconfig.cjs.json && node scripts/finalize.mjs",
     "test": "npm run build && node --test test/*.test.js",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

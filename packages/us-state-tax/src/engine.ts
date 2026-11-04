@@ -10,6 +10,7 @@ import type {
   AgeDeductionRule,
   ByChildCount,
   ExemptionRule,
+  FamilySizeTaxCreditRule,
   FractionThereofStaircase,
   IncomeMeasure,
   LowIncomeRebateTableRule,
@@ -2305,6 +2306,96 @@ function newMexicoModifiedGrossIncomeFloor(input: StateIncomeTaxInput, agi: numb
 }
 
 /**
+ * Kentucky's modified gross income, where the caller did not supply it.
+ *
+ * `max(federal AGI, Kentucky AGI)`. See
+ * {@link StateIncomeTaxInput.kentuckyModifiedGrossIncome} for the two worksheet
+ * lines this cannot reach and for why the shortfall is a floor rather than an
+ * error — and note which way round the `max` runs: Kentucky AGI is the SMALLER
+ * figure on a retiree's return, and taking the larger is the whole reason this
+ * base exists.
+ *
+ * Not floored at zero. KRS 141.066(4) floors a COLUMN at zero on the
+ * combined-separate path, which this package does not model; the joint path
+ * does not, and a negative figure lands on the first step, which is the
+ * 100% one and is the right answer for a household with no income.
+ */
+function kentuckyModifiedGrossIncomeFloor(federalAgi: number, stateAgi: number): number {
+  return Math.max(federalAgi, stateAgi);
+}
+
+/**
+ * The threshold amount the family size tax credit's staircase is measured
+ * against — KRS 141.066(1)(e), the federal poverty guideline for the family
+ * size, counting no more than {@link FamilySizeTaxCreditRule.maximumFamilySize}
+ * people.
+ *
+ * ## The family size here is larger than Kentucky's, in one case
+ *
+ * KRS 141.066(1)(d) counts the taxpayer, the spouse and the taxpayer's
+ * **qualifying children**. This package is given `dependents` and nothing
+ * finer, so a dependent PARENT counts here and does not count in Kentucky — the
+ * same gap Maryland's childless earned-income schedule and Wisconsin's match
+ * carry, and it runs the generous way: a threshold one person too large makes
+ * the ratio too small, the credit step too high and the tax too low. The state's
+ * notes say so.
+ *
+ * ## Why the caller's own guideline is honoured only below the cap
+ *
+ * {@link StateIncomeTaxInput.federalPovertyGuideline} is documented as the
+ * guideline **for this household** — an Alaska or Hawaii address, or a family
+ * counted differently. One number cannot also say what the guideline would have
+ * been for a smaller household, so above the cap it is not the figure Kentucky
+ * asks for and the stored table is used instead. Below the cap the two
+ * questions coincide and the caller's figure wins, as it does everywhere else.
+ */
+function familySizeCreditThreshold(
+  rule: FamilySizeTaxCreditRule,
+  input: StateIncomeTaxInput,
+): number {
+  const size = livingFilerCount(input.filingStatus) + dependentCount(input);
+  if (input.federalPovertyGuideline !== undefined && size <= rule.maximumFamilySize) {
+    return nonNegative(input.federalPovertyGuideline, 'federalPovertyGuideline');
+  }
+  const counted = Math.min(size, rule.maximumFamilySize);
+  return (
+    rule.povertyGuideline.firstPerson + rule.povertyGuideline.additionalPerson * (counted - 1)
+  );
+}
+
+/**
+ * The share of the remaining tax the staircase credits — Schedule ITC Section C.
+ *
+ * **The cutoff is rounded to a whole dollar and the band is "not over".** Both
+ * halves of that sentence are load-bearing and both are measured: see
+ * {@link FamilySizeTaxCreditRule} for the eight 2025 cells that fix the
+ * rounding direction, and for why the reference model's `1.270032` is an
+ * artifact of one year's guideline rather than a figure from a document.
+ *
+ * `thresholdPercent` is percentage points over 100 rather than a decimal, so
+ * `127 * 15_650 / 100` is `19875.5` exactly and rounds to the dollar Kentucky
+ * prints. Written `1.27 * 15_650` the same quantity is `19875.499999999996` and
+ * rounds to `19875`, which pays the step below at the one income in the year
+ * where the step matters most.
+ */
+function familySizeCreditShare(
+  rule: FamilySizeTaxCreditRule,
+  threshold: number,
+  modifiedGrossIncome: number,
+): number {
+  for (const step of rule.steps) {
+    // `Math.round` is half-UP for a positive argument, which is the direction
+    // all eight of 2025's half-dollar cells round. Ceiling fits those eight
+    // equally well — every one of them lands on exactly $.50 — so a year whose
+    // cutoffs land elsewhere is not settled by them. Declared in the notes.
+    if (modifiedGrossIncome <= Math.round((step.thresholdPercent * threshold) / 100)) {
+      return step.creditShare;
+    }
+  }
+  return 0;
+}
+
+/**
  * PIT-RC line 3: the exemption count the rebate table's COLUMN is chosen by.
  *
  * Federal exemptions, plus two for each aged filer and one for each blind
@@ -4283,15 +4374,52 @@ function computeOnce(
       refundable: def.agedCredit.refundable,
     });
   }
+  // Kentucky's personal tax credits, and the figure the family size tax credit
+  // below reads. Declared here rather than inside the `if` because KRS 141.066
+  // credits a share of the tax REMAINING AFTER these, so the two rules are
+  // ordered and the ordering has to be visible.
+  let personalCredits = 0;
   if (def.agedFilerCredit) {
     const rule = def.agedFilerCredit;
     // `seniorFilers` and not a hand-rolled pair of comparisons, for the reason
     // its own comment gives: it counts through `livingFilerCount`, so a
     // `spouseAge` supplied on a surviving spouse's return is ignored rather
     // than buying a second $40 for somebody who is dead.
+    personalCredits = seniorFilers(input, rule.minimumAge) * rule.amountPerFiler;
     credits.push({
       name: rule.name,
-      amount: seniorFilers(input, rule.minimumAge) * rule.amountPerFiler,
+      amount: personalCredits,
+      refundable: rule.refundable,
+    });
+  }
+  if (def.familySizeTaxCredit) {
+    const rule = def.familySizeTaxCredit;
+    const supplied = input.kentuckyModifiedGrossIncome;
+    const income =
+      supplied === undefined
+        ? kentuckyModifiedGrossIncomeFloor(measures.federalAdjustedGrossIncome, stateAgi)
+        : nonNegative(supplied, 'kentuckyModifiedGrossIncome');
+    const threshold = familySizeCreditThreshold(rule, input);
+    const share = familySizeCreditShare(rule, threshold, income);
+    // The tax left after the personal credits, floored at zero. The floor is
+    // what makes the ordering safe: a filer at 65 whose tax is below $40 has
+    // nothing left for this credit to be a percentage of, and taking the
+    // percentage first would hand back more than the bill.
+    const remaining = Math.max(0, grossTax - personalCredits);
+    credits.push({
+      // The assumption is named only when it can still be wrong, which is the
+      // rule New Mexico's rebate line already follows: a derived income puts a
+      // CEILING on this credit, so a return the staircase has already settled
+      // at zero needs no annotation — the true figure is at or above the
+      // derived one and cannot buy a step back.
+      name:
+        supplied === undefined && share > 0
+          ? `${rule.name} (assumed: modified gross income is max(federal AGI, Kentucky AGI) — ` +
+            `worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 ` +
+            `lump sum, are NOT added, and a floor on the income is a CEILING on this credit; ` +
+            `pass kentuckyModifiedGrossIncome for the worksheet's own figure)`
+          : rule.name,
+      amount: share * remaining,
       refundable: rule.refundable,
     });
   }

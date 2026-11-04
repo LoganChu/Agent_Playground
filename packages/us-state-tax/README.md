@@ -7,6 +7,22 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
+New in 0.62.0: **KENTUCKY'S FAMILY SIZE TAX CREDIT, THE LARGEST SINGLE PROVISION THIS PACKAGE EVER SHIPPED LATE — AND THE LEADING OPEN MODEL REPRODUCES IT WITH TWO CONSTANTS FITTED TO ONE YEAR.** KRS 141.066 credits a percentage of the **whole** Kentucky tax: 100% of it at or below a threshold amount set at the federal poverty guideline for the family size, stepping down to nothing at 133%. Until `0.62.0` a single Kentucky filer at exactly `$15,650` was charged **`$495.20`**, which is the entire bill, and one at `$8,000` was charged `$189.20`. `tools/anchors` found it on its first run and Day 71 refused to ship it, because the base it is measured on had not been read; what closed the gap was not a Kentucky document — no Kentucky host resolves from this sandbox — but the discovery that the printed grid is **re-derivable**, checked against four sets of figures produced outside this repository.
+
+**THE FINDING: `1.270032` IS NOT A FIGURE FROM ANY DOCUMENT.** Kentucky prints its grid in whole dollars and the band is *"not over"*, so the cutoff is `round(percent × threshold)`. Every 2025 threshold amount — `$15,650`, `$21,150`, `$26,650`, `$32,150` — is an odd multiple of `$50`, and of the ten statutory percentages **exactly two** multiply a multiple of `$50` into something other than a whole number:
+
+```text
+  percent x $50   104 -> $52.00   112 -> $56.00   120 -> $60.00   130 -> $65.00   whole
+                  108 -> $54.00   116 -> $58.00   124 -> $62.00   100 -> $50.00   whole
+                  127 -> $63.50   133 -> $66.50                            HALF A DOLLAR
+```
+
+`127%` and `133%` of each threshold land on exactly `$.50` and Kentucky rounds all eight **up**: `$19,875.50` prints as `$19,876`. **Those are precisely the two steps `policyengine-us` stores as `1.270032` and `1.330032`** — and `1.30`, sitting unfitted between them, is the proof, because `130%` of a multiple of `$50` is whole. The two readings agree at **every integer income in 2025**, the one year both can be checked. They disagree at **eleven** in 2026, where the guideline is `$15,960` and `$5,680` and eight of the ten percentages produce a fractional cutoff — each disagreement worth **ten percentage points of a household's entire bill**, and all eleven enumerated in `test/kentucky-family-size-credit.test.js`. A constant fitted to one year is not a rounding rule, so this package carries `127` and `133` and computes the cutoff.
+
+**What checks it, and none of it is "another model says so":** a filled return expecting `$0.00` of tax on a single filer at `$15,650`; the sixteen printed 2025 cutoff cells; and Kentucky's own two worked examples — a family of two at `$22,650` getting **80%** and a family of four at `$33,000` getting **90%**. The two examples are the strongest of the four for a reason unrelated to their source: each is consistent with the 2025 threshold amounts and with **no other year's**, so they pin the staircase and the thresholds together. `tools/anchors` went from 10 of 14 agreeing to **12 of 14**, and one of the two it closed had been attributed by the upstream fixture, and by this package's own notes, to a provision that turns out to cost that household nothing.
+
+Three things are declared rather than fixed, in the state's shipped notes: whether the cutoff is rounded half up or rounded up (all eight 2025 cells land on `$.50`, so both reproduce them and 2026 is a reading); two worksheet lines that are added to modified gross income and are not added here, which makes the derived figure a **floor** and so the credit a **ceiling**; and a family size one person too large for a filer whose dependent is not a child.
+
 New in 0.61.0: **KENTUCKY'S $40 PERSONAL TAX CREDIT FOR AGE, AND IT WAS FOUND BY COMPARING AGAINST A FILLED RETURN RATHER THAN AGAINST ANOTHER MODEL.** KRS 141.020(3) allows `$40` for the filer and `$40` for a spouse at 65 or over, claimed on Schedule ITC, with **no income test at all** — so it is the broadest provision in this state and this package had never implemented it. Every Kentucky filer 65 or over was overstated by `$40` and every elderly couple by `$80`, at every income, forever. **`tools/anchors` is the new instrument that found it**: it reads `policyengine-us` test fixtures whose *expected* values were produced by entering the household into commercial tax software and reading the figure off the form, and compares this engine against those. 14 assertions across 6 states; this package reproduces TaxAct's own New Mexico PIT-1 to **18 cents** and Virginia's Form 760 Spouse Tax Adjustment worksheet **to the cent**.
 
 **THE PART WORTH READING IS WHY NOTHING ELSE COULD SEE IT.** Three instruments had the evidence and none of them raised it:
@@ -876,7 +892,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.61.0/us-state-tax-0.61.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.62.0/us-state-tax-0.62.0.tgz
 ```
 
 ## The rate is the easy part
@@ -3104,7 +3120,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **933** notes every
+`test/notes.test.js` pins the first 72 characters of all **945** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -3129,8 +3145,8 @@ reads, and all 27 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 7,274 numeric
-figures over 84 state-years, against 630 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 7,320 numeric
+figures over 84 state-years, against 632 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -3176,14 +3192,14 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 3,620 figures of tax year
+The `kind` field answers one operational question. Over the 3,643 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
 | nothing at all (`statute`, `derived`, `sentinel`) | **2,337** |
 | the statute's own schedule (`statute-scheduled`) | **148** |
-| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **1,128** |
+| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **1,151** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
 
 Those four numbers are now pinned by `test/provenance.test.js` rather than quoted.

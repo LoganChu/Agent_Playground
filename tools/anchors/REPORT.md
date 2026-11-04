@@ -9,7 +9,7 @@ fixture author's own, never this harness's.
 
 - upstream: `policyengine-us` **2.93.3** @ `210dc5913b930891b6f5325d32db9cea7bdb4d3f`
 - 148 fixture cases read from 15 files; **13 translated**; 14 assertions compared
-- **10 agree**, 4 disagree, 0 errored, across **6 states** — AR, KY, NM, SC, UT, VA
+- **12 agree**, 2 disagree, 0 errored, across **6 states** — AR, KY, NM, SC, UT, VA
 - 2 refused as untranslatable; 99 outside 2025–2026; 32 asserting nothing comparable
 
 ```text
@@ -19,10 +19,10 @@ anchor         asserted variable                               expected        o
 2025-AR-ar-7   ar_income_tax                                    5633.67     5633.67      0.00       1
 2025-KY-ky-8   ky_income_tax                                    1869.20     1869.20      0.00       1
 2025-KY-ky-9   ky_income_tax                                    3738.40     3869.20    130.80       1 X
-2025-KY-ky-10  ky_income_tax                                       0.00      495.20    495.20       1 X
+2025-KY-ky-10  ky_income_tax                                       0.00        0.00      0.00       1
 2025-KY-ky-11  ky_income_tax                                    1429.20     1429.20      0.00       1
 2025-KY-ky-14  ky_income_tax                                    1353.50     1413.06     59.56       1 X
-2025-KY-ky-18  ky_income_tax                                     551.18     1102.36    551.18    0.01 X
+2025-KY-ky-18  ky_income_tax                                     551.18      551.18      0.00    0.01
 2025-NM-nm-3   nm_taxable_income                              882064.00   882064.71      0.71       5
 2025-NM-nm-3   nm_income_tax_before_non_refundable_credits     49400.00    49399.82     -0.18       5
 2025-SC-sc-2   sc_income_tax                                    1677.00     1674.90     -2.10       5
@@ -38,15 +38,9 @@ Each one is a defect here or a finding, and both are worth more than an agreemen
 - **2025-KY-ky-9** `ky_income_tax` — expected `3738.4`, this package `3869.2`, off by `+130.8`
   - 2025 KY MFJ optimization picks separate filing
   - `ky/tax/income/integration.yaml[9]`
-- **2025-KY-ky-10** `ky_income_tax` — expected `0`, this package `495.2`, off by `+495.2`
-  - 2025 KY FSTC at 100% of threshold
-  - `ky/tax/income/integration.yaml[10]`
 - **2025-KY-ky-14** `ky_income_tax` — expected `1353.5`, this package `1413.06`, off by `+59.56`
   - KY combined-separate election floors the elderly spouse personal credit per column (taxsim 1076)
   - `ky/tax/income/integration.yaml[14]`
-- **2025-KY-ky-18** `ky_income_tax` — expected `551.18`, this package `1102.36`, off by `+551.18`
-  - Combined-separate election preserves the age-65 credit at 2025
-  - `ky/tax/income/integration.yaml[18]`
 
 ## Incomplete questions
 

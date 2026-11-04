@@ -869,8 +869,14 @@ const KY_CITATIONS: readonly Citation[] = [
     url: 'https://revenue.ky.gov/Individual/Individual-Income-Tax/',
   },
   {
-    title: 'KRS 141.066 — the family size tax credit, NOT MODELLED here',
+    title:
+      'KRS 141.066 — the family size tax credit: the threshold amount in (1)(e), the maximum family size of four in (1)(e)4, and the ten percentage steps in (3)',
     url: 'https://apps.legislature.ky.gov/law/statutes/statute.aspx?id=49188',
+  },
+  {
+    title:
+      'HHS poverty guidelines for the contiguous states — the threshold amount the family size tax credit is measured against, and the same two figures Virginia\'s and Maryland\'s poverty credits read',
+    url: 'https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines',
   },
 ];
 
@@ -885,9 +891,15 @@ const KY_NOTES: readonly string[] = [
   'The $31,110 is the only figure in this package other than Maryland\'s exclusion that has ever gone DOWN, and it fell much further. It was indexed from $35,700 in 1999 to $41,110 in 2005, frozen there for thirteen years, cut by 24% to $31,110 by the 2018 reform, and frozen again. It is not indexed, so it has lost roughly half its real value since it was last set — and the rate cut from 4.0% to 3.5% cuts what is left of it by a further 12.5%.',
   'The personal tax credit for age (KRS 141.020(3), Schedule ITC) is $40 for the filer and $40 for a spouse on the return, at 65 or over, with NO INCOME TEST — computed here from v0.61.0 and not before. Until then every Kentucky filer 65 or over was overstated by $40, and every elderly couple by $80. It was found by `tools/anchors`, which reproduces a figure read off a filled return rather than off another model: the engine\'s own unread-input note had been reporting `filerAge` as "supplied and spent on nothing" on every Kentucky return, which is exactly what a missing age credit looks like, and nothing read it.',
   'NOT MODELLED — the other two personal tax credits in the same subsection. KRS 141.020(3)(a)6 allows $40 for a filer or spouse who is LEGALLY BLIND, so a filer who is both 65 and blind claims $80 per person and this package pays $40; the blockage is the input and not the statute, because `blindOrDisabled` counts blind and disabled filers together — which is right for Michigan\'s special exemption, whose statute covers both — and reading it here would pay a blindness credit to a filer who is disabled and sighted. KRS 141.020(3)(a)8 allows a further $20, and THIS PACKAGE DOES NOT KNOW WHAT IT IS FOR: Schedule ITC Section B is where it is claimed, the reference model keys it on having military service income and labels it a military-service credit, and Kentucky\'s own form has historically carried a Kentucky National Guard box. No Kentucky document resolves from this sandbox to settle which, so the amount is stated and the condition is not. Supply either through `subtractions` grossed up by the rate.',
-  'NOT MODELLED — THE FAMILY SIZE TAX CREDIT (KRS 141.066, Schedule ITC Section C), and it is the largest gap in this state by a wide margin because it is a percentage of the WHOLE TAX. Below 100% of a threshold amount set at the federal poverty guideline for the family size — $15,650, $21,150, $26,650 and $32,150 for sizes one to four or more in 2025 — the credit is 100% of the Kentucky tax, and it tapers in ten steps to zero at about 133% of that figure. A single Kentucky filer at exactly $15,650 of income owes NOTHING and this package charges $495.20, which is the entire bill. The blockage is that KRS 141.066 computes the taper on "modified gross income", a base of its own that is neither federal AGI nor Kentucky AGI, and no Kentucky primary document resolves from this sandbox — revenue.ky.gov and apps.legislature.ky.gov both refuse. The price is measured rather than estimated: it is the first row of `tools/anchors/REPORT.md`.',
+  'THE FAMILY SIZE TAX CREDIT (KRS 141.066, Schedule ITC Section C) is computed here from v0.62.0 and not before, and it was the largest gap in any state this package ships because it is a percentage of the WHOLE TAX. At or below a threshold amount set at the federal poverty guideline for the family size — $15,650, $21,150, $26,650 and $32,150 for sizes one to four in 2025 — it forgives 100% of the Kentucky tax, and it steps down to nothing at 133% of that figure. Until v0.62.0 a single Kentucky filer at exactly $15,650 was charged $495.20, which was the entire bill, and one at $8,000 was charged $189.20. The maximum family size is four (KRS 141.066(1)(e)4), so a fifth person moves nothing, and the credit applies to the tax REMAINING AFTER the $40 personal credits rather than to the tax before them — taking the percentage first would produce a negative tax on a credit that is not refundable.',
+  'THE CUTOFFS ARE WHOLE DOLLARS AND THE BAND IS "NOT OVER", WHICH IS WHY THIS PACKAGE CARRIES 127 AND 133 WHERE THE LEADING OPEN MODEL CARRIES 1.270032 AND 1.330032. Kentucky prints the grid in dollars, so the comparison is against `round(percent x threshold)`. Every 2025 threshold amount is an odd multiple of $50, and of the ten statutory percentages exactly TWO multiply a multiple of $50 into something other than a whole number: 127% and 133%, which land on $.50 at all four family sizes and round up — $19,875.50 prints as $19,876. Those are precisely the two steps `policyengine-us` perturbs, and 130% sitting unfitted between them is the proof, because 130% of a multiple of $50 is whole. The two readings agree at EVERY integer income in 2025. They disagree at eleven in 2026, where the guideline is $15,960 and $5,680 and eight of the ten percentages produce a fractional cutoff: a household of three at $34,697 and of four at $41,911 and $43,891 get a step less here, and eight others get a step more, each worth ten percentage points of the whole bill. A constant fitted to one year is not a rounding rule, so this package takes the rule that explains the printed grid; `test/kentucky-family-size-credit.test.js` enumerates all eleven.',
+  'UNVERIFIED — WHETHER THE CUTOFF IS ROUNDED HALF UP OR ROUNDED UP. All eight of the 2025 cells that settle the direction land on exactly $.50, so round-half-up and ceiling reproduce every one of them and nothing in that year discriminates between the two. This package rounds half up. The question only has an answer in a year whose cutoffs land somewhere other than $.50, which 2026 is at three of the four family sizes, and no Kentucky document resolves from this sandbox to settle it — so 2026 cutoffs at a fractional product other than $.50 are a reading rather than a reproduction.',
+  'MODIFIED GROSS INCOME, the figure this credit is banded on, is the LARGER of federal AGI and Kentucky AGI and not either one of them. That is the whole reason it is a base of its own: Kentucky AGI is normally the smaller figure, because the KRS 141.019(1) pension exclusion and the Social Security subtraction come out of it, and taking the larger stops a Kentucky subtraction from buying eligibility for a credit that can forgive the entire bill — a retiree with $30,000 of pension has almost no Kentucky AGI and gets nothing here. Absent `kentuckyModifiedGrossIncome` this package derives `max(federal AGI, Kentucky AGI)`, which is EXACT for a return with no lump-sum distribution and no out-of-state municipal bond interest, and a FLOOR otherwise: worksheet line (c), tax-exempt interest on other states\' municipal bonds, and line (d), a Form 4972 lump sum that is in no AGI at all, are both added on the form and neither is added here. A floor on the income is a CEILING on this credit, so the derived answer can be too generous and cannot be too mean, and the credit line SAYS SO in its own name whenever the staircase has not already settled it at zero. Pass `kentuckyModifiedGrossIncome` for the worksheet\'s own figure. The leading open model does not model line (c) either — its own comment says so — and does model line (d).',
+  'THE FAMILY SIZE COUNTED HERE IS ONE PERSON TOO LARGE FOR A FILER WITH A DEPENDENT WHO IS NOT A CHILD. KRS 141.066(1)(d) counts the taxpayer, the spouse and the taxpayer\'s QUALIFYING CHILDREN; this package is given `dependents` and nothing finer, so a dependent parent counts here and does not count in Kentucky. It runs the generous way — a threshold one person too large makes the ratio too small, the step too high and the tax too low — and it is the same gap Maryland\'s childless earned-income schedule and Wisconsin\'s match carry. It cannot bite above family size four, where the cap has already stopped counting.',
   'UNRESOLVED — whether a Kentucky filer on a SEPARATE return may claim the $40 age credit for a spouse who has no gross income and is nobody\'s dependent. This is the IRC § 151(b) question this package tracks as `separateReturnSpouse` for four states\' exemptions, and KRS 141.020(3) does not resolve from this sandbox to answer it. This package claims ONE credit on such a return and the reference model claims TWO, which is $40 on the differential grid\'s own household — a filer and spouse both 68 with $55,000 of pension. Charging the higher figure is the direction that cannot pay one household\'s credit twice; a caller who knows the answer can supply the other $40 through `subtractions` grossed up by the rate.',
-  'The combined-separate election is still not modelled and `tools/anchors` has now PRICED the note above it to twenty cents. That note has said since Day 8 that Form 740 filing status 2 is worth "about $131 of tax in 2025"; the anchored two-earner household at $60,000 and $40,000 is overstated by $130.80. A Kentucky couple with one small income is overstated by more — $591.18 on the anchored household with $400 and $31,429 — because the election is what preserves the age-65 credit against the column that can use it.',
+  'The combined-separate election is still not modelled and `tools/anchors` prices it at twenty cents. The note above has said since Day 8 that Form 740 filing status 2 is worth "about $131 of tax in 2025"; the anchored two-earner household at $60,000 and $40,000 is overstated by $130.80, and a second anchored household by $59.56.',
+  'A CORRECTION WORTH KEEPING, because this package published the wrong cause for two days and the upstream fixture it came from still carries it. The anchored Kentucky household with $400 and $31,429 was overstated by $551.18 — and the note here said $591.18, which was the figure from BEFORE the $40 age credit shipped — and both the fixture\'s own label and this package\'s note attributed the gap to the combined-separate election "preserving the age-65 credit against the column that can use it". It was not the election. It was the family size tax credit, which that household claims at 50% of its bill, and with the credit computed this package reproduces the expected $551.18 TO THE CENT with the election still unmodelled. The election costs that household nothing at all.',
+  'THE GENERAL LESSON, because it is the reason the correction above is in the shipped notes rather than only in a journal: A DISAGREEMENT CARRIES A NUMBER THAT CAN BE MEASURED AND A CAUSE THAT CANNOT, and the cause is the half a reader will act on. The fixture\'s label, this package\'s note and the figure in it were produced by three different runs and only the figure was ever re-derived. Two anchored Kentucky households remain overstated and their stated cause is the election; it is the best available reading and it is a reading, which is the part the $551.18 household is here to remember.',
 ];
 
 function kentucky(year: number): StateIncomeTaxDefinition | undefined {
@@ -918,6 +930,37 @@ function kentucky(year: number): StateIncomeTaxDefinition | undefined {
       name: 'Kentucky personal tax credit for age 65 or over (Schedule ITC)',
       minimumAge: 65,
       amountPerFiler: 40,
+      refundable: false,
+    },
+    // KRS 141.066, Schedule ITC Section C. A percentage of the WHOLE tax, and
+    // the broadest low-income provision in this state: at or below the
+    // threshold amount it forgives the entire bill.
+    //
+    // The ten percentages are KRS 141.066(3)'s and are written as PERCENTAGE
+    // POINTS rather than decimals. See `FamilySizeTaxCreditRule` for the two
+    // reasons -- exact cutoff arithmetic, and a figure the deliberate-error
+    // audit can perturb -- and for why `policyengine-us` carries `1.270032`
+    // and `1.330032` where this table carries 127 and 133.
+    familySizeTaxCredit: {
+      name: 'Kentucky family size tax credit (Schedule ITC Section C)',
+      povertyGuideline:
+        year === 2025
+          ? { firstPerson: 15_650, additionalPerson: 5_500 }
+          : { firstPerson: 15_960, additionalPerson: 5_680 },
+      // KRS 141.066(1)(e)4.
+      maximumFamilySize: 4,
+      steps: [
+        { thresholdPercent: 100, creditShare: 1 },
+        { thresholdPercent: 104, creditShare: 0.9 },
+        { thresholdPercent: 108, creditShare: 0.8 },
+        { thresholdPercent: 112, creditShare: 0.7 },
+        { thresholdPercent: 116, creditShare: 0.6 },
+        { thresholdPercent: 120, creditShare: 0.5 },
+        { thresholdPercent: 124, creditShare: 0.4 },
+        { thresholdPercent: 127, creditShare: 0.3 },
+        { thresholdPercent: 130, creditShare: 0.2 },
+        { thresholdPercent: 133, creditShare: 0.1 },
+      ],
       refundable: false,
     },
     notes: KY_NOTES,

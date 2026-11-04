@@ -63,7 +63,14 @@ test('the counts are exact, so a reader that stops reading fails here', () => {
       states: report.counts.states,
       refused: anchors.counts.refused,
     },
-    { kept: 13, assertions: 14, agree: 10, disagree: 4, errored: 0, states: 6, refused: 2 },
+    // 10 -> 12 ON DAY 72, and the two that closed were both Kentucky's family
+    // size tax credit. One of them, `2025-KY-ky-18`, was labelled by the
+    // UPSTREAM FIXTURE as the combined-separate election "preserving the age-65
+    // credit", and this package copied that cause into a shipped note. It was
+    // wrong: the household now agrees to the cent with the election still
+    // unmodelled, so the election costs it nothing. A disagreement's NUMBER can
+    // be measured and its CAUSE cannot.
+    { kept: 13, assertions: 14, agree: 12, disagree: 2, errored: 0, states: 6, refused: 2 },
   );
 });
 

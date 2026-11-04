@@ -1285,6 +1285,122 @@ export interface AgedFilerCreditRule {
 }
 
 /**
+ * A credit for a **percentage of the whole state tax**, stepped on the ratio of
+ * a household's income to a poverty-line threshold — Kentucky's family size tax
+ * credit, KRS 141.066, claimed in Section C of Schedule ITC.
+ *
+ * ## Why this rule is shaped round a PERCENTAGE OF THE THRESHOLD and not a table of incomes
+ *
+ * Kentucky's own Schedule ITC prints a grid: four family-size columns, and down
+ * each column a list of **whole-dollar** modified gross income cutoffs against
+ * credit percentages running 100, 90, 80 … 10, 0. A package could store the grid.
+ * It must not, because the grid is **derived**, and derived annually: KRS
+ * 141.066(3) gives the steps as percentages of a "threshold amount", and
+ * KRS 141.066(1)(e) sets the threshold amount at the federal poverty guideline
+ * for the family size. A package that stores last year's printed grid is wrong
+ * about this year by the whole of one indexation, and a package that stores the
+ * percentages re-derives the grid for any year whose guideline it has.
+ *
+ * So the steps here are the statute's ten percentages, and the cutoff is
+ * computed. Which raises the one question that decides whether the computation
+ * reproduces what Kentucky prints.
+ *
+ * ## THE CUTOFF IS ROUNDED TO A WHOLE DOLLAR AND THE BAND IS "NOT OVER" — AND THAT IS WHY THE REFERENCE MODEL CARRIES 1.270032
+ *
+ * Kentucky prints dollars, so the comparison is against `round(percent ×
+ * threshold)` and a filer exactly ON a printed cutoff is INSIDE the band above
+ * it. For 2025 the four threshold amounts are `$15,650`, `$21,150`, `$26,650`
+ * and `$32,150` — every one a multiple of `$50` — and of the ten statutory
+ * percentages exactly **two** multiply a multiple of `$50` into something other
+ * than a whole number:
+ *
+ * ```text
+ *   percent x $50     104 -> $52      120 -> $60      130 -> $65    whole
+ *                     108 -> $54      124 -> $62                    whole
+ *                     112 -> $56      100 -> $50                    whole
+ *                     116 -> $58
+ *                     127 -> $63.50   133 -> $66.50                 HALF A DOLLAR
+ * ```
+ *
+ * `127%` and `133%` of each of the four 2025 thresholds land on exactly `$.50`,
+ * and Kentucky rounds all eight **up**: `$19,875.50` prints as `$19,876`,
+ * `$20,814.50` as `$20,815`, and so on through the column.
+ *
+ * **`policyengine-us` stores those two steps as `1.270032` and `1.330032`.** Not
+ * `1.27` and `1.33` — and not a rounding rule either. The two constants are a
+ * nudge just large enough to carry a ratio computed from an unrounded threshold
+ * past the printed cutoff, and the giveaway is that the OTHER eight steps are
+ * left round: `1.04`, `1.08`, `1.12`, `1.16`, `1.20`, `1.24`, `1.30`. They are
+ * left round because in 2025 they need no nudge. **The two fitted constants are
+ * an artifact of the 2025 guideline being an odd multiple of `$50`, not a figure
+ * from any Kentucky document** — and `1.30` sitting unfitted between the two
+ * fitted ones is the proof, because `130%` of a multiple of `$50` is whole.
+ *
+ * That matters for a year the fit was not made against. In **2026** the
+ * guideline is `$15,960` and `$5,680` — multiples of `$40` and `$10`, and of
+ * `$50` only at family size four — so eight of the ten percentages produce a
+ * fractional cutoff at family sizes one to three, where in 2025 only two did.
+ * Rounding the cutoff and fitting a constant then stop agreeing: the two
+ * readings give a different credit percentage at **eleven** integer incomes
+ * across the four family sizes, each worth **ten percentage points of the
+ * household's entire Kentucky tax**. They agree at every integer income in 2025,
+ * which is the year both can be checked against — so this package takes the rule
+ * that explains the printed grid rather than the constant fitted to one year of
+ * it, and `test/kentucky-family-size-credit.test.js` pins both halves of that
+ * sentence.
+ *
+ * ## The base is the tax AFTER the personal credits, and the order is load-bearing
+ *
+ * KRS 141.066 credits a percentage of the tax **remaining after** the KRS
+ * 141.020(3) personal credits — `$40` a head at 65 here. The two readings differ
+ * by `percent × $40`, and at the 100% step they differ by the whole `$40`: a
+ * Kentucky filer at 65 on the first step owes nothing either way, but a model
+ * that takes the percentage FIRST and the `$40` second produces a **negative
+ * tax**, and this credit is not refundable. So the amount passed in is the tax
+ * less the personal credits, floored at zero, and the floor is what makes the
+ * ordering safe rather than merely correct.
+ */
+export interface FamilySizeTaxCreditRule {
+  readonly name: string;
+  /**
+   * The threshold amount: the HHS poverty guideline for the family size,
+   * KRS 141.066(1)(e). The same two figures Virginia's and Maryland's poverty
+   * credits read, and they agree with Kentucky's own published threshold
+   * amounts at all four family sizes it counts — `$15,650`, `$21,150`,
+   * `$26,650`, `$32,150` for 2025.
+   */
+  readonly povertyGuideline: {
+    readonly firstPerson: number;
+    readonly additionalPerson: number;
+  };
+  /**
+   * KRS 141.066(1)(e)4: "for purposes of computing the family size tax credit,
+   * the maximum family size is four". A fifth person moves nothing, so a family
+   * of seven is measured against the family-of-four threshold.
+   */
+  readonly maximumFamilySize: number;
+  /**
+   * The staircase, in the order the form prints it — lowest cutoff first.
+   *
+   * `thresholdPercent` is PERCENTAGE POINTS and an integer on purpose, for two
+   * reasons that point the same way. It keeps the cutoff arithmetic exact:
+   * `127 × 15_650 / 100` is `19875.5` to the last bit, where `1.27 × 15_650` is
+   * `19875.499999999996` in binary floating point and rounds to the wrong
+   * dollar. And it keeps the figure PERTURBABLE by the deliberate-error audit,
+   * which reaches integers at or above 100 and declines decimals at or above 1 —
+   * so the ten steps of a staircase written `1.04 … 1.33` would be ten unchecked
+   * numbers, and written `104 … 133` they are ten checked ones.
+   */
+  readonly steps: readonly {
+    /** The top of this band, as a percentage of the threshold amount. */
+    readonly thresholdPercent: number;
+    /** The share of the remaining tax credited in this band. */
+    readonly creditShare: number;
+  }[];
+  readonly refundable: boolean;
+}
+
+/**
  * A refundable credit that returns a certified share of the filer's **own
  * prior-year** liability — Oregon's surplus "kicker", Or. Const. Art. IX § 14(4).
  *
@@ -4986,6 +5102,19 @@ export interface StateIncomeTaxDefinition {
    * see {@link AgedFilerCreditRule}.
    */
   readonly agedFilerCredit?: AgedFilerCreditRule;
+  /**
+   * A percentage of the whole state tax, stepped on income as a share of a
+   * poverty-line threshold. Kentucky only — see
+   * {@link FamilySizeTaxCreditRule}, which carries the reason the cutoffs are
+   * computed and rounded rather than stored, and why the percentages are
+   * integers.
+   *
+   * It is pushed AFTER {@link agedFilerCredit} and reads that credit's amount,
+   * because KRS 141.066 credits a share of the tax remaining after the KRS
+   * 141.020(3) personal credits. Reversing the two produces a negative tax on a
+   * non-refundable credit.
+   */
+  readonly familySizeTaxCredit?: FamilySizeTaxCreditRule;
   /**
    * Oregon's surplus "kicker". Reads
    * {@link StateIncomeTaxInput.oregonPriorYearTaxBeforeCredits} and nothing

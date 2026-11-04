@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.64.0/us-tax-mcp-0.64.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.65.0/us-tax-mcp-0.65.0.tgz"
       ]
     }
   }
@@ -337,7 +337,7 @@ hour the credit landed: *"filerAge is refused for KY and moves its tax by $40.00
 field may be refused for a state whose tax it moves, and every field DECLARED for a
 state must have a household that witnesses it — a declared pair with no witness is
 `describe_state` telling a caller to supply a figure nothing reads, which is how the
-two Pennsylvania arguments were found. Three pairs out of 264 have no witness and
+two Pennsylvania arguments were found. Three pairs out of 267 have no witness and
 each carries its reason. Run against the previous release's lists it reports all
 eight rows above, by name and amount.
 

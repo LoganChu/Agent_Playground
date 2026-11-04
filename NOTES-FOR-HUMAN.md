@@ -13,7 +13,80 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**AS OF DAY 71 THERE IS STILL NOTHING NEW FOR YOU TO DO, AND TODAY THE PACKAGE
+**AS OF DAY 72 THERE IS STILL NOTHING NEW FOR YOU TO DO. The package was
+overcharging the poorest filers in Kentucky their ENTIRE tax bill, and it is now
+right.** Nothing today asks for your hands, and one of the standing asks below
+got cheaper rather than more urgent.
+
+**What happened, in one paragraph.** Kentucky has a credit called the family size
+tax credit. Below a threshold set at the federal poverty line for the household's
+size, it cancels the **whole** state tax bill, and it tapers off above that. A
+single Kentucky filer earning exactly `$15,650` owes **nothing**; this package was
+charging them `$495.20`. One earning `$8,000` owes nothing and was charged
+`$189.20`. It is implemented now, and `us-state-tax` is at **v0.62.0**.
+
+Day 71 found this and deliberately did **not** fix it, which was the right call
+and is worth knowing about: the credit's taper is measured on an income
+definition the law invents for the purpose, that definition had not been read, and
+shipping a credit computed on a guessed base would have swapped a gap I had
+written down for a defect nobody knew about. Today it got fixed properly.
+
+> **THE PART THAT IS WORTH MORE THAN THE FIX, COMMERCIALLY.** Working out how
+> Kentucky builds its own printed table turned up something about the **leading
+> open-source tax model**, which is the main free alternative to this package.
+> Kentucky prints the taper as a grid of whole-dollar income cutoffs. That model
+> reproduces the 2025 grid by storing two of the ten percentage steps as
+> `1.270032` and `1.330032` instead of 127% and 133% — numbers that appear in no
+> Kentucky document. They work only because every 2025 threshold happens to be an
+> odd multiple of `$50`, which makes exactly those two steps land on half a
+> dollar; the step between them is left as a round `1.30`, because 130% of a
+> multiple of `$50` is a whole number and needs no fudge. In 2026 the poverty
+> guideline is not a multiple of `$50`, and the two numbers stop reproducing the
+> rule they were fitted to: the two approaches give a different answer at **eleven
+> incomes**, each worth ten percent of a household's entire Kentucky bill.
+>
+> That is the first thing this project has found that is a statement about the
+> **alternative** rather than about itself, and it is the kind of sentence you can
+> put in front of somebody who already uses the free option. It is also checkable
+> rather than rhetorical, which is why I am comfortable writing it down: both
+> approaches agree at every single income in 2025, the one year either can be
+> tested against, so this package's choice costs nothing where it can be verified
+> and differs only where neither can.
+
+**What checks the fix, and none of it is "another model says so".** A filled tax
+return expecting `$0.00` on that `$15,650` household; the sixteen printed 2025
+cutoffs; and Kentucky's own two worked examples from its form instructions — a
+family of two at `$22,650` getting 80% and a family of four at `$33,000` getting
+90%. The two examples are the strongest evidence of the four, for a reason that
+has nothing to do with where they came from: each is only consistent with the 2025
+figures and with no other year's, so a package that had either the staircase or
+the thresholds wrong would fail them.
+
+**Three things I declared rather than fixed**, all written into the package's own
+output so that anybody using it is told: whether Kentucky rounds those cutoffs up
+or to the nearest dollar (all eight 2025 cells land on exactly half a dollar, so
+both rules reproduce them and nothing distinguishes them); two lines of the
+income worksheet this package cannot see, which make its figure a floor and so
+the credit a ceiling; and a household size that counts a dependent parent where
+Kentucky counts only children.
+
+**One correction to something this repository published.** A Kentucky household
+in the test set was overstated by `$551.18`, and both the upstream fixture's own
+label and this package's notes said the cause was a filing election Kentucky
+offers couples. It was not — it was this credit, and the household now agrees to
+the cent with that election still unmodelled. The note also quoted `$591.18`,
+which was the figure from before Day 71's separate fix. Both corrected, with a
+line saying plainly that a disagreement's *size* can be measured and its *cause*
+cannot.
+
+**THE ASK THAT GOT CHEAPER: THE NETWORK POLICY.** Day 71 attached a price to it —
+this very credit, blocked because no Kentucky website resolves from this sandbox.
+It is now fixed without that access, so the ask is weaker than it was yesterday,
+not stronger. It is still worth doing, because the fix rests on reconstructing
+Kentucky's table rather than on reading it, and one PDF would settle the rounding
+question I had to declare. Day 61's entry below has the exact settings page.
+
+(Day 71's note, unchanged:) **AS OF DAY 71 THERE IS STILL NOTHING NEW FOR YOU TO DO, AND TODAY THE PACKAGE
 WAS WRONG ABOUT SOMETHING REAL AND IS NOW RIGHT.** Nothing today asks for your
 hands. One of the four standing asks below got a price attached to it, and that
 is the only change to this file's list.

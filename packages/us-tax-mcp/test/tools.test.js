@@ -1771,7 +1771,20 @@ test('state_income_tax computes Virginia, its 11.5% band and its unreachable cei
         ...fed(100_000),
         [field]: 1_000,
       }),
-      /only applies to VA/,
+      // ASSERTED AS A SHAPE RATHER THAN AS A SENTENCE, and the change is Day
+      // 72's. This was `/only applies to VA/`, which read as a claim about the
+      // refusal and was really a claim about the ORDER of a hand-written list:
+      // `federalPovertyGuideline`'s gate said `state !== 'VA' && state !== 'MD'`
+      // and printed "only applies to VA and MD". Kentucky's family size tax
+      // credit measures against the same guideline, so the gate is now derived
+      // from the field table and prints "KY, MD, VA" — alphabetical, because
+      // that is the order the table happens to produce, which is exactly the
+      // kind of fact a test should not depend on.
+      //
+      // What this test is FOR is that the field is refused for New York and that
+      // the refusal names Virginia among the states it is for. Both of those
+      // survive a fourth state joining the list; `only applies to VA` did not.
+      new RegExp(`${field} only applies to [A-Z, a-z]*VA.*NY was requested`),
     );
   }
   // And `taxableSocialSecurity` is still refused where it genuinely means

@@ -100,6 +100,28 @@ const { getStateDefinition, SUPPORTED_STATES, SUPPORTED_YEARS } = pkg;
  * covers an age and a dollar amount and only one of those is alarming.
  */
 const DECLARED = {
+  // KENTUCKY'S FAMILY SIZE TAX CREDIT, Day 72. TWENTY-THREE FIGURES A YEAR AND
+  // ONLY TWO LAND HERE, which is the point of the entry: the rule was SHAPED so
+  // that the audit could reach it, and the shape is visible in the type.
+  //
+  // KRS 141.066(3)'s ten steps are percentages of a threshold amount. Written
+  // the way the reference model writes them -- `1.04`, `1.08` ... `1.33` --
+  // every one of them is a decimal at or above 1, which `mutantOf` declines, so
+  // the whole staircase would be ten unperturbable numbers and this entry would
+  // be the largest in the object. Written as PERCENTAGE POINTS -- `104`, `108`
+  // ... `133` -- every one is an integer at or above 100, which `mutantOf`
+  // doubles, and all ten are checked. The same choice makes the cutoff
+  // arithmetic exact, so nothing was traded for it.
+  //
+  // THE LESSON WORTH KEEPING: a parameter's representation decides whether this
+  // audit can see it, and the two representations here are arithmetically
+  // identical. A figure is not blind because of what it MEANS; it is blind
+  // because of how it was written down, and that is a thing a rule's author
+  // chooses.
+  'familySizeTaxCredit.maximumFamilySize':
+    "A COUNT: Kentucky's 4, the maximum family size of KRS 141.066(1)(e)4. `smallInteger`, so no mutant. Two things stand behind it and neither is a mutant. `test/kentucky-family-size-credit.test.js` asserts that family sizes 5, 6, 7 and 9 all read the size-four column AND that the credit is non-zero there, which is what makes the assertion mean something -- a cap tested at an income where the credit is zero would pass with the cap removed. And the Department's own form text states it in words, reached by server-side search: \"for purposes of computing the family size tax credit, the maximum family size is four\"",
+  'familySizeTaxCredit.steps':
+    "ONE FIGURE OF TWENTY-THREE, and it is the 100% share of the first step -- `creditShare: 1`, an integer below 100. The other twenty-two are all perturbable: the ten `thresholdPercent` values are integers at or above 100 BECAUSE THEY ARE WRITTEN AS PERCENTAGE POINTS RATHER THAN DECIMALS, and the nine remaining `creditShare` values are decimals in (0,1), which `mutantOf` halves. The unperturbable one is also the most load-bearing figure in the rule, because it is the step that forgives the WHOLE Kentucky tax -- so what stands behind it is the strongest external evidence this state has: `tools/anchors` 2025-KY-ky-10, a single filer at exactly $15,650 whose expected tax of $0.00 came off a filled return, plus seven more incomes from $0 to $15,650 asserted in the state's own test file. A mutant halving it to 0.5 would leave that household owing $247.60 and the anchor would fail on the next push",
   // NEW MEXICO, Day 67. Four fields and twenty-eight figures, and the
   // interesting half is WHY they are unperturbable rather than that they are:
   // three of the four are unperturbable because of what the rule SAYS, not

@@ -78,6 +78,7 @@ import { appendFileSync, existsSync, readFileSync, writeFileSync, readdirSync, s
 import { basename, join, relative } from 'node:path';
 import { execFile, execFileSync, execSync } from 'node:child_process';
 import { enumerateMutants } from './enumerate.mjs';
+import { acquire as acquireAuditLock } from './audit-lock.mjs';
 import {
   attributionOf,
   codeAtIn,
@@ -257,6 +258,27 @@ if (RECORD_OUT === null && !NO_RECORD && ONLY === null && !Number.isFinite(LIMIT
       'the log. An announcement is not a guard.',
   );
   process.exit(2);
+}
+
+// ---- the lock ----
+// Taken BEFORE the enumeration, so a second audit is refused in a second rather
+// than after reading a package tree. See `audit-lock.mjs` for why remembering
+// does not work and why the lock holds a pid.
+let releaseLock = () => {};
+try {
+  releaseLock = acquireAuditLock(pkgDir);
+} catch (error) {
+  console.error(`[mutate] ${error.message}`);
+  process.exit(2);
+}
+// `exit` covers a normal return, a thrown error and an explicit `process.exit`.
+// The signals are separate because Node does not run `exit` handlers for them.
+process.on('exit', () => releaseLock());
+for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
+  process.on(signal, () => {
+    releaseLock();
+    process.exit(130);
+  });
 }
 
 // ---- enumerate ----

@@ -303,6 +303,7 @@ test('NO field is accepted in silence by a state with no income tax', () => {
     pennsylvaniaSpouseEligibilityIncome: 4_000, oregonPriorYearTaxBeforeCredits: 4_000,
     separatedFromSpouse: true, newJerseyGrossIncome: 62_000,
     massachusettsFivePercentIncome: 58_000, newMexicoModifiedGrossIncome: 63_000,
+    kentuckyModifiedGrossIncome: 61_000,
     shortTermCapitalGains: 2_500,
     collectiblesGains: 1_100, socialSecurityAndMedicarePaid: 3_978, filerAge: 67,
     spouseAge: 66, spouseHasNoGrossIncomeAndIsNotADependent: true,

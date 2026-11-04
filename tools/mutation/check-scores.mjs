@@ -88,6 +88,12 @@ const CHECK = process.argv.includes('--check');
 const WRITE = process.argv.includes('--write');
 
 const problems = [];
+// Packages whose claim could NOT be checked, as distinct from packages whose
+// claim is wrong. The summary below must not conflate them: a tool that skips a
+// check and then says everything matches is the exact defect this file's own
+// header is about, and it reported precisely that the first time the audit lock
+// refused it.
+const unchecked = [];
 const note = (message) => {
   problems.push(message);
   process.stdout.write(`  STALE  ${message}\n`);
@@ -153,7 +159,36 @@ for (const [name, row] of Object.entries(record.packages)) {
     );
     process.exit(1);
   }
-  execFileSync('npm', ['run', 'build'], { cwd: dir, stdio: ['ignore', 'ignore', 'pipe'] });
+  // THIS TOOL REBUILDS THE PACKAGE BEFORE FINGERPRINTING IT, so the audit lock
+  // added on Day 72 refuses it while an audit of that package is in flight — and
+  // the refusal is CORRECT: a score cannot be checked against a tree this
+  // command would have to move to read. What was wrong was the failure mode. The
+  // first time it happened the lock's message arrived inside an unhandled
+  // `execFileSync` error, under four hundred lines of stdio buffer, which is the
+  // opposite of what a guard is for.
+  //
+  // So the refusal is caught and reported as what it is: not a stale claim, not
+  // a broken build, just a check that cannot run yet.
+  try {
+    execFileSync('npm', ['run', 'build'], { cwd: dir, stdio: ['ignore', 'ignore', 'pipe'] });
+  } catch (error) {
+    const stderr = String(error.stderr ?? '');
+    if (stderr.includes('deliberate-error audit of')) {
+      process.stderr.write(
+        `[scores] ${name}: an audit of this package is running, so its build is locked and ` +
+          'this check cannot fingerprint the tree. That is the lock doing its job \u2014 the ' +
+          'score the audit is about to write is the one to check. Re-run when it finishes.\n',
+      );
+      process.exitCode = 3;
+      unchecked.push(name);
+      // `continue`, not `return`: this is a loop over the recorded packages at
+      // module top level, and the OTHER package's claim is still checkable —
+      // us-federal-tax is not under audit and its fingerprints still answer.
+      continue;
+    }
+    process.stderr.write(`[scores] ${name}: \`npm run build\` failed.\n${stderr}`);
+    process.exit(1);
+  }
 
   const mutants = mutantFingerprint(dir);
   const suite = suiteFingerprint(dir);
@@ -272,7 +307,13 @@ for (const line of README.split('\n')) {
   }
 }
 
-if (problems.length === 0) {
+if (problems.length === 0 && unchecked.length > 0) {
+  // NOT a clean sweep, and the wording has to say which claims it is about.
+  process.stdout.write(
+    `\nEvery score this run COULD check matches the record. ` +
+      `${unchecked.length} could not be checked: ${unchecked.join(', ')}.\n`,
+  );
+} else if (problems.length === 0) {
   process.stdout.write('\nEvery advertised mutation score matches the record, and the record matches this build.\n');
   process.exit(0);
 }

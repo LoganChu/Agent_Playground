@@ -897,6 +897,54 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     cite: 'the Department\'s Individual Income Tax page — "a $40 tax credit is allowed for each individual reported on the return who is age 65 or over"; KRS 141.020(3) itself does not resolve from this sandbox, and the figure is additionally anchored by a `policyengine-us` fixture asserting $40 of aged personal credit on a 2025 Kentucky return, which this package reproduces exactly (tools/anchors)',
     constant: true,
   },
+  // =========================================================================
+  // THE FAMILY SIZE TAX CREDIT — 23 figures a year, and the one entry in this
+  // state where the cite has to say what a figure is NOT.
+  //
+  // The ten percentage steps are the only figures in this ledger whose reading
+  // came out of another model's parameter file, and the cite says so rather than
+  // naming KRS 141.066(3) as though it had been opened. What makes them
+  // re-checkable anyway is arithmetic rather than authority: the Department's
+  // own printed whole-dollar cutoffs for 2025 are reproduced by
+  // `round(percent x threshold)` at all four family sizes, which is 16 cells
+  // (`test/kentucky-family-size-credit.test.js`), and two worked examples in
+  // Kentucky's own instructions — family size 2 at $22,650 giving 80%, family
+  // size 4 at $33,000 giving 90% — are each consistent with the 2025 threshold
+  // amounts and with NO other year's, so they corroborate the staircase and the
+  // thresholds at once.
+  // =========================================================================
+  {
+    state: 'KY',
+    path: 'familySizeTaxCredit.povertyGuideline.*',
+    kind: 'agency',
+    document: 'HHS poverty guidelines',
+    cite: 'the HHS poverty guidelines for the contiguous states, republished every January — KRS 141.066(1)(e) sets the threshold amount at the guideline for the family size, and running these two figures through it reproduces all four of the threshold amounts Kentucky publishes for 2025 ($15,650, $21,150, $26,650 and $32,150), which is the corroboration that matters because it closes from the state\'s side',
+    constant: false,
+  },
+  {
+    state: 'KY',
+    path: 'familySizeTaxCredit.maximumFamilySize',
+    kind: 'agency',
+    document: 'Kentucky Schedule ITC',
+    cite: 'the Department\'s own form text, reached by server-side search — "for purposes of computing the family size tax credit, the maximum family size is four"; KRS 141.066(1)(e)4 itself does not resolve from this sandbox',
+    constant: true,
+  },
+  {
+    state: 'KY',
+    path: 'familySizeTaxCredit.steps.*.thresholdPercent',
+    kind: 'agency',
+    document: 'KRS 141.066 —',
+    cite: 'the ten percentage steps of KRS 141.066(3) — 100, 104, 108, 112, 116, 120, 124, 127, 130 and 133 percent of the threshold amount. THE STATUTE WAS NOT READ FROM THIS SANDBOX: apps.legislature.ky.gov does not resolve here, and the steps were read off `policyengine-us`\'s own parameter file, which cites KRS 141.066(3) and four years of Schedule ITC. What re-checks them is not that citation but the arithmetic: `round(percent x threshold)` reproduces the whole-dollar cutoffs Kentucky prints for 2025 at all four family sizes, including the eight that land on exactly $.50 and round up, and the reference model reproduces the same eight only by carrying 1.270032 and 1.330032 in place of 127 and 133 — fitted constants that work because every 2025 threshold amount is an odd multiple of $50, and that this package therefore does not copy',
+    constant: true,
+  },
+  {
+    state: 'KY',
+    path: 'familySizeTaxCredit.steps.*.creditShare',
+    kind: 'agency',
+    document: 'KRS 141.066 —',
+    cite: 'the credit percentages of KRS 141.066(3), one for each step — 100% at or below the threshold amount, then 90, 80, 70, 60, 50, 40, 30, 20 and 10, and nothing above 133%. Same reading and same limitation as the steps they pair with; two of them are additionally anchored by worked examples in Kentucky\'s own instructions, 80% for a family of two at $22,650 and 90% for a family of four at $33,000',
+    constant: true,
+  },
   {
     state: 'KY',
     path: 'agedFilerCredit.minimumAge',
