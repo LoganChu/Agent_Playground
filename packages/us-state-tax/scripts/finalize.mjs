@@ -25,6 +25,11 @@ function auditHoldingThisPackage() {
   } catch {
     return null;
   }
+  // `JSON.parse` succeeds on `null` and on `[]`, so a truncated or nonsense lock
+  // is rejected HERE rather than by the `process.kill` below throwing a
+  // TypeError that happens to be caught. The accidental version reached the same
+  // answer and said nothing about why.
+  if (typeof lock !== 'object' || lock === null || Array.isArray(lock)) return null;
   // A lock whose process is gone is stale. `process.kill(pid, 0)` throws ESRCH
   // for a dead pid and EPERM for one owned by another user — and EPERM means
   // ALIVE, so it must count as held or the guard fails open.

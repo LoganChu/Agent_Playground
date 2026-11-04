@@ -54,6 +54,19 @@
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+/**
+ * Every entry point takes the lock's path, defaulting to the real one.
+ *
+ * NOT for flexibility — nothing in this repository wants a second lock. It is so
+ * that `audit-lock.test.mjs` can exercise the liveness check, the stale path and
+ * the refusal WITHOUT WRITING THE REAL LOCKFILE, which would be the worst
+ * possible test: it would overwrite a running audit's lock with a dead pid and
+ * so switch the guard off during the exact window the guard exists for.
+ *
+ * **A TEST THAT HAS TO DISABLE THE THING IT TESTS IS NOT A TEST OF IT.** The
+ * parameter was added the moment that was noticed, which was while writing the
+ * test, with an audit in flight holding the real lock.
+ */
 /** The lock lives beside the harness, and `.gitignore` keeps it out of commits. */
 export const LOCK_PATH = join(import.meta.dirname, '.audit-lock.json');
 
@@ -76,10 +89,10 @@ function alive(pid) {
  * repository because a JSON file got truncated would be a worse outcome than
  * the overlap it is preventing.
  */
-export function held() {
+export function held(lockPath = LOCK_PATH) {
   let raw;
   try {
-    raw = readFileSync(LOCK_PATH, 'utf8');
+    raw = readFileSync(lockPath, 'utf8');
   } catch {
     return null;
   }
@@ -89,6 +102,14 @@ export function held() {
   } catch {
     return null;
   }
+  // `JSON.parse` SUCCEEDS on `null`, on `[]` and on `3`, and `null.pid` throws —
+  // so catching the parse error is not enough. This threw a `TypeError` out of a
+  // guard whose whole contract is "a malformed lock is treated as absent", which
+  // is the fail-CLOSED direction: the exception propagates out of whatever is
+  // consulting the lock and can refuse a build for a reason that has nothing to
+  // do with an audit. Found by `audit-lock.test.mjs` on the first run, which is
+  // the only thing that found it.
+  if (typeof lock !== 'object' || lock === null || Array.isArray(lock)) return null;
   if (!alive(lock.pid)) return { ...lock, stale: true };
   return { ...lock, stale: false };
 }
@@ -99,8 +120,8 @@ export function held() {
  * Returns a `release` function. The caller also wires it to `exit`, because a
  * lock released only on the happy path is a lock that outlives every crash.
  */
-export function acquire(pkgDir) {
-  const existing = held();
+export function acquire(pkgDir, lockPath = LOCK_PATH) {
+  const existing = held(lockPath);
   if (existing && !existing.stale) {
     const minutes = Math.round((Date.now() - Date.parse(existing.started)) / 60_000);
     throw new Error(
@@ -119,7 +140,7 @@ export function acquire(pkgDir) {
     );
   }
   writeFileSync(
-    LOCK_PATH,
+    lockPath,
     JSON.stringify(
       { pid: process.pid, package: pkgDir, started: new Date().toISOString() },
       null,
@@ -132,8 +153,8 @@ export function acquire(pkgDir) {
     released = true;
     // Only remove a lock that is still OURS. A run that overran a stale lock
     // taken by a later run must not delete the later run's.
-    const now = held();
-    if (now && now.pid === process.pid) rmSync(LOCK_PATH, { force: true });
+    const now = held(lockPath);
+    if (now && now.pid === process.pid) rmSync(lockPath, { force: true });
   };
 }
 
@@ -151,8 +172,8 @@ export function acquire(pkgDir) {
  * audit is invoked as `mutate.mjs packages/us-state-tax` from the repository
  * root and a build runs with that directory as its cwd.
  */
-export function refuseIfAudited(packageName) {
-  const lock = held();
+export function refuseIfAudited(packageName, lockPath = LOCK_PATH) {
+  const lock = held(lockPath);
   if (!lock || lock.stale) return;
   if (!String(lock.package).split(/[\\/]/).filter(Boolean).includes(packageName)) return;
   const minutes = Math.round((Date.now() - Date.parse(lock.started)) / 60_000);
