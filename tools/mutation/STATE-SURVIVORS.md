@@ -1,3 +1,91 @@
+# Day 72 — 25 new mutants, all 25 killed, and the same eight survivors a third time
+
+The third consecutive audit with the same eight survivors, by file and kind and value
+**and line number** — and the third consecutive prediction written into `JOURNAL.md`
+and committed *while the run was in flight*, which is the only form in which a
+prediction is evidence rather than hindsight.
+
+```text
+  Day 70 run 2   2,690 mutants   2,682 killed   8 survivors   99.7%   46m13s
+  Day 71         2,690 mutants   2,682 killed   8 survivors   99.7%   50m28s
+  Day 72         2,715 mutants   2,707 killed   8 survivors   99.7%   67m08s
+```
+
+**Recorded over mutant `62225f5a266b4b20` and suite `8d7ff8bd80f27bad`:**
+
+```text
+states/flat-states.js   line  435  year   2024 -> 2023
+states/flat-states.js   line  565  year   2025 -> 2024
+states/new-jersey.js    line  104  year   2028 -> 2027
+states/new-jersey.js    line  229  year   2028 -> 2027
+states/new-mexico.js    line  115  money  8_000 -> 16000
+states/new-mexico.js    line  206  money  36_000 -> 72000
+states/ohio.js          line   88  rate   0.01 -> 0.005
+states/ohio.js          line  107  rate   0.2  -> 0.1
+```
+
+## THE COUNT MOVED THIS TIME, BY 25, AND EVERY ONE OF THE 25 DIED
+
+Day 71's rule added no mutants because both its figures were small integers. Today's
+rule — Kentucky's family size tax credit, KRS 141.066 — added **25**, and the
+decomposition was dumped and diffed before the run rather than inferred after it:
+
+```text
+  10  threshold percents  100 104 108 112 116 120 124 127 130 133   doubled   money
+   9  credit shares       0.9 0.8 0.7 0.6 0.5 0.4 0.3 0.2 0.1       halved    rate
+   4  poverty guideline   15_650  5_500  15_960  5_680              doubled   money
+   1  the YEAR in `year === 2025 ? ... : ...`                                 year
+   1  in `engine.js`: the `/ 100` that turns a percentage point into a fraction
+```
+
+**THE TEN AND THE NINE ARE A CHOICE AND NOT A COUNT.** KRS 141.066(3)'s steps are
+percentages, and the reference model stores them as `1.04 … 1.33` — decimals at or
+above 1, which `mutantOf` declines. Written that way all ten would be invisible to this
+audit and the blind-spot entry for the rule would be the largest in
+`blind-spots.mjs`. Written as **integer percentage points** all ten are perturbable,
+and the same choice makes the cutoff arithmetic exact, so nothing was traded for it.
+
+> **A FIGURE IS NOT BLIND BECAUSE OF WHAT IT MEANS. IT IS BLIND BECAUSE OF HOW IT WAS
+> WRITTEN DOWN, AND THAT IS A THING A RULE'S AUTHOR CHOOSES.** Every other entry in
+> `blind-spots.mjs` records a figure this audit cannot reach. The entry added today is
+> the first that records a rule *shaped so it could* — 21 of its 23 figures checked,
+> and the two that are not are the family size cap of `4` and the `1` of the 100% step.
+
+The one I was least sure of was the `year === 2025` selector, flipped to `2024`, which
+makes tax year 2025 read the 2026 poverty guideline. The `$15,650` anchor does not
+notice — `$15,650` is below the 2026 threshold too, so the credit is still the whole
+bill. It died to the test that compares the two years directly, which is the lesson:
+**a mutant on a year selector is killed only by a test that compares the two years.**
+
+## THE RUN WAS 33% SLOWER AND THIS TIME THE SHARES DID MOVE
+
+```text
+  share of the run           Day 70 -> Day 71 -> Day 72
+  step 1 (narrowed)           20.0% -> 19.5% -> 18.6%
+  step 2 (whole files)        17.6% -> 17.4% -> 16.0%
+  full re-run                  9.9% ->  9.8% ->  9.3%
+  whole suite (no selection)  52.5% -> 53.2% -> 56.1%
+```
+
+**Day 71 wrote that the phase shares survive a change of load, on the evidence of a 9%
+change in the wall clock moving no share more than 0.7 of a point. Today the clock moved
+33% — four test suites, three MCP runs, several builds and a handful of web fetches
+sharing four cores with the audit — and the whole-suite share moved 2.9 points.**
+
+So the claim needs narrowing rather than withdrawing: *the shares are robust to mild
+load and not to heavy load*, and the direction is the informative part. The phase that
+grows is the one with no selection at all — 137 mutants that run the entire suite each,
+at **64.7 seconds a kill** against 1.5 seconds in the narrowed step. Contention costs
+most where the unit of work is largest.
+
+> **THAT IS AN ARGUMENT FOR DAY 70'S ITEM 1 THAT DAY 70 DID NOT HAVE.** Making the
+> unattributed mutants cheaper was priced at "half the audit" on an idle machine. On a
+> machine doing anything else it is 56% and rising, and it is the half of the run a
+> future day's own work will make worse. There are 137 of them, not the 133 Day 70
+> counted.
+
+---
+
 # Day 71 — the same eight, over a tree with a new credit in it, and predicted before the run
 
 The first audit since Day 70, over the build that ships today. **Eight survivors, the

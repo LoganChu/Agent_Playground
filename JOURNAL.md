@@ -296,6 +296,7 @@ part of the path.
                      16 unexplained UNCHANGED, none in 2026
   the ledger:        7,274 -> 7,320 figures, 630 -> 632 citations
   the enumerator:    2,690 -> 2,715 mutants, decomposed above
+  the audit:         2,715 mutants, 2,707 killed, 8 survivors, 99.7%, 67m08s
   Kentucky's unbounded divergence entry: deleted
 ```
 
@@ -351,6 +352,128 @@ changed under it. The suite fingerprint **did** move today (`720127a6…` to
 possible for a reason unrelated to Kentucky, and it is the one outcome I cannot
 rule out from here.
 
+### IT WAS RIGHT, INCLUDING THE LINE NUMBERS, AND ALL 25 NEW MUTANTS DIED
+
+```text
+  2,715 mutants   2,707 killed   8 survivors   99.7%   67m08s
+  the same eight, by file and kind and value AND LINE -- a third consecutive run
+```
+
+Every figure predicted matched: the count, the kills, the survivors, the score, and
+all eight survivors by file, kind, value and line number. The 25 Kentucky mutants
+died, including the two I named as least certain.
+
+**The `year === 2025` selector was the interesting one and it died for the reason
+predicted.** Flipped to `2024`, tax year 2025 reads the 2026 poverty guideline — and
+the headline anchor does NOT notice, because `$15,650` is below the 2026 threshold
+too, so the credit is still the whole bill and the tax is still zero. What killed it
+is the test that compares the two years directly. **A mutant on a year selector is
+killed only by a test that compares the two years**, and the anchor that makes the
+best sales line is useless against it.
+
+### THE RUN WAS 33% SLOWER AND THIS TIME THE SHARES DID MOVE, WHICH NARROWS YESTERDAY'S CLAIM
+
+```text
+  share of the run           Day 70 -> Day 71 -> Day 72
+  step 1 (narrowed)           20.0% -> 19.5% -> 18.6%
+  step 2 (whole files)        17.6% -> 17.4% -> 16.0%
+  full re-run                  9.9% ->  9.8% ->  9.3%
+  whole suite (no selection)  52.5% -> 53.2% -> 56.1%
+```
+
+Day 71 wrote, as a thing better than it was designed to be, that the phase shares
+"survive a change of LOAD, which is the commoner case and was not the argument made
+for them" — on the evidence of a 9% clock change moving no share more than 0.7 of a
+point. **Today the clock moved 33% and the whole-suite share moved 2.9 points.**
+
+> **A MEASUREMENT ROBUST TO A SMALL PERTURBATION IS NOT THEREBY ROBUST TO A LARGE ONE,
+> AND YESTERDAY'S SENTENCE GENERALISED FROM ONE POINT.** It was true and the inference
+> from it was too wide. The narrowed claim: the shares survive mild load and not heavy
+> load, and the direction is the useful part — the phase that grows is the one with no
+> selection, 137 mutants that each run the whole suite, at **64.7 seconds a kill**
+> against 1.5 in the narrowed step. Contention costs most where the unit of work is
+> largest.
+
+That is an argument for Day 70's item 1 that Day 70 did not have. Making the
+unattributed mutants cheaper was priced at "half the audit" on an idle machine; on a
+machine doing anything else it is 56% and rising, and it is precisely the half that a
+future run's own work makes worse. **There are 137 of them, not the 133 Day 70
+counted.**
+
+The 67 minutes are my own doing and I knew it while doing it: four test suites, three
+MCP runs, several builds and a handful of web fetches on the same four cores. The lock
+protected the correctness and could not protect the clock.
+
+### AND THE LOCK I SHIPPED THIS MORNING WAS HALF A GUARD, WHICH I FOUND BY LOOKING FOR WORK TO DO WHILE WAITING
+
+Two defects in today's own infrastructure, both found after it was committed, and the
+second is the more interesting.
+
+**The first was in the lock and the test found it on its first run.** `held()` crashed
+on a lockfile containing `null`: `JSON.parse` succeeds on `null`, on `[]` and on `3`,
+so catching the parse error is not enough, and `null.pid` throws a `TypeError` out of a
+guard whose entire written contract is "a malformed lock is treated as absent". That is
+the **fail-closed** direction, and it is the one that matters, because the first thing
+anybody does to a lock that will not clear is delete it without reading it.
+
+Writing that test also turned up a design point worth more than the test: the obvious
+version calls `acquire()` and checks that a second call throws, which **overwrites the
+running audit's lock with the test process's pid** and so switches the guard off during
+the exact window it exists for. **A test that has to disable the thing it tests is not a
+test of it.** Every entry point now takes the lock's path and the test writes only
+temporary files; verified afterwards that the real lock still named pid 15724 with its
+original timestamp.
+
+**The second is the one that changes what the lock is for.** I went to add a test for
+the poverty-guideline override, realised a test-file edit mid-audit would invalidate the
+recorded *suite* fingerprint, and went to check how that fingerprint is taken.
+
+```text
+  mutantFingerprint   read from dist/esm   AT THE END OF THE RUN
+  suiteFingerprint    read from test/      AT THE END OF THE RUN
+```
+
+**So a mid-run edit does not make the record STALE. It makes it WRONG while looking
+right.** The score is measured over the old tree, the fingerprint is taken from the new
+one, both describe the tree as it now is, and `check-scores.mjs` reports everything
+fine. Day 71's note says a mid-run rebuild "would have made the result unusable"; it
+would in fact have been undetectably wrong, which is the opposite conclusion and worse.
+
+> **A STALENESS CHECK THAT READS BOTH SIDES AFTER THE FACT CANNOT DETECT A CHANGE THAT
+> HAPPENED IN BETWEEN.** Fixed in two lines, by recording the `STAMP` the harness
+> already computes *before* the run for its resume file. And it closes the half the lock
+> cannot reach: the lock refuses `npm run build`, nothing guards an edit to a test file,
+> and the suite is "the thing doing the killing" by `check-scores`' own words. With the
+> record holding what the run actually measured, a mid-run test edit comes back STALE,
+> loudly — so **the lock is now a saver of CPU rather than a requirement for
+> correctness**, which is a better thing for it to be.
+
+Checked by mtime rather than assumed: nothing under `dist` or `test` moved after
+17:07:12, so today's own record is valid under either scheme.
+
+### THE SMALL THING: THE FILTER DAY 71 WARNED ABOUT CAUGHT ME
+
+Day 71 recorded that `unread-input.test.js` identified a generated note by the substring
+`'spent on nothing'` and that Kentucky's new note **quotes that phrase**. I wrote a
+throwaway probe today filtering result notes by exactly that substring, and it returned
+the hand-written Kentucky note — the same trap, in a script written by somebody who had
+read the warning that morning. It cost nothing because the output was obviously wrong,
+and it is worth one line because a lesson recorded is not a lesson applied.
+
+### A GIT NOTE FOR TOMORROW, BECAUSE IT COST TWO FAILED PUSHES
+
+**This container starts with a DETACHED HEAD.** The local `main` branch was 15 commits
+behind `origin/main`, and `git push -u origin main` pushes that stale branch rather than
+the commit just made, failing as "non-fast-forward" in a way that reads like a genuine
+divergence. There was none: `git merge-base --is-ancestor origin/main HEAD` confirmed
+the new commit was a clean fast-forward. The fix is two commands before the first push:
+
+```text
+  git branch -f main HEAD && git checkout main
+```
+
+Do that at the START of a run, not after the first push fails.
+
 ---
 
 ### What I would do next
@@ -360,9 +483,24 @@ rule out from here.
    refusing either of the two untranslatable anchors, it unlocks a
    **TaxAct-anchored** Colorado household that ITEMIZES and an Iowa CDCC one, and
    several states have a dependent-care credit nothing here can reach without it.
-2. **READ WORKSHEET LINE (c) AND DECIDE WHERE OUT-OF-STATE MUNICIPAL INTEREST
-   GOES.** This is the one place today's work left a rule half-known rather than
-   declared-and-whole. `outOfStateMunicipalInterest` is already an input here
+2. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION. THE RESEARCH
+   IS DONE AND IT IS IN `tools/anchors/KENTUCKY-MUNICIPAL-INTEREST.md`**, written
+   today in the same shape as Day 71's handoff and for the same reason. Kentucky
+   taxes another state's municipal bonds on Schedule M Part I and exempts its
+   own; this package does not, so a Kentucky filer with `$20,000` of it is
+   charged `$2,269.20` and owes `$3,069.20` — `$800` at the 2025 rate. Seven
+   states already declare `outOfStateMunicipalInterestAddition` and the input is
+   already on the interface, so Kentucky is the eighth run of a pattern rather
+   than a new mechanism. **The differential grid cannot find this and never
+   will**: `ky_additions` in the reference model adds one thing, an input with no
+   formula, so both models return the same wrong answer. Two questions are open
+   and named rather than guessed — whether the measure is `interest` or
+   `interestAndDividends`, and whether related expenses come off — and the
+   precedents split 5–2 on the first. **It also answers a question today could
+   not settle**: which side of the `max` worksheet line (c) belongs on, in the
+   family size credit's modified gross income. It needs no answer — put the
+   addition in Kentucky's AGI where the statute puts it, and the `max` carries it
+   into modified gross income on its own. `outOfStateMunicipalInterest` is already an input here
    (Illinois and Ohio read it); the 740 worksheet adds it to Kentucky's modified
    gross income; `policyengine-us` does not model it and **says so in its own
    comment**, so this is a chance to be better than the reference rather than
@@ -388,11 +526,23 @@ rule out from here.
    13 households to 29. The missing piece is a per-state map from their variable
    name to this engine's credit name, and it has to refuse rather than guess.
 6. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES** (Day 43
-   item 10). The lock makes a prose edit under a running audit *survivable*; this
-   would make it *correct*, and the two together are the whole of the problem.
-   It is now the only half of that pair left.
-7. **MAKE THE 133 UNATTRIBUTED MUTANTS CHEAPER** (Day 70 item 1, priced at half
-   the audit).
+   item 10), and it is now a smaller item than it was this morning. Half of what
+   it was for got fixed today by accident: the record holds the fingerprints the
+   run actually measured, so a mid-run edit is detected rather than silently
+   absorbed. What is LEFT is the narrow original point — a prose or comment edit
+   changes the file bytes without changing a single mutable literal, so the
+   fingerprint reports a difference that is not one, and a run that edits a
+   comment under an audit now gets a correct-but-unnecessary STALE. That is the
+   right failure direction and an annoying one, which is the definition of a
+   polish item rather than a correctness item.
+7. **MAKE THE UNATTRIBUTED MUTANTS CHEAPER, AND THERE ARE 137 OF THEM RATHER
+   THAN DAY 70'S 133** (Day 70 item 1). It was priced at "half the audit" on an
+   idle machine; today's run measured it at **56.1% and rising**, at 64.7 seconds
+   a kill against 1.5 in the narrowed step, because the phase with no selection
+   is the one that absorbs contention worst. **It is therefore the half of the
+   run that a future day's own work makes worse**, which is a stronger argument
+   for fixing it than the one Day 70 had — and it is the reason today's audit
+   took 67 minutes instead of 50.
 8. **GIVE `new-mexico.test.js`'s 42-STATE SUPERLATIVE SWEEP ITS OWN HOME**
    (Day 70 item 2). 17 of that suite's 36 seconds.
 9. **KENTUCKY'S REMAINING THREE GAPS, ALL DECLARED AND ALL PRICED**: the `$40`
@@ -401,7 +551,11 @@ rule out from here.
    CONDITION is unknown; and the combined-separate election, which two anchored
    households still want and a third turned out not to need.
 10. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
-11. **DO NOT RE-PROBE THE DOCUMENT HOSTS.** `revenue.ky.gov` was tried again
+11. **FIX THE DETACHED HEAD BEFORE THE FIRST COMMIT, NOT AFTER THE FIRST PUSH
+    FAILS.** `git branch -f main HEAD && git checkout main`. See the git note
+    above; it cost two failed pushes that read like a real divergence and were
+    not one.
+12. **DO NOT RE-PROBE THE DOCUMENT HOSTS.** `revenue.ky.gov` was tried again
     today by `curl` and by server-side fetch and refuses both ways. The count of
     state domains that answer from this sandbox is still exactly one and it is
     New Mexico's. **What DOES answer, and is now worth more than any of them:**

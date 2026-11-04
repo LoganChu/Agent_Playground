@@ -8,7 +8,7 @@ PROOF half of it without an asterisk; today is the first day the proof found
 something a buyer would recognise as a defect in the COMPETITION.**
 
 `us-federal-tax` mutation is at **100%** (716 mutants, 0 survivors) and
-`us-state-tax`'s rule parameters at **99.7%** (2690 mutants, 8 survivors) — both
+`us-state-tax`'s rule parameters at **99.7%** (2715 mutants, 8 survivors) — both
 written by `check-scores.mjs` rather than copied by hand, which is the shape that
 tool owns and the reason the sentence reads like this rather than like a table.
 
@@ -83,7 +83,7 @@ either wrong fails them.
 
 ```text
   us-federal-tax mutation         100%    716 mutants, 0 survivors
-  us-state-tax rule parameters   99.7%    2,690 mutants, 8 survivors (Day 70)
+  us-state-tax rule parameters   99.7%    2,715 mutants, 8 survivors (Day 72)
   the differential          19,131 of 20,328 agree; 1,181 explained, 16 not
   the anchors               12 of 14 agreeing, 6 states, right answers EXTERNAL
   the provenance ledger     7,320 figures over 84 state-years, 632 citations

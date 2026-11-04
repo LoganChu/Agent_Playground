@@ -438,7 +438,7 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 716 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 2690 | 8 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.7% |
+| `us-state-tax` (rule parameters) | 2715 | 8 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.7% |
 
 The state figure was re-measured on **Day 71** over the build that ships today; the
 federal one on Day 46, over a package no day since has touched. Both scores are
