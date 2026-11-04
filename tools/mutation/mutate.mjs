@@ -1060,7 +1060,6 @@ if (RECORD_OUT && Number.isFinite(LIMIT)) {
   process.exit(1);
 }
 if (RECORD_OUT) {
-  const { mutantFingerprint, suiteFingerprint } = await import('./fingerprint.mjs');
   const name = pkgDir.replace(/^.*packages\//, '');
   const existing = existsSync(RECORD_OUT) ? JSON.parse(readFileSync(RECORD_OUT, 'utf8')) : { packages: {} };
   existing.packages[name] = {
@@ -1071,8 +1070,28 @@ if (RECORD_OUT) {
     score: Number((((results.length - survivors.length) / results.length) * 100).toFixed(1)),
     // The two reasons a score can move, recorded apart because they want
     // different fixes: the parameters changed, or the suite that kills them did.
-    mutantFingerprint: mutantFingerprint(pkgDir),
-    suiteFingerprint: suiteFingerprint(pkgDir),
+    //
+    // **`STAMP`, WHICH WAS TAKEN BEFORE THE RUN, AND NOT A FRESH READING TAKEN
+    // AFTER IT.** These two lines used to call the fingerprint functions here,
+    // at the end, and that made the worst failure this harness has silent.
+    //
+    // A run that edits `dist` or `test/` mid-audit — which has happened on Day
+    // 43 three times in one run and on Day 71 once — produces a score measured
+    // over the OLD tree and a record fingerprinted against the NEW one. The two
+    // then MATCH, because both describe the tree as it is now, so
+    // `check-scores.mjs` reports everything fine and the published score is of
+    // a package that never existed. Day 71 believed the opposite: its note says
+    // the mismatch "would have made the result unusable", and the result would
+    // in fact have been undetectably wrong.
+    //
+    // > **A STALENESS CHECK THAT READS BOTH SIDES AFTER THE FACT CANNOT DETECT
+    // > A CHANGE THAT HAPPENED IN BETWEEN.** Recording the fingerprints the run
+    // > actually measured makes a mid-run edit come back as STALE, loudly,
+    // > which is what the audit lock was built to prevent by other means — and
+    // > it closes the half of the hole the lock does not reach, because the lock
+    // > guards `npm run build` and nothing guards an edit to a test file.
+    mutantFingerprint: STAMP.mutant,
+    suiteFingerprint: STAMP.suite,
     // What the run covered, so a score measured over a subset cannot be read as
     // one measured over the package.
     skipped: SKIP.length === 0 ? undefined : SKIP,
