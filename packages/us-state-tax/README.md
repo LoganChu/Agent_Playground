@@ -3145,13 +3145,20 @@ reads, and all 27 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger maps 7,009 figures
-over 84 state-years, behind 632 citation entries; when it was written there was no
-mapping between the two at all. The definitions hold 7,320 numeric leaves in all, and
-the gap is exact and deliberate: **311 of them are sentinels** — a bracket with no
-ceiling, a cap meaning "the whole of it" — which are read from no document and are
-declared rather than counted. A count of cited figures that includes the figures it
-excludes overstates the one thing this ledger exists to state. **A list of sources beside a list of figures
+was **which document any one figure came from**. Today the ledger covers 7,320 numeric
+figures over 84 state-years, against 632 citations; when it was written there was no
+mapping between the two at all. **A list of sources beside a list of figures
+is not provenance. The mapping is the provenance, and it is the part nobody writes
+down.**
+
+Of those 7,320, **7,009 are mapped to a document and 311 are classified as sentinels** —
+a bracket with no ceiling, a cap meaning "the whole of it" — which no document states and
+which the ledger has to classify anyway. Both halves of that sentence are load-bearing:
+the ledger *covers* 7,320 figures and *maps* 7,009 of them, and a claim that it maps all
+7,320 **to the document each came from** overstates it by exactly the figures it
+deliberately declares as documentless. Day 73 made that claim in `STRATEGY.md`, corrected
+it, and then overcorrected this section — which was right, and machine-checked, and is
+restored. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
 
@@ -3444,7 +3451,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **1,181 tests**. Turning it on, when there were 618 of them, is what
+from all **1,182 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

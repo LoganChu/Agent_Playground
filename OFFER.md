@@ -52,8 +52,9 @@ costs more than this.
 local jurisdictions re-read from the issuing document and re-verified, shipped
 as a versioned pack with the provenance ledger — 7,009 figures mapped to the
 document each came from, behind 632 citation entries, each saying which document,
-which line, and what kind of authority it is. The 311 numeric leaves that are
-sentinels rather than read figures are declared as such, not counted here. Plus the year's verification report and the differential grid.
+which line, and what kind of authority it is. The ledger covers 311 further
+numeric leaves and classifies them as sentinels — figures no document states,
+such as a bracket with no ceiling — which is why the two counts differ. Plus the year's verification report and the differential grid.
 
 **Why anyone pays for something they can clone.** They can clone it. What they
 cannot clone is *next* year. Forty-two states publish new figures between

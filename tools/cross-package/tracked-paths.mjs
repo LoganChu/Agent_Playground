@@ -130,6 +130,13 @@ const ALLOWED_TOP_LEVEL = new Set([
   'JOURNAL.md',
   'LICENSE',
   'NOTES-FOR-HUMAN.md',
+  // Day 73. The price list, which is the document Day 66 said was missing and
+  // never wrote. It is declared here rather than admitted by widening a glob,
+  // which is the whole point of this list — and this check was the one red in
+  // today's preflight, AFTER the day's first push had already gone out. The
+  // lesson is small and the cost would not have been: run preflight before the
+  // push, not before the second one.
+  'OFFER.md',
   'README.md',
   'STRATEGY.md',
   'packages',

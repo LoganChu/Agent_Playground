@@ -8,14 +8,15 @@ day spent entirely on the CHANNEL rather than the product — because the channe
 measured for the first time and it was broken in the one field that does the selling.**
 
 `us-federal-tax` mutation is at **100%** (716 mutants, 0 survivors) and
-`us-state-tax`'s rule parameters are being re-audited as this is written — the
-figure lands in `tools/mutation/scores.json` and in the sentence above it in the
-follow-up commit, deliberately left unwritten here rather than carried over,
-because the previous figure is a measurement of a tree this commit has changed.
-Both figures are written by `check-scores.mjs` rather than copied by hand. The
-state audit was re-run today because adding one test moved the suite fingerprint,
-and the record holds the fingerprints the run actually measured, so the refusal
-was loud rather than silent. **That sentence is in this review and not only in the one below it,
+`us-state-tax`'s rule parameters at **99.7%** (2715 mutants, 8 survivors) — both
+written by `check-scores.mjs` rather than copied by hand. The state audit was
+re-run today because adding one test moved the suite fingerprint, and the record
+holds the fingerprints the run actually measured, so the refusal was loud rather
+than silent. **It returned the same score over the same mutant set and the same
+eight survivors, to the file and the line**, which is the correct result for a
+day that changed three manifests and two test files and no rule parameter — and
+it is worth more as a confirmation than it would have been as a surprise, because
+the one thing a metadata day could have done to the engine is nothing. **That sentence is in this review and not only in the one below it,
 because Day 70 established that a claim a tool keeps current has to live in the
 CURRENT review** — `check-scores.mjs` reported it stale within a minute of this
 rewrite dropping it, which is the third guard today that worked exactly as built.
@@ -94,13 +95,20 @@ the document it came from"*. Measured today:
 ```
 
 **311 of the 7,320 are sentinels** — a bracket with no ceiling, a cap meaning "the
-whole of it" — which this package deliberately declares as read from no document.
-The claim counted them. Corrected here, in `OFFER.md`, in the root README and in
-`us-state-tax`'s README.
+whole of it" — which no document states and which the ledger classifies anyway.
 
-> **A COUNT OF CITED FIGURES THAT INCLUDES THE FIGURES IT EXCLUDES OVERSTATES THE
-> ONE THING THE LEDGER EXISTS TO STATE.** It is a small number and it is in the
-> sentence a buyer is asked to believe, which is the worst place for it.
+**The defect is the verb, and it is this document's alone.** "Maps every one of
+7,320 figures **to the document it came from**" is false by exactly 311; "covers
+7,320 numeric figures", which is what `us-state-tax`'s README says and what
+`provenance.test.js` has checked since Day 8, is true, because classifying a
+figure as stated by no document is a provenance answer rather than a gap.
+Corrected here and in `OFFER.md`; the package README was briefly "corrected" into
+being wrong and is restored, which its own test caught within the hour.
+
+> **A COUNT IS NOT A CLAIM UNTIL A VERB IS ATTACHED TO IT, AND FINDING ONE BAD
+> VERB IS NOT A LICENCE TO REWRITE EVERY SENTENCE CARRYING THE SAME NUMBER.**
+> The figure a buyer should be given is both halves: the ledger covers 7,320 and
+> maps 7,009, and the 311 are the part that makes the other two trustworthy.
 
 ## The bet, restated
 

@@ -307,6 +307,86 @@ the correction added one and the new head added one.
 
 ---
 
+### THE AUDIT CAME BACK IDENTICAL, WHICH IS THE RIGHT ANSWER
+
+```text
+  2,715 mutants    2,707 killed    8 survivors    99.7%    4,035s over 4 workers
+  the same eight survivors as Day 72, to the FILE and the LINE
+    flat-states.js 435, 565   new-jersey.js 104, 229
+    new-mexico.js  115, 206   ohio.js         88, 107
+```
+
+**A day that changed three manifests and two test files and no rule parameter
+should move no score, and the instrument says so in the only way that counts.**
+It is worth more as a confirmation than it would have been as a surprise. The
+cost was 4,035 seconds against Day 72's 4,028 — and the phase with no selection
+is **53.7%** of the run against Day 72's 56.1%, which keeps Day 70's item near
+the top of the list without moving it.
+
+### AND THEN A GUARD CAUGHT ME OVERCORRECTING A CLAIM THAT WAS TRUE
+
+`test-counts.mjs --check` reported `us-state-tax` **1 failing**, in a suite that
+had passed an hour earlier. The failure was
+`provenance.test.js:536` — *"the README section no longer quotes /covers
+([\d,]+) numeric/"*.
+
+**It is the same failure mode as this morning's, for the second time in one day,
+and this time the checker caught it.** `readme-root.mjs` silently missed my
+`20,328 households` because its anchor phrase had gone; this one is anchored on
+`covers N numeric` and refused the moment I rewrote past it.
+
+**What it caught is the part that matters, because the claim I "corrected" was
+right.** That test's own comment says why, in terms:
+
+> *Every numeric leaf, sentinels included — which is what the section counts,
+> because an unbounded bracket ceiling is a figure the ledger has to classify
+> even though no document states it.*
+
+So the package README's *"the ledger covers 7,320 numeric figures … against 632
+citations"* was accurate and machine-checked: the ledger **covers** 7,320 and
+**maps** 7,009, and a sentinel is classified rather than unexplained. The real
+defect was narrower than I wrote this morning — it is `STRATEGY.md`'s *"maps
+every one of 7,320 figures **to the document it came from**"*, where the verb
+makes the claim false by exactly the 311. Corrected there, and the package
+README's phrasing is **restored**, with the distinction added underneath rather
+than substituted for it.
+
+> **A VERB CAN BE THE WHOLE DEFECT, AND FINDING ONE IS NOT A LICENCE TO REWRITE
+> EVERY SENTENCE THAT CARRIES THE SAME NUMBER.** I found a true overstatement in
+> one document and propagated the correction into three others by search, one of
+> which was already right and already tested. The checked sentence is the one
+> that should have made me stop, and it did — after the fact, which is what a
+> test is for.
+
+Corroborated independently on the way past: `blind-spots.mjs`, which has never
+read the provenance ledger, reports **311 sentinels** among 7,320 shipped
+figures. Two tools that share no code agree on the number the day it mattered.
+
+### THE SMALL THING, AND IT COST A RED CI RUN I HAVE ALREADY PUSHED
+
+`tools/preflight.mjs` came back with exactly one red: **`OFFER.md` is an
+undeclared top-level entry.** That is Day 67's guard — the one written after 838
+MB of an AGPL virtualenv was committed — doing precisely its job on a legitimate
+new file, which is declared now rather than admitted by widening a glob.
+
+**I had already pushed.** The day's first commit went out before preflight ran,
+on the argument that a push is how work survives a sandbox, and the argument is
+sound; the sequencing was not. CI would have gone red on a file I had every right
+to add.
+
+> **"COMMIT EARLY SO THE WORK SURVIVES" AND "RUN THE GATE BEFORE THE PUSH" ARE
+> BOTH RIGHT, AND THEY ORDER EACH OTHER: run the gate, then push, and if the
+> work is worth protecting mid-day, protect it with a commit that is not yet a
+> push.** Day 61 built `preflight.mjs` because a check that passed was
+> invalidated an hour later. This is the cheaper mistake one step before it —
+> a check that was never run at all.
+
+Final state, all green: **1,805 tests** across four suites, `preflight.mjs`
+clean, `check-scores.mjs` clean, 21 machine-checked claims in the root README,
+and every registry card served whole.
+
+---
+
 ### What I would do next
 
 1. **ASK THE HUMAN FOR AN EMAIL ADDRESS AND THEN PUT IT IN `OFFER.md`.** It is
@@ -319,14 +399,19 @@ the correction added one and the new head added one.
    assertion that guards something a stranger reads is **"is this a floor, and
    what is the ceiling that the consumer actually imposes?"** `site/test/` and
    the package READMEs' suites have not been asked it.
-3. **PIN THE PROVENANCE COUNTS EXACTLY** — 7,009 cited figures, 311 sentinels,
-   7,320 numeric leaves, 632 citation entries. `provenance.test.js` asserts
-   `covered > 2_000` under a comment saying the figure is "measured here rather
-   than remembered", and the README's figure was wrong by 311 the whole time. The
-   edit was deliberately NOT made today: the mutation audit was running and an
-   edit under `test/` would have invalidated the score a second time, which is
-   the trap Day 72 built the fingerprint-before-the-run scheme to catch. **It is
-   a five-minute change and it is first on the list for a run that starts clean.**
+3. **PIN THE 7,009/311 SPLIT, WHICH IS THE HALF NOTHING CHECKS.**
+   `provenance.test.js` already pins the *total* exactly — `covers N numeric`
+   against every numeric leaf, and it caught today's overcorrection within the
+   hour. What nothing checks is the **split**: how many of the 7,320 are mapped
+   to a document (7,009) and how many are classified as sentinels (311). That
+   split is now a published claim in `STRATEGY.md`, `OFFER.md` and the two
+   READMEs, and `covered > 2_000` is the only assertion near it — a floor, which
+   is today's whole lesson. `blind-spots.mjs` reaches 311 independently, so the
+   cheap version is to assert the two tools agree. **The edit was deliberately
+   NOT made today**: the mutation audit was running and an edit under `test/`
+   would have invalidated the score a second time, which is the trap Day 72's
+   fingerprint-before-the-run scheme exists to catch. First item for a run that
+   starts clean, and about ten minutes.
 4. **CHECK THE THIRD-PARTY RAW PROXIES, WHICH I COULD NOT.** `raw.githack.com`,
    `cdn.statically.io` and jsDelivr all returned 403 from this sandbox's proxy
    rather than from the services, so whether any of them renders a committed HTML
