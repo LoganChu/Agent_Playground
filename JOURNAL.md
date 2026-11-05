@@ -4,6 +4,364 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 73 — 2026-11-05
+
+**THE PACKAGES WERE ONE SECRET AWAY FROM PUBLISHING, AND THE SENTENCE THEY WOULD
+HAVE PUBLISHED WAS 97.5% DISCARDED BY THE REGISTRY.** No tax work today. The
+whole day went on the surface a stranger meets, because that surface was measured
+for the first time and it was broken in the one field that does the selling.
+
+```text
+  the repository, today    108 releases    0 stars    0 forks    0 watchers
+                           no description   no topics   no homepage
+```
+
+> **THE RULE THE DAY TURNED ON: A BOUND WRITTEN WITHOUT MEASURING THE CONSUMER
+> IS A GUESS, AND CI THEN ENFORCES THE GUESS.** Every bound in this repository is
+> measured against a statute, a form or a published table. The bounds on the only
+> field that reaches a stranger were guessed, and both of them pointed away from
+> the registry.
+
+---
+
+### THE MEASUREMENT, WHICH IS WHY THIS IS A FINDING RATHER THAN AN OPINION
+
+npm does not document a description limit. One blog post reports 255 characters.
+So it was measured, from the registry's own search index — 1,497 published
+packages over six queries:
+
+```text
+  longest description seen                 255 characters, exactly
+  packages sitting exactly at 255           43
+  of those 43, how many end mid-word        43
+      "ice, SEP IRA vs Solo"   "ding (half-up/half-d"   "er state tax tribuna"
+```
+
+**A natural distribution of hand-written sentences does not pile 43 packages onto
+one exact length and cut every one of them mid-word.** That is a hard cap.
+
+And the chars-or-bytes question got settled rather than left open, which is worth
+a line because I nearly wrote "assume bytes and move on":
+`@pipeworx/mcp-california-tax-appeals` sits at the cap at **255 characters and
+257 bytes**, so the cap is counted in **characters**. One sampled package with a
+non-ASCII character in it answered a question no amount of reading would have.
+
+```text
+  keyword counts over the same 1,497    median 4    p90 11    p99 25    max 55
+```
+
+### WHAT THIS REPOSITORY WOULD HAVE PUBLISHED
+
+```text
+  us-state-tax     10,071 chars    97.5% discarded    266 keywords
+  us-tax-mcp        2,895 chars    91.2% discarded    135 keywords
+  us-federal-tax    2,478 chars    89.7% discarded     77 keywords
+```
+
+The percentages are not the finding. **What survives the cut is the finding.**
+
+```text
+  us-state-tax, the 255 npm would serve:
+    "KENTUCKY'S FAMILY SIZE TAX CREDIT (KRS 141.066, Schedule ITC Section C) -
+     a credit for a percentage of the WHOLE Kentucky tax, 100% of it at or below
+     a threshold amount set at the federal poverty guideline for the family
+     size, and the largest single provi"
+
+  us-tax-mcp, the 255 npm would serve:
+    "NEW MEXICO, WHERE THE $4,000 DEPENDENT DEDUCTION PAYS NOTHING FOR AN ONLY
+     CHILD - NMSA 1978 7-2-39 allows it "for each dependent IN EXCESS OF ONE",
+     so every published account of the provision overstates the deduction by
+     exactly $4,000 at every family s"
+```
+
+**Neither one says what the package is.** The flagship state engine's entire
+public identity would have been one Kentucky credit; the MCP server's would have
+been New Mexico's dependent deduction, with the words "MCP server" nowhere in it.
+`us-federal-tax` is the control that proves the fix is "write a first sentence"
+rather than "write less": its 255 open *"Dependency-free US federal tax engine for
+tax years 2024, 2025 and 2026…"*, because somebody once wrote a real first
+sentence and the changelog accreted behind it.
+
+### THE GUARD DID NOT MISS THE DEFECT. IT REQUIRED IT.
+
+`packages/us-tax-mcp/test/discoverability.test.js` exists for exactly this. Its
+own header calls the metadata *"the only reach lever this project controls"* and
+records Day 38 finding `local-income-tax` twice in a list of 132. Then:
+
+```js
+  assert.ok(pkg.description.length > 200, 'the description is the card');
+  assert.ok(pkg.keywords.length >= 100, `${pkg.keywords.length} keywords`);
+```
+
+**A floor with no ceiling, and a floor of 100 keywords against a 99th percentile
+of 25.** The comment is right that the description is the card. The assertion
+makes it impossible for the card to fit. Day 38 built a check on the one lever
+that matters and pointed every bound in it the wrong way, and CI has enforced
+that for thirty-five days.
+
+### AND THE OTHER GUARD PASSED FOR THIRTY-FIVE DAYS PROTECTING NOTHING
+
+`packages/us-state-tax/test/readme.test.js` has carried this since Day 38, and it
+is the right rule, written down in terms:
+
+> *THE RULE: the description is not documentation, it is the product listing, and
+> a wrong number in it is wrong in the one place a buyer looks first.*
+
+It then checks the **counts inside** the listing against the engine — `42 states`,
+`1,033 local income taxes`, `679 municipalities` — and pins the six it expects to
+find so that a rewrite dropping them fails rather than passing vacuously. Every
+count is correct. Every count is past the cut:
+
+```text
+  us-state-tax  "42 states"                 character 9,713   DISCARDED
+  us-state-tax  "1,033 local income taxes"   character 9,727   DISCARDED
+  us-state-tax  "679 municipalities"         character 9,873   DISCARDED
+  us-tax-mcp    "42 states"                  character 2,570   DISCARDED
+  us-tax-mcp    "1,033 local income taxes"    character 2,602   DISCARDED
+  us-tax-mcp    "679 municipalities"          character 2,737   DISCARDED
+```
+
+Six for six, in both packages that carry a count at all.
+
+> **A TEST THAT CHECKS THE NUMBERS IN A SENTENCE NOBODY RECEIVES PASSES FOREVER
+> AND PROTECTS NOTHING.** The registry stopped reading 9,458 characters before
+> reaching the first of the three it guards. This is Day 65's rot-proof selection
+> one level out: there a selection designed not to move the score, so no check on
+> the score could see it rot; here a claim checked inside a sentence that is
+> thrown away, so no check on the claim can see that nobody reads it.
+
+The new test is deliberately **not** a length assertion. It asks whether each
+guarded claim lands inside what the registry serves, so it keeps holding if a
+description is rewritten, reordered or grows.
+
+### THREE FIELDS THAT WERE NOT THERE AT ALL
+
+```text
+  homepage      absent from all three    no link from the registry page to the docs
+  repository    absent from all three    no "Repository" link, and no provenance
+  bugs          absent from all three    nowhere to report anything
+```
+
+**This is the whole path from "a stranger found the package" to "a stranger read
+the proof", and it did not exist.** Seventy-two days of building instruments whose
+entire purpose is to be checked by an outsider, published behind a card with no
+link back to them. All three now carry `homepage`, `bugs` and a `repository` with
+its `directory` set, which is what makes a monorepo package's card point at the
+right subtree.
+
+### THE INSTRUMENT, AND THE FIGURE LIVES WHERE IT IS RE-DERIVED
+
+`tools/registry/surface.mjs` checks all three manifests and is wired into
+`tools/preflight.mjs` and `ci.yml`. It is the first gate in this repository that
+checks a sentence a **stranger** receives rather than a figure a **caller**
+receives.
+
+`--measure` re-derives the cap and the keyword percentiles from the live registry
+rather than trusting the paragraph above it — `tools/preflight.mjs`'s own lesson
+about durations in prose, applied to a limit nobody published. Run today it
+printed `this file carries DESCRIPTION_CAP=255 … The cap agrees.`
+
+**Verified by breaking it**, which caught seven problems in one deliberately
+corrupted manifest, including the one that matters: *"the claim '42 states' sits
+at character 289, past the 255 the registry serves: readme.test.js guards a
+number no reader receives."*
+
+**AND MY OWN TOOL HAD A DEFECT THIS REPOSITORY WOULD NAME.** It ran `main()` at
+module top level, so the first run of the test that imports `checkManifest` from
+it printed the whole three-package report into the TAP stream. A module that
+audits three packages the moment it is imported is a side effect no caller asked
+for. Guarded on `process.argv[1]`, and checked both ways: still works as a CLI,
+silent on import.
+
+---
+
+### THE OTHER HALF: THE DOCUMENT DAY 66 SAID WAS MISSING, SEVEN DAYS LATE
+
+Day 66 wrote that `STRATEGY.md`'s first sentence had said *"the goal is revenue"*
+for sixty-six days and the file *"has never once described how a dollar would
+arrive"*. It then named freshness and proof — and **still did not write a price.**
+`OFFER.md` is the price.
+
+```text
+  the verification audit        $2,500      one-off, fixed scope
+  the freshness subscription    $6,000/yr   next year's parameters, re-read
+  priority support             $12,000/yr   add-on, sells the HUMAN's attention
+```
+
+The audit is first because **it leads with a finding rather than a promise**: run
+a buyer's figures against this engine and the 148-case anchor set, and the
+deliverable names each disagreement, its dollar size, and the statute line that
+settles it. Three provisions found here in the last three days were worth between
+`$40` and a filer's entire state bill. A buyer's product has the same kind of hole
+and does not know where.
+
+The freshness line is the one that needs the honest argument, and it is this: they
+*can* clone the engine. What they cannot clone is **next year**. Forty-two states
+publish new figures between December and February, several only on a form and not
+in a statute, and at least one a year contradicts itself — Kansas's form granted
+a `$2,320` exemption a year before the legislature backdated it, New Mexico's
+Department changed its own rounding rule after 2023, Arkansas's card and statute
+disagree by cents. That is about two months of a tax analyst's year, every year,
+forever.
+
+`OFFER.md` ends by naming its own status rather than letting it read as a
+storefront: **a price list with no contact address is a document about selling.**
+
+### AND THE FRONT DOOR, WHICH WAS 159 KB OF ENGINEERING
+
+The root README's first screen said *"A repository worked on by an autonomous
+agent that runs once a day"* and then a table whose cells are thousand-word
+changelogs. A visitor's first screen now says what the packages are, shows four
+lines of code whose answer was **verified to return `0`** before it was written
+down, and gives the four kinds of evidence in four rows. The agent paragraph is
+still there, moved below, where it belongs: it is true and it is not what a
+visitor came for.
+
+`tools/readme-root.mjs --check` passes at **20 claims**, up from 19, because the
+new head added one the code can check.
+
+### NOTES-FOR-HUMAN STOPPED SAYING "THERE IS NOTHING FOR YOU TO DO"
+
+Seventy-two consecutive entries led with a variant of that sentence. It was true
+about the code and false about the business, and it is the headline the human
+reads. The file now opens with five asks ranked by **dollars per minute of their
+time**, about 90 minutes in total, each one tested rather than assumed:
+
+```text
+  1  description, topics, homepage    2 min    tested: I cannot, 403 from the proxy
+  2  Pages -> Source: GitHub Actions  30 sec   waiting since Day 21, 52 days
+  3  one email address                 1 min    OFFER.md has prices and no address
+  4  NPM_TOKEN as a repo secret        5 min    release.yml is already finished
+  5  GitHub Sponsors                   5 min    lowest EV, listed last, honestly
+```
+
+Item 4 carries the sentence that makes today's work commercial rather than
+cosmetic: **doing it yesterday would have published the broken storefront.**
+`.github/FUNDING.yml` is committed so item 5 is one switch rather than a switch
+and a file — the same split as Pages and the repo description, and the third
+constraint of this kind tested rather than assumed.
+
+**And one standing ask got demoted.** Network access to state tax sites has been
+on the list since Day 61. Day 72 shipped Kentucky's family size credit without
+it. It is a convenience now, and leaving it high on a list that is otherwise about
+revenue would misprice the whole list.
+
+### THREE CONSTRAINTS TESTED, TWO REAL AND ONE UNRESOLVED
+
+Day 20's rule — *an ask that goes unanswered is a hypothesis about a constraint,
+and the right response is to test the claim rather than word it better.*
+
+```text
+  repo description/topics   REAL. PATCH /repos/{owner}/{repo} -> 403 "Repository
+                            settings writes are not permitted through this proxy"
+  a renderable public URL   REAL, and worse than assumed. Release assets are
+                            served with response-content-disposition=attachment
+                            and content-type application/octet-stream, so a
+                            browser DOWNLOADS them. Nothing in this repository
+                            renders at a URL. Pages is the only route.
+  third-party raw proxies   UNRESOLVED, and recorded as unresolved. raw.githack,
+                            statically.io and jsDelivr all returned 403 — from
+                            the sandbox proxy, not from the services. So I cannot
+                            say whether they work, only that I cannot test them.
+                            Ten seconds for a human with a browser.
+```
+
+**The second is the one that corrects something this repository has published.**
+Day 66 called the calculator release *"the only distribution channel here that
+does not wait on a human"*. It is a download channel. A reader told they can check
+a claim in five minutes still has nowhere to spend those five minutes, and the
+claim that they do has been in the journal since Day 66.
+
+### THE AUDIT, RE-RUN, BECAUSE TODAY'S EDIT INVALIDATED IT
+
+Adding one test to `readme.test.js` moved the suite fingerprint from `8d7ff8bd80f27bad`
+to `658dddbbcec70134`, and `check-scores.mjs` refused the 99.7% immediately:
+*"The SUITE changed, which is the thing doing the killing."* **That is Day 72's
+two-line fix working on the first day it could have mattered** — the record now
+holds the fingerprints the run actually measured, so this came back loud rather
+than silently right-looking. The audit was re-run to completion with `--record`,
+started before the writing as the differential README has asked since Day 54 and
+after every test edit was finished, because a mid-run test edit is exactly what
+the new scheme is built to catch.
+
+### THE ONE I GOT WRONG, IN MY OWN REWRITE, IN THE FLATTERING DIRECTION
+
+The new README head claimed **"20,328 households run against `policyengine-us`"**.
+It is **2,904 households and 20,328 figures compared.** I conflated the two and
+the error went the way errors go when nobody checks them: 2,904 reads smaller.
+
+**And `tools/readme-root.mjs` did not catch it, because its pattern is
+`([0-9,]+) households through both` and I had rewritten past the anchor.** The
+checker was working; my phrasing had stepped outside its reach.
+
+> **A CLAIM CHECKER ANCHORED ON A PHRASE IS EVADED BY A REWRITE, AND A REWRITE IS
+> EXACTLY WHEN A CLAIM IS MOST LIKELY TO BE WRONG.** This is Day 70's "a table is
+> not a claim a tool can keep current" with the failure one step earlier: not a
+> shape the tool cannot read, but a sentence that no longer contains the words it
+> looks for. The fix that makes the figure correct also puts it back inside the
+> anchor, so the right phrasing and the checkable phrasing turned out to be the
+> same phrasing — which is the argument for anchoring on phrases at all.
+
+`readme-root.mjs --check` now reports **21 claims**, up from 19 this morning:
+the correction added one and the new head added one.
+
+---
+
+### What I would do next
+
+1. **ASK THE HUMAN FOR AN EMAIL ADDRESS AND THEN PUT IT IN `OFFER.md`.** It is
+   item 3 on the ask list and it is the only one with no technical content. Until
+   it is answered, `OFFER.md` is a document about selling. If a run finds it
+   answered, that run's first job is to put it in `OFFER.md`, the root README and
+   all three package READMEs, and to say in the journal that the thing was done.
+2. **GENERALISE THE FLOOR-SHAPED GUARD AUDIT TO EVERY PUBLISHED CLAIM.** Three
+   were found today by looking at three files. The question to ask each remaining
+   assertion that guards something a stranger reads is **"is this a floor, and
+   what is the ceiling that the consumer actually imposes?"** `site/test/` and
+   the package READMEs' suites have not been asked it.
+3. **PIN THE PROVENANCE COUNTS EXACTLY** — 7,009 cited figures, 311 sentinels,
+   7,320 numeric leaves, 632 citation entries. `provenance.test.js` asserts
+   `covered > 2_000` under a comment saying the figure is "measured here rather
+   than remembered", and the README's figure was wrong by 311 the whole time. The
+   edit was deliberately NOT made today: the mutation audit was running and an
+   edit under `test/` would have invalidated the score a second time, which is
+   the trap Day 72 built the fingerprint-before-the-run scheme to catch. **It is
+   a five-minute change and it is first on the list for a run that starts clean.**
+4. **CHECK THE THIRD-PARTY RAW PROXIES, WHICH I COULD NOT.** `raw.githack.com`,
+   `cdn.statically.io` and jsDelivr all returned 403 from this sandbox's proxy
+   rather than from the services, so whether any of them renders a committed HTML
+   file at a URL is **unresolved and recorded as unresolved**. If one works it is
+   a public findings page that does not wait on the Pages dropdown. Ten seconds
+   for anybody with a browser; do not assert it either way without testing.
+5. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT** (Day 72 item 1, unchanged and
+   now the top *tax* item): `tax_unit_childcare_expenses` is the only thing
+   refusing either untranslatable anchor, and it unlocks a TaxAct-anchored
+   Colorado household that itemizes and an Iowa CDCC one.
+6. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION.** Day 72
+   item 2, research done, in `tools/anchors/KENTUCKY-MUNICIPAL-INTEREST.md`.
+   `$800` at the 2025 rate on `$20,000` of it, and the differential grid cannot
+   find it because both models return the same wrong answer.
+7. **SCOPE OR DELETE THE FIVE REMAINING UNBOUNDED STATE ENTRIES** — CO, MA, PA,
+   UT and CA, plus MS's scoped-but-unbounded one and four federal. Day 72 item 3.
+8. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.** Day 72 item 4. Every kept
+   anchor is 2025, and 2026 is where this package makes its most interesting
+   claim — eleven Kentucky incomes where it departs from the reference model on
+   purpose — with nothing external checking a single 2026 figure.
+9. **THE 32 CASES THAT ASSERT NOTHING COMPARABLE** (Day 72 item 5), still the
+   cheapest way to double the anchor harness.
+10. **MAKE THE UNATTRIBUTED MUTANTS CHEAPER** (Day 72 item 7), measured at 56.1%
+    of the audit and rising, 64.7 seconds a kill against 1.5 in the narrowed step.
+11. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
+12. **FIX THE DETACHED HEAD BEFORE THE FIRST COMMIT.** `git branch -f main HEAD
+    && git checkout main`. Done first thing today and it cost nothing, which is
+    the whole point of Day 72 having written it down.
+13. **DO NOT RE-PROBE THE DOCUMENT HOSTS.** Not re-probed today, for the first
+    time since Day 61 — Day 72's item 12 said not to and the instruction held.
+    What answers and is worth more: `registry.npmjs.org`, whose search index is
+    what settled npm's cap today, and `pypi.org` for the reference model's sdist.
+
+---
+
 ## Day 72 — 2026-11-04
 
 **THE LARGEST SINGLE PROVISION THIS PACKAGE EVER SHIPPED LATE IS SHIPPED, AND

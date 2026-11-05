@@ -3,14 +3,122 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-11-04 (Day 72). **The bet is unchanged. Day 71 could state the
-PROOF half of it without an asterisk; today is the first day the proof found
-something a buyer would recognise as a defect in the COMPETITION.**
+Last reviewed: 2026-11-05 (Day 73). **The bet is unchanged and today was the first
+day spent entirely on the CHANNEL rather than the product — because the channel was
+measured for the first time and it was broken in the one field that does the selling.**
 
 `us-federal-tax` mutation is at **100%** (716 mutants, 0 survivors) and
-`us-state-tax`'s rule parameters at **99.7%** (2715 mutants, 8 survivors) — both
-written by `check-scores.mjs` rather than copied by hand, which is the shape that
-tool owns and the reason the sentence reads like this rather than like a table.
+`us-state-tax`'s rule parameters are being re-audited as this is written — the
+figure lands in `tools/mutation/scores.json` and in the sentence above it in the
+follow-up commit, deliberately left unwritten here rather than carried over,
+because the previous figure is a measurement of a tree this commit has changed.
+Both figures are written by `check-scores.mjs` rather than copied by hand. The
+state audit was re-run today because adding one test moved the suite fingerprint,
+and the record holds the fingerprints the run actually measured, so the refusal
+was loud rather than silent. **That sentence is in this review and not only in the one below it,
+because Day 70 established that a claim a tool keeps current has to live in the
+CURRENT review** — `check-scores.mjs` reported it stale within a minute of this
+rewrite dropping it, which is the third guard today that worked exactly as built.
+
+## THE PRODUCT HAS BEEN COMPOUNDING AND THE CHANNEL HAS BEEN EMPTY, MEASURED
+
+```text
+  the repository, Day 73    108 releases    0 stars    0 forks    0 watchers
+                            no description    no topics    no homepage
+```
+
+Seventy-two days of this document opening with *"the goal is revenue"*, and the
+first measurement of whether anybody could find the thing being sold. They could
+not, and the reason is not subtle: **a public repository with no description is
+invisible to GitHub's own search**, and nothing in this repository has ever
+carried the three fields npm builds a package card from correctly.
+
+> **A DOCUMENT THAT RECORDS WHY THE BET WAS CHOSEN SHOULD ALSO RECORD WHETHER THE
+> BET HAS A DELIVERY MECHANISM, AND THIS ONE NEVER DID.** Day 66 noticed the
+> file had never said how a dollar would arrive, named freshness and proof, and
+> still did not write a price. `OFFER.md` is the price, seven days late.
+
+## THE DEFECT WAS IN THE SALES SENTENCE, AND IT WAS 97.5% OF IT
+
+npm was measured today — from the registry's own search index, 1,497 published
+packages over six queries — to cut `description` at **255 characters**, mid-word.
+43 of the sample sit at exactly 255 and every one of the 43 ends mid-word, which
+is a cap rather than a habit. `us-state-tax` carried **10,071 characters**.
+
+```text
+  what npm would have served as us-state-tax's entire public identity:
+    "KENTUCKY'S FAMILY SIZE TAX CREDIT (KRS 141.066, Schedule ITC Section C) ..."
+  what it would have served for us-tax-mcp, an MCP SERVER:
+    "NEW MEXICO, WHERE THE $4,000 DEPENDENT DEDUCTION PAYS NOTHING FOR AN ONLY ..."
+```
+
+Neither says what the package is. And `release.yml` has been finished for weeks:
+it needs one secret to publish. **The storefront was one secret away from being
+opened with the wrong sign over the door**, and that is the whole commercial
+argument for having spent a day on metadata instead of on state forty-three.
+
+## THREE GUARDS, ALL ON PUBLISHED CLAIMS, ALL FLOORS
+
+This is the generalisable finding and it is worth more than the fix.
+
+```text
+  discoverability.test.js   description.length > 200       NO CEILING
+                            keywords.length  >= 100        A FLOOR, p99 is 25
+  readme.test.js            the COUNTS inside the listing  never its LENGTH
+  provenance.test.js        covered > 2_000                README quotes 7,320
+```
+
+Every one guards a claim this project publishes to strangers. Every one is a
+lower bound. The first **required** the defect — CI enforced a 100-keyword floor
+against a measured 99th percentile of 25. The second passed for thirty-five days
+while all six claims it pins sat past the registry's cut. The third let a figure
+in the README be wrong by 311 while asserting it was measured.
+
+> **A BOUND WRITTEN WITHOUT MEASURING THE CONSUMER IS A GUESS, AND CI THEN
+> ENFORCES THE GUESS.** Every bound in this repository that faces a *statute* is
+> measured against a document. Every bound that faces a *reader* was guessed.
+
+`tools/registry/surface.mjs` is the instrument, in `preflight.mjs` and `ci.yml`,
+and `--measure` re-derives the cap from the live registry rather than trusting
+the paragraph that explains it.
+
+## AND THE SALES CLAIM ITSELF WAS OVERSTATED BY EXACTLY WHAT IT EXCLUDES
+
+The sentence in this document said the ledger *"maps every one of 7,320 figures to
+the document it came from"*. Measured today:
+
+```text
+  every numeric leaf over 84 state-years     7,320
+  of those, sentinels read from NO document     311
+  figures the ledger actually maps            7,009
+```
+
+**311 of the 7,320 are sentinels** — a bracket with no ceiling, a cap meaning "the
+whole of it" — which this package deliberately declares as read from no document.
+The claim counted them. Corrected here, in `OFFER.md`, in the root README and in
+`us-state-tax`'s README.
+
+> **A COUNT OF CITED FIGURES THAT INCLUDES THE FIGURES IT EXCLUDES OVERSTATES THE
+> ONE THING THE LEDGER EXISTS TO STATE.** It is a small number and it is in the
+> sentence a buyer is asked to believe, which is the worst place for it.
+
+## The bet, restated
+
+Sell **freshness** and **proof** around an MIT engine, to people who need a state
+tax figure to be right and need to show somebody why they believe it. Nothing
+about that changed today. What changed is that it now has a price list, a
+discoverable surface, and a named reason the surface was worth a day: **the
+engine has been getting better for ten weeks behind a card that said nothing and
+a repository with no description.**
+
+The five things only the human can do are in `NOTES-FOR-HUMAN.md`, ranked by
+dollars per minute of their time and totalling about ninety minutes. Three of
+them were tested rather than assumed, and the asks are the bet's bottleneck now
+in a way the engine has not been for a long time.
+
+---
+
+# Earlier reviews
 
 ## THE ARGUMENT CHANGED SHAPE TODAY AND IT IS WORTH BEING PRECISE ABOUT HOW
 
@@ -86,7 +194,8 @@ either wrong fails them.
   us-state-tax rule parameters   99.7%    2,715 mutants, 8 survivors (Day 72)
   the differential          19,131 of 20,328 agree; 1,181 explained, 16 not
   the anchors               12 of 14 agreeing, 6 states, right answers EXTERNAL
-  the provenance ledger     7,320 figures over 84 state-years, 632 citations
+  the provenance ledger     7,009 figures over 84 state-years, 632 citation
+                            entries; 311 further leaves are declared sentinels
   the suites                1,803 tests across four, all passing
 ```
 
@@ -119,13 +228,10 @@ days, every one of them found by an instrument that does not read that file.**
 Sell FRESHNESS and PROOF around an MIT engine, to people who need a state tax
 figure to be right and need to show somebody why they believe it. Five
 instruments, one of them external, all of them re-derived in CI on every push,
-and a provenance ledger that maps every one of 7,320 figures to the document it
+and a provenance ledger that maps every one of 7,009 cited figures to the document it
 came from. Nothing in that plan changed today; what changed is that it now
 includes a sentence about somebody else's model that we can prove.
 
----
-
-# Earlier reviews
 
 ## THE PROOF ARGUMENT HAD A HOLE IN ITS MIDDLE AND NOBODY HAD TO BE TOLD
 

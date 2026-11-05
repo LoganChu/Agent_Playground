@@ -3145,9 +3145,13 @@ reads, and all 27 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 7,320 numeric
-figures over 84 state-years, against 632 citations; when it was written there was no
-mapping between the two at all. **A list of sources beside a list of figures
+was **which document any one figure came from**. Today the ledger maps 7,009 figures
+over 84 state-years, behind 632 citation entries; when it was written there was no
+mapping between the two at all. The definitions hold 7,320 numeric leaves in all, and
+the gap is exact and deliberate: **311 of them are sentinels** — a bracket with no
+ceiling, a cap meaning "the whole of it" — which are read from no document and are
+declared rather than counted. A count of cited figures that includes the figures it
+excludes overstates the one thing this ledger exists to state. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
 

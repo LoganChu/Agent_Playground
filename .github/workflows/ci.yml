@@ -167,6 +167,8 @@ jobs:
       # in the product table against "its ten tools" five hundred lines later.
       - name: Check the root README against the code
         run: node tools/readme-root.mjs --check
+      - name: The registry surface the packages publish
+        run: node tools/registry/surface.mjs
 
   # Is the mutation score this repository advertises a score of this repository?
   #

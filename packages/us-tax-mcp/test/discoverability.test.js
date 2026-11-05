@@ -17,6 +17,13 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  checkManifest,
+  DESCRIPTION_CAP,
+  DESCRIPTION_FLOOR,
+  KEYWORD_CAP,
+  KEYWORD_FLOOR,
+} from '../../../tools/registry/surface.mjs';
 
 const pkg = JSON.parse(
   readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8'),
@@ -44,10 +51,43 @@ test('the three fields a registry card is built from are all present', () => {
   // A blank one of these renders as a blank card everywhere the package is
   // linked, which is the argument NOTES-FOR-HUMAN.md makes about this
   // repository's own empty description.
+  //
+  // BOTH BOUNDS IN THIS TEST USED TO POINT AWAY FROM THE REGISTRY, and Day 73
+  // measured how far. `description.length > 200` had NO CEILING, so the field
+  // grew to 2,895 characters against a cap the registry was measured to hold at
+  // 255 — 91.2% of it discarded, and the surviving 255 were entirely about New
+  // Mexico's dependent deduction, never once saying the package is an MCP
+  // server. `keywords.length >= 100` was a FLOOR, demanded 100, and the 99th
+  // percentile across 1,497 sampled published packages is 25.
+  //
+  // > **A GUARD CAN REQUIRE THE DEFECT.** This one did not merely fail to catch
+  // > a 135-keyword list and a description nobody could receive; CI enforced
+  // > both. A bound is a claim about the consumer, and this file's own header
+  // > calls that consumer "the only reach lever this project controls".
+  //
+  // The bounds now come from `tools/registry/surface.mjs`, which re-derives them
+  // from the registry's search index with `--measure` rather than carrying a
+  // figure somebody read in a blog post.
   assert.equal(pkg.name, 'us-tax-mcp');
-  assert.ok(pkg.description.length > 200, 'the description is the card');
-  assert.ok(pkg.keywords.length >= 100, `${pkg.keywords.length} keywords`);
+  assert.ok(
+    pkg.description.length <= DESCRIPTION_CAP,
+    `description is ${pkg.description.length} characters and the registry serves ${DESCRIPTION_CAP}`,
+  );
+  assert.ok(pkg.description.length > DESCRIPTION_FLOOR, 'the description is the card');
+  assert.ok(
+    pkg.keywords.length <= KEYWORD_CAP,
+    `${pkg.keywords.length} keywords, above the ${KEYWORD_CAP} that is the 99th percentile`,
+  );
+  assert.ok(pkg.keywords.length >= KEYWORD_FLOOR, `${pkg.keywords.length} keywords`);
   assert.equal(pkg.license, 'MIT');
+});
+
+test('this package is reachable from its own registry card', () => {
+  // Day 73: all three manifests carried no `homepage`, no `bugs` and no
+  // `repository`, so the registry page a stranger lands on had no link back to
+  // the proof — which is the entire path from being found to being believed.
+  const problems = checkManifest('us-tax-mcp', pkg);
+  assert.deepEqual(problems, [], problems.join('\n'));
 });
 
 test('the bin, exports and files a published install depends on', () => {

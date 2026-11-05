@@ -3,8 +3,10 @@
 Things I cannot do myself, because they mean acting on the outside world: spending
 money, transacting, creating accounts, or contacting people.
 
-Nothing here blocks my work — I can keep building either way, and the repo keeps
-getting more valuable whether or not you do any of it.
+Nothing here blocks my *building*. **Day 73 is the day I stopped writing that as
+though it meant nothing here matters.** It does not block the engine getting
+better; it blocks the engine being found, installed, or paid for, and after
+seventy-three days those are the only things left that have never moved.
 
 **As of Day 20, nothing here blocks anyone else either.** Every entry below dated
 Day 6 to Day 19 says that an unpublished package cannot be installed by anyone and
@@ -12,6 +14,107 @@ that publishing is the one thing only you can do. That was wrong, I found out on
 Day 20, and it is fixed: all three packages now install from a public URL with no
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
+
+---
+
+# DAY 73: THE FIVE THINGS, RANKED, WITH TIMES AND PRICES
+
+**For seventy-two days this file led with "THERE IS NOTHING NEW FOR YOU TO DO."
+That was true about the code and false about the business, and today I measured
+the difference.** The repository is public, has published 108 releases, and has
+**0 stars, 0 forks, no description, no topics and no homepage.** Nobody has ever
+found it, because there is nothing to find it by.
+
+So the list below is not a wishlist. It is ranked by dollars per minute of your
+time, every item was tested rather than assumed, and the whole list is about
+**90 minutes**. `OFFER.md` — new today — is what gets sold and for how much.
+
+### 1. The repository's own description, topics and homepage — **2 minutes**
+
+Settings, or the ⚙ beside "About" on the repo's front page:
+
+```text
+  Description   US federal, state and local income tax engines for JavaScript.
+                42 states, 1,033 local income taxes, 2024-2026. MIT.
+  Topics        tax, income-tax, state-tax, payroll, typescript, mcp, javascript
+  Website       (leave until item 2 is done, then the Pages URL)
+```
+
+**I tested whether I could do this myself and I cannot:** `PATCH /repos/{owner}/{repo}`
+returns *"Repository settings writes are not permitted through this proxy"*, and
+the topics endpoint refuses the same way. This is the cheapest item on the list
+and it gates every other kind of discovery, including GitHub's own search.
+
+### 2. Settings → Pages → Build and deployment → Source: **GitHub Actions** — **30 seconds**
+
+One dropdown. The workflow has been built, tested and waiting since **Day 21 —
+fifty-two days.** The next push then publishes the calculator and the findings
+page, and every push after it. Day 21 established that an Actions token cannot
+switch this on however many permissions it is given, so it is genuinely yours.
+
+**Why it is worth more than it sounds.** This project has told a reader five
+times that they could check a finding against their own system "in five minutes"
+and has never given them anywhere to spend those five minutes. I also checked
+today whether the release assets could stand in for it: they cannot. GitHub
+serves them with `response-content-disposition=attachment`, so the browser
+downloads the file rather than rendering it. There is no public URL that renders
+anything in this repository, and one dropdown creates one.
+
+### 3. An email address I can put under the prices — **1 minute**
+
+There is **no way to contact anyone** anywhere in this repository. `OFFER.md` now
+names three products at `$2,500`, `$6,000/yr` and `$12,000/yr`, and a price list
+with no address is a document about selling rather than an attempt to sell. Reply
+with one line — any address you will read — and I will put it in `OFFER.md`, the
+root README and all three package READMEs tomorrow.
+
+This is the single item on the list with no technical content and the only one
+without which no amount of the rest produces a dollar.
+
+### 4. `NPM_TOKEN` as a repository secret — **5 minutes**, and **do not do it before today's commit**
+
+`.github/workflows/release.yml` is **already finished**: it builds, typechecks,
+runs the full suite, skips versions already on the registry, and publishes with
+`--provenance --access public`. It needs one secret and nothing else.
+
+> **AND IF YOU HAD DONE IT YESTERDAY IT WOULD HAVE PUBLISHED A BROKEN STOREFRONT,
+> WHICH IS MOST OF WHAT I DID TODAY.** The npm registry was measured today to cut
+> `description` at **255 characters**, mid-word. `us-state-tax` carried a
+> **10,071-character** description — 97.5% of it discarded — and the 255 that
+> survived opened *"KENTUCKY'S FAMILY SIZE TAX CREDIT (KRS 141.066, Schedule ITC
+> Section C)…"* and never once said the package is a state tax engine or that it
+> covers 42 states. `us-tax-mcp`'s surviving 255 were entirely about New Mexico's
+> dependent deduction, for a package whose job is being an MCP server. All three
+> had **no `repository`, no `homepage` and no `bugs` field**, so the registry page
+> a stranger lands on had no link back here. And `us-state-tax` carried **266
+> keywords** against a measured 99th percentile of 25.
+>
+> All of that is fixed as of today, and `tools/registry/surface.mjs` fails CI if
+> it comes back. Publishing is now worth doing; three days ago it would have
+> burned the one first impression a package gets.
+
+Settings → Secrets and variables → Actions → New repository secret, named
+`NPM_TOKEN`, value an **automation** token from npmjs.com. Then Actions → Release
+→ Run workflow, packages `all`, dry run **true** first.
+
+### 5. GitHub Sponsors — **5 minutes**, lowest expected value, listed last honestly
+
+A `FUNDING.yml` button is the only way money can currently arrive without you
+negotiating anything. I expect very little from it — this is a repository with no
+audience yet — but it is five minutes and it is the only self-serve path that
+exists. Do items 1 to 4 first; they are what create the audience this depends on.
+
+---
+
+### What I am NOT asking for, and why
+
+**Network access to state tax websites** has been on this list since Day 61 and I
+am demoting it today. Day 72 shipped Kentucky's family size credit without it, by
+reconstructing the Department's own printed table, and the two things it would
+still buy are a rounding rule I have already declared and a document I have
+already worked around. It is a convenience. The five items above are the business.
+
+---
 
 **AS OF DAY 72 THERE IS STILL NOTHING NEW FOR YOU TO DO. The package was
 overcharging the poorest filers in Kentucky their ENTIRE tax bill, and it is now

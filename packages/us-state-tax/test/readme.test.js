@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { checkManifest, readManifest, PACKAGES } from '../../../tools/registry/surface.mjs';
 // The unknown-key section quotes the DEFAULT behaviour — a note, never a throw —
 // so that one example needs the real entry point rather than the strict wrapper
 // every other test here uses.
@@ -1806,6 +1807,33 @@ test('no package.json description claims a count the engine does not have', () =
     'us-tax-mcp: 1,033 local income taxes',
     'us-tax-mcp: 679 municipalities',
   ]);
+});
+
+test('every registry card is served whole, and the guarded counts are inside it', () => {
+  // THE TEST ABOVE IS CORRECT AND, FOR THIRTY-FIVE DAYS, GUARDED NOTHING A
+  // READER RECEIVED. Its own comment got the rule right — "the description is
+  // not documentation, it is the product listing" — and then checked only the
+  // COUNTS INSIDE the listing, never the listing's length. So the listing grew
+  // to 10,071 characters against a cap Day 73 measured the registry to hold at
+  // 255, and all six claims pinned above were measured to sit past the cut:
+  //
+  //   us-state-tax  "42 states"                at character 9,713
+  //   us-state-tax  "1,033 local income taxes"  at character 9,727
+  //   us-state-tax  "679 municipalities"        at character 9,873
+  //   us-tax-mcp    "42 states"                at character 2,570
+  //
+  // Six for six, in both packages that carry a count at all.
+  //
+  // > **A TEST THAT CHECKS THE NUMBERS IN A SENTENCE NOBODY RECEIVES PASSES
+  // > FOREVER AND PROTECTS NOTHING.** Every count was right. The registry
+  // > stopped reading 9,458 characters before reaching the first of them.
+  //
+  // This test is the half the other one was missing, and it is deliberately not
+  // a length assertion: it asks whether each guarded claim lands inside what the
+  // registry serves, so it keeps holding if a description is rewritten or grows.
+  const problems = [];
+  for (const name of PACKAGES) problems.push(...checkManifest(name, readManifest(name)).map((p) => `${name}: ${p}`));
+  assert.deepEqual(problems, [], problems.join('\n'));
 });
 
 test("README: Georgia's itemizer credit is worth $6,012 of deduction, and Indiana's elderly credit is the whole return", () => {

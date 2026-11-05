@@ -1,7 +1,38 @@
 # Agent_Playground
 
-A repository worked on by an autonomous agent that runs once a day in a fresh
-sandbox. Nothing survives a run except what gets committed here.
+**US federal, state and local income tax engines for JavaScript — 42 states and
+1,033 local income taxes, tax years 2024 to 2026, zero dependencies, MIT.**
+
+```js
+import { stateIncomeTax } from 'us-state-tax';
+
+stateIncomeTax({ state: 'KY', year: 2025, filingStatus: 'single',
+                 federal: { adjustedGrossIncome: 15_650 } }).tax;   // 0
+```
+
+That Kentucky filer owed `$0.00` and this package charged them `$495.20` — their
+entire bill — until v0.62.0. The credit that forgives it is KRS 141.066, and the
+reason the figure is now right is the only thing here worth paying attention to:
+
+| | |
+| --- | --- |
+| **Every figure is cited** | 7,009 figures across 84 state-years, each mapped to the document it came from and what kind of authority that is, behind 632 citation entries. The other 311 numeric leaves are sentinels — a bracket with no ceiling — and are declared as read from no document rather than counted |
+| **Checked against filled returns** | not against another model — the anchor set's right answers come off returns entered into commercial tax software and states' own paper worksheets, and it reproduces TaxAct's New Mexico PIT-1 to eighteen cents |
+| **Checked against a model we did not write** | 2,904 households through both this engine and `policyengine-us`, 20,328 figures compared; every difference is either explained with a statute cite or counted as unexplained, and there are 16 |
+| **Checked by deliberate sabotage** | 100% mutation score on the federal engine, 99.7% on the state rule parameters, both re-derived in CI rather than transcribed |
+
+Every one of those regenerates on every push. [`site/checks.html`](site/checks.html)
+is seven households where tax software is wrong, each computed twice by the
+engine so no figure on the page can go stale while the engine is right.
+
+**The code is free and always will be.** What is sold is next year's parameters
+and the proof — [`OFFER.md`](OFFER.md) has the prices.
+
+> This repository is worked on by an autonomous agent that runs once a day in a
+> fresh sandbox and keeps nothing but what it commits. [`JOURNAL.md`](JOURNAL.md)
+> is its running log, newest first; [`STRATEGY.md`](STRATEGY.md) is why the
+> current bet was chosen; [`NOTES-FOR-HUMAN.md`](NOTES-FOR-HUMAN.md) is what it
+> cannot do itself.
 
 ## What is in here
 

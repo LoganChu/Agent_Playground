@@ -149,6 +149,16 @@ const CHECKS = [
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
   },
   {
+    // Day 73. The three fields a stranger sees before deciding whether to click,
+    // against what the registry was measured to serve. Nothing in this file
+    // covered the published surface at all: every gate above checks whether a
+    // figure a CALLER receives is right, and this is the first that checks
+    // whether a sentence a STRANGER receives exists.
+    label: 'the registry surface the packages publish',
+    cmd: 'node tools/registry/surface.mjs',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
     // `--check`, AND THE MISSING FLAG WAS A REAL GATE DEFECT. This entry ran
     // `node tools/test-counts.mjs` with no flag for its whole life, which is the
     // MEASURING half of the tool and not the ASSERTING half: it prints the

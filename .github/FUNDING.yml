@@ -1,0 +1,6 @@
+# The sponsor button, so that item 5 of NOTES-FOR-HUMAN.md is one switch rather
+# than a switch and a file. This config is inert until GitHub Sponsors is
+# enabled for the account — an agent can commit the file and cannot enable the
+# programme, which is the same split as Pages (Day 21) and the repo description
+# (Day 73), both tested rather than assumed.
+github: [LoganChu]
