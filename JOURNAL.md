@@ -349,6 +349,43 @@ real defect in the instrument, and a number about the other harness's tolerance.
 
 ---
 
+### THE AUDIT CAME BACK IDENTICAL FOR THE THIRD DAY, AND I PUSHED BEFORE IT LANDED
+
+```text
+  2,715 mutants    2,707 killed    8 survivors    99.7%    2,807s over 4 workers
+  the same eight survivors as Day 72 and Day 73, to the FILE and the LINE
+    flat-states.js 435, 565   new-jersey.js 104, 229
+    new-mexico.js  115, 206   ohio.js         88, 107
+```
+
+Re-run because today's edit to `provenance.test.js` moved the suite fingerprint
+from `658dddbbcec70134` to `56bd04932f1cb7ad`, and `check-scores.mjs` refused the
+99.7% the moment it was asked — *"The SUITE changed, which is the thing doing the
+killing."* **A day that replaced two assertions and added a tool should move no
+rule parameter, and the instrument says so in the only way that counts.**
+
+**AND THE 2,807 SECONDS AGAINST DAY 73's 4,035 IS HARDWARE, NOT AN IMPROVEMENT.**
+40.4 mutants a minute became 58.0 and nothing in the harness changed. This
+repository's own mutation README already carries the lesson — *"those figures are
+hardware, not arithmetic"*, written after a published `23.8×` ratio turned out to
+reproduce at anything from `24×` to `74×` on one machine depending only on warm-up.
+Recording the speedup as progress would be the same mistake with a nicer number
+on it. The share that matters is unchanged: the phase with no selection is
+**53.8%** against Day 73's 53.7%.
+
+> **THE ONE I GOT WRONG TODAY, AND IT IS DAY 73's LESSON HALF-LEARNED.** Day 73
+> wrote: *"run the gate, then push, and if the work is worth protecting mid-day,
+> protect it with a commit that is not yet a push."* I started the audit before
+> the first push, which is the right order, and then **pushed three commits while
+> it was still running** — so `check-scores.mjs --check` was failing in CI for
+> about an hour on work that was otherwise green. Preflight does not catch this
+> by design; it says so in its own closing line. **Getting the ordering right is
+> not the same as waiting for the thing you ordered**, and the cheap version of
+> the fix is the one Day 73 already named: commit, don't push, until the audit
+> lands.
+
+---
+
 ### What I would do next
 
 1. **PUT THE ADDRESS IN, THE DAY IT ARRIVES.** Unchanged as the first item and
