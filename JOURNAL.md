@@ -357,16 +357,28 @@ real defect in the instrument, and a number about the other harness's tolerance.
    report's closing line, which should say where to send the gaps it could not
    explain.
 2. **SETTLE WHETHER POLICYENGINE IS WRONG ABOUT INDIANA'S EARNED INCOME CREDIT,
-   OR THIS ENGINE IS.** Written as item 2 this morning as "point the audit at a
-   real engine", **done this afternoon**, and it produced one specific question
-   worth a day. IC 6-3.1-21 sets Indiana's credit as a percentage of the federal
-   § 32 credit, and — like Oklahoma's, which this repository already ships as a
-   frozen-base divergence — Indiana's reference may be to § 32 as it stood at a
-   fixed date rather than as amended. If PolicyEngine models the frozen base and
-   this package models the current one, **this engine is the wrong one** and three
-   cases in `tools/differential/REPORT.md` move from Unexplained to a new
-   known-divergence entry pointing the other way. If not, PolicyEngine has a
-   missing credit. Either answer is worth having and the research is one statute.
+   OR THIS ENGINE IS.** Research done this evening and written up in
+   **`tools/differential/INDIANA-EARNED-INCOME-CREDIT.md`**, with the bar for
+   shipping at the bottom — the Day 71 pattern that worked for Kentucky.
+   **Settled from local evidence: the two models agree on the FEDERAL credit to
+   the cent** — `$932.98`, `$92.85`, `$69.33` — so this is not a federal
+   disagreement leaking into a state line, which is what most entries in
+   `known-divergences.json` are. This package takes 10% of that figure under IC
+   6-3.1-21-6 and PolicyEngine takes nothing. And the `$3,800`
+   investment-income limit **cannot** be the cause, because all three households
+   carry zero investment income — the trailing `-0-0-0-0` in the case ids is the
+   grid's own record of it. So of the two mechanisms this engine's own shipped
+   note says overstate the credit, only the **frozen Code date** is left.
+   **NOT settled, and it decides which engine is wrong:** whether PolicyEngine
+   models the credit and reaches zero, or does not model it at all. *The two
+   committed answer files cannot tell those apart, because a credit modelled to
+   zero and a credit not modelled are the same number.* One directory of the
+   pinned sdist answers it and `pypi.org` resolves from this sandbox. The entry
+   was deliberately NOT written today: Day 74's own measurement is the evidence
+   for it, and entering it moves three cases from "the human could not explain
+   this" to "the human explained this", which changes a figure now published in
+   four files.
+
 3. **THE AUDIT'S OTHER CLASSES HAVE NOT BEEN MEASURED FOR CONFUSABILITY, ONLY
    `filing-status` HAS.** The discriminator was built because one class was
    caught. The right question to ask each of the other nine is the one that
