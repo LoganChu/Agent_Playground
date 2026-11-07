@@ -12,7 +12,7 @@ import { stateIncomeTax } from '../../packages/us-state-tax/dist/esm/index.js';
 import { cases } from './cases.mjs';
 
 /** Federal child tax credit counts. § 24 is under 17; § 32 is under 19. */
-function childCounts(childAges) {
+export function childCounts(childAges) {
   return {
     qualifyingChildren: childAges.filter((a) => a < 17).length,
     otherDependents: childAges.filter((a) => a >= 17).length,
@@ -26,7 +26,7 @@ function childCounts(childAges) {
  * reads for these households and the reasoning is in the README: a disagreement
  * here is a disagreement about the harness, and is reported as its own class.
  */
-function stateDefinedBase(state, c) {
+export function stateDefinedBase(state, c) {
   if (state === 'PA') {
     // 72 Pa. Stat. § 7303: compensation and net gains are taxed; distributions
     // from a qualified plan after retirement age and Social Security are not.
@@ -47,7 +47,24 @@ function stateDefinedBase(state, c) {
   return {};
 }
 
-function one(c) {
+/**
+ * The federal basis and the state input for one household, which is the part of
+ * this harness that is NOT about the comparison schema.
+ *
+ * Extracted on Day 74 so `tools/audit` can send a stranger's household through
+ * the same door the differential grid uses. Every `...` field below was added
+ * because withholding it made two engines answer different questions and the
+ * difference got reported as a divergence about a state — Alabama's federal-tax
+ * deduction, Arizona's post-2011 gain vintage, Missouri's capital gain
+ * subtraction, Virginia's combined-AGI age withdrawal. **A second copy of this
+ * function in the audit tool would be a second place for that list to be
+ * incomplete, and the incomplete one would blame the buyer's engine for this
+ * harness's omission.**
+ *
+ * `out/ours.json` is a committed golden file that CI regenerates on every push,
+ * so this extraction is checked by the thing it could have broken.
+ */
+export function householdInput(c) {
   const counts = childCounts(c.childAges);
   const fed = estimateFederalTax({
     filingStatus: c.filingStatus,
@@ -224,6 +241,11 @@ function one(c) {
     ...stateDefinedBase(c.state, c),
   };
 
+  return { fed, base };
+}
+
+function one(c) {
+  const { fed, base } = householdInput(c);
   let state = null;
   let error = null;
   try {
@@ -257,6 +279,11 @@ function one(c) {
   };
 }
 
-const results = {};
-for (const c of cases()) results[c.id] = one(c);
-process.stdout.write(`${JSON.stringify(results, null, 1)}\n`);
+// Guarded so importing `householdInput` does not print 2,904 households into
+// the importer's stdout. `tools/registry/surface.mjs` shipped exactly this
+// defect on Day 73 and this is the same guard.
+if (process.argv[1] && process.argv[1].endsWith('ours.mjs')) {
+  const results = {};
+  for (const c of cases()) results[c.id] = one(c);
+  process.stdout.write(`${JSON.stringify(results, null, 1)}\n`);
+}

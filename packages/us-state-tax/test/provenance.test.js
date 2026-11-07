@@ -90,6 +90,32 @@ const everyStateYear = () =>
     supportedYears(state).map((year) => ({ state, year, definition: getStateDefinition(state, year) })),
   );
 
+/** The package README, which is where the published claims under test live. */
+const packageReadme = () =>
+  readFileSync(
+    join(resolve(dirname(fileURLToPath(import.meta.url)), '..'), 'README.md'),
+    'utf8',
+  );
+
+/**
+ * The 7,009 / 311 split, read out of the sentence that publishes it.
+ *
+ * Day 73 found the split published in four places and guarded in none: the only
+ * assertions near it were `covered > 2_000` and `sentinels > 100`, two floors
+ * under real values of 7,009 and 311. Reading the numbers out of the README
+ * rather than writing them here is the same choice the section-totals test
+ * makes, and for the same reason — **the published sentence is the thing that
+ * can be wrong, so the published sentence is the thing under test.** A hardcoded
+ * 7,009 in this file would pass on the day the README stopped saying it.
+ */
+const quotedProvenanceSplit = () => {
+  const hit = packageReadme().match(
+    /\*\*([\d,]+) are mapped to a document and ([\d,]+) are classified as sentinels\*\*/,
+  );
+  assert.ok(hit, 'the README no longer publishes the mapped/sentinel split');
+  return { mapped: Number(hit[1].replace(/,/g, '')), sentinels: Number(hit[2].replace(/,/g, '')) };
+};
+
 /** Figures that are not read from a document: a bracket with no ceiling, and the like. */
 const realFigures = (definition) =>
   figurePaths(definition, '', []).filter((path) => !isSentinelFigure(at(definition, path)));
@@ -111,7 +137,39 @@ test('every figure in every state-year has exactly one provenance entry', () => 
   );
   // A coverage test that covers nothing passes. This is the figure the README
   // quotes, so it is measured here rather than remembered.
-  assert.ok(covered > 2_000, `only ${covered} figures were checked`);
+  //
+  // **AND IT IS PINNED EXACTLY RATHER THAN FLOORED, WHICH IS DAY 73'S LESSON
+  // APPLIED TO THE ASSERTION THAT TAUGHT IT.** `covered > 2_000` stood here
+  // against a real value of 7,009 — a floor three and a half times below the
+  // thing it guards, so every figure between 2,001 and 7,009 could vanish and
+  // this test would pass. The published sentence states the split, so the
+  // published sentence is what it is checked against: the count of mapped
+  // figures and the count of sentinels are each read out of the README and
+  // compared, and the identity below ties the pair to the total.
+  const sentinels = everyStateYear().reduce(
+    (sum, { definition }) =>
+      sum + figurePaths(definition, '', []).filter((path) => isSentinelFigure(at(definition, path))).length,
+    0,
+  );
+  const { mapped: quotedMapped, sentinels: quotedSentinels } = quotedProvenanceSplit();
+  assert.equal(covered, quotedMapped, 'figures mapped to a document');
+  assert.equal(sentinels, quotedSentinels, 'figures classified as sentinels');
+
+  // THE IDENTITY, which is the half that cannot rot: every numeric leaf is
+  // either mapped to a document or classified as a sentinel, and there is no
+  // third category. `the README section quotes the numbers this file measures`
+  // pins the total; this pins that the two halves of it exhaust it. A figure
+  // that stopped resolving to an entry without being a sentinel fails here even
+  // if somebody updated both published counts to match.
+  const everyNumericLeaf = everyStateYear().reduce(
+    (sum, { definition }) => sum + figurePaths(definition, '', []).length,
+    0,
+  );
+  assert.equal(
+    covered + sentinels,
+    everyNumericLeaf,
+    `${covered} mapped + ${sentinels} sentinels is not the ${everyNumericLeaf} figures shipped`,
+  );
 });
 
 test('every ledger entry is needed by at least one figure', () => {
@@ -451,7 +509,9 @@ test('every non-finite figure is Infinity, which is what a missing ceiling means
       assert.equal(value, Infinity, `${state} ${year} ${path} is ${value}`);
     }
   }
-  assert.ok(sentinels > 100, `only ${sentinels} sentinel figures found`);
+  // Pinned against the published split rather than floored at 100, for the same
+  // reason the coverage count is. The floor sat 211 below the real value.
+  assert.equal(sentinels, quotedProvenanceSplit().sentinels, 'sentinel figures');
 });
 
 test('the unestablished backlog is this size and no larger', () => {

@@ -108,6 +108,34 @@ const CLAIMS = [
     find: () => [...text.matchAll(/([0-9][0-9,]*) households through both/g)].map((m) => Number(m[1].replaceAll(',', ''))),
   },
   {
+    // Day 74. The demo the audit section tells a visitor to run, counted from
+    // the CSV rather than from the sentence. A row added to the demo without the
+    // README noticing is a visitor told to expect eleven households and handed
+    // twelve, in the one section of this file that asks them to run something.
+    label: 'audit demo households',
+    want: read('tools/audit/demo-synthetic.csv')
+      .trim()
+      .split('\n')
+      .slice(1)
+      .filter((line) => line.trim() !== '').length,
+    find: () => [...text.matchAll(/([0-9]+) invented households/g)].map((m) => Number(m[1])),
+  },
+  {
+    // The honest line, also counted rather than remembered: how many of the
+    // demo's disagreements the tool explains, read out of the report it
+    // generates. The README says "ten of eleven" in words, so both halves are
+    // checked against the committed report.
+    label: 'audit demo disagreements',
+    want: Number(
+      read('tools/audit/out/REPORT.md').match(/^  disagree\s+(\d+)$/m)[1],
+    ),
+    find: () =>
+      [...text.matchAll(/explains (\w+) of (\w+) disagreements/g)].map((m) =>
+        Number(Object.entries(WORDS).find(([, w]) => w.toLowerCase() === m[2].toLowerCase())?.[0]),
+      ),
+    show: (n) => `${WORDS[n]} disagreements`,
+  },
+  {
     // The one that was wrong. Written as a WORD in the product table and as a
     // word again in the protocol section, which is why a numeric check saw
     // neither of them.

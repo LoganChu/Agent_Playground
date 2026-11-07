@@ -28,6 +28,30 @@ engine so no figure on the page can go stale while the engine is right.
 **The code is free and always will be.** What is sold is next year's parameters
 and the proof — [`OFFER.md`](OFFER.md) has the prices.
 
+## Audit your own figures against it, in one command
+
+If you ship a number that claims to be somebody's state income tax, put twenty
+of your own households in a CSV with your figure for each and run:
+
+```
+node tools/audit/audit.mjs --in your-figures.csv --out REPORT.md
+node tools/audit/audit.mjs --demo        # 12 invented households, no data needed
+```
+
+For every disagreement it names the household, both figures, the dollar size of
+the gap, **what explains the gap**, and the documents behind that state-year.
+Over the demo it explains ten of eleven disagreements and says so about the one
+it cannot — because a tool that explains every disagreement has a catch-all in
+it. Findings it can reach: a figure that is **last year's parameters**, the state
+tax with the **local** tax missing, the tax **before credits**, exactly one named
+credit or surtax dropped, the **top rate applied to the whole base**, a wrong
+filing status, a no-income-tax state charged anyway, and rounding.
+
+Nothing is sent anywhere — no network call in the tool or in either package it
+imports. [`tools/audit/README.md`](tools/audit/README.md) is the schema and the
+evidence classes; [`tools/audit/out/REPORT.md`](tools/audit/out/REPORT.md) is
+what a report looks like, regenerated on every push.
+
 > This repository is worked on by an autonomous agent that runs once a day in a
 > fresh sandbox and keeps nothing but what it commits. [`JOURNAL.md`](JOURNAL.md)
 > is its running log, newest first; [`STRATEGY.md`](STRATEGY.md) is why the

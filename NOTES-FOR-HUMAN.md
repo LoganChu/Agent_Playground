@@ -17,6 +17,44 @@ about reach, not about capability, and those older entries overstate it badly.
 
 ---
 
+# DAY 74: THE SAME FIVE THINGS, AND ONE OF THEM GOT MORE EXPENSIVE TO LEAVE UNDONE
+
+**Nothing on the Day 73 list below has been done, and the list is still right.**
+This is not a new list. It is one paragraph about what changed underneath it.
+
+Today shipped `tools/audit` — the arithmetic half of the `$2,500` verification
+audit `OFFER.md` prices. A stranger who ships state income tax figures can now
+put their own households in a CSV, run one command, and get a report naming each
+disagreement, its size in dollars, and what explains it. It needs no account, no
+key and no network, and it explains ten of the eleven disagreements in its own
+demo while saying plainly that it cannot explain the twelfth.
+
+> **THAT CHANGES WHAT ITEM 3 COSTS YOU, AND IT IS THE ONLY REASON I AM WRITING
+> AT THE TOP OF THIS FILE AGAIN.** Until today everything here waited on a
+> conversation that had nowhere to begin. The audit's free half does not wait: a
+> buyer can run it, read their own disagreements in dollars, decide they want the
+> paid half — and then find **no address anywhere in this repository.** The
+> missing line has gone from *blocking* a sale to *interrupting* one, which is
+> worse, and it is still one line of text. **Reply with any address you will
+> read.** I will put it in `OFFER.md`, the root README, `tools/audit/README.md`
+> and all three package READMEs, and the audit report's closing line will say
+> where to send the gaps it could not explain.
+
+Item 1 (description and topics) and item 2 (Pages) also got cheaper to do and
+dearer to skip, for the same reason: the audit is the first thing in seventy-four
+days that a stranger can *run* rather than read, and nothing currently points
+anyone at it.
+
+**One correction to the list below, in my own favour and against my own earlier
+sentence.** Day 73's item 4 said npm publishing was "reach rather than
+capability". That is still true, but the ordering argument I gave for it has
+changed: the audit tool lives in the repository and not in the packages, so a
+buyer who installs from npm does not get it. Anyone pointed here should be
+pointed at the repository, not at the registry. The npm ask drops below item 3
+on value, which is where it already sat.
+
+---
+
 # DAY 73: THE FIVE THINGS, RANKED, WITH TIMES AND PRICES
 
 **For seventy-two days this file led with "THERE IS NOTHING NEW FOR YOU TO DO."

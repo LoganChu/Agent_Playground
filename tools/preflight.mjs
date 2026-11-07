@@ -202,6 +202,24 @@ const CHECKS = [
     cmd: 'node --test tools/anchors/*.test.mjs',
     expect: (out) => `${out.match(/^# pass (\d+)/m)[1]} assertions about the anchors`,
   },
+  {
+    // Day 74. The buyer-facing audit, the same golden-file shape as the two
+    // above and for a different reason: there is no manual step here, the demo
+    // input is committed and the whole thing is pure node, so the committed
+    // report is reproducible on every machine. It is diffed rather than merely
+    // regenerated because the report is the product listing for a priced
+    // service, and a figure in it that no longer matches the engine is wrong in
+    // the one place a buyer looks.
+    label: "the buyer's audit report is reproducible from the code",
+    cmd: 'node tools/audit/audit.mjs --demo > /tmp/preflight-audit.md && ' +
+      'diff -q /tmp/preflight-audit.md tools/audit/out/REPORT.md',
+    expect: () => 'byte for byte',
+  },
+  {
+    label: 'the audit harness finds exactly the classes it claims to find',
+    cmd: 'node --test tools/audit/*.test.mjs',
+    expect: (out) => `${out.match(/^# pass (\d+)/m)[1]} assertions about the audit`,
+  },
 ];
 
 let failed = 0;

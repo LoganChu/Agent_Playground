@@ -111,6 +111,41 @@ jobs:
       - name: The harness still compares what it says it compares
         run: node --test tools/anchors/*.test.mjs
 
+  # The audit a BUYER runs against their own figures, and the report it produces.
+  #
+  # Day 74. `OFFER.md` has priced a verification audit at $2,500 since Day 73 and
+  # described a report naming, for every disagreement, the household, the two
+  # figures, the dollar gap and the statute line that settles it. That was a
+  # description of work a human would do by hand. `tools/audit` is the part of it
+  # that is arithmetic, and this job is why its report can be quoted: the demo
+  # input is committed, the tool is pure node with no network call, so the
+  # committed report is regenerated here and required to match byte for byte.
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build both engines
+        run: |
+          (cd packages/us-federal-tax && npm install && npm run build)
+          (cd packages/us-state-tax   && npm install && npm run build)
+      - name: Regenerate the demo report
+        run: node tools/audit/audit.mjs --demo > tools/audit/out/REPORT.md
+      - name: Require the committed report to match the code that produced it
+        run: |
+          if ! git diff --quiet tools/audit/; then
+            echo "::error::The audit report is out of date. Run the command in"
+            echo "::error::tools/audit/README.md and commit the result. The diff follows."
+            git --no-pager diff --stat tools/audit/
+            git --no-pager diff tools/audit/out/REPORT.md
+            exit 1
+          fi
+          echo "Audit report matches. $(grep -o 'disagreements it does NOT.*' tools/audit/out/REPORT.md)"
+      - name: The harness finds exactly the classes it claims to find
+        run: node --test tools/audit/*.test.mjs
+
   # The test counts the README advertises, checked against the runner.
   #
   # Day 36: `packages/us-tax-mcp/test/readme.test.js` claimed to be "deliberately

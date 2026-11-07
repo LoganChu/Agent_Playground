@@ -1,0 +1,13 @@
+id,state,year,filingStatus,wages,primaryAge,spouseAge,childAges,county,locality,taxExemptInterest,theirTax
+payroll-001,VA,2025,single,65000,40,,,,,,2923.40
+payroll-002,GA,2026,single,60000,40,,,,,,2491.20
+payroll-003,NY,2025,single,85000,40,,,,NYC,,4070.00
+payroll-004,NY,2025,headOfHousehold,42000,35,,3,,,,1390.38
+payroll-005,NY,2025,headOfHousehold,42000,35,,3,,,,986.06
+payroll-006,CA,2025,single,1500000,40,,,,,,164634.77
+payroll-007,VA,2025,single,65000,40,,,,,,3180.90
+payroll-008,TX,2025,single,60000,40,,,,,,500.00
+payroll-009,MD,2025,single,80000,40,,,Howard,,,5786.41
+payroll-010,VA,2025,marriedFilingJointly,65000,40,41,,,,,2869.93
+payroll-011,MO,2025,single,90000,45,,,,,,3100.00
+payroll-012,IL,2025,single,60000,40,,,,,10000,2828.93

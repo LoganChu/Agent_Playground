@@ -36,11 +36,50 @@ written report that, for every disagreement, names:
 - the statute or form line that settles it, and
 - which of the two is wrong, or that the question is genuinely open.
 
-**Why it closes.** It leads with a finding rather than a promise. The product
-either agrees or it does not, and the buyer learns which within the engagement.
-Four provisions found in this engine in the last three days were each worth
-between `$40` and the filer's **entire** state bill; a buyer's product has the
-same kind of hole and does not know where.
+### Half of it is free, runs on their laptop, and needs no conversation
+
+**Day 74.** `tools/audit/audit.mjs` is the arithmetic half of this audit,
+shipped. A buyer puts their households and their own figures in a CSV and runs
+one command; for every disagreement the tool names the household, both figures,
+the dollar gap, what explains the gap, and the documents behind the state-year.
+Nothing is sent anywhere — no network call in the tool or in either package it
+imports, which is a property their security review can check in a minute.
+
+```text
+  stale-parameters            their figure is this engine's answer for an EARLIER YEAR
+  local-tax-omitted           the state line right to the cent, the county tax missing
+  credits-not-applied         their figure is the tax before credits, exactly
+  credit-omitted              ours plus exactly one named credit
+  surtax-omitted              ours less exactly one named surtax
+  top-rate-on-whole-base      the top rate applied to all taxable income
+  filing-status               ours under a different one of the five
+  supplied-figure-not-spent   a column they filled in moved no money
+  no-income-tax-state         one of the nine, charged anyway
+  rounding                    under a dollar, and not necessarily anybody's defect
+```
+
+**WHY GIVE AWAY THE THING THAT WAS FOR SALE.** Because the audit was never the
+scarce part — **the scarce part is being willing to look.** A buyer who runs it
+and sees eleven disagreements in twelve households has a reason to pay for the
+half a tool cannot do, and a buyer who runs it and agrees everywhere was never
+going to buy anything. Finding that out in one command is worth more to both
+sides than finding it out in an engagement.
+
+**So what the $2,500 buys is now a narrower and more defensible thing:** the 148
+anchor households whose right answers come off filled returns and are not in the
+free tool, their own jurisdictions and household shapes rather than a schema's
+sixteen columns, and — the part that is not arithmetic at all — **reading the
+statute on the gaps the tool reported as unexplained, and saying which of the two
+engines is wrong.** The free tool's headline counts those on their own line,
+which makes the paid scope something a buyer can see the size of before they
+commit to it.
+
+**Why it closes.** It leads with a finding rather than a promise, and now it
+leads with a finding the buyer produced themselves. The product either agrees or
+it does not, and they learn which before the first call. Four provisions found in
+this engine in the last three days were each worth between `$40` and the filer's
+**entire** state bill; a buyer's product has the same kind of hole and does not
+know where.
 
 **Why $2,500.** Below the threshold where a mid-size company needs procurement,
 and above the point where it is worth doing. One overcharged customer cohort
@@ -93,3 +132,11 @@ assumed. See `NOTES-FOR-HUMAN.md` for the ranked list with times attached.
 > AN ATTEMPT TO SELL.** That is the honest status of this file today, and naming
 > it is better than letting it read as a storefront. The first ask in
 > `NOTES-FOR-HUMAN.md` is one line of text: an address to put under each price.
+
+**AND DAY 74 CHANGED WHAT THAT MISSING LINE COSTS.** Until today everything on
+this page waited on a conversation that had nowhere to start. The audit's free
+half does not: a buyer can run it, read a report naming their own disagreements
+in dollars, and want to talk — and then find no address. **The missing line went
+from blocking a sale to interrupting one**, which is worse, and it is still one
+line of text.
+

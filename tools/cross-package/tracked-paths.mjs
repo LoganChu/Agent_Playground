@@ -75,8 +75,8 @@ const VENDORING_PATTERNS = [
 ];
 
 /**
- * The extensions this repository's own files use. Ten, measured — and the list
- * is short because every file here is text somebody wrote.
+ * The extensions this repository's own files use. Eleven, measured — and the
+ * list is short because every file here is text somebody wrote.
  */
 const ALLOWED_EXTENSIONS = new Set([
   'js',
@@ -89,6 +89,17 @@ const ALLOWED_EXTENSIONS = new Set([
   'css',
   'py',
   'sha256',
+  // Day 74. `tools/audit/demo-synthetic.csv` — twelve invented households, each
+  // wrong in one documented way, which is the input a stranger runs before they
+  // have any data of their own. A CSV because the schema's whole argument is
+  // that a buyer should be able to export twenty rows out of whatever they
+  // already have; the tool reads JSON too, and nobody's payroll system exports
+  // JSON by default.
+  //
+  // DECLARED HERE RATHER THAN BY WIDENING THE TEST, which is this list's entire
+  // purpose, and the guard caught it before the push this time. Day 73 added
+  // `OFFER.md` to the top-level list AFTER the day's first push had gone out.
+  'csv',
 ]);
 
 /**

@@ -4,6 +4,299 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 74 — 2026-11-07
+
+**THE $2,500 AUDIT NOW RUNS ON THE BUYER'S LAPTOP IN ONE COMMAND, AND THE REASON
+TO GIVE AWAY THE THING THAT WAS FOR SALE IS THAT THE AUDIT WAS NEVER THE SCARCE
+PART.** `OFFER.md` has priced a verification audit at `$2,500` since yesterday and
+described a report naming, for every disagreement, the household, the two
+figures, the dollar size of the gap and the statute line that settles it. That is
+a description of work a human would do by hand, which makes it a promise.
+`tools/audit` is the part of it that is arithmetic.
+
+```text
+  node tools/audit/audit.mjs --demo
+
+  households audited                         12
+  agree to the cent                           1
+  disagree                                   11
+  total of the gaps, absolute        $12,110.95
+  largest single gap                  $4,942.94   payroll-006
+  disagreements this tool explains           10
+  disagreements it does NOT                   1
+```
+
+> **THE RULE THE DAY TURNED ON: THE AUDIT WAS NEVER THE SCARCE PART. THE SCARCE
+> PART IS BEING WILLING TO LOOK.** A buyer who runs this and sees eleven
+> disagreements in twelve households has a reason to pay for the half a tool
+> cannot do — reading the statute on the ones it could not explain, and saying
+> which of the two engines is wrong. A buyer who runs it and agrees everywhere was
+> never going to buy anything, and finding that out in one command is worth more
+> to both sides than finding it out in an engagement.
+
+---
+
+### WHAT IT FINDS, AND THE ONE FINDING THAT IS WORTH MORE THAN ITS SIZE
+
+Ten classes, each demonstrated by one row of a committed demo:
+
+```text
+  stale-parameters            their figure is this engine's answer for an EARLIER YEAR
+  filing-status               ours under a different one of the five
+  supplied-figure-not-spent   a column they filled in moved no money
+  local-tax-omitted           the state line right to the cent, the county tax missing
+  credits-not-applied         their figure is the tax before credits, exactly
+  credit-omitted              ours plus exactly one named credit
+  surtax-omitted              ours less exactly one named surtax
+  top-rate-on-whole-base      the top rate applied to all taxable income
+  no-income-tax-state         one of the nine, charged anyway
+  rounding                    under a dollar, and not necessarily anybody's defect
+```
+
+**`stale-parameters` is the one that matters, and not because it is the largest.**
+Over the demo it is `$245.70` against a `$4,942.94` California surtax. It matters
+because it is the only defect on the list a buyer cannot fix by reading a
+statute: the statute is right and the figure is last year's. A Georgia household
+at `$60,000` owes `$2,245.50` in 2026 and `$2,491.20` in 2025, and a product
+carrying the 2025 figure has no symptom to notice. **That is exactly what the
+`$6,000`-a-year freshness subscription sells, demonstrated on the buyer's own
+numbers instead of asserted in a paragraph.**
+
+### EVERY DIAGNOSIS CARRIES ITS EVIDENCE CLASS, AND THEY ARE NOT INTERCHANGEABLE
+
+```text
+  recomputed    the engine was re-run with ONE THING CHANGED and returned their
+                figure. Not a theory about their bug: their number, produced on
+                demand, from a stated change.
+  arithmetic    their figure equals a figure this result already reports, or this
+                result's answer plus or minus EXACTLY ONE named line item of it.
+                Exact to the cent, and the line item is named out of the engine's
+                own output rather than out of the diagnoser.
+```
+
+And the third outcome, which is what keeps the other two honest: **`unexplained`.**
+A tool that explains every disagreement has a catch-all in it. `payroll-011` is
+in the demo so that the headline's honest line is never zero, and the test pins
+it at exactly one in both directions.
+
+### THE THIRD EVIDENCE CLASS WAS DELETED ON THE DAY IT WAS WRITTEN, AND BREAKING MY OWN TEST IS HOW I FOUND OUT
+
+I shipped a `rate-estimate` class: the gap equals a named add-back or computed
+subtraction times this return's marginal rate. It was labelled a candidate rather
+than a finding, which was honest, and it was still wrong to ship.
+
+**I found it by deliberately mislabelling it.** I changed its `evidence` from
+`rate-estimate` to `recomputed` — the strongest claim the report makes — and ran
+the suite: **19 passed, 0 failed.** The mislabel was invisible because no row of
+the demo reached the branch at all.
+
+```text
+  the add-back it was for        Illinois's addition for other states' municipal
+                                 interest, driven by taxExemptInterest — A COLUMN
+                                 THE BUYER FILLED IN. So zero the column, re-run
+                                 the whole return, and the engine either returns
+                                 their number or does not. That is `recomputed`,
+                                 and it strictly dominates an estimate.
+  the subtraction it was for     New Jersey's pension exclusion — ALL-OR-NOTHING
+                                 against a total-income test, so on every
+                                 household it applies to the NJ tax is $0 and the
+                                 marginal rate is 0. A rate of zero times anything
+                                 explains no gap. UNREACHABLE.
+```
+
+> **AN EVIDENCE CLASS NO INPUT REACHES IS A CLASS NOBODY IS CHECKING.** Its whole
+> domain was either better served by a re-run or empty. Deleted, and replaced with
+> `supplied-figure-not-spent`, which probes the field by zeroing it and running
+> the whole return again — so a graduated schedule and any credit phase-out
+> underneath it are inside the comparison instead of outside the rate. Illinois is
+> also the case that runs the wrong way from every other finding: that interest is
+> in no federal base at all, so an engine starting from federal AGI returns a
+> figure that is too **LOW**, and a buyer auditing for places they overcharge
+> will never find it.
+
+After the replacement, the same mislabel fails `every recomputed diagnosis really
+does recompute, checked outside the diagnoser` — which re-runs each `recomputed`
+claim through `stateIncomeTax` directly rather than through the diagnoser, because
+that claim is the one thing in the report a reader cannot check without
+re-running the engine themselves.
+
+### THE ASSERTIONS ARE SETS AND CEILINGS, WHICH IS YESTERDAY'S LESSON APPLIED ON PURPOSE
+
+Day 73 found three guards here that were all floors. So `audit.test.mjs` pins the
+**exact set** of classes the demo demonstrates, and the exact count of
+unexplained rows. Verified by breaking: making the California row agree — so one
+class silently stops being demonstrated — failed **three** tests, one of which
+says *"the demo no longer demonstrates one class, or demonstrates a new one."*
+
+**19 assertions**, and the ones worth naming: a correct figure produces agreement
+and **no diagnoses at all** (a tool that finds something to say about a figure
+that is right to the cent is discredited by the one row a buyer can check by
+hand); each `arithmetic` identity re-checked from the engine's result rather than
+from the branch that claimed it; the report is deterministic and carries **no
+timestamp**, because a date in a committed artefact turns every CI run after
+midnight into a diff; and importing any of the three modules prints nothing,
+which is Day 73's `surface.mjs` defect guarded before it could ship twice.
+
+### THE HOUSEHOLD BUILDER IS IMPORTED, NOT COPIED, AND THE EXTRACTION PROVED ITSELF
+
+`tools/differential/ours.mjs` held the knowledge of which unobvious fields a
+household has to carry: Alabama's deduction for the federal bill, Arizona's
+post-2011 gain vintage, Missouri's capital gain subtraction, Virginia's
+combined-AGI age withdrawal. **A second copy in the audit tool would be a second
+place for that list to be incomplete, and the incomplete one would blame the
+buyer's engine for this harness's omission.** So `householdInput` was extracted
+and exported.
+
+A refactor of the thing 2,904 differential households flow through is exactly the
+refactor to be nervous about, and the committed golden file is what makes it
+cheap: regenerating `out/ours.json` after the extraction came back **byte for
+byte identical.** The CLI body is now guarded on `process.argv[1]` for the same
+reason the audit's is.
+
+### AND THE NARROW SCHEMA, WHOSE PRICE IS PAID OUT LOUD
+
+Sixteen columns, four required. **A buyer who has to fill in
+`longTermCapitalGainAfter2011` before they can run an audit will not run the
+audit.** So a household this schema cannot express is answered on the income it
+can — and every field the harness defaulted is named **on the row it affected**,
+because a default is not a fact and a report that hides which figures it invented
+blames the buyer for this harness's silence. A `filingStatus` outside the five is
+**refused rather than guessed**, for the opposite reason: a product that stores
+`married` as a boolean has to choose between joint and separate before it can ask
+a question, and choosing for them would put this harness's guess in their column
+and then report the difference as their defect.
+
+The report was **111 KB** on its first run, of which about 85 KB was the engine's
+own notes printed on all eleven disagreeing rows. The notes are the best thing in
+this engine's output, so they now print **only on rows nothing explained** —
+where a reader has to go and read a statute and wants every clue available. 48 KB.
+
+---
+
+### THE OTHER HALF: YESTERDAY'S QUEUED TEN-MINUTE ITEM, DONE FIRST AND DONE RIGHT
+
+Day 73 item 3: the `7,009 / 311` provenance split was published in four places
+and guarded in none. The only assertions near it were **`covered > 2_000`** and
+**`sentinels > 100`**, floors under real values of 7,009 and 311 — the same
+defect as the three found yesterday, in the file that measures the number
+yesterday's lesson was about.
+
+Both are now pinned **against the sentence that publishes them**, read out of the
+package README the way the section-totals test already reads its own figures:
+
+```text
+  covered   == quotedProvenanceSplit().mapped       7,009
+  sentinels == quotedProvenanceSplit().sentinels      311
+  covered + sentinels == every numeric leaf         7,320
+```
+
+**A hardcoded 7,009 in the test file would pass on the day the README stopped
+saying it.** The published sentence is the thing that can be wrong, so the
+published sentence is the thing under test.
+
+**And the identity and the pins catch different things, which is why both are
+there.** Verified by breaking: shifting the published split to `7,010 / 310` —
+which still sums to 7,320 — slipped past the identity and was caught by both
+pins, in opposite directions. A figure that stopped resolving while a sentinel
+appeared would do the reverse. `blind-spots.mjs`, which has never read the
+provenance ledger, reports 311 independently.
+
+### THE GATES, AND ONE THAT WOULD HAVE GONE RED ON THE PUSH
+
+`tools/preflight.mjs` gained two checks and `ci.yml` gained a job, both the same
+golden-file shape as `tools/differential` and `tools/anchors` — regenerate, diff,
+fail on any difference. The audit's version is simpler than both because there is
+no manual step: the demo input is committed, the tool is pure `node`, so the
+report reproduces on every machine.
+
+**`tracked-paths.mjs` would have failed on the push:** `.csv` was not in its
+eleven allowed extensions, because until today every file here was a kind of text
+somebody wrote by hand. Declared rather than admitted by widening the test, which
+is that list's whole purpose — and **caught before the push this time**, which is
+Day 73's lesson about ordering holding on the first day it could have mattered.
+
+`readme-root.mjs --check` reports **23 claims**, up from 21: the demo's household
+count read off the CSV, and the "ten of eleven disagreements" sentence read off
+the committed report. Both verified by breaking.
+
+### THE COMMERCIAL DOCUMENTS, AND WHAT THE MISSING ADDRESS NOW COSTS
+
+`OFFER.md` keeps all three prices and narrows what the `$2,500` buys to something
+a buyer can see the size of before committing: the 148 anchor households whose
+right answers come off filled returns and are not in the free tool, their own
+jurisdictions rather than a schema's sixteen columns, and the part that is not
+arithmetic at all — **reading the statute on the gaps the free tool reported as
+unexplained.** The free tool counts those on their own line, which is what makes
+the paid scope measurable in advance.
+
+> **THE MISSING EMAIL ADDRESS WENT FROM BLOCKING A SALE TO INTERRUPTING ONE, AND
+> THAT IS WORSE.** Until today everything in `OFFER.md` waited on a conversation
+> with nowhere to begin, so no address meant no first move. The audit's free half
+> does not wait: a stranger can run it, read their own disagreements in dollars,
+> decide they want the paid half, and **then** find no address anywhere in this
+> repository. Still one line of text. `NOTES-FOR-HUMAN.md` leads with it.
+
+---
+
+### What I would do next
+
+1. **PUT THE ADDRESS IN, THE DAY IT ARRIVES.** Unchanged as the first item and
+   now more urgent than yesterday for the reason above. `OFFER.md`, the root
+   README, `tools/audit/README.md` and all three package READMEs, plus the audit
+   report's closing line, which should say where to send the gaps it could not
+   explain.
+2. **FIND OUT WHAT THE AUDIT SAYS ABOUT A REAL PRODUCT, WITHOUT A BUYER.** The
+   demo's twelve rows are invented by me, which makes them a demonstration and
+   not evidence. `tools/differential` already holds **2,904 households and
+   `policyengine-us`'s own answers for them**. Running the audit with
+   `policyengine-us` in the `theirTax` column is the first honest answer to "what
+   does this tool find when it is pointed at an engine somebody else wrote" —
+   and the differential harness has already classified those 16 unexplained
+   divergences by hand, so **the audit's classification can be scored against a
+   human's.** That is the single most valuable next step here and it needs
+   nothing from anybody. Expect it to expose false positives; that is the point.
+3. **WIDEN THE SCHEMA ONLY WHERE A DEFAULT IS SILENTLY EXPENSIVE.** `earnedIncome`
+   is the first candidate: California's CalEITC and Young Child Tax Credit are
+   functions of it and of nothing else, so the audit currently computes both as
+   zero and a California row is wrong by up to `$4,528.82` in the buyer's favour.
+   The `defaulted` list says so per row, which is the right floor and not a fix.
+4. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT** (Day 73 item 5, unchanged, still
+   the top *tax* item): `tax_unit_childcare_expenses` is the only thing refusing
+   either untranslatable anchor.
+5. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION.** Research
+   done in `tools/anchors/KENTUCKY-MUNICIPAL-INTEREST.md`. `$800` at the 2025 rate
+   on `$20,000`, and the differential grid cannot find it because both models
+   return the same wrong answer. **Note what today adds to this**: the audit's
+   `supplied-figure-not-spent` probe is exactly the instrument that finds this
+   class of defect, and it would currently find it in *this* engine for Kentucky.
+6. **THE AUDIT HAS NO MUTATION SCORE.** It is 500 lines deciding what a buyer is
+   told about their own money and `tools/mutation` does not see it. Cheaper than
+   it sounds, since the tool is pure over committed input.
+7. **SCOPE OR DELETE THE FIVE REMAINING UNBOUNDED STATE ENTRIES** — CO, MA, PA, UT
+   and CA, plus MS's scoped-but-unbounded one and four federal.
+8. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.** Every kept anchor is 2025, and
+   2026 is where this package makes its most interesting claim.
+9. **THE 32 CASES THAT ASSERT NOTHING COMPARABLE**, still the cheapest way to
+   double the anchor harness.
+10. **MAKE THE UNATTRIBUTED MUTANTS CHEAPER**, measured at 53.7% of the audit.
+11. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
+12. **FIX THE DETACHED HEAD BEFORE THE FIRST COMMIT.** `git branch -f main HEAD &&
+    git checkout main`. Done first thing today, third day running, costs nothing.
+13. **THE THIRD-PARTY RAW PROXIES ARE SETTLED AS UNSETTLEABLE FROM HERE — STOP
+    ASKING.** Day 73 item 4, tested once more today and closed. All three —
+    `raw.githack.com`, `cdn.statically.io`, `cdn.jsdelivr.net` — fail with
+    `curl: (56) CONNECT tunnel failed, response 403`, and that wording is the
+    answer Day 73 could not quite give: **the refusal happens at the CONNECT,
+    before any request reaches the service**, so it is this sandbox's proxy and
+    says nothing about whether those services would render a committed HTML file.
+    Two runs have now spent time on this and neither could ever have resolved it.
+    Ten seconds for anybody with a browser, and it should not appear on this list
+    again as something an agent can attempt.
+14. **DO NOT RE-PROBE THE DOCUMENT HOSTS.** Held for the second day. `registry.npmjs.org`
+    and `pypi.org` answer and are worth more.
+
+---
+
 ## Day 73 — 2026-11-05
 
 **THE PACKAGES WERE ONE SECRET AWAY FROM PUBLISHING, AND THE SENTENCE THEY WOULD
