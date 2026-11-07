@@ -74,6 +74,33 @@ engines is wrong.** The free tool's headline counts those on their own line,
 which makes the paid scope something a buyer can see the size of before they
 commit to it.
 
+### And it has already found something in an engine nobody here wrote
+
+The free tool was pointed at `policyengine-us` — an open-source microsimulation
+model with a research team behind it — over the 2,904 households this repository
+already compares against it. **Seventy-four days of hand analysis had left
+sixteen of those differences unexplained. The tool explained three of them, and
+all three by the same cause:** PolicyEngine's figure is this engine's answer with
+**Indiana's earned income credit not applied**, exactly, to the cent, at `$93.30`,
+`$9.29` and `$6.93`.
+
+That is the product in one paragraph. It did not say which engine is right —
+whether PolicyEngine is wrong or computes that credit on a different federal base
+is the statute-reading half, which is what the `$2,500` buys. What it did was
+turn three open questions into one specific one, mechanically, in seven seconds.
+
+**It also reported 226 differences under a dollar that the differential harness
+calls agreement**, because that harness compares to the dollar and a buyer's
+figure is a figure they printed on something.
+
+And the measurement cut the other way too, which is recorded in
+`tools/audit/README.md` rather than left out: the tool's `filing-status` class
+fired 66 times and on 63 of those the human account says something else and
+better, because a status and a credit only that status is barred from produce the
+same number on a state return. Every such finding now carries a discriminator
+saying whether anything but a credit moved. **A buyer who is going to trust a
+report should see that its author measured where it was wrong.**
+
 **Why it closes.** It leads with a finding rather than a promise, and now it
 leads with a finding the buyer produced themselves. The product either agrees or
 it does not, and they learn which before the first call. Four provisions found in

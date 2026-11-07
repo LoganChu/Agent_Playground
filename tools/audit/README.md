@@ -161,6 +161,62 @@ report, and what they need is that the set of findings is exactly right: a class
 that stopped firing has to fail, and so does a class that started firing where it
 should not.
 
+## What it says when pointed at an engine somebody else wrote
+
+`demo-synthetic.csv` is twelve households **I invented**, each wrong in one way I
+had already decided the tool would find — so the tool finding them proves the
+wiring works and nothing about whether the classifier is any good.
+
+```
+node tools/audit/against-policyengine.mjs > out/AGAINST-POLICYENGINE.md
+```
+
+`tools/differential` holds 2,904 households and `policyengine-us`'s own figure
+for each. That script runs the audit over all of them with PolicyEngine's state
+tax in the buyer's column — and it is **gradeable**, because the differential
+harness has hand-classified every difference: 71 written rules account for 1,181
+of them and 16 it could not account for at all.
+
+```text
+  agree to the CENT                          1,789
+  differ by under a dollar                     226    the differential calls these agreement
+  differ by a dollar or more                   889
+    the tool explains                           86
+    it does not                                803
+
+  scored against the human verdict, over the 889:
+                            human explained it   human could not
+    tool named something                    83                 3
+    tool was silent                        790                13
+```
+
+**Three genuine finds, all one cause.** On three of the sixteen differences
+seventy-four days of hand analysis had left unexplained — all Indiana — the tool
+says PolicyEngine's figure is this engine's answer with **Indiana's earned income
+credit not applied**, exactly, to the cent, at $93.30, $9.29 and $6.93. Whether
+PolicyEngine is wrong or models that credit on a different federal base is the
+statute-reading half; the tool narrowed three open questions to one specific one.
+
+**And one real defect in the tool, found the same way.** `filing-status` fired 66
+times, and on 63 the human account says something else and better: PolicyEngine
+allows the § 32(d) earned income credit to **every** separate filer and this
+package does not. On a state return whose only status-sensitive line is a
+percentage of that credit, *"they used `single`"* and *"they allowed a separate
+filer a single-filer credit"* are the same number — and a re-run cannot separate
+them, because both re-runs are the same re-run. Every `filing-status` finding now
+carries the discriminator: **44** of the findings move nothing but a credit and
+say so in terms, **47** move a bracket, a deduction or an exemption and are
+specific to the status.
+
+> **A CLASS THAT FIRES OFTEN AND AGREES WITH A HUMAN'S DIFFERENT ACCOUNT IS NOT
+> CORROBORATED, IT IS CONFUSABLE.** The counts looked like success until they were
+> read against what the human had written about the same households.
+
+`against-policyengine.mjs` is deliberately **not** in CI and pins nothing:
+PolicyEngine's figures move when they release, and an assertion over somebody
+else's model fails for their reasons. It is a measurement whose result goes in the
+journal whichever way it comes out.
+
 ## What this tool cannot do
 
 - **It cannot tell you which engine is right.** It names what explains a gap, not

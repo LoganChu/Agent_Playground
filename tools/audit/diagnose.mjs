@@ -111,22 +111,60 @@ function recomputedMatches(household, theirTax) {
   //    Commonest in the two married statuses and in head of household, which a
   //    product that stores a boolean `married` cannot distinguish from
   //    `qualifyingSurvivingSpouse` at all.
+  //
+  //    **AND THIS CLASS IS STRUCTURALLY CONFUSABLE, WHICH WAS MEASURED RATHER
+  //    THAN SUPPOSED.** Day 74 ran this tool over 2,904 households against
+  //    `policyengine-us`'s own figures. It fired here 66 times, and on 63 of
+  //    them the differential harness's hand-written account says something
+  //    else and better: PolicyEngine allows the § 32(d) earned income credit to
+  //    EVERY married-filing-separately filer, and this package does not. On a
+  //    state return whose only status-sensitive line is a percentage of that
+  //    federal credit, **"they used the status `single`" and "they allowed a
+  //    separate filer the credit only a single filer gets" are the same number.**
+  //    A re-run cannot tell them apart, because both re-runs are the same
+  //    re-run.
+  //
+  //    So the finding carries the discriminator with it: if the tax BEFORE
+  //    credits is identical under both statuses, nothing but a credit moved and
+  //    the match says nothing about which cause it was. If it differs, the
+  //    status changed a bracket, a deduction or an exemption, and the match is
+  //    specific to the status. The tool reports which, and does not pretend to
+  //    know more than that.
   for (const filingStatus of FILING_STATUSES) {
     if (filingStatus === household.filingStatus) continue;
     try {
       const other = run(household, { filingStatus });
-      if (equalToCent(other.totalTax, theirTax)) {
-        found.push({
-          evidence: 'recomputed',
-          kind: 'filing-status',
-          title: `this engine's answer for ${filingStatus}, not ${household.filingStatus}`,
-          detail:
-            `The same household filed as ${filingStatus} owes ${money(other.totalTax)}, which ` +
-            'is the figure supplied. Both answers are correct computations; they are ' +
-            'answers to different questions.',
-          amount: theirTax - run(household).totalTax,
-        });
-      }
+      if (!equalToCent(other.totalTax, theirTax)) continue;
+      const base = run(household);
+      const onlyCreditsMoved = equalToCent(other.taxBeforeCredits, base.taxBeforeCredits);
+      const movedCredits = [...base.credits, ...other.credits]
+        .filter((credit) => credit.amount > 0)
+        .map((credit) => credit.name);
+      found.push({
+        evidence: 'recomputed',
+        kind: 'filing-status',
+        confusable: onlyCreditsMoved,
+        title:
+          `this engine's answer for ${filingStatus}, not ${household.filingStatus}` +
+          (onlyCreditsMoved ? ' — BUT ONLY A CREDIT MOVED, SO THIS IS NOT CONCLUSIVE' : ''),
+        detail: onlyCreditsMoved
+          ? `The same household filed as ${filingStatus} owes ${money(other.totalTax)}, which ` +
+            'is the figure supplied — but the tax BEFORE credits is identical under both ' +
+            `statuses at ${money(base.taxBeforeCredits)}, so the only thing the status ` +
+            'changed on this return is a credit' +
+            (movedCredits.length > 0 ? ` (${[...new Set(movedCredits)].join('; ')})` : '') +
+            '. **"They used the wrong status" and "they allowed a status-barred credit" ' +
+            'are therefore the same figure here, and this match cannot distinguish them.** ' +
+            'The credit is the likelier of the two in a product that knows its own users’ ' +
+            'filing statuses.'
+          : `The same household filed as ${filingStatus} owes ${money(other.totalTax)}, which ` +
+            'is the figure supplied. The status also moves the tax before credits, from ' +
+            `${money(base.taxBeforeCredits)} to ${money(other.taxBeforeCredits)} — a bracket, ` +
+            'a deduction or an exemption, not just a credit — so the match is specific to ' +
+            'the status. Both answers are correct computations; they are answers to ' +
+            'different questions.',
+        amount: theirTax - base.totalTax,
+      });
     } catch {
       // A status a state does not allow is not a diagnosis.
     }

@@ -189,7 +189,7 @@ The last line is the one worth reading twice. **A tool that explains every disag
 ```
 
 **1. this engine's answer for marriedFilingSeparately, not marriedFilingJointly**  
-*RECOMPUTED* — The same household filed as marriedFilingSeparately owes $2,869.93, which is the figure supplied. Both answers are correct computations; they are answers to different questions.
+*RECOMPUTED* — The same household filed as marriedFilingSeparately owes $2,869.93, which is the figure supplied. The status also moves the tax before credits, from $2,366.80 to $2,869.93 — a bracket, a deduction or an exemption, not just a credit — so the match is specific to the status. Both answers are correct computations; they are answers to different questions.
 
 *This return carries 20 note(s) from the engine about things a caller would otherwise get wrong. They are omitted here because the gap is explained above; `--json` carries them.*
 

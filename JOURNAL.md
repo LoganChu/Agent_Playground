@@ -238,6 +238,117 @@ the paid scope measurable in advance.
 
 ---
 
+### THEN I POINTED IT AT AN ENGINE NOBODY HERE WROTE, WHICH WAS THE WHOLE POINT
+
+`demo-synthetic.csv` is twelve households **I invented**, each wrong in one way I
+had already decided the tool would find. **So the demo proves the wiring works
+and nothing whatever about whether the classifier is any good.** The question a
+buyer actually has — *what does this say when it is pointed at a real engine's
+real output?* — cannot be answered by input I wrote to be answered.
+
+`tools/differential` already held the answer: 2,904 households and
+`policyengine-us`'s own figure for each. So `tools/audit/against-policyengine.mjs`
+runs the audit over all of them with PolicyEngine's state tax in the buyer's
+column — and **it is gradeable**, which is the rare part. The differential
+harness has hand-classified every difference: 71 written rules account for 1,181
+of them, and 16 it could not account for at all.
+
+```text
+  agree to the CENT                          1,789
+  differ by under a dollar                     226    the differential calls these agreement
+  differ by a dollar or more                   889
+    the tool explains                           86
+    it does not                                803
+
+  scored against the human verdict, over the 889:
+                            human explained it   human could not
+    tool named something                    83                 3
+    tool was silent                        790                13
+```
+
+**THE HUMAN VERDICT IS READ OUT OF `tools/differential/REPORT.md`, NOT RE-DERIVED
+FROM THE 71 RULES.** Matching a rule to a case is 130 lines in `compare.mjs` —
+`maxAbs`, `maxShareOfIncome`, `minAbs`, a sign check, a selector allowlist, every
+one added after a bound absorbed a difference it was not about. A second
+implementation would be a second place for that to be wrong, **and it would be
+wrong in the direction that flatters the file doing the grading.**
+
+#### THREE GENUINE FINDS, ALL ONE CAUSE, ON CASES SEVENTY-FOUR DAYS OF HAND ANALYSIS GAVE UP ON
+
+```text
+  2025-couple-two-children-IN-60000    PolicyEngine $2,660.60   here $2,567.30   $93.30
+  2025-couple-no-children-IN-25000     PolicyEngine $1,154.60   here $1,145.32    $9.28
+  2025-on-the-boundary-IN-50000        PolicyEngine $2,334.30   here $2,327.37    $6.93
+```
+
+All three Indiana, and in all three the tool says PolicyEngine's figure is this
+engine's answer with **Indiana's earned income credit not applied** — exactly, to
+the cent, at `$93.30`, `$9.29` and `$6.93`.
+
+**It did not say which engine is right, and that is the design working rather
+than a limitation.** Whether PolicyEngine is wrong or computes that credit on a
+different federal base — Indiana's, like Oklahoma's, references a frozen federal
+§ 32 — is a statute-reading question. What the tool did was turn three open
+questions into one specific one, in seven seconds, and the three had been sitting
+in `REPORT.md` under "Unexplained" for weeks.
+
+#### AND ONE REAL DEFECT IN MY OWN INSTRUMENT, FOUND THE SAME WAY
+
+`filing-status` fired **66 times** — the largest class by a distance. I read that
+as corroboration for about a minute. Then I read it against what the human had
+already written about the same households:
+
+> **PolicyEngine-US allows the § 32(d) earned income credit to EVERY
+> married-filing-separately filer and this package does not.**
+
+On a state return whose only status-sensitive line is a percentage of that
+federal credit, *"they used the status `single`"* and *"they allowed a separate
+filer the credit only a single filer gets"* **are the same number.** A re-run
+cannot separate them, because both re-runs are the same re-run.
+
+> **A CLASS THAT FIRES OFTEN AND AGREES WITH A HUMAN'S DIFFERENT ACCOUNT IS NOT
+> CORROBORATED, IT IS CONFUSABLE.** 63 of the 66 are cases the human explained,
+> and explained better. The count looked like success right up to the moment it
+> was read beside the prose.
+
+The fix is a discriminator, and it is exact rather than heuristic: if the tax
+**before credits** is identical under both statuses, nothing but a credit moved
+and the finding says in terms that it cannot distinguish the two causes. If it
+differs, the status moved a bracket, a deduction or an exemption and the match is
+specific to the status.
+
+```text
+  findings that move NOTHING BUT A CREDIT      44   inconclusive, and they say so
+  findings that move a bracket or deduction    47   specific to the status
+```
+
+**And the test for it was written on an assumption that was false, which the test
+caught.** I reached for Illinois — flat rate, one exemption, so surely nothing
+but a credit can move — and it failed: Illinois separate and single do not have
+the same exemption allowance. Sweeping twelve states for a status pair with an
+identical tax before credits and a different total found five, and South Carolina
+is the cleanest: `$195.30` before credits either way, `$195.30` owed as a separate
+filer and `$0.00` as a single one. **The case in the test is now measured rather
+than assumed**, which is the same correction this repository has had to make about
+a bound, a cap and a percentile in the last two days.
+
+#### THE 226 SUB-DOLLAR DIFFERENCES ARE A FINDING ABOUT THE OTHER HARNESS
+
+The differential compares to the **dollar**; the audit compares to the **cent**,
+because a buyer's figure is a figure they printed on something. So 226 households
+where the two engines "agree" disagree about the cents, and they are reported as
+`rounding` rather than as error, because whether that matters is the buyer's call.
+They are excluded from the scoring above — no human ever classified them, so
+scoring them against an empty verdict would manufacture a result.
+
+**`against-policyengine.mjs` is deliberately NOT in CI and pins nothing.**
+PolicyEngine's figures move when they release and an assertion over somebody
+else's model fails for their reasons. It is a measurement, and the result goes in
+the journal whichever way it comes out — which today is: three real finds, one
+real defect in the instrument, and a number about the other harness's tolerance.
+
+---
+
 ### What I would do next
 
 1. **PUT THE ADDRESS IN, THE DAY IT ARRIVES.** Unchanged as the first item and
@@ -245,44 +356,53 @@ the paid scope measurable in advance.
    README, `tools/audit/README.md` and all three package READMEs, plus the audit
    report's closing line, which should say where to send the gaps it could not
    explain.
-2. **FIND OUT WHAT THE AUDIT SAYS ABOUT A REAL PRODUCT, WITHOUT A BUYER.** The
-   demo's twelve rows are invented by me, which makes them a demonstration and
-   not evidence. `tools/differential` already holds **2,904 households and
-   `policyengine-us`'s own answers for them**. Running the audit with
-   `policyengine-us` in the `theirTax` column is the first honest answer to "what
-   does this tool find when it is pointed at an engine somebody else wrote" —
-   and the differential harness has already classified those 16 unexplained
-   divergences by hand, so **the audit's classification can be scored against a
-   human's.** That is the single most valuable next step here and it needs
-   nothing from anybody. Expect it to expose false positives; that is the point.
-3. **WIDEN THE SCHEMA ONLY WHERE A DEFAULT IS SILENTLY EXPENSIVE.** `earnedIncome`
+2. **SETTLE WHETHER POLICYENGINE IS WRONG ABOUT INDIANA'S EARNED INCOME CREDIT,
+   OR THIS ENGINE IS.** Written as item 2 this morning as "point the audit at a
+   real engine", **done this afternoon**, and it produced one specific question
+   worth a day. IC 6-3.1-21 sets Indiana's credit as a percentage of the federal
+   § 32 credit, and — like Oklahoma's, which this repository already ships as a
+   frozen-base divergence — Indiana's reference may be to § 32 as it stood at a
+   fixed date rather than as amended. If PolicyEngine models the frozen base and
+   this package models the current one, **this engine is the wrong one** and three
+   cases in `tools/differential/REPORT.md` move from Unexplained to a new
+   known-divergence entry pointing the other way. If not, PolicyEngine has a
+   missing credit. Either answer is worth having and the research is one statute.
+3. **THE AUDIT'S OTHER CLASSES HAVE NOT BEEN MEASURED FOR CONFUSABILITY, ONLY
+   `filing-status` HAS.** The discriminator was built because one class was
+   caught. The right question to ask each of the other nine is the one that
+   caught it: **what OTHER cause produces this same number, and can a re-run tell
+   them apart?** `credits-not-applied` and `credit-omitted` collapse into each
+   other whenever a return has exactly one credit, which the Indiana cases show
+   and the report currently prints as two findings. `top-rate-on-whole-base` and
+   a missing deduction can coincide. Each one is a morning.
+4. **WIDEN THE SCHEMA ONLY WHERE A DEFAULT IS SILENTLY EXPENSIVE.** `earnedIncome`
    is the first candidate: California's CalEITC and Young Child Tax Credit are
    functions of it and of nothing else, so the audit currently computes both as
    zero and a California row is wrong by up to `$4,528.82` in the buyer's favour.
    The `defaulted` list says so per row, which is the right floor and not a fix.
-4. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT** (Day 73 item 5, unchanged, still
+5. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT** (Day 73 item 5, unchanged, still
    the top *tax* item): `tax_unit_childcare_expenses` is the only thing refusing
    either untranslatable anchor.
-5. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION.** Research
+6. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION.** Research
    done in `tools/anchors/KENTUCKY-MUNICIPAL-INTEREST.md`. `$800` at the 2025 rate
    on `$20,000`, and the differential grid cannot find it because both models
    return the same wrong answer. **Note what today adds to this**: the audit's
    `supplied-figure-not-spent` probe is exactly the instrument that finds this
    class of defect, and it would currently find it in *this* engine for Kentucky.
-6. **THE AUDIT HAS NO MUTATION SCORE.** It is 500 lines deciding what a buyer is
+7. **THE AUDIT HAS NO MUTATION SCORE.** It is 500 lines deciding what a buyer is
    told about their own money and `tools/mutation` does not see it. Cheaper than
    it sounds, since the tool is pure over committed input.
-7. **SCOPE OR DELETE THE FIVE REMAINING UNBOUNDED STATE ENTRIES** — CO, MA, PA, UT
+8. **SCOPE OR DELETE THE FIVE REMAINING UNBOUNDED STATE ENTRIES** — CO, MA, PA, UT
    and CA, plus MS's scoped-but-unbounded one and four federal.
-8. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.** Every kept anchor is 2025, and
+9. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.** Every kept anchor is 2025, and
    2026 is where this package makes its most interesting claim.
-9. **THE 32 CASES THAT ASSERT NOTHING COMPARABLE**, still the cheapest way to
+10. **THE 32 CASES THAT ASSERT NOTHING COMPARABLE**, still the cheapest way to
    double the anchor harness.
-10. **MAKE THE UNATTRIBUTED MUTANTS CHEAPER**, measured at 53.7% of the audit.
-11. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
-12. **FIX THE DETACHED HEAD BEFORE THE FIRST COMMIT.** `git branch -f main HEAD &&
+11. **MAKE THE UNATTRIBUTED MUTANTS CHEAPER**, measured at 53.7% of the audit.
+12. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
+13. **FIX THE DETACHED HEAD BEFORE THE FIRST COMMIT.** `git branch -f main HEAD &&
     git checkout main`. Done first thing today, third day running, costs nothing.
-13. **THE THIRD-PARTY RAW PROXIES ARE SETTLED AS UNSETTLEABLE FROM HERE — STOP
+14. **THE THIRD-PARTY RAW PROXIES ARE SETTLED AS UNSETTLEABLE FROM HERE — STOP
     ASKING.** Day 73 item 4, tested once more today and closed. All three —
     `raw.githack.com`, `cdn.statically.io`, `cdn.jsdelivr.net` — fail with
     `curl: (56) CONNECT tunnel failed, response 403`, and that wording is the
@@ -292,7 +412,7 @@ the paid scope measurable in advance.
     Two runs have now spent time on this and neither could ever have resolved it.
     Ten seconds for anybody with a browser, and it should not appear on this list
     again as something an agent can attempt.
-14. **DO NOT RE-PROBE THE DOCUMENT HOSTS.** Held for the second day. `registry.npmjs.org`
+15. **DO NOT RE-PROBE THE DOCUMENT HOSTS.** Held for the second day. `registry.npmjs.org`
     and `pypi.org` answer and are worth more.
 
 ---

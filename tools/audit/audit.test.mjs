@@ -197,6 +197,63 @@ test('every `recomputed` diagnosis really does recompute, checked outside the di
   assert.equal(checked, 3, `${checked} recomputed diagnoses were re-verified`);
 });
 
+test('a filing-status finding says whether anything but a credit moved', () => {
+  // THE DISCRIMINATOR, AND IT EXISTS BECAUSE THE CLASS WAS MEASURED AGAINST A
+  // REAL ENGINE AND FOUND CONFUSABLE.
+  //
+  // Day 74 ran this tool over 2,904 households with `policyengine-us`'s own
+  // figures in the buyer's column. `filing-status` fired 66 times and on 63 of
+  // them the differential harness's hand-written account says something else
+  // and better: PolicyEngine allows the § 32(d) earned income credit to every
+  // married-filing-separately filer and this package does not. On a state
+  // return whose only status-sensitive line is a percentage of that federal
+  // credit, "they used `single`" and "they allowed a separate filer a
+  // single-filer credit" are THE SAME NUMBER, and a re-run cannot separate
+  // them because both re-runs are the same re-run.
+  //
+  // So every such finding now carries `confusable`: true when the tax before
+  // credits is identical under both statuses, false when the status moved a
+  // bracket, a deduction or an exemption. The demo's Virginia row is the
+  // specific kind — separate and joint have different brackets there — and the
+  // report has to say so rather than overclaiming.
+  const row = demo().find((candidate) => candidate.id === 'payroll-010');
+  const finding = row.diagnoses.find((d) => d.kind === 'filing-status');
+  assert.ok(finding, 'the demo no longer demonstrates filing-status');
+  assert.equal(finding.confusable, false, 'Virginia separate vs joint moves the bracket');
+  assert.match(finding.detail, /moves the tax before credits/);
+
+  // AND THE OTHER SIDE OF THE DISCRIMINATOR, on a case chosen by MEASUREMENT
+  // rather than by assumption. The first draft of this test used Illinois on
+  // the reasoning that a flat rate with one exemption cannot move anything but
+  // a credit — and it failed, because Illinois separate and single do not have
+  // the same exemption allowance. Sweeping twelve states for a pair of statuses
+  // with an identical tax before credits and a different total found five, of
+  // which South Carolina is the cleanest: 95.30 before credits either way,
+  // 95.30 owed as a separate filer and /bin/bash.00 as a single one, so the whole
+  // difference is a credit a separate filer is barred from.
+  //
+  // That is exactly the shape PolicyEngine produced 44 times, and the finding
+  // must refuse to claim the status is the cause.
+  const creditOnly = normaliseRow(
+    { id: 'sc', state: 'SC', year: 2025, filingStatus: 'marriedFilingSeparately',
+      wages: 30000, primaryAge: 40, spouseAge: 41, childAges: '8', theirTax: 0 },
+    0,
+  );
+  const asSingle = taxFor({ ...creditOnly.household, filingStatus: 'single' });
+  assert.ok(
+    equalToCent(
+      asSingle.taxBeforeCredits,
+      taxFor(creditOnly.household).taxBeforeCredits,
+    ),
+    'South Carolina separate and single no longer agree before credits — pick another state',
+  );
+  const probe = diagnose({ ...creditOnly, theirTax: asSingle.totalTax });
+  const match = probe.diagnoses.find((d) => d.kind === 'filing-status');
+  assert.ok(match, 'the credit-only status match stopped being found at all');
+  assert.equal(match.confusable, true, 'a credit-only status match claimed to be specific');
+  assert.match(match.detail, /cannot distinguish them/);
+});
+
 test('every diagnosis carries one of the three evidence classes and a dollar amount', () => {
   for (const row of demo()) {
     for (const d of row.diagnoses) {
