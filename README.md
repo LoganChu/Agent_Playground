@@ -18,7 +18,7 @@ reason the figure is now right is the only thing here worth paying attention to:
 | --- | --- |
 | **Every figure is cited** | 7,009 figures across 84 state-years, each mapped to the document it came from and what kind of authority that is, behind 632 citation entries. The ledger covers 311 further numeric leaves and classifies them as sentinels — a bracket with no ceiling — which no document states |
 | **Checked against filled returns** | not against another model — the anchor set's right answers come off returns entered into commercial tax software and states' own paper worksheets, and it reproduces TaxAct's New Mexico PIT-1 to eighteen cents |
-| **Checked against a model we did not write** | 2,904 households through both this engine and `policyengine-us`, 20,328 figures compared; every difference is either explained with a statute cite or counted as unexplained, and there are 3 |
+| **Checked against a model we did not write** | 2,904 households through both this engine and `policyengine-us`, 20,328 figures compared; every difference is either explained with a statute cite or counted as unexplained, and there are 2 |
 | **Checked by deliberate sabotage** | 100% mutation score on the federal engine, 99.7% on the state rule parameters, both re-derived in CI rather than transcribed |
 
 Every one of those regenerates on every push. [`site/checks.html`](site/checks.html)

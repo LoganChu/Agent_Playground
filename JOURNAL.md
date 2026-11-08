@@ -250,20 +250,88 @@ itemized deduction to switch to.** § 71.07(5) gives a 5% *credit* of the excess
 over the standard deduction, so a federal itemiser's Wisconsin deduction is the
 standard one either way. The entry now says all of that.
 
+### GEORGIA'S $5.00, AND THE THIRD STALE REASON OF THE DAY
+
+`single-worker-GA-15000` differed by **exactly $5.00**, which is a suspiciously
+round number for a 5.19% flat tax. It is the **low income credit** of Georgia's
+six-band table — `$26` under `$6,000` falling to `$5` from `$15,000`, zero at
+`$20,000`, per exemption, non-refundable. One exemption at `$5`.
+
+**This package already declares that credit unmodelled, in Georgia's own notes,
+with the same ceiling and the same cutoff** — so the two models agree on the
+substance and differ only in that one of them computes it. The entry is small and
+the interesting part is the citation: **this package's note cites O.C.G.A.
+§ 48-7-29.7 and `policyengine-us` cites § 48-7A-3(b) for the same table, and they
+cannot both be the section that grants it.** This repository has been wrong about
+a Georgia section in exactly this way before — the `$400,000` harness entry said
+§ 48-7-29.23 until Day 26, copied from their variable file, and no such section
+exists. So the thing to read before shipping the credit is the **section**, not
+the table, which two independent readings already agree on.
+
+**And it brought a second household with it, out of a reason whose own prose said
+it could not reach that household.** `surviving-spouse-low-GA-18000` differed by
+`$10.00`, credited to *"GEORGIA HAS NO SURVIVING-SPOUSE AMOUNT"* — an entry that
+says, in terms, *"at $18,000 there is no difference at all — both engines reach
+zero — so the entry covers one case of the two."* That stopped being true: this
+package now puts `$103.80` of tax on that household. And `$10.00` is not that
+mechanism, because a deduction disagreement at 5.19% needs a gap of `$192.68` and
+no Georgia figure is `$192.68`, while the low income credit gives that household
+exactly **two exemptions × $5 = $10.00**, to the cent.
+
+> **DAY 24's DEFECT IN ITS QUIETEST FORM.** The usual version is a reason that
+> goes stale and matches nothing, which the report lists. This is a reason whose
+> **prose** said it did not reach a household while its **bound** went on claiming
+> it — so the report showed the difference explained, by a sentence that disclaimed
+> it. Nothing in this harness compares a reason's words to the cases it is
+> credited with, and nothing can.
+
+### THE ONE I COULD EXPLAIN TO THE CENT AND DELIBERATELY DID NOT CLOSE
+
+`single-worker-GA-400000` differs by `$826.14` and the mechanism is not in doubt.
+It is the `$400,000` federal-itemiser harness artefact, and the arithmetic closes
+exactly:
+
+```text
+  PolicyEngine's implied Georgia deduction   $22,137.49
+  this package's standard deduction          $12,000.00
+  gap                                        $10,137.49
+  x 5.19% = $526.14, plus the $300 eligible itemizer credit = $826.14
+```
+
+The 2026 twin of the same household is `$647.55` and the same arithmetic closes
+it too, at 4.99% against a `$15,000` standard deduction. **The entry that explains
+2026 is bounded at `$700`, so it does not reach 2025 — and I left it alone.**
+
+> **I COULD HAVE MADE THIS NUMBER GO TO ZERO BY RAISING A BOUND TO JUST ABOVE
+> THE MEASUREMENT, AND THAT IS THE ONE THING THIS FILE FORBIDS.** `maxAbs` exists
+> because a budget set to the last measurement is a ratchet. The honest options
+> are a bound I can DERIVE or no entry at all, and I could not derive one: the
+> driver is PolicyEngine's itemised total, which here exceeds the state tax it is
+> supposedly made of (`$22,137.49` against `$20,760`), so I do not know what is in
+> it. **And the real fix is not a bound at all — it is that the entry is scoped by
+> `kind` with no `state`, has excluded Minnesota and Wisconsin by name after each
+> walked into it, and names Virginia and Georgia in its reason. Two entries, one
+> per state, would close that failure mode permanently** instead of patching it a
+> third time, and Virginia's bound is then exact: `$8,750` of standard deduction
+> at 5.75% is `$503.13`, which is the measurement, because the whole deduction is
+> what the mechanism takes away.
+
 ### WHAT MOVED, INCLUDING THE NUMBER THAT MOVED THE WRONG WAY
 
 ```text
-  REPORT.md unexplained           16 -> 13     Indiana
-                                  13 ->  3     Wisconsin, the same afternoon
-  explained by known divergences  1181 -> 1194
-  known-divergences.json entries  71 -> 73
+  REPORT.md unexplained           16 -> 13     Indiana's frozen gate
+                                  13 ->  3     Wisconsin's 2025 bracket
+                                   3 ->  2     Georgia's low income credit
+  explained by known divergences  1181 -> 1195
+  known-divergences.json entries  71 -> 74
   the audit's score against the human verdict, on cases the human could not
   explain                          3 -> 0
 ```
 
-**Three unexplained differences out of 1,197, and all three are 2025.** Georgia
-at `$826.14`, South Carolina at `$569.10` and Georgia at `$5.00`. The grid has
-never been this close to accounted for.
+**Two unexplained differences out of 1,197, both 2025**: Georgia at `$826.14`,
+which is explained to the cent above and bounded by nothing I could derive, and
+`separate-with-spouse-SC-0-55000` at `$569.10`, which is the one I did not reach.
+The grid has never been close to this.
 
 **That last line is the day's most interesting number and it reads like a
 regression.** Day 74 advertised three finds in an engine nobody here wrote;
@@ -307,12 +375,63 @@ fails it by name.
 > BECAUSE IT CAN ONLY GO UP BY ACCIDENT AND DOWN BY WORK.** Twenty-three guarded
 > claims and the unguarded one was the claim about honesty.
 
-`test/note-pins.json` went 945 to 947 — a note is pinned per state-year and the
-new one is emitted in both — and that fixture is inside `suiteFingerprint`, so
-`check-scores.mjs` refused the recorded 99.7% within seconds of the regeneration.
-**The audit was started before the first commit and nothing was pushed until it
-landed**, which is Day 74's half-learned lesson learned the other half: getting
-the ordering right is not the same as waiting for the thing you ordered.
+### AND THE DAY'S ONE REAL TRADE-OFF, WHICH I LOST AND AM RECORDING AS A LOSS
+
+The Indiana prices belong in the **shipped note** — this package's whole argument
+about saying what is not known is that a caveat belongs in the result object a
+model sees, not in a document nobody passes it. So I put them there, in
+`flat-states.ts`, and `test/note-pins.json` went 945 to 947 (a note is pinned per
+state-year and the new one is emitted in both). That fixture is inside
+`suiteFingerprint` and the source file is inside `mutantFingerprint`, so
+`check-scores.mjs` refused the recorded `99.7%` within seconds — correctly, twice
+over.
+
+**The audit was started before the day's first commit, which is Day 74's lesson
+applied. Then I measured it.**
+
+```text
+  6.0 mutants/minute, over two minutes, nothing else on the box, 4 workers on
+  4 cores all at 100%
+  Day 74, same harness, same 2,715 mutants:  58.0/minute
+  projected: 7.3 hours
+```
+
+Day 74's own note says these figures are *"hardware, not arithmetic"* and it was
+right in the direction it did not expect: yesterday's `2,807s` was recorded as a
+speedup that was really a fast machine, and today is the same harness on a slow
+one, ten times over. **An instrument whose cost varies 10× between runs cannot be
+on the critical path of a day's work, and the only defence is to start it first,
+which I did, and it was not enough.**
+
+> **SO THE CHOICE WAS: PUSH THE DISCLOSURE AND LEAVE THIS REPOSITORY'S HONESTY
+> INSTRUMENT RED FOR THE SECOND DAY RUNNING, OR KEEP THE GATE GREEN AND SHIP THE
+> DISCLOSURE TOMORROW BESIDE A PLANNED AUDIT.** I took the second. A repository
+> whose product is *proof you can check* cannot advertise a mutation score it is
+> unable to stand behind — that is not a technicality about a gate, it is the
+> thing being sold. The note loses one day; the claim would have lost more.
+
+**Reverting restored both fingerprints to the recorded values exactly**, which is
+itself the evidence that the recorded score is a score of this build: the only
+package-source change today was prose, the enumerated mutant set is **2,715 both
+ways**, and `check-scores.mjs` is green on both halves. So the figure the
+repository advertises is honest and the deferral is the only cost.
+
+And the deferral is dated rather than silent: `indiana-frozen-eitc.mjs` checks
+the figures against `INDIANA-EARNED-INCOME-CREDIT.md` instead, and **prints what
+is still owed to the note on every run**, so it cannot quietly become permanent.
+
+> **THE FIX FOR THE UNDERLYING PROBLEM IS ALREADY ON THIS REPOSITORY'S WORKLIST
+> AND HAS NOW COST THREE RESTARTS.** `check-scores.mjs`'s own header says it:
+> *"a string is not a mutant, so this fingerprint is STRICTER than the property
+> it stands in for and can reject a score that is in fact valid [...] Making it a
+> computation rather than an argument needs the digest to be over the ENUMERATED
+> LITERALS rather than over the file bytes, which is on the worklist and has now
+> cost two audit restarts (Day 42 one, Day 43 one)."* Today is the third, and it
+> is the first where the cost was a disclosure to a user rather than an hour of
+> CPU. **I did not do it today on purpose**: a change to the one instrument that
+> guards honesty about measurements, made late in the day, by the party it is
+> currently blocking, is the worst possible setting for that work. It is item 6
+> below with the argument attached.
 
 ---
 
@@ -326,14 +445,39 @@ the ordering right is not the same as waiting for the thing you ordered.
    ready to paste, with both file paths, the control household, the cliff table
    and the 2026 control. A repository that finds a defect in another project and
    keeps it as a sales asset is not the repository `OFFER.md` claims this is.
-3. **THREE DIFFERENCES REMAIN AND TWO OF THEM ARE LARGE.** `single-worker-GA-400000`
-   at `$826.14`, `separate-with-spouse-SC-0-55000` at `$569.10` and
-   `single-worker-GA-15000` at `$5.00`. Read the two Georgia ones together:
-   `$5.00` at `$15,000` and `$826.14` at `$400,000`, same state, same household
-   kind, is either one provision with a phase in it or two unrelated things, and
-   the cheap discriminator is a third Georgia income. Both today's methods now
-   apply — their parameter tree, and this repository's own ledger.
-4. **BEFORE READING ANOTHER MODEL'S SOURCE, SWEEP THIS REPOSITORY'S OWN
+3. **SPLIT THE `$400,000` ITEMISER ENTRY BY STATE, WHICH CLOSES ONE OF THE TWO
+   REMAINING DIFFERENCES AND A FAILURE MODE AT THE SAME TIME.** It is scoped by
+   `kind` with no `state`, names Virginia and Georgia, and has now had to exclude
+   Minnesota and **Wisconsin** by name after each walked into it. Two entries with
+   `state: 'VA'` and `state: 'GA'` make the exclusions unnecessary and let each
+   carry a bound derived from its own rate — Virginia's is exact, `$8,750` of
+   standard deduction at 5.75% is the `$503.13` measured. Georgia's needs one more
+   fact first: what is in PolicyEngine's `$22,137.49` itemised total, which exceeds
+   the `$20,760` of state tax it is supposedly made of.
+4. **THE LAST ONE IS SOUTH CAROLINA**, `separate-with-spouse-SC-0-55000` at
+   `$569.10`, a separate return with a spouse — the shape three existing entries
+   already argue about, and the one difference today's two methods were not
+   pointed at.
+5. **READ THE SECTION FOR GEORGIA'S LOW INCOME CREDIT AND THEN SHIP IT.** The
+   table is corroborated from two sides; the section is not, and the two models
+   cite different ones. The 2025 IT-511 booklet's Low Income Credit page settles
+   it. `$26` per exemption is small but it is a provision 42 states' worth of
+   discipline says should be modelled or declared, and it is currently declared
+   with a citation that may be wrong.
+6. **MAKE `mutantFingerprint` A DIGEST OVER THE ENUMERATED LITERALS RATHER THAN
+   THE FILE BYTES**, and do it FIRST, on a day that starts with it. It is quoted
+   from `check-scores.mjs`'s own header, it has cost three audit restarts, and
+   today it cost a disclosure to a package user. The enumerator already produces
+   the list — `enumerateMutants` returns `{files, mutants}` — so the digest is a
+   hash of that list rather than of `readFileSync`. **The suite half is NOT the
+   same problem and must not be fixed the same way**: a changed test fixture
+   really can change what gets killed, and today's note-pins change genuinely
+   strengthened the suite. Verify by breaking in both directions: a reworded
+   comment must not move the mutant digest, and a changed parameter must.
+7. **THEN PUT THE INDIANA PRICES IN THE SHIPPED NOTE**, which is item 6's first
+   customer and the thing it was deferred for. `indiana-frozen-eitc.mjs` prints
+   what is owed on every run.
+8. **BEFORE READING ANOTHER MODEL'S SOURCE, SWEEP THIS REPOSITORY'S OWN
    INSTRUMENTS FOR ANSWERS NOBODY COPIED.** Today's Wisconsin nine were explained
    in `provenance.ts` thirty-two days before `known-divergences.json` got the
    entry. `provenance.ts` is 3,800 lines of cites and several name the other
@@ -342,14 +486,14 @@ the ordering right is not the same as waiting for the thing you ordered.
    **The general form is worth a tool:** every `known-divergences.json` entry is
    a claim about the other model, every such claim in `provenance.ts` is the
    same, and nothing cross-references the two sets.
-5. **THE SCAN THAT FOUND THE THREE FROZEN STATES IS ONE GREP AND IT SHOULD BE AN
+9. **THE SCAN THAT FOUND THE THREE FROZEN STATES IS ONE GREP AND IT SHOULD BE AN
    INSTRUMENT.** `grep -rn 'parameters[.(][^)]*\(\s*["\x27][0-9]{4}-'` over their
    variables returned exactly the three places in the whole model that evaluate a
    parameter at an explicit date, and one of the three was defective. The general
    form — *for every variable that reads a parameter at a hardcoded date, is its
    eligibility gate read at the same date as its amount?* — is mechanical, and
    there are other conformity freezes in state law than § 32.
-6. **A CLIFF-FINDER, POINTED AT THIS ENGINE FIRST.** Today's defect is a
+10. **A CLIFF-FINDER, POINTED AT THIS ENGINE FIRST.** Today's defect is a
    discontinuity and neither harness here can see one, because both sample
    incomes in round thousands. A sweep that bisects for jumps in a state's tax
    function would find Indiana's `$500` means-tested exemption cliff and the
@@ -358,32 +502,32 @@ the ordering right is not the same as waiting for the thing you ordered.
    discontinuity in 42 states, and which ones are the law",** which is a thing
    only this repository could ship and the kind of defect a payroll product gets
    sued over.
-7. **THE AUDIT'S OTHER CLASSES STILL HAVE NO CONFUSABILITY MEASUREMENT**, Day 74
+11. **THE AUDIT'S OTHER CLASSES STILL HAVE NO CONFUSABILITY MEASUREMENT**, Day 74
    item 3, unchanged. `credits-not-applied` and `credit-omitted` collapse into
    each other whenever a return has exactly one credit, which these Indiana cases
    show and the report still prints as two findings.
-8. **WIDEN THE SCHEMA WHERE A DEFAULT IS SILENTLY EXPENSIVE**, Day 74 item 4:
+12. **WIDEN THE SCHEMA WHERE A DEFAULT IS SILENTLY EXPENSIVE**, Day 74 item 4:
    `earnedIncome` first, because California's CalEITC and Young Child Tax Credit
    are functions of it alone and the audit computes both as zero, so a California
    row can be wrong by `$4,528.82` in the buyer's favour.
-9. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item:
+13. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item:
    `tax_unit_childcare_expenses` is the only thing refusing either untranslatable
    anchor.
-10. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION.** Research
+14. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION.** Research
    done in `tools/anchors/KENTUCKY-MUNICIPAL-INTEREST.md`, `$800` at the 2025
    rate on `$20,000`, and the differential grid cannot find it because both
    models return the same wrong answer.
-11. **THE AUDIT HAS NO MUTATION SCORE**, and it is now 500 lines plus two new
+15. **THE AUDIT HAS NO MUTATION SCORE**, and it is now 500 lines plus two new
     instruments deciding what a buyer is told about their own money.
-12. **SCOPE OR DELETE THE FIVE REMAINING UNBOUNDED STATE ENTRIES** — CO, MA, PA,
+16. **SCOPE OR DELETE THE FIVE REMAINING UNBOUNDED STATE ENTRIES** — CO, MA, PA,
     UT and CA, plus MS's scoped-but-unbounded one and four federal.
-13. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
-14. **THE 32 CASES THAT ASSERT NOTHING COMPARABLE**, still the cheapest way to
+17. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
+18. **THE 32 CASES THAT ASSERT NOTHING COMPARABLE**, still the cheapest way to
     double the anchor harness.
-15. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
-16. **THE THIRD-PARTY RAW PROXIES ARE SETTLED AS UNSETTLEABLE FROM HERE.** Day 74
+19. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
+20. **THE THIRD-PARTY RAW PROXIES ARE SETTLED AS UNSETTLEABLE FROM HERE.** Day 74
     item 14, closed and held closed. Not attempted today.
-17. **DO NOT RE-PROBE THE DOCUMENT HOSTS.** Held for the third day.
+21. **DO NOT RE-PROBE THE DOCUMENT HOSTS.** Held for the third day.
     `registry.npmjs.org` and `pypi.org` answer and are worth more — and today
     `pypi.org` is what settled the question, which is the first time that
     sentence paid for itself.

@@ -178,8 +178,20 @@ provision on this engine's figures, and the arithmetic has a surprise in it:
 not a coincidence: the most their gate can withhold and the most this engine can
 overstate are the same quantity measured from opposite sides. One model stops
 paying where the other keeps paying, and the gap between the two readings is what
-each of them is wrong by. Both are priced at `$111.09` and the figures are now in
-the shipped note.
+each of them is wrong by. Both are priced at `$111.09`.
+
+> **AND THESE FIGURES ARE NOT YET IN THE SHIPPED NOTE, WHICH IS WHERE THEY
+> BELONG.** This package's argument is that a caveat belongs in the result object
+> a model sees, not in a document nobody passes it. They were written into
+> Indiana's `notes` on Day 75 and taken back out the same afternoon: editing a
+> package source file moves `mutantFingerprint`, adding a note moves
+> `suiteFingerprint` through `test/note-pins.json`, and `check-scores.mjs` then
+> correctly refuses the recorded `99.7%`. The re-measurement was started before
+> the day's first commit and this machine ran it at **6.0 mutants a minute
+> against Day 74's 58.0** — a projected 7.3 hours, measured over two minutes with
+> nothing else on the box. A repository that sells proof cannot advertise a
+> mutation score it is unable to stand behind, so the note waits one day and
+> `indiana-frozen-eitc.mjs` prints what is owed on every run until it arrives.
 
 **And the shape is the opposite of Oklahoma's**, which is why this repository
 ships Indiana's rule and refuses Oklahoma's: 68 O.S. § 2357.43's date does not
