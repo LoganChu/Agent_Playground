@@ -108,12 +108,44 @@ at version 2.15.3.
 > and the gate cannot bind. Every affected household in our comparison grid
 > agrees between the two models in 2026 and disagrees in 2025, with nothing
 > changed but the year.
+>
+> **Reproduction**, on `policyengine-us` 2.15.3, two households four cents apart:
+>
+> ```text
+>                         wages  federal eitc  eligible   in_eitc     IN tax
+>   2025 just below   59,478.00      1,042.92      True    104.29   1,470.05
+>   2025 just above   59,478.04      1,042.91     False      0.00   1,574.34
+>   2026 just below   59,478.00      1,352.23      True    135.22   1,412.88
+>   2026 just above   59,478.04      1,352.22      True    135.22   1,412.88
+>
+>   mixed-dependents  40,000.00      6,038.98      True    603.90     311.10
+> ```
+>
+> The current-year credit itself barely moves across those four cents —
+> `$1,042.92` to `$1,042.91` — so nothing about the filer's actual credit
+> justifies the step. The last row is the control: `in_eitc` is 10% of the
+> `$6,038.98` current-year credit, where 10% of that household's 1 January 2023
+> credit would be `$492.81`.
 
 ---
 
+**Every figure in that report was observed rather than derived**, by installing
+their pinned version and running their model:
+
+```sh
+python3 -m venv .pe && .pe/bin/pip install policyengine-us==2.15.3
+.pe/bin/python tools/differential/in-eitc-cliff.py
+```
+
+That script is committed and documented, and it is the form in which the finding
+survives their next release: run it again and it either still prints a cliff or
+it does not. **A report that says "run these four lines" is worth more than one
+that says "we computed what your model would do"**, especially when the claim is
+about an interaction between two of their own variables.
+
 **If you would rather not file it under your own name, say so and I will stop
 including it here.** It is in `tools/differential/INDIANA-EARNED-INCOME-CREDIT.md`
-either way, with the full derivation and the two instruments that check it.
+either way, with the full derivation and the three instruments that check it.
 
 ## And a note on what this does to the sales pitch, since it cuts both ways
 

@@ -25,6 +25,18 @@ disagreement about the question:
 | `compare.mjs` | joins the two and reports every difference over a dollar |
 | `known-divergences.json` | the differences that have a recorded reason |
 | `out/theirs.cases.sha256` | the fingerprint of the grid PolicyEngine last answered |
+| `in-eitc-conformity.mjs` | Day 75. Reads PolicyEngine's Indiana earned income credit out of the two committed answer files and its own source, and asserts the account in `INDIANA-EARNED-INCOME-CREDIT.md`. In CI, because everything it reads is committed here |
+| `in-eitc-cliff.py` | the same finding OBSERVED rather than derived: runs their pinned model on two households four cents apart and prints the `$104.29` step. Not in CI — it needs the 840 MB reference model, like `theirs.py` |
+
+**Day 75 added a method rather than a case, and it is worth naming.** For
+seventy-four days this harness compared *answers* with another model. That
+model's source is MIT-published, pinned and 12 MB, and `pypi.org` serves it to
+this sandbox — so a question the two answer files could not settle (is a credit
+modelled to zero, or not modelled?) was settled in an afternoon by reading the
+directory that computes it. **A differential harness compares conclusions; a
+defect lives in a mechanism.** Three states in the whole of `policyengine-us`
+evaluate a parameter at an explicit date, one `grep` found all three, and one of
+the three was defective.
 
 Both runners read the **same** `out/cases.json`, so neither side can quietly
 answer a different question from the one the other was asked.

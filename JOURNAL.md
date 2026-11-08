@@ -112,6 +112,42 @@ points.
 
 ---
 
+### AND THEN I RAN THEIR MODEL, WHICH TURNED THE WHOLE FINDING FROM DERIVED TO OBSERVED
+
+Everything above comes from their source and their committed answers, which is
+enough to be sure of it. It is not enough for the thing the finding is **for**.
+`NOTES-FOR-HUMAN.md` carries a report to be sent to the PolicyEngine team, and a
+report that says *"we computed what your model would do"* is weaker than one that
+says *"run these four lines"* — especially when the claim is about an interaction
+between two of their own variables.
+
+`policyengine-us==2.15.3` installs from `pypi.org` in about two minutes, and
+`tools/differential/in-eitc-cliff.py` imports `theirs.py`'s household builder
+rather than copying it:
+
+```text
+                        wages  federal eitc  eligible   in_eitc     IN tax
+  2025 just below   59,478.00      1,042.92      True    104.29   1,470.05
+  2025 just above   59,478.04      1,042.91     False      0.00   1,574.34
+  2026 just below   59,478.00      1,352.23      True    135.22   1,412.88
+  2026 just above   59,478.04      1,352.22      True    135.22   1,412.88
+
+  mixed-dependents  40,000.00      6,038.98      True    603.90     311.10
+```
+
+**`in_eitc_eligible` flips across four cents and `in_eitc` goes from `$104.29` to
+`$0.00`, while the credit the amount formula reads moves by one cent** —
+`$1,042.92` to `$1,042.91`. Nothing about the filer's actual credit justifies the
+step. The 2026 rows are the control and there is no step. And the last row is the
+other control, now observed instead of inferred: `in_eitc` is 10% of the
+current-year `$6,038.98`, where 10% of the frozen base would be `$492.81`.
+
+> **A DERIVATION IS FOR BEING SURE AND A REPRODUCTION IS FOR BEING BELIEVED, AND
+> THEY ARE NOT THE SAME ARTEFACT.** I had the first by mid-afternoon and nearly
+> stopped there. The second cost an 840 MB install and twenty lines, and it is
+> the one that survives their next release: run it again and it either still
+> prints a cliff or it does not.
+
 ### THE TWO QUANTITIES TURNED OUT TO BE ONE NUMBER, WHICH I DID NOT EXPECT
 
 `tools/cross-package/indiana-frozen-eitc.mjs` prices the other side: what the

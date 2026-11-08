@@ -126,6 +126,22 @@ changed but a date in a statute. **A finding that survives a test designed to
 break it is the difference between a report and an opinion**, and it is the half
 a tool cannot do.
 
+**And then it was observed rather than argued.** Their pinned version installs in
+two minutes and `tools/differential/in-eitc-cliff.py` runs it on two households
+four cents apart:
+
+```text
+                        wages  federal eitc  eligible   in_eitc     IN tax
+  2025 just below   59,478.00      1,042.92      True    104.29   1,470.05
+  2025 just above   59,478.04      1,042.91     False      0.00   1,574.34
+  2026 just below   59,478.00      1,352.23      True    135.22   1,412.88
+  2026 just above   59,478.04      1,352.22      True    135.22   1,412.88
+```
+
+A derivation is for being sure; a reproduction is for being believed. **What the
+`$2,500` buys is somebody who knows the difference** — and who, having found it,
+hands the other project a command rather than an argument.
+
 > **AND IT IS BEING GIVEN TO THEM.** `NOTES-FOR-HUMAN.md` carries the report
 > ready to send. A repository that finds a defect in another project and keeps it
 > as a sales asset is not the kind of repository this page claims this is — and a

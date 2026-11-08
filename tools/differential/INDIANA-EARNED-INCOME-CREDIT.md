@@ -127,6 +127,37 @@ Indiana credit.** That is a defect no household-by-household comparison finds,
 because finding it needs two households a cent apart, and both this grid and
 PolicyEngine's own test suite sample incomes in round thousands.
 
+### And it is OBSERVED, not derived
+
+`in-eitc-cliff.py` installs their pinned version and runs their model on two
+households four cents apart:
+
+```text
+                        wages  federal eitc  eligible   in_eitc     IN tax
+  2025 just below   59,478.00      1,042.92      True    104.29   1,470.05
+  2025 just above   59,478.04      1,042.91     False      0.00   1,574.34
+  2026 just below   59,478.00      1,352.23      True    135.22   1,412.88
+  2026 just above   59,478.04      1,352.22      True    135.22   1,412.88
+
+  mixed-dependents  40,000.00      6,038.98      True    603.90     311.10
+```
+
+`in_eitc_eligible` flips from `True` to `False` across four cents and `in_eitc`
+goes from `$104.29` to `$0.00`, while the current-year federal credit the amount
+formula reads barely moves — `$1,042.92` to `$1,042.91`. **Nothing about the
+filer's actual credit justifies the step.** In 2026 both households receive
+`$135.22` and there is no step at all.
+
+The last row is the control, now observed directly rather than inferred from the
+two engines agreeing: `in_eitc` is `$603.90`, which is 10% of the `$6,038.98`
+current-year credit, where 10% of that household's 1 January 2023 credit would be
+`$492.81`.
+
+**That matters because of who the finding is for.** A report to the PolicyEngine
+team that says *"run these four lines"* is worth more than one that says *"we
+computed what your model would do"*, and a committed reproduction is the only form
+in which the finding survives their next release.
+
 ## The control year, which could have falsified all of this and did not
 
 SEA 243 of 2025 advances the snapshot to **1 January 2026.** So from tax year
