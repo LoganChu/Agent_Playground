@@ -132,6 +132,17 @@ a tool cannot do.
 > buyer evaluating a `$2,500` audit should weigh what its author does with a
 > finding they cannot invoice for.
 
+**The number that comes out of all of it.** Of 1,197 differences between this
+engine and `policyengine-us` across 2,904 households and two tax years, **1,194
+now have a written reason with a dollar bound and a statute, and 3 do not** —
+all three in 2025, none in 2026. Nine of the ten that closed on Day 75 closed
+without reading anything: this repository's own provenance ledger had carried the
+cause since Day 43 and nothing had copied it into the divergence file, which is
+its own kind of finding. **What a buyer is being offered is that discipline
+applied to their figures**, and the honest version of the claim is that three
+differences in this grid still have no account, which is written at the top of
+`tools/differential/REPORT.md` where anybody can check it.
+
 **It also reported 226 differences under a dollar that the differential harness
 calls agreement**, because that harness compares to the dollar and a buyer's
 figure is a figure they printed on something.

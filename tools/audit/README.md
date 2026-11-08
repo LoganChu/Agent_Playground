@@ -174,8 +174,8 @@ node tools/audit/against-policyengine.mjs > out/AGAINST-POLICYENGINE.md
 `tools/differential` holds 2,904 households and `policyengine-us`'s own figure
 for each. That script runs the audit over all of them with PolicyEngine's state
 tax in the buyer's column — and it is **gradeable**, because the differential
-harness has hand-classified every difference: 72 written rules account for 1,184
-of them and 13 it could not account for at all.
+harness has hand-classified every difference: 73 written rules account for 1,194
+of them and 3 it could not account for at all.
 
 ```text
   agree to the CENT                          1,789
@@ -187,7 +187,7 @@ of them and 13 it could not account for at all.
   scored against the human verdict, over the 889:
                             human explained it   human could not
     tool named something                    86                 0
-    tool was silent                        790                13
+    tool was silent                        800                 3
 ```
 
 **THAT TOP-RIGHT ZERO WAS A THREE ON DAY 74, AND THE FALL IS THE TOOL WORKING.**
@@ -206,10 +206,19 @@ explained, and the count that advertised the finding is zero.
 > worth watching is how many open questions it has CLOSED — three — and
 > `tools/differential/INDIANA-EARNED-INCOME-CREDIT.md` is what closing one costs.
 
-The remaining 13 are not Indiana and the tool is silent on all of them, which is
+The remaining 3 are not Indiana and the tool is silent on all of them, which is
 the honest shape of the other column: most known divergences are about a
 provision neither engine's OUTPUT mentions, and the audit only sees what a return
 reports.
+
+**That 13 was 16 yesterday morning.** Nine of the ten that closed today were
+Wisconsin, and they closed without a tool at all: this repository's **own
+provenance ledger** had carried the account since Day 43 — PolicyEngine indexes
+Wisconsin's 2025 Act 15 bracket expansion a year early — and nothing had ever
+copied it into `known-divergences.json`. Every one of the nine is `0.009 ×` the
+threshold difference, to the cent. **A finding one instrument holds and another
+cannot see is not a finding the repository has**, and it is worth more as a
+lesson than the nine differences are as a count.
 
 **And one real defect in the tool, found the same way.** `filing-status` fired 66
 times, and on 63 the human account says something else and better: PolicyEngine

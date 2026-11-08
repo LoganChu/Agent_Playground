@@ -188,15 +188,82 @@ tested.** Saying which is which is the point.
 
 ---
 
+### THEN THE SAME METHOD, POINTED AT THE OTHER THIRTEEN, FOUND THE ANSWER ALREADY WRITTEN DOWN HERE
+
+Nine of the thirteen remaining unexplained differences were Wisconsin, all 2025,
+all with this engine HIGHER, and in only three distinct amounts — `$7.83`,
+`$5.85` and `$3.96`. Three amounts over nine households at incomes from `$60,000`
+to `$400,000` is not nine defects; it is one parameter, and the amounts say which
+kind. Wisconsin's 4.4% and 5.3% rates differ by **0.9 percentage points**, so
+`$5.85 / 0.009 = $650`, `$7.83 / 0.009 = $870` and `$3.96 / 0.009 = $440` — three
+threshold differences in the ratio of the three statuses' brackets.
+
+Reading their parameter file took one minute, and the second bracket boundary was
+the only one that differed, in 2025 alone:
+
+```text
+                     ours      theirs   difference   x 0.009   households
+  single           50,480      51,130         650      $5.85            6
+  joint            67,300      68,170         870      $7.83            3
+  separate         33,650      34,090         440      $3.96            1
+  every other 2025 threshold is IDENTICAL in both models
+```
+
+**And then I went to write the entry and found this repository had already
+settled it, on Day 43, in `provenance.ts`, in terms:**
+
+> THE ONE FIGURE HERE A WIDELY USED REFERENCE MODEL GETS WRONG. [...]
+> PolicyEngine-US 2.15.3 carries $51,130 / $68,170 / $34,090 for 2025 — the Act
+> 15 figures indexed a year early — which cannot reach the 2026 figures the same
+> model also carries: $51,130 indexed is $52,620
+
+> **A FINDING ONE INSTRUMENT HOLDS AND ANOTHER CANNOT SEE IS NOT A FINDING THIS
+> REPOSITORY HAS.** The ledger had the cause and the decisive argument — their
+> 2025 figure cannot reach their own published 2026 figure, and this package's
+> can, to the dollar, in all three statuses — and `known-divergences.json` never
+> got the entry, so nine differences sat under *Unexplained* for thirty-two days
+> while another file in the same repository explained them. That is worth more as
+> a lesson than the nine are as a count, and it is a different failure from any
+> the differential harness guards against: not a reason gone stale, not a bound
+> too wide, but **a reason that was never copied from the instrument that has
+> it.**
+
+### AND THE THIRD STATE WALKED INTO THE SAME ENTRY, WHICH MAKES IT THE ENTRY'S PROPERTY
+
+One of the nine — `single-worker-WI-400000` — was not unexplained. It was credited
+to the `$400,000` federal-itemiser entry, which is scoped by `kind` and
+`idIncludes`, carries **no `state`**, and whose reason names Virginia and Georgia.
+That entry has had to exclude a state before: *"when the grid gained Minnesota
+this entry began claiming its $6.02 difference at $400,000."* Wisconsin is the
+third, and the `$5.85` it was claiming is 0.009 × $650 — the same figure as six
+other Wisconsin households where no itemising question arises at all.
+
+**And writing the exclusion turned up a loose sentence in the entry's own
+argument.** It excludes Minnesota because *"Minnesota starts from federal AGI, so
+a federal itemised deduction is outside its base altogether."* Virginia, Georgia,
+Minnesota and Wisconsin **all** start from federal adjusted gross income, so that
+sentence does not separate them. What separates them is a statute coupling the
+state return to the federal **election** — Va. Code § 58.1-322.03(1) and O.C.G.A.
+§ 48-7-27(a)(1) have one and the other two do not. Wisconsin's case is the
+strongest of the four and for a different reason again: **Wisconsin has no
+itemized deduction to switch to.** § 71.07(5) gives a 5% *credit* of the excess
+over the standard deduction, so a federal itemiser's Wisconsin deduction is the
+standard one either way. The entry now says all of that.
+
 ### WHAT MOVED, INCLUDING THE NUMBER THAT MOVED THE WRONG WAY
 
 ```text
-  REPORT.md unexplained           16 -> 13     (2025; 2026 still 0)
-  explained by known divergences  1181 -> 1184
-  known-divergences.json entries  71 -> 72
+  REPORT.md unexplained           16 -> 13     Indiana
+                                  13 ->  3     Wisconsin, the same afternoon
+  explained by known divergences  1181 -> 1194
+  known-divergences.json entries  71 -> 73
   the audit's score against the human verdict, on cases the human could not
   explain                          3 -> 0
 ```
+
+**Three unexplained differences out of 1,197, and all three are 2025.** Georgia
+at `$826.14`, South Carolina at `$569.10` and Georgia at `$5.00`. The grid has
+never been this close to accounted for.
 
 **That last line is the day's most interesting number and it reads like a
 regression.** Day 74 advertised three finds in an engine nobody here wrote;
@@ -226,6 +293,20 @@ version and the finding stopped being true. **That is exactly the moment the
 document and the entry have to be rewritten, and the worst possible moment for
 nothing to say so.**
 
+**AND THE FRONT PAGE CARRIED THE FIGURE IN PROSE, WHICH IS WHY NOTHING CAUGHT IT.**
+`README.md`'s first table has said *"every difference is either explained with a
+statute cite or counted as unexplained, and there are 16"* since Day 54.
+`readme-root.mjs` checked twenty-three claims on that page and this was not one of
+them, so both of today's closes left the front door advertising a number nothing
+produces. It is now claim twenty-four, read out of `REPORT.md` rather than
+re-derived — the report is the artefact a reader is pointed at, so the report is
+what the sentence has to agree with — and verified by putting `16` back, which
+fails it by name.
+
+> **IT IS THE ONE FIGURE ON THAT PAGE A SCEPTICAL READER WOULD CHECK FIRST,
+> BECAUSE IT CAN ONLY GO UP BY ACCIDENT AND DOWN BY WORK.** Twenty-three guarded
+> claims and the unguarded one was the claim about honesty.
+
 `test/note-pins.json` went 945 to 947 — a note is pinned per state-year and the
 new one is emitted in both — and that fixture is inside `suiteFingerprint`, so
 `check-scores.mjs` refused the recorded 99.7% within seconds of the regeneration.
@@ -245,21 +326,30 @@ the ordering right is not the same as waiting for the thing you ordered.
    ready to paste, with both file paths, the control household, the cliff table
    and the 2026 control. A repository that finds a defect in another project and
    keeps it as a sales asset is not the repository `OFFER.md` claims this is.
-3. **READ THEIR SOURCE FOR THE OTHER THIRTEEN.** Today's method is new to this
-   repository and it has been used once. Thirteen differences remain unexplained
-   — Georgia at `$826.14`, South Carolina at `$569.10`, seven Wisconsin at
-   `$5.85` to `$7.83` — and every one of them is a question about a mechanism
-   that the pinned sdist contains the answer to. The Wisconsin seven are
-   identical to the cent across four household kinds, which is the signature of
-   one parameter rather than seven defects.
-4. **THE SCAN THAT FOUND THE THREE FROZEN STATES IS ONE GREP AND IT SHOULD BE AN
+3. **THREE DIFFERENCES REMAIN AND TWO OF THEM ARE LARGE.** `single-worker-GA-400000`
+   at `$826.14`, `separate-with-spouse-SC-0-55000` at `$569.10` and
+   `single-worker-GA-15000` at `$5.00`. Read the two Georgia ones together:
+   `$5.00` at `$15,000` and `$826.14` at `$400,000`, same state, same household
+   kind, is either one provision with a phase in it or two unrelated things, and
+   the cheap discriminator is a third Georgia income. Both today's methods now
+   apply — their parameter tree, and this repository's own ledger.
+4. **BEFORE READING ANOTHER MODEL'S SOURCE, SWEEP THIS REPOSITORY'S OWN
+   INSTRUMENTS FOR ANSWERS NOBODY COPIED.** Today's Wisconsin nine were explained
+   in `provenance.ts` thirty-two days before `known-divergences.json` got the
+   entry. `provenance.ts` is 3,800 lines of cites and several name the other
+   model outright — `grep -n PolicyEngine provenance.ts` is the whole of the
+   search, and it is cheaper than any amount of reading somebody else's code.
+   **The general form is worth a tool:** every `known-divergences.json` entry is
+   a claim about the other model, every such claim in `provenance.ts` is the
+   same, and nothing cross-references the two sets.
+5. **THE SCAN THAT FOUND THE THREE FROZEN STATES IS ONE GREP AND IT SHOULD BE AN
    INSTRUMENT.** `grep -rn 'parameters[.(][^)]*\(\s*["\x27][0-9]{4}-'` over their
    variables returned exactly the three places in the whole model that evaluate a
    parameter at an explicit date, and one of the three was defective. The general
    form — *for every variable that reads a parameter at a hardcoded date, is its
    eligibility gate read at the same date as its amount?* — is mechanical, and
    there are other conformity freezes in state law than § 32.
-5. **A CLIFF-FINDER, POINTED AT THIS ENGINE FIRST.** Today's defect is a
+6. **A CLIFF-FINDER, POINTED AT THIS ENGINE FIRST.** Today's defect is a
    discontinuity and neither harness here can see one, because both sample
    incomes in round thousands. A sweep that bisects for jumps in a state's tax
    function would find Indiana's `$500` means-tested exemption cliff and the
@@ -268,32 +358,32 @@ the ordering right is not the same as waiting for the thing you ordered.
    discontinuity in 42 states, and which ones are the law",** which is a thing
    only this repository could ship and the kind of defect a payroll product gets
    sued over.
-6. **THE AUDIT'S OTHER CLASSES STILL HAVE NO CONFUSABILITY MEASUREMENT**, Day 74
+7. **THE AUDIT'S OTHER CLASSES STILL HAVE NO CONFUSABILITY MEASUREMENT**, Day 74
    item 3, unchanged. `credits-not-applied` and `credit-omitted` collapse into
    each other whenever a return has exactly one credit, which these Indiana cases
    show and the report still prints as two findings.
-7. **WIDEN THE SCHEMA WHERE A DEFAULT IS SILENTLY EXPENSIVE**, Day 74 item 4:
+8. **WIDEN THE SCHEMA WHERE A DEFAULT IS SILENTLY EXPENSIVE**, Day 74 item 4:
    `earnedIncome` first, because California's CalEITC and Young Child Tax Credit
    are functions of it alone and the audit computes both as zero, so a California
    row can be wrong by `$4,528.82` in the buyer's favour.
-8. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item:
+9. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item:
    `tax_unit_childcare_expenses` is the only thing refusing either untranslatable
    anchor.
-9. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION.** Research
+10. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION.** Research
    done in `tools/anchors/KENTUCKY-MUNICIPAL-INTEREST.md`, `$800` at the 2025
    rate on `$20,000`, and the differential grid cannot find it because both
    models return the same wrong answer.
-10. **THE AUDIT HAS NO MUTATION SCORE**, and it is now 500 lines plus two new
+11. **THE AUDIT HAS NO MUTATION SCORE**, and it is now 500 lines plus two new
     instruments deciding what a buyer is told about their own money.
-11. **SCOPE OR DELETE THE FIVE REMAINING UNBOUNDED STATE ENTRIES** — CO, MA, PA,
+12. **SCOPE OR DELETE THE FIVE REMAINING UNBOUNDED STATE ENTRIES** — CO, MA, PA,
     UT and CA, plus MS's scoped-but-unbounded one and four federal.
-12. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
-13. **THE 32 CASES THAT ASSERT NOTHING COMPARABLE**, still the cheapest way to
+13. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
+14. **THE 32 CASES THAT ASSERT NOTHING COMPARABLE**, still the cheapest way to
     double the anchor harness.
-14. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
-15. **THE THIRD-PARTY RAW PROXIES ARE SETTLED AS UNSETTLEABLE FROM HERE.** Day 74
+15. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
+16. **THE THIRD-PARTY RAW PROXIES ARE SETTLED AS UNSETTLEABLE FROM HERE.** Day 74
     item 14, closed and held closed. Not attempted today.
-16. **DO NOT RE-PROBE THE DOCUMENT HOSTS.** Held for the third day.
+17. **DO NOT RE-PROBE THE DOCUMENT HOSTS.** Held for the third day.
     `registry.npmjs.org` and `pypi.org` answer and are worth more — and today
     `pypi.org` is what settled the question, which is the first time that
     sentence paid for itself.

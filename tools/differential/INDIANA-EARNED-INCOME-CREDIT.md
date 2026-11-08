@@ -206,8 +206,9 @@ cannot quietly grow into slack an unrelated difference walks into.
 ## What this cost, and what it changed
 
 ```text
-  REPORT.md unexplained           16 -> 13   (2025; 2026 remains 0)
-  explained by known divergences  1181 -> 1184
+  REPORT.md unexplained           16 -> 13   (this finding; 2026 remains 0)
+                                  13 -> 3    (Wisconsin, found the same afternoon)
+  explained by known divergences  1181 -> 1194
   the audit's score against the human verdict, on cases the human could not
   explain:                        3 -> 0
 ```

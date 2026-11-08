@@ -108,6 +108,27 @@ const CLAIMS = [
     find: () => [...text.matchAll(/([0-9][0-9,]*) households through both/g)].map((m) => Number(m[1].replaceAll(',', ''))),
   },
   {
+    // DAY 75, AND IT IS THE FIGURE THIS FILE'S WHOLE POINT IS ABOUT. The front
+    // page has said "there are 16" since Day 54. Today it became 3 — Indiana's
+    // frozen-conformity gate accounted for three and Wisconsin's 2025 bracket
+    // threshold for nine more — and NOTHING HERE NOTICED, because the number was
+    // in prose and this file checked 23 other claims.
+    //
+    // It is the one figure on the front page a sceptical reader would check
+    // first, because it is the one that can only go up by accident and down by
+    // work. Read out of the report the harness writes, not out of a count
+    // re-derived here: the report is the artefact a reader is pointed at, so the
+    // report is what the sentence has to agree with.
+    label: 'unexplained differential differences',
+    want: Number(
+      read('tools/differential/REPORT.md').match(/\*\*(\d+) are not\.\*\*/)[1],
+    ),
+    find: () =>
+      [...text.matchAll(/counted as unexplained, and there are ([0-9][0-9,]*)/g)].map((m) =>
+        Number(m[1].replaceAll(',', '')),
+      ),
+  },
+  {
     // Day 74. The demo the audit section tells a visitor to run, counted from
     // the CSV rather than from the sentence. A row added to the demo without the
     // README noticing is a visitor told to expect eleven households and handed

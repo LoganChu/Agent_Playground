@@ -23,7 +23,7 @@ Produced by `tools/audit/against-policyengine.mjs`. This is a MEASUREMENT, not a
 | | human explained it | human could not |
 | --- | ---: | ---: |
 | **tool named something** | 86 | 0 |
-| **tool was silent** | 790 | 13 |
+| **tool was silent** | 800 | 3 |
 
 **`tool was silent` / `human explained it` is expected and is not a defect.** Most known divergences are about a provision neither engine’s OUTPUT mentions — a different reading of one statute, or a figure PolicyEngine models and this engine does not. The audit only sees what a return reports, by design.
 
