@@ -252,6 +252,26 @@ function main() {
     p('*None.* On every difference the differential harness could not account for, the ' +
       'audit was also silent.');
     p();
+    p(
+      '**AND A ZERO HERE IS WHAT SUCCESS LOOKS LIKE ON THE SECOND RUN, WHICH IS WHY THIS ' +
+        'PARAGRAPH EXISTS.** On Day 74 this section held three Indiana households and the ' +
+        'table above read `3`. Day 75 read PolicyEngine\u2019s source, found that its ' +
+        'Indiana earned income credit evaluates its ELIGIBILITY GATE at the frozen 2023 ' +
+        'Internal Revenue Code and its AMOUNT at the current year, and entered the ' +
+        'divergence in `known-divergences.json`. So the three moved from *the human could ' +
+        'not explain this* to *the human explained this* \u2014 **using the account this ' +
+        'tool produced.**',
+    );
+    p();
+    p(
+      'This count is therefore not a scoreboard to be maximised. It is a queue, and a tool ' +
+        'whose queue stays full is a tool nobody acted on. The number worth watching is how ' +
+        'many open questions it has CLOSED, which is three, and `tools/differential/' +
+        'INDIANA-EARNED-INCOME-CREDIT.md` is what closing one costs: an afternoon reading ' +
+        'the other model\u2019s parameter tree, a bound derived from the provision, and a ' +
+        'control year that could have falsified the whole account and did not.',
+    );
+    p();
   }
   for (const row of [...toolOnly].sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap))) {
     p(`### \`${row.id}\``);

@@ -334,6 +334,35 @@ jobs:
       # federal package, so only a repository holding both can price it.
       - name: Oklahoma's earned income credit base is frozen at 2020, and the gap is growing
         run: node tools/cross-package/oklahoma-frozen-eitc.mjs --check
+      # Day 75, and it is the same provision in another state with the opposite
+      # shape. IC 6-3-1-11 freezes Indiana's earned income credit base at
+      # 1 January 2023 — so this engine's `matchRate: 0.1` on the CURRENT federal
+      # credit overstates a 2025 filer by up to $111.09 — and then SEA 243 of
+      # 2025 advances the snapshot to 1 January 2026, so from 2026 the exposure
+      # is EXACTLY ZERO. That end date is why this rule ships where Oklahoma's
+      # does not, and the zero is the assertion: it is checked on the measurement
+      # rather than on the branch that believes it, because the first version of
+      # this guard was gated on the very year it was asserting and moving the
+      # threshold to 2027 passed clean.
+      - name: Indiana's frozen base is priced, and the price ends in 2026
+        run: node tools/cross-package/indiana-frozen-eitc.mjs --check
+      # The other side of the same provision, and it is about somebody else's
+      # model rather than this one. policyengine-us 2.15.3 evaluates its Indiana
+      # earned income credit's ELIGIBILITY GATE at the frozen 2023 Code and its
+      # AMOUNT at the current year, so a credit its own formula would pay in full
+      # is refused by its own gate — which is what accounted for three of the
+      # sixteen differences `tools/differential/REPORT.md` had carried under
+      # "Unexplained" since Day 54.
+      #
+      # IT IS IN CI EVEN THOUGH IT IS A CLAIM ABOUT ANOTHER PROJECT, and the
+      # reason is that everything it reads is committed here: `out/theirs.json`
+      # and its cases fingerprint. So this cannot go red because they released;
+      # it can only go red because somebody regenerated the answers against a
+      # newer version and the finding stopped being true — which is precisely
+      # the moment `INDIANA-EARNED-INCOME-CREDIT.md` and the divergence entry
+      # have to be rewritten, and the worst possible moment for nothing to say so.
+      - name: policyengine-us's Indiana gate is frozen and its amount is not
+        run: node tools/differential/in-eitc-conformity.mjs --check
       # Day 63, and it is Day 62's finding with the sign reversed. Iowa Code
       # § 422.5(3)'s four low-income exemption thresholds have not moved since
       # at least 2021 and nothing indexes them, while the deduction they are

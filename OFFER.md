@@ -74,20 +74,63 @@ engines is wrong.** The free tool's headline counts those on their own line,
 which makes the paid scope something a buyer can see the size of before they
 commit to it.
 
-### And it has already found something in an engine nobody here wrote
+### And the whole two-part engagement has now been run end to end, on somebody else's engine
 
-The free tool was pointed at `policyengine-us` — an open-source microsimulation
-model with a research team behind it — over the 2,904 households this repository
-already compares against it. **Seventy-four days of hand analysis had left
-sixteen of those differences unexplained. The tool explained three of them, and
-all three by the same cause:** PolicyEngine's figure is this engine's answer with
-**Indiana's earned income credit not applied**, exactly, to the cent, at `$93.30`,
-`$9.29` and `$6.93`.
+This is the one section to read, because it is no longer a description of the
+product. It is the product, done, with the work visible.
 
-That is the product in one paragraph. It did not say which engine is right —
-whether PolicyEngine is wrong or computes that credit on a different federal base
-is the statute-reading half, which is what the `$2,500` buys. What it did was
-turn three open questions into one specific one, mechanically, in seven seconds.
+**Day 74, the free half.** The tool was pointed at `policyengine-us` — an
+open-source microsimulation model with a research team behind it — over the 2,904
+households this repository already compares against it. Seventy-four days of hand
+analysis had left sixteen of those differences unexplained. **The tool explained
+three, all by the same cause, in seven seconds:** PolicyEngine's figure is this
+engine's answer with Indiana's earned income credit not applied, exactly, to the
+cent, at `$93.30`, `$9.29` and `$6.93`. It did not say which engine was right.
+That is the free half's whole job — turn open questions into one specific one.
+
+**Day 75, the paid half, which is an afternoon of reading and is what `$2,500`
+buys.** The specific question was taken to the other model's source.
+
+```text
+  in_eitc.py           AMOUNT   10% of the CURRENT-YEAR federal credit
+  in_eitc_eligible.py  GATE     the FROZEN 2023 federal credit must be positive
+```
+
+IC 6-3-1-11 freezes Indiana's base at the Internal Revenue Code as of 1 January
+2023. PolicyEngine reads the **current** credit for the amount and rebuilds the
+**2023** credit for the gate. Three households sit between the two: the 2023
+credit is exhausted, the 2025 one is not, and a credit their own formula would
+pay in full is refused by their own gate.
+
+**It is a defect without reading a word of Indiana law, and the grid holds the
+proof.** At `$40,000` with three dependents the frozen credit is `$4,928.07` and
+the current one `$6,038.98`; ten percent of the frozen base would be `$492.81`
+and of the current base `$603.90` — and the two engines agree there to the cent,
+so PolicyEngine paid `$603.90`. The freeze decides *whether* and not *how much*,
+which is no reading of the statute at all. Their own code comment argues against
+it, and the same codebase handles the identical question correctly for Oklahoma
+and deliberately for Washington.
+
+**And a freeze that decides whether is a cliff.** For a joint return with three
+children the 2023 credit runs out at `$63,400.15` of wages, where the current
+credit is still worth `$1,110.91` — so **one cent of extra earnings costs that
+filer `$111.09`.** A discontinuity is the defect class no household-by-household
+comparison finds, because finding it needs two households a cent apart, and both
+this grid and their own test suite sample incomes in round thousands.
+
+**Then the check that could have killed the whole account.** SEA 243 of 2025
+advances the snapshot to 1 January 2026, so for tax year 2026 the frozen table
+*is* the current table and the divergence should vanish. It does, on all three
+households, to the cent. Same households, same incomes, one year apart, nothing
+changed but a date in a statute. **A finding that survives a test designed to
+break it is the difference between a report and an opinion**, and it is the half
+a tool cannot do.
+
+> **AND IT IS BEING GIVEN TO THEM.** `NOTES-FOR-HUMAN.md` carries the report
+> ready to send. A repository that finds a defect in another project and keeps it
+> as a sales asset is not the kind of repository this page claims this is — and a
+> buyer evaluating a `$2,500` audit should weigh what its author does with a
+> finding they cannot invoice for.
 
 **It also reported 226 differences under a dollar that the differential harness
 calls agreement**, because that harness compares to the dollar and a buyer's

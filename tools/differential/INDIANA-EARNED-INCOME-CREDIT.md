@@ -1,129 +1,228 @@
-# Indiana's earned income credit, and the three cases it accounts for
+# Indiana's earned income credit, settled
 
-**Status: researched, bounded, and deliberately NOT yet entered in
-`known-divergences.json`.** The bar for entering it is at the bottom. Written
-Day 74.
+**Status: SETTLED from the other model's own source, entered in
+`known-divergences.json`, and guarded by two instruments in CI.** Researched
+Day 74, closed Day 75. The three cases it accounts for had been sitting under
+*Unexplained* in `REPORT.md` since Day 54.
 
-## Where this came from
+## The three cases
 
 `tools/audit/against-policyengine.mjs` ran the buyer-facing audit over all 2,904
 differential households with `policyengine-us`'s own figures in the buyer's
-column. Three of the **sixteen** differences `tools/differential/REPORT.md` has
-carried under "Unexplained" came back with the same account, and nothing else in
-the sixteen did:
+column. Three of the sixteen differences `REPORT.md` could not account for came
+back with the same account, and nothing else in the sixteen did:
 
 ```text
-  2025-couple-two-children-IN-60000    PolicyEngine $2,660.60   here $2,567.30   $93.30
-  2025-couple-no-children-IN-25000     PolicyEngine $1,154.60   here $1,145.32    $9.28
-  2025-on-the-boundary-IN-50000        PolicyEngine $2,334.30   here $2,327.37    $6.93
+  2025-couple-two-children-IN-60000    theirs $2,660.60   ours $2,567.30   $93.30
+  2025-couple-no-children-IN-25000     theirs $1,154.60   ours $1,145.32    $9.28
+  2025-on-the-boundary-IN-50000        theirs $2,334.30   ours $2,327.37    $6.93
 ```
 
 In each one PolicyEngine's Indiana figure is **exactly this engine's answer with
 the Indiana earned income credit not applied.**
 
-## What is settled, from evidence in this repository
+## What Day 74 could not settle, and why
 
-**The two models agree on the FEDERAL credit, to the cent.** This is the fact
-that decides what the divergence is about, and it is read straight out of the two
-committed answer files rather than inferred:
+> Whether PolicyEngine models this credit at all, or models it and gets zero.
+> **Nothing in the two committed answer files can distinguish them**, because a
+> credit modelled to zero and a credit not modelled produce the same number.
+
+The cheapest thing that would settle it was named: read
+`policyengine_us/parameters/gov/states/in/tax/income/credits/` out of the pinned
+sdist, which `pypi.org` serves to this sandbox.
+
+## The answer, and it is neither of the two things that question allowed for
+
+**It models the credit. The two halves of its implementation are evaluated at
+different dates.**
 
 ```text
-  case                                   PolicyEngine fed EIC   here      10% of it
-  2025-couple-two-children-IN-60000              $932.98      $932.98      $93.30
-  2025-couple-no-children-IN-25000                $92.85       $92.85       $9.29
-  2025-on-the-boundary-IN-50000                   $69.33       $69.33       $6.93
+  in_eitc.py           AMOUNT   10% of the CURRENT-YEAR federal credit
+  in_eitc_eligible.py  GATE     the FROZEN 2023 federal credit must be positive
 ```
 
-So this is **not** a federal disagreement leaking into a state line, which is
-what most of this file's existing entries are. Both sides have the same § 32
-figure in hand. One of them then takes 10% of it for Indiana and the other takes
-nothing.
+IC 6-3.1-21-6 gives Indiana 10% of the federal earned income credit and
+IC 6-3-1-11 says which one: the credit under the Internal Revenue Code as of
+**1 January 2023** for tax years 2023 to 2025, and 1 January 2026 from 2026
+(SEA 243 of 2025). `in_eitc.py` reads the current-year credit and multiplies by
+the match rate — which is this engine's figure, to the cent. `in_eitc_eligible.py`
+rebuilds the **whole** federal credit under the 2023 snapshot, inflation-indexed
+dollar amounts included, and requires *that* to be positive.
 
-**This package's Indiana credit is 10% of the federal credit passed to it**, and
-`flat-states.ts` already says so, with the caveat that matters here written into
-the shipped note:
+The three households sit between the two. At $60,000 of joint wages with two
+children the 2023 credit is exhausted and the 2025 one is still worth $932.98, so
+a credit the formula would have paid in full is refused by the gate.
 
-> The Indiana earned income credit is 10% of a federal credit the filer never
-> claimed. IC 6-3.1-21-6 computes it under the Internal Revenue Code as of a
-> **FROZEN date** — 1 January 2023 for tax years 2023 to 2025, and 1 January 2026
-> from tax year 2026 (SEA 243 of 2025) — and substitutes Indiana's own investment
-> income limit of **$3,800**, which has not moved since 2022. **This package
-> applies the 10% match to whatever federal credit you pass, so an Indiana filer
-> near either limit is overstated.**
+### It is a defect without reading a word of Indiana law, and the grid holds the proof
 
-**And the $3,800 investment-income limit cannot be the cause here.** All three
-cases carry `0` of interest, dividends and capital gains — the trailing
-`-0-0-0-0` in the ids is the grid's own record of that. So of the two documented
-mechanisms by which this package overstates the credit, only the **frozen Code
-date** is available.
+**The reading that would exonerate it is that PolicyEngine takes 10% of the
+frozen base.** This grid contains the household that rules that out:
 
-## What is NOT settled, and why the entry is not written yet
+```text
+  2025-mixed-dependents-IN-40000
+    current-year federal credit     $6,038.98
+    frozen 2023 federal credit      $4,928.07
+    10% of the frozen base would be   $492.81
+    10% of the current base is        $603.90
+    the two engines agree TO THE CENT, so PolicyEngine paid $603.90
+```
 
-**Whether PolicyEngine models this credit at all, or models it and gets zero.**
-Those are different facts and they want different `reason` text:
+So the freeze decides **whether** the credit exists and not **how much** it is
+worth. No reading of IC 6-3.1-21-6 produces that, and `in_eitc.py`'s own comment
+argues against it in terms:
 
-- If it models **no** Indiana earned income credit, this belongs with the
-  `NOT MODELLED THERE` entries — the Virginia and Ohio municipal-interest
-  additions — and this package is the better of the two.
-- If it models the credit **under the frozen Code** and reaches zero at these
-  incomes, then **this package is the wrong one**, by exactly the caveat its own
-  note publishes, and the entry has to say so and point the other way. It would
-  then be the same shape as the Oklahoma frozen-EITC divergence this repository
-  already ships a cross-package check for.
+> the freeze's only operative effect is that Indiana does not automatically adopt
+> post-snapshot federal EITC changes -- and those changes are inflation indexing
+> only. The current-year federal EITC therefore satisfies the freeze for all
+> filers, with or without children.
 
-**Nothing in the two committed answer files can distinguish them**, because a
-credit modelled to zero and a credit not modelled produce the same number. The
-grid records a state tax and a federal EIC and not a state credit breakdown for
-the other side.
+### And the same codebase answers the same question two better ways
 
-**What would settle it, in order of cost:**
+Three states in `policyengine-us` 2.15.3 freeze the federal credit at a date.
+They are the three places in the whole model that evaluate a parameter at an
+explicit date, which is how they were found.
 
-1. `policyengine_us/parameters/gov/states/in/tax/income/credits/` in the pinned
-   sdist. `tools/differential/theirs.py` already fetches that sdist from PyPI,
-   and Day 73 recorded `pypi.org` as a host that answers from this sandbox. If a
-   parameter for an Indiana earned income credit exists, read its rate and its
-   federal base; if the directory has none, the question is answered.
-2. IC 6-3.1-21-6 itself, for whether the frozen Code date reaches the
-   **inflation adjustments** of § 32 or only its text. At $60,000 with two
-   children a couple sits inside the 2025 phase-out and outside the 2023 one, so
-   this is the whole question for the largest of the three cases.
+```text
+  OKLAHOMA   2020-01-01   GATE AND AMOUNT BOTH FROZEN. ok_federal_eitc rebuilds
+                          the entire 2020 trapezoid — maximum, phase-in,
+                          phase-out, reduction — and ok_eitc takes 5% of THAT.
+                          Internally consistent, whichever reading you prefer.
 
-## The bound, derived from the provision rather than from the data
+  WASHINGTON 2022-06-09   SPLIT ON PURPOSE, AND THE SPLIT IS ARGUED IN THE CODE:
+                          "the June 9, 2022 Internal Revenue Code still contains
+                          the EITC inflation-adjustment provisions (26 U.S.C.
+                          32(j)), so the inflation-indexed dollar amounts [...]
+                          track the current tax year, while the structural rules
+                          (age band, disabled-dependent waiver, separate-filer
+                          rule) stay on the frozen snapshot."
 
-Whichever way it resolves, the entry's `maxAbs` is **10% of the largest federal
-earned income credit any Indiana case in this grid carries** — not 10% of the
-largest difference currently observed, which is how a bound becomes a ratchet.
-`requireEveryReasonBounded` in `compare.mjs` exists to refuse an entry without
-one, and `maxAbs` is what stopped Ohio's $20-per-exemption entry from absorbing a
-$275 municipal-interest addition on Day 32.
+  INDIANA    2023-01-01   gate frozen INCLUDING the indexed dollar amounts,
+                          amount current. Neither of the above.
+```
 
-Compute it rather than copying `$93.30` from the table above: the grid's Indiana
-cases may include a household with a larger federal credit whose state figures
-happen to agree today.
+Washington's principle is the one Indiana's own amount formula states. Indiana is
+the only one of the three that lets a frozen **indexed** figure zero out a credit
+it then declines to compute on the frozen base.
 
-## The bar for shipping this
+## The cliff, which is the part a buyer should care about
 
-**All three of these, and the entry does not go in until they are met:**
+A gate that switches off at an income the amount keeps rising through is a
+discontinuity. Just below it the filer receives 10% of the full current-year
+credit; a cent above it, nothing.
 
-1. **The question above is answered** — PolicyEngine's Indiana parameters read,
-   or the statute read, so the `reason` states which engine is wrong rather than
-   describing a difference.
-2. **`maxAbs` is computed from the provision** over the grid's Indiana cases, not
-   from the three differences observed.
-3. **If the answer is that this package is wrong**, the entry is the *second*
-   thing written, not the first: the engine is fixed, a test pins the frozen-base
-   behaviour, and the divergence entry then records the part that remains. An
-   entry that makes a known defect stop being reported is a defect with a
-   silencer on it.
+```text
+  children  return     frozen credit reaches $0 at   Indiana credit lost
+         0  single                     $17,643.14                 $11.17
+         0  joint                      $24,213.14                 $15.30
+         1  single                     $46,560.00                 $61.90
+         1  joint                      $53,120.00                 $70.85
+         2  single                     $52,918.02                 $92.50
+         2  joint                      $59,478.02                $104.29
+        3+  single                     $56,840.15                 $99.30
+        3+  joint                      $63,400.15                $111.09
+```
 
-> **AND ONE THING TO WATCH WHEN IT IS WRITTEN.** Entering it moves three cases
-> from "the human could not explain this" to "the human explained this", which
-> **changes the headline of `tools/audit/out/AGAINST-POLICYENGINE.md` and the
-> three-of-sixteen figure quoted in `OFFER.md`, `JOURNAL.md` and
-> `tools/audit/README.md`.** That is correct — the audit's score against the
-> human verdict should fall when the human catches up — but it has to be done
-> deliberately and in all four places, or the repository will publish a count
-> nothing produces any more. This is why the entry was not written on the day the
-> finding was made: Day 74's own measurement was the evidence for it, and
-> restating the measurement in the same hour would have left no record of what
-> the tool actually found.
+**One cent of extra earnings costs a joint filer with three children $111.09 of
+Indiana credit.** That is a defect no household-by-household comparison finds,
+because finding it needs two households a cent apart, and both this grid and
+PolicyEngine's own test suite sample incomes in round thousands.
+
+## The control year, which could have falsified all of this and did not
+
+SEA 243 of 2025 advances the snapshot to **1 January 2026.** So from tax year
+2026 the frozen table *is* the current table, the gate cannot bind, and the
+account above predicts the divergence vanishes entirely.
+
+```text
+  case                            2025 gap   2026 gap
+  couple-two-children-IN-60000     -$93.30      $0.00
+  couple-no-children-IN-25000       -$9.28      $0.00
+  on-the-boundary-IN-50000          -$6.93      $0.00
+```
+
+Same households, same incomes, one year apart. **Nothing changed but the date in
+the statute.** Had any of the three still disagreed in 2026, the frozen-gate
+account would be wrong and this document would say so.
+
+## What is still genuinely open, and it is not who is inconsistent
+
+**Whether the snapshot reaches § 32's inflation adjustments or only its text.**
+
+- If it does **not** — Washington's reading, and Indiana's own form, which says
+  *"Enter the earned income credit from your federal income tax return"* — then
+  this engine's figure is right and PolicyEngine withholds a credit the filer is
+  owed.
+- If it **does**, the correct Indiana credit for these three is `$0` — which is
+  PolicyEngine's number, reached by a route PolicyEngine does not take — and this
+  engine overstates, exactly as the caveat shipped in `flat-states.ts` warns.
+
+Either way PolicyEngine's mechanism is wrong, because it is neither reading. That
+is why the entry went in without the statutory question closed: **the entry's
+`reason` names a mechanism, not a winner.**
+
+## This engine's own exposure, now priced rather than described
+
+`tools/cross-package/indiana-frozen-eitc.mjs` prices the other side of the same
+provision on this engine's figures, and the arithmetic has a surprise in it:
+
+```text
+  on the PLATEAU      10% x (max2025 - max2023)
+                      $4.90 / $33.30 / $54.80 / $61.60 by child count
+
+  in the PHASE-OUT    a CONSTANT, because both years fall at the same statutory
+                      rate: 10% x [(max25 - max23) + rate x (start25 - start23)]
+                      $15.30 / $70.85 / $104.29 / $111.09 on a joint return
+```
+
+**The phase-out constant is the same number as PolicyEngine's cliff**, and that is
+not a coincidence: the most their gate can withhold and the most this engine can
+overstate are the same quantity measured from opposite sides. One model stops
+paying where the other keeps paying, and the gap between the two readings is what
+each of them is wrong by. Both are priced at `$111.09` and the figures are now in
+the shipped note.
+
+**And the shape is the opposite of Oklahoma's**, which is why this repository
+ships Indiana's rule and refuses Oklahoma's: 68 O.S. § 2357.43's date does not
+move, so its error widens every year forever. Indiana's does, so from 2026 the
+exposure is **exactly zero**. A rule that is wrong in 2025 and exactly right in
+2026 is worth shipping with a note.
+
+## The bound, and why it is $112
+
+`requireEveryReasonBounded` refuses an entry without a bound derived from the
+provision. The most this gate can withhold is 10% of the current-year credit at
+the income where the frozen one hits zero, which is the phase-out constant above,
+maximised at `$111.09` for a joint return with three or more children. **$112.**
+
+Not `$93.30`, which is the largest difference observed — a bound set to the last
+measurement is the ratchet `maxAbs` exists to prevent. And
+`in-eitc-conformity.mjs` fails if the published bound drifts more than `$10`
+either side of what the provision can produce, in both directions, so the bound
+cannot quietly grow into slack an unrelated difference walks into.
+
+**A 2027 grid would need its own bound.** The snapshot stops moving again after
+2026, so the gap reopens and widens from the 2026-to-2027 parameter movement.
+
+## What this cost, and what it changed
+
+```text
+  REPORT.md unexplained           16 -> 13   (2025; 2026 remains 0)
+  explained by known divergences  1181 -> 1184
+  the audit's score against the human verdict, on cases the human could not
+  explain:                        3 -> 0
+```
+
+**That last line is the one worth reading twice.** The audit's headline finding
+went to zero because the human acted on it. A tool whose queue of open cases
+stays full is a tool nobody read. `AGAINST-POLICYENGINE.md` now says so where the
+zero appears, so a buyer meeting that report does not read a zero as a failure.
+
+## The one thing a human could do with this that an agent cannot
+
+This is a specific, reproducible defect in an actively maintained open-source
+model with a research team behind it, and **nobody there has been told.** An
+agent that cannot contact people cannot file it. `NOTES-FOR-HUMAN.md` carries the
+report ready to send, with the two file paths, the control case, the cliff table
+and the 2026 control, because the finding is worth more to them than it is to
+this repository — and a repository that finds a defect in a competitor and keeps
+it as a sales asset is not the kind of repository `OFFER.md` claims this is.

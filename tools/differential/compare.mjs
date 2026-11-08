@@ -448,20 +448,52 @@ const SELECTORS = new Set([
   'reason',
 ]);
 
+/**
+ * The VALUES a selector may take, where the matcher reads a value rather than
+ * its presence.
+ *
+ * DAY 75 FOUND THE SAME DEFECT ONE LEVEL DOWN FROM `SELECTORS`, in the file that
+ * exists to catch it. Louisiana's 2026 entry carried `"direction": "lower"`.
+ * `direction` is in `SELECTORS`, so `requireKnownSelectors` passed it; `match`
+ * reads only `'oursHigher'` and `'theirsHigher'`, so the sign bound did nothing
+ * at all. An entry claiming to be bounded in one direction was bounded in
+ * neither, and the only visible sign was a word in a JSON file that read
+ * perfectly well to a human.
+ *
+ *   THE RULE: `SELECTORS` CHECKS THAT A KEY IS READ. IT SAYS NOTHING ABOUT
+ *   WHETHER THE VALUE IS. A selector whose value falls through every branch of
+ *   the matcher is Day 54's defect with a narrower blast radius and the same
+ *   shape — a narrow description over a broad rule.
+ *
+ * Only `direction` is listed because it is the only selector `match` compares
+ * against literals. `metric` is checked by `METRICS` already; `state`, `kind`
+ * and `idIncludes` are checked against the grid by `registry`; the three numeric
+ * bounds are read as numbers.
+ */
+const SELECTOR_VALUES = new Map([['direction', new Set(['oursHigher', 'theirsHigher'])]]);
+
 function requireKnownSelectors(known) {
   const bad = [];
   for (const [i, rule] of known.entries()) {
     for (const key of Object.keys(rule)) {
       if (!SELECTORS.has(key)) bad.push({ i, key, rule });
+      const allowed = SELECTOR_VALUES.get(key);
+      if (allowed && !allowed.has(rule[key])) {
+        bad.push({ i, key, rule, value: rule[key], allowed: [...allowed] });
+      }
     }
   }
   if (bad.length === 0) return;
   throw new Error(
-    `${bad.length} key(s) in known-divergences.json are not read by anything:\n` +
+    `${bad.length} key(s) or value(s) in known-divergences.json are not read by anything:\n` +
       bad
-        .map(
-          ({ i, key, rule }) =>
-            `  [${i}] ${rule.state ?? 'any state'} ${rule.metric} — \`${key}\``,
+        .map(({ i, key, rule, value, allowed }) =>
+          allowed === undefined
+            ? `  [${i}] ${rule.state ?? 'any state'} ${rule.metric} — \`${key}\``
+            : `  [${i}] ${rule.state ?? 'any state'} ${rule.metric} — \`${key}\` is ` +
+              `${JSON.stringify(value)}, which \`match\` compares against nothing. It reads ` +
+              `${allowed.map((a) => JSON.stringify(a)).join(' and ')}, so this entry is ` +
+              `bounded in NEITHER direction.`,
         )
         .join('\n') +
       '\n\nA key this matcher does not consult does not narrow the entry; it decorates it. ' +

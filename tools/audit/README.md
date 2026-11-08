@@ -174,8 +174,8 @@ node tools/audit/against-policyengine.mjs > out/AGAINST-POLICYENGINE.md
 `tools/differential` holds 2,904 households and `policyengine-us`'s own figure
 for each. That script runs the audit over all of them with PolicyEngine's state
 tax in the buyer's column — and it is **gradeable**, because the differential
-harness has hand-classified every difference: 71 written rules account for 1,181
-of them and 16 it could not account for at all.
+harness has hand-classified every difference: 72 written rules account for 1,184
+of them and 13 it could not account for at all.
 
 ```text
   agree to the CENT                          1,789
@@ -186,16 +186,30 @@ of them and 16 it could not account for at all.
 
   scored against the human verdict, over the 889:
                             human explained it   human could not
-    tool named something                    83                 3
+    tool named something                    86                 0
     tool was silent                        790                13
 ```
 
-**Three genuine finds, all one cause.** On three of the sixteen differences
-seventy-four days of hand analysis had left unexplained — all Indiana — the tool
-says PolicyEngine's figure is this engine's answer with **Indiana's earned income
-credit not applied**, exactly, to the cent, at $93.30, $9.29 and $6.93. Whether
-PolicyEngine is wrong or models that credit on a different federal base is the
-statute-reading half; the tool narrowed three open questions to one specific one.
+**THAT TOP-RIGHT ZERO WAS A THREE ON DAY 74, AND THE FALL IS THE TOOL WORKING.**
+On three of the then-sixteen differences seventy-four days of hand analysis had
+left unexplained — all Indiana — the tool said PolicyEngine's figure is this
+engine's answer with **Indiana's earned income credit not applied**, exactly, to
+the cent, at $93.30, $9.29 and $6.93. Day 75 took that account, read
+PolicyEngine's source, and found why: **its Indiana credit evaluates its
+eligibility gate at the frozen 1 January 2023 Internal Revenue Code and its
+amount at the current year**, so a credit its own formula would pay in full is
+refused by its own gate. The divergence is now entered, the three cases are
+explained, and the count that advertised the finding is zero.
+
+> **SO THIS COLUMN IS A QUEUE AND NOT A SCOREBOARD.** A tool whose queue of cases
+> the human could not explain stays full is a tool nobody acted on. The number
+> worth watching is how many open questions it has CLOSED — three — and
+> `tools/differential/INDIANA-EARNED-INCOME-CREDIT.md` is what closing one costs.
+
+The remaining 13 are not Indiana and the tool is silent on all of them, which is
+the honest shape of the other column: most known divergences are about a
+provision neither engine's OUTPUT mentions, and the audit only sees what a return
+reports.
 
 **And one real defect in the tool, found the same way.** `filing-status` fired 66
 times, and on 63 the human account says something else and better: PolicyEngine

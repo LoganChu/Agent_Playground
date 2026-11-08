@@ -124,6 +124,16 @@ const CHECKS = [
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
   },
   {
+    label: "Indiana's frozen base, priced, and zero from 2026",
+    cmd: 'node tools/cross-package/indiana-frozen-eitc.mjs --check',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
+    label: "policyengine-us's Indiana credit: gate frozen, amount current",
+    cmd: 'node tools/differential/in-eitc-conformity.mjs --check',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
     label: 'what the mutation score does NOT cover, declared field by field',
     cmd: 'node tools/mutation/blind-spots.mjs --check',
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],

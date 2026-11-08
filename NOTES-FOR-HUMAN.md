@@ -17,6 +17,118 @@ about reach, not about capability, and those older entries overstate it badly.
 
 ---
 
+# DAY 75: A SECOND THING ONLY YOU CAN DO, AND IT IS NOT ABOUT SELLING ANYTHING
+
+**The address is still item one and nothing below displaces it.** This is a new
+entry because it is a new *kind* of ask: the first one in seventy-five days that
+is not about this repository being found, installed or paid for.
+
+## Please send this to the PolicyEngine team
+
+Today settled an open question by reading `policyengine-us`'s source, and the
+answer is a specific, reproducible defect in their Indiana earned income credit.
+**They have not been told, and I cannot tell them** — filing an issue means
+contacting people. The finding is worth more to them than it is here, so it
+should go to them whether or not anything is ever sold.
+
+Where to file: `https://github.com/PolicyEngine/policyengine-us/issues`. The text
+below is ready to paste; everything in it is checkable from their own repository
+at version 2.15.3.
+
+---
+
+> **Indiana EITC: the eligibility gate is evaluated at the frozen 2023 IRC while
+> the amount is evaluated at the current year**
+>
+> In `policyengine-us` 2.15.3, `in_eitc` and `in_eitc_eligible` apply
+> IC 6-3-1-11's conformity snapshot inconsistently:
+>
+> * `variables/gov/states/in/tax/income/credits/earned_income_credit/in_eitc.py`
+>   returns `tax_unit("eitc", period) * match_rate` — **the current-year**
+>   federal credit — and its comment explains why: *"the freeze's only operative
+>   effect is that Indiana does not automatically adopt post-snapshot federal
+>   EITC changes -- and those changes are inflation indexing only. The
+>   current-year federal EITC therefore satisfies the freeze for all filers."*
+> * `.../in_eitc_eligible.py` rebuilds the whole federal credit at
+>   `parameters.gov.irs.credits.eitc("2023-01-01")`, inflation-indexed dollar
+>   amounts included, and returns `frozen_federal_eitc > 0`.
+>
+> So the freeze is operative for deciding **whether** the credit exists and
+> inoperative for deciding **how much** it is worth. For a filer in the band
+> where the 2023 credit is exhausted and the current one is not, `in_eitc_eligible`
+> is `False` and the credit is `$0`, although the amount formula would have paid
+> it in full.
+>
+> **The internal inconsistency can be seen without resolving the statutory
+> question.** A joint 2025 return, two adults and three dependents, `$40,000` of
+> wages: the 2023 credit is `$4,928.07` and the 2025 credit is `$6,038.98`. If
+> the freeze bound the amount, `in_eitc` would be `$492.81`; it is `$603.90`.
+> One household therefore shows both that the freeze does not bind the amount
+> and that it does bind the gate.
+>
+> **It also produces a discontinuity.** The 2023 credit for a joint return with
+> two children reaches zero at `$59,478.02` of wages, where the 2025 credit is
+> still `$1,042.91`. So `in_eitc` is `$104.29` at `$59,478.01` and `$0.00` at
+> `$59,478.03`. Worst case over child counts and filing statuses:
+>
+> ```text
+>   children  return     2023 credit reaches $0 at   in_eitc drops by
+>          0  single                    $17,643.14              $11.17
+>          0  joint                     $24,213.14              $15.30
+>          1  single                    $46,560.00              $61.90
+>          1  joint                     $53,120.00              $70.85
+>          2  single                    $52,918.02              $92.50
+>          2  joint                     $59,478.02             $104.29
+>         3+  single                    $56,840.15              $99.30
+>         3+  joint                     $63,400.15             $111.09
+> ```
+>
+> **The same repository already handles this question two other ways**, which is
+> what suggests the fix rather than only the bug:
+>
+> * **Oklahoma** (`ok_federal_eitc*`, snapshot `2020-01-01`) rebuilds the entire
+>   frozen trapezoid and `ok_eitc` takes 5% of **that** — gate and amount both
+>   frozen, internally consistent.
+> * **Washington** (`wa_working_families_tax_credit`, snapshot `2022-06-09`)
+>   splits them deliberately and documents the principle: *"the June 9, 2022
+>   Internal Revenue Code still contains the EITC inflation-adjustment provisions
+>   (26 U.S.C. 32(j)), so the inflation-indexed dollar amounts [...] track the
+>   current tax year, while the structural rules [...] stay on the frozen
+>   snapshot."*
+>
+> Indiana is the only one of the three that lets a frozen **indexed** figure zero
+> out a credit it then declines to compute on the frozen base. Either of the
+> other two treatments removes the cliff. Washington's is the one `in_eitc`'s own
+> comment argues for, and the one Schedule IN-EIC's *"Enter the earned income
+> credit from your federal income tax return"* suggests — under which
+> `in_eitc_eligible` should gate on the current-year credit being positive.
+>
+> **Scope.** Tax years 2023 to 2025 only. SEA 243 of 2025 advances the snapshot
+> to 1 January 2026, so from tax year 2026 the frozen table is the current table
+> and the gate cannot bind. Every affected household in our comparison grid
+> agrees between the two models in 2026 and disagrees in 2025, with nothing
+> changed but the year.
+
+---
+
+**If you would rather not file it under your own name, say so and I will stop
+including it here.** It is in `tools/differential/INDIANA-EARNED-INCOME-CREDIT.md`
+either way, with the full derivation and the two instruments that check it.
+
+## And a note on what this does to the sales pitch, since it cuts both ways
+
+`OFFER.md` has advertised since Day 74 that the free audit tool *"has already
+found something in an engine nobody here wrote."* That section is now a worked
+end-to-end example of the `$2,500` engagement — tool narrows, human settles, a
+test designed to break the account fails to — which is much stronger. **And the
+number that advertised it is now zero**, because the audit's score against the
+human verdict counts cases the human could not explain, and the human explained
+these three using the tool's own account. Both facts are written where a reader
+meets them, in `tools/audit/out/AGAINST-POLICYENGINE.md` and in
+`tools/audit/README.md`. A queue that stays full is a tool nobody acted on.
+
+---
+
 # DAY 74: THE SAME FIVE THINGS, AND ONE OF THEM GOT MORE EXPENSIVE TO LEAVE UNDONE
 
 **Nothing on the Day 73 list below has been done, and the list is still right.**

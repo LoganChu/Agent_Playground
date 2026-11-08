@@ -22,7 +22,7 @@ Produced by `tools/audit/against-policyengine.mjs`. This is a MEASUREMENT, not a
 
 | | human explained it | human could not |
 | --- | ---: | ---: |
-| **tool named something** | 83 | 3 |
+| **tool named something** | 86 | 0 |
 | **tool was silent** | 790 | 13 |
 
 **`tool was silent` / `human explained it` is expected and is not a defect.** Most known divergences are about a provision neither engine’s OUTPUT mentions — a different reading of one statute, or a figure PolicyEngine models and this engine does not. The audit only sees what a return reports, by design.
@@ -52,48 +52,11 @@ Produced by `tools/audit/against-policyengine.mjs`. This is a MEASUREMENT, not a
 
 This is the bucket that matters, in both directions: a genuine find here is the tool earning its keep on the hardest cases in the repository, and a false positive here is the tool telling a buyer something untrue. **Each one is printed in full so it can be read rather than counted.**
 
-### `2025-couple-two-children-IN-60000-0-0-0-0`
+*None.* On every difference the differential harness could not account for, the audit was also silent.
 
-```text
-  PolicyEngine       $2,660.60
-  this engine        $2,567.30
-  gap                   $93.30
-```
+**AND A ZERO HERE IS WHAT SUCCESS LOOKS LIKE ON THE SECOND RUN, WHICH IS WHY THIS PARAGRAPH EXISTS.** On Day 74 this section held three Indiana households and the table above read `3`. Day 75 read PolicyEngine’s source, found that its Indiana earned income credit evaluates its ELIGIBILITY GATE at the frozen 2023 Internal Revenue Code and its AMOUNT at the current year, and entered the divergence in `known-divergences.json`. So the three moved from *the human could not explain this* to *the human explained this* — **using the account this tool produced.**
 
-- **filing-status** — this engine's answer for marriedFilingSeparately, not marriedFilingJointly — BUT ONLY A CREDIT MOVED, SO THIS IS NOT CONCLUSIVE  
-  *recomputed* — The same household filed as marriedFilingSeparately owes $2,660.60, which is the figure supplied — but the tax BEFORE credits is identical under both statuses at $1,590.00, so the only thing the status changed on this return is a credit (Indiana earned income credit). **"They used the wrong status" and "they allowed a status-barred credit" are therefore the same figure here, and this match cannot distinguish them.** The credit is the likelier of the two in a product that knows its own users’ filing statuses.
-- **credits-not-applied** — the state tax before credits, plus local tax — every credit on this return was dropped  
-  *arithmetic* — $2,660.60 is exactly the state tax before credits, plus local tax on this return. The 1 credit(s) worth $93.30 together are: Indiana earned income credit $93.30
-- **credit-omitted** — Indiana earned income credit — $93.30, not taken  
-  *arithmetic* — $2,660.60 is this engine's answer plus exactly $93.30, which is this return's Indiana earned income credit. It is refundable, so it is not capped at the tax.
-
-### `2025-couple-no-children-IN-25000-0-0-0-0`
-
-```text
-  PolicyEngine       $1,154.60
-  this engine        $1,145.32
-  gap                    $9.28
-```
-
-- **filing-status** — this engine's answer for marriedFilingSeparately, not marriedFilingJointly — BUT ONLY A CREDIT MOVED, SO THIS IS NOT CONCLUSIVE  
-  *recomputed* — The same household filed as marriedFilingSeparately owes $1,154.60, which is the figure supplied — but the tax BEFORE credits is identical under both statuses at $690.00, so the only thing the status changed on this return is a credit (Indiana earned income credit). **"They used the wrong status" and "they allowed a status-barred credit" are therefore the same figure here, and this match cannot distinguish them.** The credit is the likelier of the two in a product that knows its own users’ filing statuses.
-- **credits-not-applied** — the state tax before credits, plus local tax — every credit on this return was dropped  
-  *arithmetic* — $1,154.60 is exactly the state tax before credits, plus local tax on this return. The 1 credit(s) worth $9.29 together are: Indiana earned income credit $9.29
-
-### `2025-on-the-boundary-IN-50000-0-0-0-0`
-
-```text
-  PolicyEngine       $2,334.30
-  this engine        $2,327.37
-  gap                    $6.93
-```
-
-- **filing-status** — this engine's answer for marriedFilingSeparately, not single — BUT ONLY A CREDIT MOVED, SO THIS IS NOT CONCLUSIVE  
-  *recomputed* — The same household filed as marriedFilingSeparately owes $2,334.30, which is the figure supplied — but the tax BEFORE credits is identical under both statuses at $1,395.00, so the only thing the status changed on this return is a credit (Indiana earned income credit). **"They used the wrong status" and "they allowed a status-barred credit" are therefore the same figure here, and this match cannot distinguish them.** The credit is the likelier of the two in a product that knows its own users’ filing statuses.
-- **credits-not-applied** — the state tax before credits, plus local tax — every credit on this return was dropped  
-  *arithmetic* — $2,334.30 is exactly the state tax before credits, plus local tax on this return. The 1 credit(s) worth $6.93 together are: Indiana earned income credit $6.93
-- **credit-omitted** — Indiana earned income credit — $6.93, not taken  
-  *arithmetic* — $2,334.30 is this engine's answer plus exactly $6.93, which is this return's Indiana earned income credit. It is refundable, so it is not capped at the tax.
+This count is therefore not a scoreboard to be maximised. It is a queue, and a tool whose queue stays full is a tool nobody acted on. The number worth watching is how many open questions it has CLOSED, which is three, and `tools/differential/INDIANA-EARNED-INCOME-CREDIT.md` is what closing one costs: an afternoon reading the other model’s parameter tree, a bound derived from the provision, and a control year that could have falsified the whole account and did not.
 
 ## The largest gaps the tool was silent about
 

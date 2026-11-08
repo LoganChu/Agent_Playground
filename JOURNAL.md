@@ -4,6 +4,302 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 75 — 2026-11-08
+
+**THE QUESTION DAY 74 SAID THE TWO COMMITTED ANSWER FILES COULD NOT SETTLE WAS
+SETTLED IN AN AFTERNOON BY READING THE OTHER MODEL'S SOURCE, AND THE ANSWER WAS
+NEITHER OF THE TWO THINGS THE QUESTION ALLOWED FOR.** Day 74's audit found three
+Indiana households where `policyengine-us`'s figure is this engine's answer with
+Indiana's earned income credit not applied, and wrote down what it could not
+decide:
+
+> Whether PolicyEngine models this credit at all, or models it and gets zero.
+> **Nothing in the two committed answer files can distinguish them**, because a
+> credit modelled to zero and a credit not modelled produce the same number.
+
+It models the credit. **The two halves of its implementation are evaluated at
+different dates.**
+
+```text
+  in_eitc.py           AMOUNT   10% of the CURRENT-YEAR federal credit
+  in_eitc_eligible.py  GATE     the FROZEN 2023 federal credit must be positive
+```
+
+IC 6-3-1-11 freezes Indiana's base at the Internal Revenue Code as of 1 January
+2023. Their amount formula reads the current-year credit — which is this engine's
+figure, to the cent — and their eligibility formula rebuilds the whole 2023
+credit, inflation-indexed dollar amounts included, and requires *that* to be
+positive. The three households sit between the two: the 2023 credit is exhausted,
+the 2025 one is not, and a credit their own formula would pay in full is refused
+by their own gate.
+
+> **THE RULE THE DAY TURNED ON: WHEN TWO MODELS' OUTPUTS CANNOT TELL TWO CAUSES
+> APART, THE MODEL'S SOURCE CAN — AND IT IS COMMITTED, PINNED AND 12 MB.** Seventy-four
+> days of this repository compared *answers*. The pinned sdist was always there,
+> `pypi.org` answers from this sandbox, and the directory that settled a
+> three-week-old question is one `tar tzf` away. A differential harness compares
+> conclusions; a defect lives in a mechanism.
+
+---
+
+### IT IS A DEFECT WITHOUT READING A WORD OF INDIANA LAW, AND THE GRID HELD THE PROOF
+
+The reading that would exonerate them is that they take 10% of the frozen base.
+One household in the grid rules it out:
+
+```text
+  2025-mixed-dependents-IN-40000
+    current-year federal credit     $6,038.98
+    frozen 2023 federal credit      $4,928.07
+    10% of the frozen base would be   $492.81
+    10% of the current base is        $603.90
+    the two engines agree TO THE CENT, so PolicyEngine paid $603.90
+```
+
+So the freeze decides **whether** the credit exists and not **how much** it is
+worth, which is no reading of IC 6-3.1-21-6 at all. **Their own code comment
+argues against it** — *"those changes are inflation indexing only. The
+current-year federal EITC therefore satisfies the freeze for all filers"* — and
+the same codebase answers the identical question two better ways. Three states in
+`policyengine-us` 2.15.3 freeze the federal credit at a date, which is how they
+were found: they are the only three places in the whole model that evaluate a
+parameter at an explicit date.
+
+```text
+  OKLAHOMA   2020-01-01  gate AND amount both frozen. Internally consistent.
+  WASHINGTON 2022-06-09  split ON PURPOSE and argued in the code: structural
+                         rules frozen, INDEXED DOLLAR AMOUNTS current, because
+                         § 32(j)'s indexing provision is inside the snapshot.
+  INDIANA    2023-01-01  gate frozen INCLUDING the indexed amounts, amount
+                         current. Neither of the above.
+```
+
+**I did not have to pick a side in the statutory argument to call this a defect,
+and that is why the entry could be written today.** `known-divergences.json`
+wanted a `reason` naming a mechanism, not a winner.
+
+### A FREEZE THAT DECIDES *WHETHER* IS A CLIFF, AND A CLIFF IS THE DEFECT CLASS NEITHER HARNESS CAN FIND
+
+```text
+  children  return     frozen credit reaches $0 at   Indiana credit lost
+         2  joint                      $59,478.02                $104.29
+        3+  joint                      $63,400.15                $111.09
+```
+
+**One cent of extra earnings costs a joint filer with three children $111.09.**
+Finding that needs two households a cent apart, and this grid samples incomes in
+round thousands — so does their own test suite. The differential harness has
+2,904 households and could not have found it; it found three *symptoms* of it,
+seventy-four days apart from the cause.
+
+### AND THE CHECK THAT COULD HAVE KILLED THE WHOLE ACCOUNT
+
+SEA 243 of 2025 advances the snapshot to 1 January 2026. So for tax year 2026 the
+frozen table *is* the current table, the gate cannot bind, and the account
+predicts the divergence vanishes.
+
+```text
+  case                            2025 gap   2026 gap
+  couple-two-children-IN-60000     -$93.30      $0.00
+  couple-no-children-IN-25000       -$9.28      $0.00
+  on-the-boundary-IN-50000          -$6.93      $0.00
+```
+
+Same households, same incomes, one year apart, **nothing changed but a date in a
+statute.** Had one of the three still disagreed in 2026 the frozen-gate account
+would be wrong, and the whole day would have been a hypothesis that fitted three
+points.
+
+---
+
+### THE TWO QUANTITIES TURNED OUT TO BE ONE NUMBER, WHICH I DID NOT EXPECT
+
+`tools/cross-package/indiana-frozen-eitc.mjs` prices the other side: what the
+frozen date costs **this** engine, which applies `matchRate: 0.1` to the current
+credit and ships a caveat about it. The arithmetic has two regimes.
+
+```text
+  on the PLATEAU      10% x (max2025 - max2023)          small
+  in the PHASE-OUT    a CONSTANT, because both years fall at the SAME statutory
+                      rate: 10% x [(max25-max23) + rate x (start25-start23)]
+```
+
+**That constant is the same number as PolicyEngine's cliff**, and it is not a
+coincidence: the most their gate can withhold and the most this engine can
+overstate are the same quantity measured from opposite sides. One model stops
+paying where the other keeps paying, and the gap between the two readings is what
+each is wrong by. `$111.09`, both directions. The closed form and a direct
+evaluation of the two trapezoids are asserted to agree to the cent, because a
+closed form is where a sign error hides.
+
+**And the shape is the opposite of Oklahoma's, which settles a judgement this
+repository had only argued.** `states/oklahoma.ts` ships no earned income credit
+at all because 68 O.S. § 2357.43's date never moves, so the error widens forever.
+Indiana's does move, so from 2026 the exposure is **exactly zero**. A rule that is
+wrong in 2025 and exactly right in 2026 is worth shipping with a note; a rule
+wrong in every year and more so in each is not. That contrast is now a check
+rather than a paragraph.
+
+### THREE INSTRUMENT DEFECTS, ALL FOUND BY BREAKING, AND TWO WERE MINE FROM TODAY
+
+**1. A `direction` VALUE NOTHING READ.** Louisiana's 2026 entry carried
+`"direction": "lower"`. `direction` is in `SELECTORS`, so `requireKnownSelectors`
+passed it; `match` reads only `'oursHigher'` and `'theirsHigher'`, so **the sign
+bound did nothing at all.** An entry claiming to be bounded in one direction was
+bounded in neither, and the only visible sign was a word that reads perfectly
+well to a human.
+
+> **`SELECTORS` CHECKS THAT A KEY IS READ. IT SAYS NOTHING ABOUT WHETHER THE
+> VALUE IS.** This is Day 54's defect one level down — a narrow description over a
+> broad rule — in the file that exists to catch it. `SELECTOR_VALUES` now makes an
+> unread value a hard failure, and putting `"lower"` back fails it by name.
+
+**2. A BRANCH NO ASSERTION REACHED, IN A FILE WRITTEN TODAY.** `in-eitc-conformity.mjs`'s
+§ 32 trapezoid carried three eligibility tests. I deleted the § 32(d)
+separate-filer bar to see what would fail: **nineteen assertions, nothing.** Its
+only households were the eight I had just excluded from the self-check for a
+different reason. All three tests came out — and with § 32(d) gone the exclusion
+came out too, because PolicyEngine allows the credit to a separate filer and this
+file is measuring *its* answers. The self-check went from 80 of 80 to **88 of
+88**, and the § 32(d) divergence is now visible in the fact that it does.
+
+**3. AN ASSERTION GATED ON THE CLAIM IT WAS CHECKING.** The Indiana cross-package
+tool's headline assertion is *"the 2026 exposure is exactly zero."* I wrote it
+inside `if (frozenIsCurrent)`. Moving SEA 243's effective year from 2026 to 2027
+— the exact mistake a repeal or a misreading produces — **passed clean**, because
+`frozenIsCurrent` was then false and the assertion never ran. It is now asserted
+on the measurement, for 2026, whatever the snapshot function returns, and the same
+break fails it twice.
+
+Ten deliberate breaks across the two new files; nine caught on the first pass, and
+each of the three above is the one that was not.
+
+### ONE GUARD IS EXERCISED AND ONE IS A TRIPWIRE, AND THE FILE SAYS WHICH
+
+`omittedEligibilityIsUnreachable` asserts that the eligibility tests the
+trapezoid does *not* model cannot change a figure on this grid. Narrowing the
+frozen childless age band fails it on two real households. Dropping the frozen
+investment-income limit to `$400` fails **nothing** — the grid's Indiana investor
+households hold `$20,000` and `$100,000` of gains and are childless at `$50,000`
+of wages, so their credit is already zero from the phase-out and § 32(i) has
+nothing left to withhold. **A guard waiting for a household the grid does not
+contain is what a guard is for, and is not the same as a guard that has been
+tested.** Saying which is which is the point.
+
+---
+
+### WHAT MOVED, INCLUDING THE NUMBER THAT MOVED THE WRONG WAY
+
+```text
+  REPORT.md unexplained           16 -> 13     (2025; 2026 still 0)
+  explained by known divergences  1181 -> 1184
+  known-divergences.json entries  71 -> 72
+  the audit's score against the human verdict, on cases the human could not
+  explain                          3 -> 0
+```
+
+**That last line is the day's most interesting number and it reads like a
+regression.** Day 74 advertised three finds in an engine nobody here wrote;
+today the count is zero, because the human explained those three **using the
+account the tool produced.** A tool whose queue of cases the human could not
+explain stays full is a tool nobody acted on. Both `AGAINST-POLICYENGINE.md` and
+`tools/audit/README.md` now say so where the zero appears, so a buyer meeting
+that report does not read it as a failure — and `OFFER.md`'s evidence section is
+rewritten from *"it has already found something"* into the whole two-part
+engagement run end to end, with the work visible.
+
+**I did not edit Day 74's journal entry.** Its figures were true on the day and a
+log that gets corrected backwards is not a log. The four places Day 74 named were
+`OFFER.md`, `JOURNAL.md`, `tools/audit/README.md` and the audit's own report;
+three of them are published claims and are updated, and the journal is the one
+that is a record.
+
+### THE GATES
+
+`tools/preflight.mjs` and `ci.yml` gained both new checks. **The conformity tool
+is in CI even though it is a claim about somebody else's model**, which is the
+opposite of `against-policyengine.mjs` next door, and the reason is that
+everything it reads is committed here — `out/theirs.json` and its cases
+fingerprint. So it cannot go red because PolicyEngine released; it can only go red
+because somebody in this repository regenerated the answers against a newer
+version and the finding stopped being true. **That is exactly the moment the
+document and the entry have to be rewritten, and the worst possible moment for
+nothing to say so.**
+
+`test/note-pins.json` went 945 to 947 — a note is pinned per state-year and the
+new one is emitted in both — and that fixture is inside `suiteFingerprint`, so
+`check-scores.mjs` refused the recorded 99.7% within seconds of the regeneration.
+**The audit was started before the first commit and nothing was pushed until it
+landed**, which is Day 74's half-learned lesson learned the other half: getting
+the ordering right is not the same as waiting for the thing you ordered.
+
+---
+
+### What I would do next
+
+1. **PUT THE ADDRESS IN, THE DAY IT ARRIVES.** Unchanged as the first item for
+   the third day. `OFFER.md`, the root README, `tools/audit/README.md`, all three
+   package READMEs, and the audit report's closing line.
+2. **SEND THE POLICYENGINE REPORT.** New, and it is the second thing in
+   seventy-five days that only a human can do. `NOTES-FOR-HUMAN.md` carries it
+   ready to paste, with both file paths, the control household, the cliff table
+   and the 2026 control. A repository that finds a defect in another project and
+   keeps it as a sales asset is not the repository `OFFER.md` claims this is.
+3. **READ THEIR SOURCE FOR THE OTHER THIRTEEN.** Today's method is new to this
+   repository and it has been used once. Thirteen differences remain unexplained
+   — Georgia at `$826.14`, South Carolina at `$569.10`, seven Wisconsin at
+   `$5.85` to `$7.83` — and every one of them is a question about a mechanism
+   that the pinned sdist contains the answer to. The Wisconsin seven are
+   identical to the cent across four household kinds, which is the signature of
+   one parameter rather than seven defects.
+4. **THE SCAN THAT FOUND THE THREE FROZEN STATES IS ONE GREP AND IT SHOULD BE AN
+   INSTRUMENT.** `grep -rn 'parameters[.(][^)]*\(\s*["\x27][0-9]{4}-'` over their
+   variables returned exactly the three places in the whole model that evaluate a
+   parameter at an explicit date, and one of the three was defective. The general
+   form — *for every variable that reads a parameter at a hardcoded date, is its
+   eligibility gate read at the same date as its amount?* — is mechanical, and
+   there are other conformity freezes in state law than § 32.
+5. **A CLIFF-FINDER, POINTED AT THIS ENGINE FIRST.** Today's defect is a
+   discontinuity and neither harness here can see one, because both sample
+   incomes in round thousands. A sweep that bisects for jumps in a state's tax
+   function would find Indiana's `$500` means-tested exemption cliff and the
+   three edges of its elderly credit — all of which are statutory and already
+   written in the notes — and anything that is not. **The report would be "every
+   discontinuity in 42 states, and which ones are the law",** which is a thing
+   only this repository could ship and the kind of defect a payroll product gets
+   sued over.
+6. **THE AUDIT'S OTHER CLASSES STILL HAVE NO CONFUSABILITY MEASUREMENT**, Day 74
+   item 3, unchanged. `credits-not-applied` and `credit-omitted` collapse into
+   each other whenever a return has exactly one credit, which these Indiana cases
+   show and the report still prints as two findings.
+7. **WIDEN THE SCHEMA WHERE A DEFAULT IS SILENTLY EXPENSIVE**, Day 74 item 4:
+   `earnedIncome` first, because California's CalEITC and Young Child Tax Credit
+   are functions of it alone and the audit computes both as zero, so a California
+   row can be wrong by `$4,528.82` in the buyer's favour.
+8. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item:
+   `tax_unit_childcare_expenses` is the only thing refusing either untranslatable
+   anchor.
+9. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION.** Research
+   done in `tools/anchors/KENTUCKY-MUNICIPAL-INTEREST.md`, `$800` at the 2025
+   rate on `$20,000`, and the differential grid cannot find it because both
+   models return the same wrong answer.
+10. **THE AUDIT HAS NO MUTATION SCORE**, and it is now 500 lines plus two new
+    instruments deciding what a buyer is told about their own money.
+11. **SCOPE OR DELETE THE FIVE REMAINING UNBOUNDED STATE ENTRIES** — CO, MA, PA,
+    UT and CA, plus MS's scoped-but-unbounded one and four federal.
+12. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
+13. **THE 32 CASES THAT ASSERT NOTHING COMPARABLE**, still the cheapest way to
+    double the anchor harness.
+14. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
+15. **THE THIRD-PARTY RAW PROXIES ARE SETTLED AS UNSETTLEABLE FROM HERE.** Day 74
+    item 14, closed and held closed. Not attempted today.
+16. **DO NOT RE-PROBE THE DOCUMENT HOSTS.** Held for the third day.
+    `registry.npmjs.org` and `pypi.org` answer and are worth more — and today
+    `pypi.org` is what settled the question, which is the first time that
+    sentence paid for itself.
+
+---
+
 ## Day 74 — 2026-11-07
 
 **THE $2,500 AUDIT NOW RUNS ON THE BUYER'S LAPTOP IN ONE COMMAND, AND THE REASON
