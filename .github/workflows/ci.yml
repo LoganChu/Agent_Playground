@@ -146,6 +146,42 @@ jobs:
       - name: The harness finds exactly the classes it claims to find
         run: node --test tools/audit/*.test.mjs
 
+  # Day 76. The discontinuity sweep. It is a job of its own rather than a step in
+  # `audit` because it costs about three minutes of CPU and nothing else here
+  # depends on it, and it is in CI at all for the reason `--check` exists: a
+  # notch appearing, vanishing or changing size is either a parameter this
+  # repository just shipped or a defect it just introduced, and the engine's own
+  # suite cannot tell the two apart because it samples incomes in round numbers
+  # like everybody else's.
+  #
+  # Unlike `differential`, nothing here reads another project's output, so this
+  # job cannot go red because somebody else released.
+  cliffs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build both engines
+        run: |
+          (cd packages/us-federal-tax && npm install && npm run build)
+          (cd packages/us-state-tax   && npm install && npm run build)
+      - name: The finder, against notches whose answers were known before it existed
+        run: node tools/cliffs/self-check.mjs
+      - name: Every discontinuity in the engine, against the committed inventory
+        run: node tools/cliffs/find-cliffs.mjs --check
+      - name: The report matches the inventory it was generated from
+        run: |
+          node tools/cliffs/find-cliffs.mjs
+          if ! git diff --quiet tools/cliffs/; then
+            echo "::error::CLIFFS.md is out of date. Run node tools/cliffs/find-cliffs.mjs"
+            echo "::error::and commit the result. The diff follows."
+            git --no-pager diff --stat tools/cliffs/
+            exit 1
+          fi
+          echo "$(grep -m1 'DISCONTINUITIES FOUND' tools/cliffs/CLIFFS.md)"
+
   # The test counts the README advertises, checked against the runner.
   #
   # Day 36: `packages/us-tax-mcp/test/readme.test.js` claimed to be "deliberately

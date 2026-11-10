@@ -129,6 +129,45 @@ const CLAIMS = [
       ),
   },
   {
+    // Day 76. The two figures the cliff report leads with, read out of the
+    // report rather than re-derived here, for exactly the reason the claim
+    // above it is: the report is what a reader is pointed at.
+    //
+    // THE SECOND ONE IS THE HONEST HALF AND IS THE REASON BOTH ARE HERE. The
+    // count of notches can only grow as the engine gains provisions, and a
+    // reader has no way to tell a bigger engine from a worse one. The count
+    // that is NOT declared as a step is the one that can only go down by work,
+    // and it is the figure a sceptical reader checks first.
+    label: 'discontinuities found by the cliff sweep',
+    want: Number(
+      read('tools/cliffs/CLIFFS.md').match(/DISCONTINUITIES FOUND\s+(\d+)/)[1],
+    ),
+    find: () =>
+      [...text.matchAll(/([0-9][0-9,]*) over 938,448 income points/g)].map((m) =>
+        Number(m[1].replaceAll(',', '')),
+      ),
+  },
+  {
+    label: 'cliff notches declared as steps in the notes',
+    want: Number(
+      read('tools/cliffs/CLIFFS.md').match(/declared as a step\s+(\d+)/)[1],
+    ),
+    find: () =>
+      [...text.matchAll(/([0-9][0-9,]*) are declared as steps/g)].map((m) =>
+        Number(m[1].replaceAll(',', '')),
+      ),
+  },
+  {
+    label: 'cliff notches named without being called a step',
+    want: Number(
+      read('tools/cliffs/CLIFFS.md').match(/named, not as a step\s+(\d+)/)[1],
+    ),
+    find: () =>
+      [...text.matchAll(/([0-9][0-9,]*) are named without being called a step/g)].map((m) =>
+        Number(m[1].replaceAll(',', '')),
+      ),
+  },
+  {
     // Day 74. The demo the audit section tells a visitor to run, counted from
     // the CSV rather than from the sentence. A row added to the demo without the
     // README noticing is a visitor told to expect eleven households and handed

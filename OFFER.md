@@ -58,6 +58,44 @@ imports, which is a property their security review can check in a minute.
   rounding                    under a dollar, and not necessarily anybody's defect
 ```
 
+### And from Day 76 the audit has a second half a household-by-household comparison cannot do
+
+**The defect class that no comparison of answers can find is a discontinuity**,
+and it is the one a payroll product gets sued over. If a state's tax function
+jumps, one cent of extra earnings costs a filer more than a cent of tax — and
+finding that needs two households a cent apart, which neither this repository's
+2,904-household grid nor any reference model's own test suite contains, because
+all of them sample incomes in round thousands.
+
+`tools/cliffs/find-cliffs.mjs` walks the **function** instead. It sweeps 6
+household shapes across 42 states and 2 tax years, 938,448 income points, flags
+every neighbourhood where the second difference says the curve jumped, and
+narrows each flag to **two incomes one cent apart** — then diffs the engine's own
+result objects to name the figure that moved.
+
+```text
+  1,569   discontinuities in this engine, over 938,448 income points
+  1,517     declared as a step in the package's own notes
+     46     named in a note that never says they step
+      0     not named at all
+      6     inside a rate schedule, where no provision moved to name
+```
+
+**What a buyer gets from this is their own version of that table, and the reason
+it is worth paying for is the middle row.** Every notch in it is a figure
+computed correctly from a statutory table — and a developer who reads the
+documentation, sees a credit described without the word *step*, and builds a
+smooth taper has shipped a bug that only ever fires at one income. Two of the
+forty-six are Oregon's: ORS 316.085's exemption credit is allowed where federal
+AGI *"does not exceed"* `$200,000`, so a joint filer with two children one cent
+above it loses **`$1,052`** at once, and the ORS 316.680 federal tax subtraction
+steps by `$148.75` to `$173.25` at every `$5,000` band of AGI.
+
+> **THE SAME SWEEP IS WHAT THE $2,500 POINTS AT A BUYER'S ENGINE**, and the
+> deliverable is the sentence a tool cannot write: for each notch, whether the
+> statute really has that step — in which case their product needs the step and
+> a disclosure — or whether their engine invented it.
+
 **WHY GIVE AWAY THE THING THAT WAS FOR SALE.** Because the audit was never the
 scarce part — **the scarce part is being willing to look.** A buyer who runs it
 and sees eleven disagreements in twelve households has a reason to pay for the
@@ -229,6 +267,15 @@ assumed. See `NOTES-FOR-HUMAN.md` for the ranked list with times attached.
 > AN ATTEMPT TO SELL.** That is the honest status of this file today, and naming
 > it is better than letting it read as a storefront. The first ask in
 > `NOTES-FOR-HUMAN.md` is one line of text: an address to put under each price.
+
+**DAY 76: THE THREE LINES ABOVE ARE NOW ON ONE PAGE OF THEIR OWN,
+[`DO-THIS.md`](DO-THIS.md), AND THE ASK IS FOURTEEN MINUTES RATHER THAN NINETY.**
+Day 73's list advertised itself at *"about 90 minutes"* while its own five items
+totalled **13.5**, and it lived at line 202 of a 6,500-line file whose first
+section is a defect report about Indiana. **Nothing about the asks changed today;
+what changed is that they are now somewhere a person can act on them**, which
+seventy-five days of filing them had not achieved. Whether that was the binding
+constraint all along is now a measurable question rather than a guess.
 
 **AND DAY 74 CHANGED WHAT THAT MISSING LINE COSTS.** Until today everything on
 this page waited on a conversation that had nowhere to start. The audit's free

@@ -148,6 +148,13 @@ const ALLOWED_TOP_LEVEL = new Set([
   // lesson is small and the cost would not have been: run preflight before the
   // push, not before the second one.
   'OFFER.md',
+  // Day 76. The one-page ask. Declared here for the same reason OFFER.md is,
+  // and with a sharper version of the same lesson: the five things only the
+  // human can do had been written into NOTES-FOR-HUMAN.md for seventy-five
+  // days, which is now 6,500 lines with the list at line 202. An ask filed in a
+  // file nobody opens is not an ask that was made, so this file holds the
+  // clicks and nothing else.
+  'DO-THIS.md',
   'README.md',
   'STRATEGY.md',
   'packages',

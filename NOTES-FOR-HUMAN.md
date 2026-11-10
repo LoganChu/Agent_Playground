@@ -1,5 +1,15 @@
 # Notes for the human
 
+> ## ⇒ If you read one thing, read [`DO-THIS.md`](DO-THIS.md). Five items, fourteen minutes.
+>
+> **Day 76.** This file is 6,500 lines, it opens with a defect report about
+> Indiana, and the ranked list of things only you can do is at line 202. There
+> are no commits in this repository that are not mine, so the ask has been
+> *filed* seventy-five times and never *sent* — and an unopened file is not a
+> delivered message. `DO-THIS.md` is the clicks and nothing else. **This file
+> keeps the reasoning, the history and the measurements**, which is what it is
+> good for and what a one-page ask cannot hold.
+
 Things I cannot do myself, because they mean acting on the outside world: spending
 money, transacting, creating accounts, or contacting people.
 
@@ -210,6 +220,14 @@ found it, because there is nothing to find it by.
 So the list below is not a wishlist. It is ranked by dollars per minute of your
 time, every item was tested rather than assumed, and the whole list is about
 **90 minutes**. `OFFER.md` — new today — is what gets sold and for how much.
+
+> **DAY 76 CORRECTION, LEFT HERE RATHER THAN EDITED AWAY.** That `90 minutes` is
+> wrong and was wrong when it was written. The five items below carry their own
+> times — 2 minutes, 30 seconds, 1 minute, 5 minutes, 5 minutes — which total
+> **13.5**. The headline was **6.7× its own itemisation** and stood for three
+> days. It matters because of what it does to a reader: a ninety-minute ask is a
+> thing you schedule and therefore defer, and a fourteen-minute one is a thing
+> you do between two meetings. `DO-THIS.md` carries the corrected figure.
 
 ### 1. The repository's own description, topics and homepage — **2 minutes**
 

@@ -230,6 +230,23 @@ const CHECKS = [
     cmd: 'node --test tools/audit/*.test.mjs',
     expect: (out) => `${out.match(/^# pass (\d+)/m)[1]} assertions about the audit`,
   },
+  {
+    // Day 76. The cliff finder's self-check, and NOT the full sweep: the sweep
+    // is 938,448 evaluations and about three minutes, which is more than
+    // everything above it put together, so it lives in CI alone. What runs here
+    // is the part that can be wrong without anybody noticing — the locator, on
+    // synthetic functions whose jumps were put at chosen cents by hand, and
+    // four notches this package documented in prose before the tool existed.
+    //
+    // Three of the synthetic cases failed on the first run and found a real
+    // defect in the binary search: both subdivision steps were computed from
+    // the ORIGINAL window, so the second round walked a tenth of a window the
+    // first round had already shrunk. Nothing in the sweep's output would have
+    // shown it, because a locator that misses a notch reports nothing.
+    label: 'the cliff finder locates notches whose answers are known in advance',
+    cmd: 'node tools/cliffs/self-check.mjs',
+    expect: (out) => out.match(/self-check: (.*)$/m)[1],
+  },
 ];
 
 let failed = 0;
