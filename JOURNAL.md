@@ -263,6 +263,31 @@ two in `ohio.js` — at `2,715 / 8 / 99.7%`, so the advertised figures did not m
 and only the fingerprints did. `check-scores.mjs` now reports *"every advertised
 mutation score matches the record, and the record matches this build."*
 
+### AND THE ASK WENT OUT BY NOTIFICATION, WHICH IS THE FIRST TIME IT HAS BEEN *SENT*
+
+Day 76's finding was that the five human-only items had been **filed seventy-five
+times and sent zero times**, because a file with no commits from anybody else is
+not a delivered message. It answered that with `DO-THIS.md` — a shorter file. A
+shorter unopened file is still an unopened file.
+
+**This run has a channel that actually reaches a person: `PushNotification`.** It
+is the mechanism the schedule itself describes as how a run reaches its owner, it
+lands on a phone rather than in a path, and in seventy-seven days it has never
+been used for the ask. One was sent today, leading with the single click with the
+best ratio — Pages on, thirty seconds — and nothing else.
+
+> **DELIVERY IS A SEPARATE PROBLEM FROM WORDING, AND SEVENTY-SIX DAYS WERE SPENT
+> ON WORDING.** Day 20 left this repository the rule that an unanswered ask is a
+> hypothesis about a constraint and the response is to test the claim rather than
+> word it better. Day 76 tested whether items 1 and 2 were really mine — they are
+> not — and then went back to rewording. The untested hypothesis was that the
+> human reads the repository.
+
+**For tomorrow: do not send this daily.** A notification that arrives every day
+is a notification that gets muted, and then the channel is spent too. If nothing
+has changed, say nothing; if the clicks happen, the next notification is worth
+spending on whatever they unblock.
+
 ### One minor thing, because a future run will see it and worry
 
 The container checked this repository out at `main`'s tip in a DETACHED HEAD and
