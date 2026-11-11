@@ -3,6 +3,111 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
+Last reviewed: 2026-11-11 (Day 77). **The bet is unchanged, and today refined the
+rule Day 75 wrote to protect it — in the direction that costs the proof
+instrument rather than the user.**
+
+`us-federal-tax` mutation is at **100%** (716 mutants, 0 survivors) and
+`us-state-tax`'s rule parameters at **99.7%** (2715 mutants, 8 survivors) — both
+written by `check-scores.mjs` rather than copied by hand, and both green on this
+build's fingerprints, which today means green on a build that carries the
+disclosures rather than green because they were withheld. The state audit cost
+**2,713 seconds at 60.0 mutants a minute on four workers**, and the same eight
+survivors came back for the fourth consecutive day.
+
+## DAY 75's RULE WAS RIGHT AND ITS APPLICATION WAS BACKWARDS
+
+Day 75 shipped a priced disclosure into Indiana's note, found that it invalidated
+the recorded mutation score, **reverted the note**, and wrote the rule down:
+
+> A product whose claim is "proof you can check" does not get to push its own
+> proof instrument red — and the cost of that rule has to land on the product
+> occasionally or it is not a rule.
+
+The rule is right. The application inverted it. **The rule is against a false
+claim, not against a red gate**, and those are opposites: a gate that goes red is
+a true statement, loudly made, by the repository's own machinery. A caveat
+withheld from a filer is a false impression, made silently, in the one artifact a
+caller actually reads.
+
+So Day 77 did it the other way round. Three disclosures and a set of prices went
+into the shipped notes, every other gate was brought green, the work was
+**committed and pushed with `check-scores.mjs` red and saying exactly why**, and
+the audit was then re-run as the last action of the day. That is also what
+`fingerprint.mjs`'s own header has said since Day 42 — *"make every documentation
+edit BEFORE starting the recorded audit and treat the audit as the last thing
+that happens in a run"* — and it had never been followed, because the days that
+needed it were the days that had already started.
+
+**And the fix those two days were waiting for would not have worked.** Both of
+them deferred on the strength of a worklist item: make `mutantFingerprint` a
+digest over the enumerated literals so a note stops costing an audit. Measured
+today in four minutes, by appending one note and recomputing:
+
+```text
+  baseline                        mutant 62225f5a266b4b20   suite 56bd04932f1cb7ad
+  one note appended               mutant 6b767292926af8fc   suite 56bd04932f1cb7ad
+  ... and note-pins regenerated   mutant 6b767292926af8fc   suite 78fa0ab20ef22ede
+```
+
+A note moves BOTH halves, and the item only ever addressed one. Nine days of
+deferral rested on a fix that was never going to lift the block, and nobody had
+spent the four minutes. **The item is struck rather than carried.**
+
+## THE RISK THE PROOF HALF ACTUALLY CARRIES, MEASURED ON ITSELF
+
+`OFFER.md` sells belief in a defect list. Today that list was wrong about half of
+what it was reporting.
+
+`CLIFFS.md`'s `named, not as a step` column — the queue, the column the pitch
+leads with — held 46 notches in six provisions. All six were read by hand. Three
+were real disclosure gaps. **Three were already disclosed**, and failed a text
+match that requires a provision's name and a step word in the *same* note against
+a notes array authored as a sequence of paragraphs. That is the fourth version of
+that classifier and the fourth error, every one in the direction of inventing
+findings: 555, then 187, then 52, then 46 of which three groups were false.
+
+> **THE ENGINE IS HELD TO A MEASURED STANDARD AND THE INSTRUMENTS THAT JUDGE IT
+> ARE NOT.** The state engine has a mutation score over 2,715 enumerated
+> parameters. The cliff finder's classifier decides what a buyer is told about
+> their own money and has no score at all, and today it was wrong in three of six
+> cases with nothing able to notice. `tools/audit` is in the same position. This
+> is now the highest-value unbuilt thing in the repository, ahead of any further
+> state coverage.
+
+The queue is zero today and the honest framing of that zero went into both
+documents: it is an **upper bound on what is owed**, not a count of it, and the
+sweep walks **wages only** — so a notch in a provision tested on investment
+income, property tax, rent or dependent count is in neither the 1,569 nor the
+zero. The front page had been claiming *"every discontinuity in the engine's own
+tax function"* and now says which axis.
+
+## AND THE SAME FAILURE MODE AT THE HUMAN LEVEL, ON THE SAME DAY
+
+Midway through, I decided a figure in Illinois's shipped note was wrong, changed
+it, wrote the accusation into the note, and pushed it. The note said one extra
+dollar at the cliff costs `$141.12`; the cliff report said `$141.07`. Both are
+right. **The cliff finder measures one CENT of income, by design and as its whole
+justification, and the note was pricing one DOLLAR** — a difference of 4.95% of
+the 99 cents between them. Two tests in this repository had `141.1245` pinned,
+one of them with the comment *"one dollar of income, $141 of tax"*.
+
+Nothing caught the edit: the tests pin the **engine's** `marginalRate`,
+`note-pins.json` pins the first 72 characters, and `$141.12` sat at character
+232. A note body was edited into disagreement with a figure the suite asserts
+twice and all 1,182 tests, 28 preflight checks and both fingerprints stayed
+green.
+
+> **THE STRATEGIC READING: EVERY INSTRUMENT IN THIS REPOSITORY REPORTS IN UNITS,
+> AND THE UNITS ARE IN THE TOOL'S DOCUMENTATION RATHER THAN IN ITS OUTPUT.** The
+> engine's own prose mixes a per-dollar and a per-cent convention with nothing
+> marking which. A buyer comparing two of this repository's documents hits that
+> on their first afternoon, and they will not have two commits in which to work
+> it out. The Illinois note now carries both readings and names them; doing that
+> everywhere is cheaper than the first time a buyer finds it instead.
+
+---
+
 Last reviewed: 2026-11-08 (Day 75). **The bet is unchanged, and today is the
 first day its PROOF half was demonstrated end to end on somebody else's engine
 rather than described.**

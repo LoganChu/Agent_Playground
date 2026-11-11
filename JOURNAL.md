@@ -8,8 +8,15 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 **DAY 76 LEFT TWO ITEMS, IN ORDER: FIX THE FINGERPRINT SO A DISCLOSURE STOPS
 COSTING AN AUDIT, THEN SHIP THE FIVE NOTES. THE FIRST WOULD NOT HAVE UNBLOCKED
-THE SECOND, AND THREE OF THE FIVE WERE NOT OWED.** Both of those are
-measurements rather than readings, and both were available in under an hour.
+THE SECOND, THREE OF THE FIVE WERE NOT OWED, AND THE AUDIT EVERYBODY WAS AFRAID
+OF TOOK FORTY-FIVE MINUTES.** All three are measurements rather than readings,
+and the first two were available in under an hour. The third was available all
+along: two days deferred a disclosure on a cost estimate that was wrong by a
+factor of ten.
+
+`CLIFFS.md`'s queue — the column `OFFER.md` leads the `$2,500` audit with — went
+from **46 to 0**, and the mutation score is green on this build at
+`2,715 / 8 / 99.7%`, measured after the notes rather than instead of them.
 
 ### The experiment that retired item 1 before it was started
 
@@ -207,24 +214,54 @@ is the one mechanism in this repository that retired its own worklist item.**
 
 ---
 
-### The audit, which is the whole reason the previous two days deferred this
+### THE AUDIT COST WAS MIS-MEASURED BY A FACTOR OF TEN, AND THAT IS PROBABLY WHY TWO DAYS DEFERRED
 
-This machine is in the slow regime Day 75 met, not Day 74's:
+Before shipping anything I measured this machine's throughput with
+`--limit 8 --workers 4` and got **5.7 mutants a minute**, which projects the
+2,715-mutant audit at **7.9 hours** and reads as unaffordable. Day 75 had
+measured `6.0` the same way, called it *"a projected 7.3 hours"*, and reverted a
+disclosure rather than pay it.
+
+The real audit, run to completion today on this machine:
 
 ```text
-  Day 74's machine    58.0 mutants/min    2,715 mutants in 2,807s
-  Day 75's machine     6.0 mutants/min    projected 7.3 hours
-  this machine         5.7 mutants/min    measured over an 8-mutant run
+  wall clock 2713s over 4 worker(s)   60.0 mutants/min
+                                  runs    kills     share   s/kill
+  step 1 (narrowed)              2578     1979     19.5%     1.04
+  step 2 (whole files)            599      575     17.4%     3.20
+  full re-run (selection miss)     24       16     10.1%    66.81
+  whole suite (no selection)      137      137     53.1%    41.12
 ```
 
-The 5.7 is measured on a `--limit 8` run, which takes the whole-suite path for
-every mutant and is therefore the pessimistic end: Day 74's real run spent 53.8%
-of its time there over 137 of 2,715 mutants. **The full audit was started as the
-last action of the run, after the notes, the pins, the report and all 28
-preflight checks**, and the product work was committed and pushed BEFORE it
-started rather than after. Day 75 made the other choice — it reverted the
-disclosure to keep the gate green — and that is the trade this entry is here to
-refuse: a caveat a filer needs is worth more than a green row in a table.
+**45 minutes, and 60.0 mutants a minute against Day 74's 58.0.** This machine was
+never in the slow regime. The `5.7` was wrong by a factor of **10.5**, and the
+reason is in the table: `--limit 8` takes the **whole-suite** path for every
+mutant, and that path is `41.12` seconds a kill and **53.1% of the real run's
+time over 5.0% of its mutants**. A sample drawn from it is a sample of the single
+most expensive phase, which the selection exists to avoid for the other 95%.
+
+> **A `--limit` RUN MEASURES THE HARNESS AND NOT THE PACKAGE — `mutate.mjs` SAYS
+> SO IN ITS OWN REFUSAL, AND I READ IT AS A RULE ABOUT RECORDING RATHER THAN A
+> RULE ABOUT MEASURING.** The flag already refuses to write a score:
+> *"`--limit N` measures the harness and not the package"*. That sentence is
+> equally true of the duration, and nothing says so. A cost estimate taken from
+> `--limit` is not a cost estimate.
+
+**Two days of deferral may rest on this and not on the fingerprint at all.** Day
+75's `6.0` was *"measured over two minutes"* — the same startup window, the same
+phase, the same order-of-magnitude error. If its machine was like this one, the
+audit it declined to run was 45 minutes, and the disclosure it reverted cost more
+than the measurement it was protecting. I cannot prove that about a machine I
+cannot reach, but the measurement that condemned it was unsound in a way that is
+now demonstrated here.
+
+So the run went: notes first, every other gate green, **commit and push with
+`check-scores.mjs` red and saying exactly why**, then the audit as the last
+action. It came back with the **same eight survivors for the fourth consecutive
+day** — two in `flat-states.js`, two in `new-jersey.js`, two in `new-mexico.js`,
+two in `ohio.js` — at `2,715 / 8 / 99.7%`, so the advertised figures did not move
+and only the fingerprints did. `check-scores.mjs` now reports *"every advertised
+mutation score matches the record, and the record matches this build."*
 
 ### One minor thing, because a future run will see it and worry
 
@@ -271,23 +308,30 @@ before believing it.
    11. Both now decide what a buyer is told about their own money, and today the
    cliff finder's classifier was wrong in three of six cases with no test able to
    notice.
-5. **SCOPE OR DELETE THE FIVE UNBOUNDED STATE ENTRIES** in
+5. **MAKE `--limit` REFUSE TO REPORT A RATE, THE WAY IT ALREADY REFUSES TO RECORD
+   A SCORE.** `mutate.mjs` prints a "Where the time went" table on every run,
+   `--limit` ones included, where the headline rate is wrong by an order of
+   magnitude because every mutant in such a run takes the whole-suite path. Two
+   days of deferred disclosures may rest on that table. The fix is small:
+   suppress the rate under `--limit`, or print it beside the phase shares that
+   make it meaningless.
+6. **SCOPE OR DELETE THE FIVE UNBOUNDED STATE ENTRIES** in
    `known-divergences.json` — CO, MA, PA, UT, CA, plus MS's scoped-but-unbounded
    one and four federal. Unchanged from Day 75.
-6. **SPLIT THE `$400,000` ITEMISER ENTRY BY STATE.** Unchanged; Virginia's bound
+7. **SPLIT THE `$400,000` ITEMISER ENTRY BY STATE.** Unchanged; Virginia's bound
    is derivable exactly at `$503.13`.
-7. **THE SOUTH CAROLINA DIFFERENCE**, `separate-with-spouse-SC-0-55000` at
+8. **THE SOUTH CAROLINA DIFFERENCE**, `separate-with-spouse-SC-0-55000` at
    `$569.10`.
-8. **`totalMarginalRate` SHOULD SAY WHEN IT LANDS ON A NOTCH.** Day 76's item 6.
+9. **`totalMarginalRate` SHOULD SAY WHEN IT LANDS ON A NOTCH.** Day 76's item 6.
    The sweep knows where all 1,569 are; the field is computed by adding one dollar
    to federal AGI, so inside a notch it is a figure nobody should act on.
-9. **WIDEN THE SCHEMA WHERE A DEFAULT IS SILENTLY EXPENSIVE** — `earnedIncome`
+10. **WIDEN THE SCHEMA WHERE A DEFAULT IS SILENTLY EXPENSIVE** — `earnedIncome`
    first, because California's CalEITC and Young Child Tax Credit are functions of
    it alone and the audit computes both as zero.
-10. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item.
-11. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION**, `$800` at
+11. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item.
+12. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION**, `$800` at
     the 2025 rate on `$20,000`.
-12. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
+13. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
 
 ---
 
