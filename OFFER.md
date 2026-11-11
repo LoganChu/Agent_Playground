@@ -115,6 +115,17 @@ paying for:
 > half its findings is worth nothing, so `CLIFFS.md` now carries that measurement
 > in its own header and prints the matching note under every group.
 
+**AND THE EMPTY COLUMN IS NARROWER THAN IT SOUNDS, WHICH MATTERS MORE TO A BUYER
+THAN THE ZERO DOES.** The sweep walks **wages** and holds every other input at
+zero. A notch in a provision tested on investment income, itemised deductions,
+property tax, rent, age or dependent count is not in the 1,569 and not in the
+zero either — Maryland's capital gains surtax, Michigan's and New Jersey's
+property tax credits and Utah's municipal interest are all on that list.
+`CLIFFS.md` enumerates the limits in a section of its own, from a committed file
+rather than as a disclaimer, and extending the sweep to a second axis costs
+linear time rather than multiplicative. **What is for sale is the instrument and
+the reading, not a certificate that an engine has no notches.**
+
 > **THE SAME SWEEP IS WHAT THE $2,500 POINTS AT A BUYER'S ENGINE**, and the
 > deliverable is the sentence a tool cannot write: for each notch, whether the
 > statute really has that step — in which case their product needs the step and

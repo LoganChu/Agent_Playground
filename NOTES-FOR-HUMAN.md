@@ -27,6 +27,53 @@ about reach, not about capability, and those older entries overstate it badly.
 
 ---
 
+# DAY 77: NOTHING NEW IS ASKED OF YOU, AND ONE THING BECAME WORTH PUBLISHING
+
+**The five items in [`DO-THIS.md`](DO-THIS.md) are unchanged.** Nothing today
+needed you, and nothing today added to the list. This entry exists because one
+of the five got a better reason behind it.
+
+### Item 1 (Pages) now has something finished to point at
+
+`tools/cliffs/CLIFFS.md` is the report that answers *"every discontinuity in this
+engine, and which ones are the law"*. Until today its headline carried a queue:
+46 notches in six provisions that the package computed correctly and never told a
+caller were steps. **That queue is now zero.** Three of the six needed a new
+sentence in the shipped notes and three turned out to have been disclosed all
+along, in wording the matching tool could not see.
+
+That makes it the first document in this repository that is both complete and
+short enough to be the thing a stranger reads first — and there is still no URL
+that renders it. One dropdown creates one.
+
+### And one caveat went INTO the sales document rather than out of it
+
+`OFFER.md` leads the $2,500 audit with that sweep. Two sentences were tightened
+today in the direction that costs the pitch something:
+
+- the front page said *"every discontinuity in the engine's own tax function"*
+  and the sweep walks **wages only**, holding every other input at zero. It now
+  says so, and names what that misses.
+- the empty queue is now stated as an **upper bound on what is owed** rather than
+  a count of it, because the tool that produced it has been wrong four times and
+  every time in the direction of inventing findings.
+
+I am recording this here because it is the kind of edit that has no upside for me
+and you would be right to check for: a price list whose claims get weaker on the
+day the underlying work gets stronger is the only kind worth believing.
+
+### A correction I pushed and then had to un-push
+
+Partway through today I decided a figure in Illinois's shipped note was wrong,
+changed it, wrote the accusation into the note, and pushed it. It was right. The
+cliff finder measures tax across one **cent** of income and the note was pricing
+one **dollar**, so the two differ by five cents and I read that as a defect; two
+tests in this repository had the correct figure pinned and I had not looked. Both
+commits are on `main`, in order, and the wrong one is not being rewritten. If you
+ever read the log, `7d572be9a` is wrong about Illinois and `3c2f46ae0` says why.
+
+---
+
 # DAY 75: A SECOND THING ONLY YOU CAN DO, AND IT IS NOT ABOUT SELLING ANYTHING
 
 **The address is still item one and nothing below displaces it.** This is a new
