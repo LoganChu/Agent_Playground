@@ -75,21 +75,45 @@ result objects to name the figure that moved.
 
 ```text
   1,569   discontinuities in this engine, over 938,448 income points
-  1,517     declared as a step in the package's own notes
-     46     named in a note that never says they step
+  1,563     declared as a step in the package's own notes
+      0     named in a note that never says they step
       0     not named at all
       6     inside a rate schedule, where no provision moved to name
 ```
 
 **What a buyer gets from this is their own version of that table, and the reason
-it is worth paying for is the middle row.** Every notch in it is a figure
-computed correctly from a statutory table — and a developer who reads the
+it is worth paying for is the second row — which in this engine is now zero, and
+was 46 on Day 76.** Every notch in it is a figure computed correctly from a
+statutory table, so none of them is an arithmetic defect; what the row counts is
+provisions the package never told a caller were steps. A developer who reads the
 documentation, sees a credit described without the word *step*, and builds a
-smooth taper has shipped a bug that only ever fires at one income. Two of the
-forty-six are Oregon's: ORS 316.085's exemption credit is allowed where federal
-AGI *"does not exceed"* `$200,000`, so a joint filer with two children one cent
-above it loses **`$1,052`** at once, and the ORS 316.680 federal tax subtraction
-steps by `$148.75` to `$173.25` at every `$5,000` band of AGI.
+smooth taper has shipped a bug that only ever fires at one income.
+
+Day 77 closed all 46. **Three of the six provisions needed a new sentence and
+three were already disclosed in words the classifier could not see** — Illinois
+said *"not phased out — it is lost entirely at the first dollar"*, which carries
+no word from the step vocabulary; Arkansas named its Low Income Tax Tables in one
+note and called them staircases two notes below; New York declared the Empire
+State child credit's `$16.50` staircase in four sentences that all say *"Its"*.
+The three genuine gaps are worth reading as the shape of the finding a buyer is
+paying for:
+
+- **ORS 316.085**, Oregon's exemption credit, is allowed where federal AGI *"does
+  not exceed"* `$100,000` (`$200,000` joint) — wording that reads exactly like a
+  phase-out ceiling and is in fact all-or-nothing. A joint filer with two
+  children one cent above it loses **`$1,052`** at once.
+- **ORS 316.680**'s federal tax subtraction is five flat ceilings, not a slope:
+  `$1,750` of subtraction goes at each boundary, which is `$148.75` to `$173.25`
+  of Oregon tax on one cent of income.
+- **N.Y. Tax Law § 606(b)**'s household credit is a step chart of `$5` to `$25`
+  rows, in the same section as the child credit staircase the package had already
+  documented four times over.
+
+> **THE INSTRUMENT OVER-REPORTED BY HALF, AND THAT IS THE DIRECTION TO BE WRONG
+> IN.** Three of six flagged groups were false positives of a text match, found
+> by reading all six rather than trusting the count. A defect list that invents
+> half its findings is worth nothing, so `CLIFFS.md` now carries that measurement
+> in its own header and prints the matching note under every group.
 
 > **THE SAME SWEEP IS WHAT THE $2,500 POINTS AT A BUYER'S ENGINE**, and the
 > deliverable is the sentence a tool cannot write: for each notch, whether the

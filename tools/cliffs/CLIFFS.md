@@ -18,18 +18,18 @@ itself rather than by sampling households.
   smallest reported jump        $0.50
 
   DISCONTINUITIES FOUND        1569  (1085 distinct state-year-income notches)
-    declared as a step         1517   a note names the provision AND says it steps
-    named, not as a step       46   a note names it; nothing says it is a notch
+    declared as a step         1563   a note names the provision AND says it steps
+    named, not as a step       0   a note names it; nothing says it is a notch
     not named at all           0
     unattributable             6   the notch is in the rate schedule; no provision moved
   states with none             25 of 42
-  sweep wall clock             166s
+  sweep wall clock             163s
 ```
 
-## How to read the three numbers, because only one of them is a defect list
+## How to read the four numbers, because none of them is an arithmetic defect
 
 Every notch below is a figure this engine computes **from a table it transcribed
-out of a statute or a form**. None of the three columns is an arithmetic error.
+out of a statute or a form**. None of the four columns is an arithmetic error.
 What they measure is what the package *tells a caller* about the shape of the
 provision, which this repository treats as the same kind of obligation as the
 figure itself: a provision that can cost a filer a hundred dollars on one cent of
@@ -48,6 +48,29 @@ sentence will build a taper.
   the result object names a provision and the classifier has no label to match.
   These need a reader. The state’s own notes about discontinuities are printed
   beside them.
+
+### What `named` does NOT mean, measured on Day 77
+
+The test is applied to ONE note at a time: a single string has to carry both the
+provision’s name and a word from the step vocabulary. The notes are written as a
+sequence of paragraphs, so a disclosure can be complete and still fail it. All six
+groups this column held on Day 76 were read by hand, and **three of the six were
+already disclosed:**
+
+- Illinois said *"not phased out — it is lost entirely at the first dollar"* and priced
+  the step, and no word in the vocabulary appears in that sentence.
+- Arkansas named the Low Income Tax Tables in one note and called them staircases in
+  the note two below, which began *"THE TABLES ARE STAIRCASES TOO"*.
+- New York’s Empire State child credit declares its `$16.50` staircase in four
+  sentences, every one of which refers to the credit as *"Its"* or *"The phase-out"*.
+
+All three were reworded so that each note stands alone, which is what this package
+claims of its notes anyway, and all three now pass. **The failure direction is the
+expensive one:** this column over-reports. A reader who checks a row and finds that the
+package already says it is reading correctly — it is the instrument that is wrong. Read
+the note quoted under each group rather than trusting the count.
+
+**Both queues are empty.**
 
 ## Found, but the result object names no provision
 
@@ -134,27 +157,6 @@ sentence will build a taper.
 > PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
-
-## Named, but never as a step
-
-Grouped by the provision that moved, because one statutory chart is found once per
-household shape and once per year and six shapes finding Connecticut’s personal
-credit is one sentence owed and not 46.
-
-```text
-    26  OR — subtractions
-        5 sizes, $148.75 to $173.25;  first at $86,599.99 of wages
-     8  NY — credit:New York household credit
-        $15.00, $20.00, $25.00;  first at $25,000.00 of wages
-     8  OR — credit:Oregon exemption credit
-        6 sizes, $512.00 to $1,052.00;  first at $100,000.00 of wages
-     2  IL — exemptions
-        $190.57, $194.29;  first at $211,600.00 of wages
-     1  AR — lowIncomeTableTax
-        $10.00;  first at $25,700.00 of wages
-     1  NY — credit:Empire State child credit
-        $10.00;  first at $135,000.00 of wages
-```
 
 ## What the sweep cannot see
 
@@ -760,7 +762,7 @@ credit is one sentence owed and not 46.
           taxableIncome: 97800 -> 97800.01
           taxBeforeCredits: 3714.9 -> 3724.9
           tax: 3627.9 -> 3637.9
-  2025  joint-no-children        $25,700.00 -> +$10.00   [NAMED]
+  2025  joint-no-children        $25,700.00 -> +$10.00
           stateAdjustedGrossIncome: 25700 -> 25700.01
           taxableIncome: 20760 -> 20760.01
           taxBeforeCredits: 181 -> 191
@@ -4457,7 +4459,7 @@ credit is one sentence owed and not 46.
           taxableIncome: 488600 -> 500000.01
           taxBeforeCredits: 24185.7 -> 24750
           tax: 24185.7 -> 24750
-  2025  single-retiree          $211,600.00 -> +$190.57   [NAMED]
+  2025  single-retiree          $211,600.00 -> +$190.57
           stateAdjustedGrossIncome: 211600 -> 211600.01
           exemptions: 3850 -> 0
           taxableIncome: 207750 -> 211600.01
@@ -4487,7 +4489,7 @@ credit is one sentence owed and not 46.
           taxableIncome: 488300 -> 500000.01
           taxBeforeCredits: 24170.85 -> 24750
           tax: 24170.85 -> 24750
-  2026  single-retiree          $211,600.00 -> +$194.29   [NAMED]
+  2026  single-retiree          $211,600.00 -> +$194.29
           stateAdjustedGrossIncome: 211600 -> 211600.01
           exemptions: 3925 -> 0
           taxableIncome: 207675 -> 211600.01
@@ -4501,7 +4503,7 @@ credit is one sentence owed and not 46.
           tax: 11940.64 -> 12375
 ```
 
-> Matched on `250,000`: Illinois' exemption allowance is not phased out — it is lost entirely at the first dollar of federal AGI above $250,000 ($500,000 on a joint return). One extra dollar of income at the threshold costs a single filer the whole $2,850 exemption, and $141.12 of tax on that single dollar. 35 ILCS 5/204(g).
+> Matched on `250,000`: Illinois' exemption allowance is a CLIFF and not a phase-out: 35 ILCS 5/204(g) disallows it entirely above $250,000 of federal AGI ($500,000 on a joint return), so one cent of extra income at the threshold costs a filer the whole allowance at once. For a single filer with no dependents that is $2,850 of exemption and $141.07 of tax in 2025, and $2,925 and $144.79 in 2026. THE $1,000 ADDITIONS FOR AGE AND BLINDNESS RIDE THE SAME CLIFF, so a single filer of 65 loses $3,850 of allowance and $190.57 of tax in 2025 ($3,925 and $194.29 in 2026). This note read $141.12 for the basic case until Day 77, which is 4.95% of $2,851 rather than of $2,850.
 
 ### IN — 2 notch(es)
 
@@ -6422,7 +6424,7 @@ credit is one sentence owed and not 46.
 ### NY — 156 notch(es)
 
 ```text
-  2025  childless-single         $25,000.00 -> +$20.00   [NAMED]
+  2025  childless-single         $25,000.00 -> +$20.00
           stateAdjustedGrossIncome: 25000 -> 25000.01
           taxableIncome: 17000 -> 17000.01
           tax: 730 -> 750
@@ -6532,17 +6534,17 @@ credit is one sentence owed and not 46.
           taxableIncome: 81800 -> 81800.01
           tax: 4233.88 -> 4250.38
           credit:Empire State child credit: 16.5 -> 0
-  2025  joint-no-children        $25,000.00 -> +$15.00   [NAMED]
+  2025  joint-no-children        $25,000.00 -> +$15.00
           stateAdjustedGrossIncome: 25000 -> 25000.01
           taxableIncome: 8950 -> 8950.01
           tax: 298 -> 313
           credit:New York household credit: 60 -> 45
-  2025  joint-no-children        $28,000.00 -> +$20.00   [NAMED]
+  2025  joint-no-children        $28,000.00 -> +$20.00
           stateAdjustedGrossIncome: 28000 -> 28000.01
           taxableIncome: 11950 -> 11950.01
           tax: 433 -> 453
           credit:New York household credit: 45 -> 25
-  2025  joint-no-children        $32,000.00 -> +$25.00   [NAMED]
+  2025  joint-no-children        $32,000.00 -> +$25.00
           stateAdjustedGrossIncome: 32000 -> 32000.01
           taxableIncome: 15950 -> 15950.01
           tax: 613 -> 638
@@ -6947,7 +6949,7 @@ credit is one sentence owed and not 46.
           taxableIncome: 104000 -> 104000.01
           tax: 5727.42 -> 5743.92
           credit:Empire State child credit: 16.5 -> 0
-  2026  childless-single         $25,000.00 -> +$20.00   [NAMED]
+  2026  childless-single         $25,000.00 -> +$20.00
           stateAdjustedGrossIncome: 25000 -> 25000.01
           taxableIncome: 17000 -> 17000.01
           tax: 713 -> 733
@@ -7107,17 +7109,17 @@ credit is one sentence owed and not 46.
           taxableIncome: 91800 -> 91800.01
           tax: 4687.08 -> 4703.58
           credit:Empire State child credit: 21.5 -> 5
-  2026  joint-no-children        $25,000.00 -> +$15.00   [NAMED]
+  2026  joint-no-children        $25,000.00 -> +$15.00
           stateAdjustedGrossIncome: 25000 -> 25000.01
           taxableIncome: 8950 -> 8950.01
           tax: 289.05 -> 304.05
           credit:New York household credit: 60 -> 45
-  2026  joint-no-children        $28,000.00 -> +$20.00   [NAMED]
+  2026  joint-no-children        $28,000.00 -> +$20.00
           stateAdjustedGrossIncome: 28000 -> 28000.01
           taxableIncome: 11950 -> 11950.01
           tax: 421.05 -> 441.05
           credit:New York household credit: 45 -> 25
-  2026  joint-no-children        $32,000.00 -> +$25.00   [NAMED]
+  2026  joint-no-children        $32,000.00 -> +$25.00
           stateAdjustedGrossIncome: 32000 -> 32000.01
           taxableIncome: 15950 -> 15950.01
           tax: 597.05 -> 622.05
@@ -7622,14 +7624,14 @@ credit is one sentence owed and not 46.
           taxableIncome: 124000 -> 124000.01
           tax: 7020.72 -> 7037.22
           credit:Empire State child credit: 26.5 -> 10
-  2026  single-two-children     $135,000.00 -> +$10.00   [NAMED]
+  2026  single-two-children     $135,000.00 -> +$10.00
           stateAdjustedGrossIncome: 135000 -> 135000.01
           taxableIncome: 125000 -> 125000.01
           tax: 7107.58 -> 7117.58
           credit:Empire State child credit: 10 -> 0
 ```
 
-> Matched on `new york household credit / household credit`: NOT MODELLED — the college tuition credit, the real property tax credit, the child and dependent care credit, and the noncustodial parent earned income credit. New York's credit list is long; only the household credit and the earned income credit are computed here.
+> Matched on `25,000`: THE HOUSEHOLD CREDIT IS A STEP CHART AND NOT A TAPER. Tax Law § 606(b) gives a flat amount per income ROW of New York adjusted gross income, so the credit does not slide — the dollar that crosses a row boundary costs the whole difference between the two rows at once. A single filer goes $75 / $60 / $50 / $45 / $40 / $20 / nothing, stepping at $5,000, $6,000, $7,000, $20,000, $25,000 and $28,000. Every other filing status starts from $90 / $75 / $65 / $60 / $50 / $40 / $20 / nothing, stepping at $5,000, $6,000, $7,000, $22,000, $25,000, $28,000 and $32,000, and adds for each household member after the first an amount that steps on its own: $15 / $10 / $5 / nothing at $20,000, $25,000 and $32,000. So the steps run $5 to $25 for a one- or two-person household and grow with household size. It is the same shape as the Empire State child credit's $16.50 staircase and it is written into the same section, but no table prints it as a percentage of anything, so a caller who reads the credit as a phase-out of the $90 will be wrong at every boundary.
 
 ### OH — 24 notch(es)
 
@@ -7836,25 +7838,25 @@ credit is one sentence owed and not 46.
           taxableIncome: 88665 -> 88665.01
           tax: 7192.19 -> 7448.19
           credit:Oregon exemption credit: 256 -> 0
-  2025  childless-single        $124,999.99 -> +$148.75   [NAMED]
+  2025  childless-single        $124,999.99 -> +$148.75
           stateAdjustedGrossIncome: 116499.99 -> 118200
           subtractions: 8500 -> 6800
           taxableIncome: 113664.99 -> 115365
           taxBeforeCredits: 9635.69 -> 9784.44
           tax: 9635.69 -> 9784.44
-  2025  childless-single        $129,999.99 -> +$148.75   [NAMED]
+  2025  childless-single        $129,999.99 -> +$148.75
           stateAdjustedGrossIncome: 123199.99 -> 124900
           subtractions: 6800 -> 5100
           taxableIncome: 120364.99 -> 122065
           taxBeforeCredits: 10221.94 -> 10370.69
           tax: 10221.94 -> 10370.69
-  2025  childless-single        $134,999.99 -> +$168.31   [NAMED]
+  2025  childless-single        $134,999.99 -> +$168.31
           stateAdjustedGrossIncome: 129899.99 -> 131600
           subtractions: 5100 -> 3400
           taxableIncome: 127064.99 -> 128765
           taxBeforeCredits: 10831.93 -> 11000.24
           tax: 10831.93 -> 11000.24
-  2025  childless-single        $139,999.99 -> +$168.31   [NAMED]
+  2025  childless-single        $139,999.99 -> +$168.31
           stateAdjustedGrossIncome: 136599.99 -> 138300
           subtractions: 3400 -> 1700
           taxableIncome: 133764.99 -> 135465
@@ -7866,17 +7868,17 @@ credit is one sentence owed and not 46.
           taxableIncome: 140464.99 -> 142165
           taxBeforeCredits: 12158.53 -> 12326.84
           tax: 12158.53 -> 12326.84
-  2025  hoh-one-child           $200,000.00 -> +$512.00   [NAMED]
+  2025  hoh-one-child           $200,000.00 -> +$512.00
           stateAdjustedGrossIncome: 191500 -> 191500.01
           taxableIncome: 186940 -> 186940.01
           tax: 15225.25 -> 15737.25
           credit:Oregon exemption credit: 512 -> 0
-  2025  joint-no-children       $200,000.00 -> +$512.00   [NAMED]
+  2025  joint-no-children       $200,000.00 -> +$512.00
           stateAdjustedGrossIncome: 191500 -> 191500.01
           taxableIncome: 185830 -> 185830.01
           tax: 15128.13 -> 15640.13
           credit:Oregon exemption credit: 512 -> 0
-  2025  joint-two-children      $200,000.00 -> +$1,024.00   [NAMED]
+  2025  joint-two-children      $200,000.00 -> +$1,024.00
           stateAdjustedGrossIncome: 191500 -> 191500.01
           taxableIncome: 185830 -> 185830.01
           tax: 14616.13 -> 15640.13
@@ -7886,60 +7888,60 @@ credit is one sentence owed and not 46.
           taxableIncome: 67065 -> 67065.01
           tax: 5302.19 -> 5558.19
           credit:Oregon exemption credit: 256 -> 0
-  2025  single-retiree           $86,599.99 -> +$148.75   [NAMED]
+  2025  single-retiree           $86,599.99 -> +$148.75
           stateAdjustedGrossIncome: 96099.99 -> 97800
           subtractions: 28900 -> 27200
           taxableIncome: 92064.99 -> 93765
           taxBeforeCredits: 7745.69 -> 7894.44
           tax: 7745.69 -> 7894.44
-  2025  single-retiree           $91,599.99 -> +$148.75   [NAMED]
+  2025  single-retiree           $91,599.99 -> +$148.75
           stateAdjustedGrossIncome: 102799.99 -> 104500
           subtractions: 27200 -> 25500
           taxableIncome: 98764.99 -> 100465
           taxBeforeCredits: 8331.94 -> 8480.69
           tax: 8331.94 -> 8480.69
-  2025  single-retiree           $96,599.99 -> +$148.75   [NAMED]
+  2025  single-retiree           $96,599.99 -> +$148.75
           stateAdjustedGrossIncome: 109499.99 -> 111200
           subtractions: 25500 -> 23800
           taxableIncome: 105464.99 -> 107165
           taxBeforeCredits: 8918.19 -> 9066.94
           tax: 8918.19 -> 9066.94
-  2025  single-retiree          $101,599.99 -> +$148.75   [NAMED]
+  2025  single-retiree          $101,599.99 -> +$148.75
           stateAdjustedGrossIncome: 116199.99 -> 117900
           subtractions: 23800 -> 22100
           taxableIncome: 112164.99 -> 113865
           taxBeforeCredits: 9504.44 -> 9653.19
           tax: 9504.44 -> 9653.19
-  2025  single-retiree          $106,599.99 -> +$148.75   [NAMED]
+  2025  single-retiree          $106,599.99 -> +$148.75
           stateAdjustedGrossIncome: 122899.99 -> 124600
           subtractions: 22100 -> 20400
           taxableIncome: 118864.99 -> 120565
           taxBeforeCredits: 10090.69 -> 10239.44
           tax: 10090.69 -> 10239.44
-  2025  single-two-children     $100,000.00 -> +$768.00   [NAMED]
+  2025  single-two-children     $100,000.00 -> +$768.00
           stateAdjustedGrossIncome: 91500 -> 91500.01
           taxableIncome: 88665 -> 88665.01
           tax: 6680.19 -> 7448.19
           credit:Oregon exemption credit: 768 -> 0
-  2025  single-two-children     $124,999.99 -> +$148.75   [NAMED]
+  2025  single-two-children     $124,999.99 -> +$148.75
           stateAdjustedGrossIncome: 116499.99 -> 118200
           subtractions: 8500 -> 6800
           taxableIncome: 113664.99 -> 115365
           taxBeforeCredits: 9635.69 -> 9784.44
           tax: 9635.69 -> 9784.44
-  2025  single-two-children     $129,999.99 -> +$148.75   [NAMED]
+  2025  single-two-children     $129,999.99 -> +$148.75
           stateAdjustedGrossIncome: 123199.99 -> 124900
           subtractions: 6800 -> 5100
           taxableIncome: 120364.99 -> 122065
           taxBeforeCredits: 10221.94 -> 10370.69
           tax: 10221.94 -> 10370.69
-  2025  single-two-children     $134,999.99 -> +$168.31   [NAMED]
+  2025  single-two-children     $134,999.99 -> +$168.31
           stateAdjustedGrossIncome: 129899.99 -> 131600
           subtractions: 5100 -> 3400
           taxableIncome: 127064.99 -> 128765
           taxBeforeCredits: 10831.93 -> 11000.24
           tax: 10831.93 -> 11000.24
-  2025  single-two-children     $139,999.99 -> +$168.31   [NAMED]
+  2025  single-two-children     $139,999.99 -> +$168.31
           stateAdjustedGrossIncome: 136599.99 -> 138300
           subtractions: 3400 -> 1700
           taxableIncome: 133764.99 -> 135465
@@ -7956,25 +7958,25 @@ credit is one sentence owed and not 46.
           taxableIncome: 88340 -> 88340.01
           tax: 7147.75 -> 7410.75
           credit:Oregon exemption credit: 263 -> 0
-  2026  childless-single        $124,999.99 -> +$153.13   [NAMED]
+  2026  childless-single        $124,999.99 -> +$153.13
           stateAdjustedGrossIncome: 116249.99 -> 118000
           subtractions: 8750 -> 7000
           taxableIncome: 113339.99 -> 115090
           taxBeforeCredits: 9598.25 -> 9751.38
           tax: 9598.25 -> 9751.38
-  2026  childless-single        $129,999.99 -> +$153.13   [NAMED]
+  2026  childless-single        $129,999.99 -> +$153.13
           stateAdjustedGrossIncome: 122999.99 -> 124750
           subtractions: 7000 -> 5250
           taxableIncome: 120089.99 -> 121840
           taxBeforeCredits: 10188.87 -> 10342
           tax: 10188.87 -> 10342
-  2026  childless-single        $134,999.99 -> +$173.25   [NAMED]
+  2026  childless-single        $134,999.99 -> +$173.25
           stateAdjustedGrossIncome: 129749.99 -> 131500
           subtractions: 5250 -> 3500
           taxableIncome: 126839.99 -> 128590
           taxBeforeCredits: 10800.66 -> 10973.91
           tax: 10800.66 -> 10973.91
-  2026  childless-single        $139,999.99 -> +$173.25   [NAMED]
+  2026  childless-single        $139,999.99 -> +$173.25
           stateAdjustedGrossIncome: 136499.99 -> 138250
           subtractions: 3500 -> 1750
           taxableIncome: 133589.99 -> 135340
@@ -7986,17 +7988,17 @@ credit is one sentence owed and not 46.
           taxableIncome: 140339.99 -> 142090
           taxBeforeCredits: 12137.16 -> 12310.41
           tax: 12137.16 -> 12310.41
-  2026  hoh-one-child           $200,000.00 -> +$526.00   [NAMED]
+  2026  hoh-one-child           $200,000.00 -> +$526.00
           stateAdjustedGrossIncome: 191250 -> 191250.01
           taxableIncome: 186565 -> 186565.01
           tax: 15160.44 -> 15686.44
           credit:Oregon exemption credit: 526 -> 0
-  2026  joint-no-children       $200,000.00 -> +$526.00   [NAMED]
+  2026  joint-no-children       $200,000.00 -> +$526.00
           stateAdjustedGrossIncome: 191250 -> 191250.01
           taxableIncome: 185430 -> 185430.01
           tax: 15061.13 -> 15587.13
           credit:Oregon exemption credit: 526 -> 0
-  2026  joint-two-children      $200,000.00 -> +$1,052.00   [NAMED]
+  2026  joint-two-children      $200,000.00 -> +$1,052.00
           stateAdjustedGrossIncome: 191250 -> 191250.01
           taxableIncome: 185430 -> 185430.01
           tax: 14535.13 -> 15587.13
@@ -8006,60 +8008,60 @@ credit is one sentence owed and not 46.
           taxableIncome: 66740 -> 66740.01
           tax: 5257.75 -> 5520.75
           credit:Oregon exemption credit: 263 -> 0
-  2026  single-retiree           $86,599.99 -> +$153.12   [NAMED]
+  2026  single-retiree           $86,599.99 -> +$153.12
           stateAdjustedGrossIncome: 95849.99 -> 97600
           subtractions: 29150 -> 27400
           taxableIncome: 91739.99 -> 93490
           taxBeforeCredits: 7708.25 -> 7861.37
           tax: 7708.25 -> 7861.37
-  2026  single-retiree           $91,599.99 -> +$153.13   [NAMED]
+  2026  single-retiree           $91,599.99 -> +$153.13
           stateAdjustedGrossIncome: 102599.99 -> 104350
           subtractions: 27400 -> 25650
           taxableIncome: 98489.99 -> 100240
           taxBeforeCredits: 8298.87 -> 8452
           tax: 8298.87 -> 8452
-  2026  single-retiree           $96,599.99 -> +$153.13   [NAMED]
+  2026  single-retiree           $96,599.99 -> +$153.13
           stateAdjustedGrossIncome: 109349.99 -> 111100
           subtractions: 25650 -> 23900
           taxableIncome: 105239.99 -> 106990
           taxBeforeCredits: 8889.5 -> 9042.63
           tax: 8889.5 -> 9042.63
-  2026  single-retiree          $101,599.99 -> +$153.13   [NAMED]
+  2026  single-retiree          $101,599.99 -> +$153.13
           stateAdjustedGrossIncome: 116099.99 -> 117850
           subtractions: 23900 -> 22150
           taxableIncome: 111989.99 -> 113740
           taxBeforeCredits: 9480.12 -> 9633.25
           tax: 9480.12 -> 9633.25
-  2026  single-retiree          $106,599.99 -> +$153.13   [NAMED]
+  2026  single-retiree          $106,599.99 -> +$153.13
           stateAdjustedGrossIncome: 122849.99 -> 124600
           subtractions: 22150 -> 20400
           taxableIncome: 118739.99 -> 120490
           taxBeforeCredits: 10070.75 -> 10223.88
           tax: 10070.75 -> 10223.88
-  2026  single-two-children     $100,000.00 -> +$789.00   [NAMED]
+  2026  single-two-children     $100,000.00 -> +$789.00
           stateAdjustedGrossIncome: 91250 -> 91250.01
           taxableIncome: 88340 -> 88340.01
           tax: 6621.75 -> 7410.75
           credit:Oregon exemption credit: 789 -> 0
-  2026  single-two-children     $124,999.99 -> +$153.13   [NAMED]
+  2026  single-two-children     $124,999.99 -> +$153.13
           stateAdjustedGrossIncome: 116249.99 -> 118000
           subtractions: 8750 -> 7000
           taxableIncome: 113339.99 -> 115090
           taxBeforeCredits: 9598.25 -> 9751.38
           tax: 9598.25 -> 9751.38
-  2026  single-two-children     $129,999.99 -> +$153.13   [NAMED]
+  2026  single-two-children     $129,999.99 -> +$153.13
           stateAdjustedGrossIncome: 122999.99 -> 124750
           subtractions: 7000 -> 5250
           taxableIncome: 120089.99 -> 121840
           taxBeforeCredits: 10188.87 -> 10342
           tax: 10188.87 -> 10342
-  2026  single-two-children     $134,999.99 -> +$173.25   [NAMED]
+  2026  single-two-children     $134,999.99 -> +$173.25
           stateAdjustedGrossIncome: 129749.99 -> 131500
           subtractions: 5250 -> 3500
           taxableIncome: 126839.99 -> 128590
           taxBeforeCredits: 10800.66 -> 10973.91
           tax: 10800.66 -> 10973.91
-  2026  single-two-children     $139,999.99 -> +$173.25   [NAMED]
+  2026  single-two-children     $139,999.99 -> +$173.25
           stateAdjustedGrossIncome: 136499.99 -> 138250
           subtractions: 3500 -> 1750
           taxableIncome: 133589.99 -> 135340

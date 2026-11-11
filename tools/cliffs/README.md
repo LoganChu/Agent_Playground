@@ -104,6 +104,38 @@ file, calls it `"the family size tax credit"`.
 > the reader's trust in the other 1,517 lines. The report prints the matching
 > note beside each group so a reader checks the match rather than taking it.
 
+### Version 4 failed the same way, and it was found by reading all six groups
+
+Day 77 read every one of the 46 notches version 3 left in the `named` column.
+**Three of the six provisions were already disclosed**, and all three failed for
+the same structural reason: *the test is applied to one note at a time*, so a
+single string has to carry both the provision's name and a step word, while the
+notes are authored as a sequence of paragraphs.
+
+```text
+  IL  exemption allowance   "not phased out - it is lost entirely at the first
+                            dollar" - a complete disclosure, and not one word of
+                            it is in NOTCH_WORDS
+  AR  low income tables     named in one note; called staircases in the note two
+                            below, which opens "THE TABLES ARE STAIRCASES TOO"
+  NY  child credit          four sentences declare the $16.50 staircase and every
+                            one of them says "Its" or "The phase-out"
+```
+
+The fix was in the **notes**, not here: each of the three was reworded to name its
+own subject, which is what this package claims of its notes anyway — they are
+shipped in a result object and quoted one at a time, so a note that needs its
+neighbour is a note that fails where it is actually read. The classifier was left
+alone deliberately. Widening `NOTCH_WORDS` to admit *"lost entirely"* would have
+fixed Illinois and loosened the test for all 1,569 rows on the strength of one
+case, and the remaining failure mode — over-reporting — is the cheap one.
+
+> **FOUR VERSIONS, FOUR ERRORS, ALL IN THE SAME DIRECTION.** 555, then 187, then
+> 52, then 46 of which 3 groups were false. Every time, the instrument invented
+> disclosure defects against a package that already disclosed them. The count in
+> `CLIFFS.md`'s header is therefore an **upper bound on what is owed**, and the
+> report says so in its own prose.
+
 ## `--check` is the gate, and what it is really guarding
 
 `out/cliffs.json` is committed. `--check` re-runs the sweep and fails if the

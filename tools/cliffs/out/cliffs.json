@@ -3410,7 +3410,7 @@
      "at": 25700,
      "next": 25700.01,
      "jump": 10,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -24504,7 +24504,7 @@
      "at": 211600,
      "next": 211600.01,
      "jump": 190.57,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -24716,7 +24716,7 @@
      "at": 211600,
      "next": 211600.01,
      "jump": 194.29,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -36671,7 +36671,7 @@
      "at": 25000,
      "next": 25000.01,
      "jump": 20,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -37303,7 +37303,7 @@
      "at": 25000,
      "next": 25000.01,
      "jump": 15,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -37331,7 +37331,7 @@
      "at": 28000,
      "next": 28000.01,
      "jump": 20,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -37359,7 +37359,7 @@
      "at": 32000,
      "next": 32000.01,
      "jump": 25,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -39658,7 +39658,7 @@
      "at": 25000,
      "next": 25000.01,
      "jump": 20,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -40570,7 +40570,7 @@
      "at": 25000,
      "next": 25000.01,
      "jump": 15,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -40598,7 +40598,7 @@
      "at": 28000,
      "next": 28000.01,
      "jump": 20,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -40626,7 +40626,7 @@
      "at": 32000,
      "next": 32000.01,
      "jump": 25,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -43477,7 +43477,7 @@
      "at": 135000,
      "next": 135000.01,
      "jump": 10,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -44770,7 +44770,7 @@
      "at": 124999.99,
      "next": 125000,
      "jump": 148.75,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -44803,7 +44803,7 @@
      "at": 129999.99,
      "next": 130000,
      "jump": 148.75,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -44836,7 +44836,7 @@
      "at": 134999.99,
      "next": 135000,
      "jump": 168.31,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -44869,7 +44869,7 @@
      "at": 139999.99,
      "next": 140000,
      "jump": 168.31,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -44943,7 +44943,7 @@
      "at": 200000,
      "next": 200000.01,
      "jump": 512,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -44979,7 +44979,7 @@
      "at": 200000,
      "next": 200000.01,
      "jump": 512,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45015,7 +45015,7 @@
      "at": 200000,
      "next": 200000.01,
      "jump": 1024,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45079,7 +45079,7 @@
      "at": 86599.99,
      "next": 86600,
      "jump": 148.75,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45112,7 +45112,7 @@
      "at": 91599.99,
      "next": 91600,
      "jump": 148.75,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45145,7 +45145,7 @@
      "at": 96599.99,
      "next": 96600,
      "jump": 148.75,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45178,7 +45178,7 @@
      "at": 101599.99,
      "next": 101600,
      "jump": 148.75,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45211,7 +45211,7 @@
      "at": 106599.99,
      "next": 106600,
      "jump": 148.75,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45252,7 +45252,7 @@
      "at": 100000,
      "next": 100000.01,
      "jump": 768,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45280,7 +45280,7 @@
      "at": 124999.99,
      "next": 125000,
      "jump": 148.75,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45313,7 +45313,7 @@
      "at": 129999.99,
      "next": 130000,
      "jump": 148.75,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45346,7 +45346,7 @@
      "at": 134999.99,
      "next": 135000,
      "jump": 168.31,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45379,7 +45379,7 @@
      "at": 139999.99,
      "next": 140000,
      "jump": 168.31,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45481,7 +45481,7 @@
      "at": 124999.99,
      "next": 125000,
      "jump": 153.13,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45514,7 +45514,7 @@
      "at": 129999.99,
      "next": 130000,
      "jump": 153.13,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45547,7 +45547,7 @@
      "at": 134999.99,
      "next": 135000,
      "jump": 173.25,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45580,7 +45580,7 @@
      "at": 139999.99,
      "next": 140000,
      "jump": 173.25,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45654,7 +45654,7 @@
      "at": 200000,
      "next": 200000.01,
      "jump": 526,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45690,7 +45690,7 @@
      "at": 200000,
      "next": 200000.01,
      "jump": 526,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45726,7 +45726,7 @@
      "at": 200000,
      "next": 200000.01,
      "jump": 1052,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45790,7 +45790,7 @@
      "at": 86599.99,
      "next": 86600,
      "jump": 153.12,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45823,7 +45823,7 @@
      "at": 91599.99,
      "next": 91600,
      "jump": 153.13,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45856,7 +45856,7 @@
      "at": 96599.99,
      "next": 96600,
      "jump": 153.13,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45889,7 +45889,7 @@
      "at": 101599.99,
      "next": 101600,
      "jump": 153.13,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45922,7 +45922,7 @@
      "at": 106599.99,
      "next": 106600,
      "jump": 153.13,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45963,7 +45963,7 @@
      "at": 100000,
      "next": 100000.01,
      "jump": 789,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -45991,7 +45991,7 @@
      "at": 124999.99,
      "next": 125000,
      "jump": 153.13,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -46024,7 +46024,7 @@
      "at": 129999.99,
      "next": 130000,
      "jump": 153.13,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -46057,7 +46057,7 @@
      "at": 134999.99,
      "next": 135000,
      "jump": 173.25,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
@@ -46090,7 +46090,7 @@
      "at": 139999.99,
      "next": 140000,
      "jump": 173.25,
-     "disclosure": "named",
+     "disclosure": "declared",
      "moved": [
       {
        "field": "stateAdjustedGrossIncome",
