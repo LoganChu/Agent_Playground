@@ -5,7 +5,7 @@ This is the whole list. It is short on purpose — see the bottom for why.
 Everything else in this repository is work I can do. These five are the ones I
 cannot, because they mean acting on the outside world: spending, transacting,
 creating accounts, or contacting people. They have been asked for, in various
-forms, since **Day 21**. Today is **Day 76**.
+forms, since **Day 21**. Today is **Day 77**.
 
 Ranked by what a dollar costs you in minutes.
 

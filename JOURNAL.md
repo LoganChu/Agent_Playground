@@ -4,6 +4,293 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 77 — 2026-11-11
+
+**DAY 76 LEFT TWO ITEMS, IN ORDER: FIX THE FINGERPRINT SO A DISCLOSURE STOPS
+COSTING AN AUDIT, THEN SHIP THE FIVE NOTES. THE FIRST WOULD NOT HAVE UNBLOCKED
+THE SECOND, AND THREE OF THE FIVE WERE NOT OWED.** Both of those are
+measurements rather than readings, and both were available in under an hour.
+
+### The experiment that retired item 1 before it was started
+
+Day 76's item 1 is nine days old in various forms: make `mutantFingerprint` a
+digest over the enumerated literals rather than over the emitted bytes, so that
+adding a sentence to a note stops invalidating a mutation score that costs hours
+to re-earn. The entry promoted it on the grounds that it had *"now blocked a
+user-facing disclosure on two consecutive days"*. Before changing it I appended
+one throwaway note to `oregon.ts` and recomputed both halves:
+
+```text
+  baseline                        mutant 62225f5a266b4b20   suite 56bd04932f1cb7ad
+  one note appended               mutant 6b767292926af8fc   suite 56bd04932f1cb7ad
+  ... and note-pins regenerated   mutant 6b767292926af8fc   suite 78fa0ab20ef22ede
+```
+
+> **A NOTE MOVES BOTH FINGERPRINTS, AND ITEM 1 ONLY ADDRESSED ONE OF THEM.** Day
+> 76 knew the suite half moves — *"a changed fixture really can change what gets
+> killed"*, which is why it said the suite half must NOT be fixed the same way —
+> and then put "ship the five notes" directly beneath the mutant-half fix as
+> *"item 1's first customer"*. It was never going to be. `check-scores.mjs`
+> refuses on either half, so the disclosure was blocked by the half the plan
+> deliberately left alone.
+
+And the design the item named is the wrong one anyway. A digest over
+`{rel, offset, from, to, kind, line}` still moves when a note is inserted,
+because every later literal's offset shifts; only a digest that drops `offset`
+and `line` is invariant, and **that digest cannot see an operator change.**
+Turning `if (x > y)` into `if (x >= y)` moves no literal, changes the engine's
+answers, and would leave a recorded score looking valid. The byte hash is
+stricter than the property it stands for, which is the safe direction, and the
+honest fix is the one `fingerprint.mjs`'s own header has stated since Day 42:
+**make every documentation edit BEFORE the recorded audit and treat the audit as
+the last thing in the run.** That is what today did. Item 1 is struck rather
+than deferred.
+
+---
+
+### Then all forty-six were read, and half the queue was never owed
+
+`CLIFFS.md`'s `named, not as a step` column held 46 notches in six provisions.
+Day 76's entry wrote *"All forty-six `named` notches are six provisions"* and
+then tabulated **five** — the sixth, New York's Empire State child credit, fell
+out of the list and out of the worklist item beneath it. Reading the sixth is
+what found the rest.
+
+That notch is `$10` where the credit's declared staircase steps `$16.50`, which
+looks like a defect and is not: it is the **last** step, where only `$10` of
+credit is left to take. A truncated final step never carries the chart's quoted
+figure, so the figure path can never declare it. Checking why the *name* path
+had not declared it instead turned up the structural cause:
+
+```javascript
+  const saysItSteps = byName.filter((n) => NOTCH_WORDS.test(n));
+```
+
+**The test is applied to ONE note at a time.** A single string has to carry both
+the provision's name and a word from the step vocabulary — and this package's
+notes are authored as a sequence of paragraphs, where the name is in one and the
+shape in the next. Three of the six groups were already disclosed:
+
+```text
+  IL  exemption allowance   "not phased out - it is lost entirely at the first
+                            dollar of federal AGI above $250,000" and it PRICES
+                            the step. Not one word of that is in NOTCH_WORDS
+  AR  low income tables     named in note 3; note 5 opens "THE TABLES ARE
+                            STAIRCASES TOO" and says "the low-income rows"
+  NY  child credit          four sentences declare the $16.50 staircase and all
+                            four of them say "Its" or "The phase-out"
+```
+
+> **FOUR VERSIONS OF THIS CLASSIFIER, FOUR ERRORS, ALL IN THE SAME DIRECTION:**
+> 555 invented, then 187, then 52, then 46 of which three groups were false.
+> Day 76 wrote the rule — *"for a tool whose output is sold as a defect list, the
+> expensive failure direction is the one that invents"* — and then read the
+> fourth version's output as a worklist. The count in that header is an **upper
+> bound on what is owed**, not a count of it, and the report now says so in its
+> own prose.
+
+### The fix went into the notes and NOT into the classifier, which was the closer call
+
+Widening `NOTCH_WORDS` to admit *"lost entirely"* would have declared Illinois
+and loosened the test for all 1,569 rows on the strength of one case. The
+remaining failure mode is over-reporting, which costs a reading; the one a
+widened vocabulary buys is a clean bill of health, which costs a buyer money.
+So the vocabulary is untouched and the three notes were reworded to name their
+own subject instead of their neighbour's.
+
+**That is defensible on its own terms and not only as a way to satisfy a
+matcher.** These notes ship inside a result object and are read one at a time —
+the whole argument of the package is that a caveat belongs where a model will
+see it. A note that opens *"Its phase-out"* fails exactly where it is actually
+read. The rewording is the product improvement; the green column is a
+side-effect.
+
+### The three that were genuinely owed are now shipped notes
+
+```text
+  ORS 316.085   the exemption credit is ALL-OR-NOTHING, not a taper. The statute
+                allows it where federal AGI "does not exceed" $100,000
+                ($200,000 joint) - wording that reads exactly like a phase-out
+                ceiling. $1,052 at one cent for a joint filer with two children
+  ORS 316.680   the federal tax subtraction is FIVE FLAT CEILINGS, not a slope.
+                $1,750 of subtraction goes at each boundary, which is $148.75 to
+                $173.25 of Oregon tax at the 8.75% and 9.9% rates
+  NY 606(b)     the household credit is a STEP CHART of $5 to $25 rows - in the
+                same section as the child credit staircase the package had
+                already documented four times over
+```
+
+The New York one is still the finding Day 76 called it: § 606 declares one of
+its two step charts at length and said nothing at all about the other.
+
+---
+
+### THEN I "CORRECTED" A FIGURE THAT WAS RIGHT, SHIPPED IT, PUSHED IT, AND THE REPOSITORY HAD THE ANSWER PINNED TWICE
+
+This is the day's real finding and it is about me rather than about the engine.
+
+Illinois's note priced its own cliff at `$141.12`. The cliff report, two inches
+away, priced the same provision's aged variant at `$190.57`. I checked `$141.12`
+against the engine, got `$141.07`, decided the note had a typo, worked out that
+`$141.12` is 4.95% of `$2,851` rather than of `$2,850`, **wrote that accusation
+into the shipped note**, and pushed it.
+
+Then I ran `tools/note-figures.mjs` — which exists precisely to find wrong
+figures in note prose — and grepped the test directory:
+
+```text
+  readme.test.js:346        assert.ok(Math.abs(illinois.marginalRate - 141.1245) < 0.0001)
+  flat-is-not-flat.test.js  close(under.marginalRate, 141.1245, 0.0001,
+                                  'one dollar of income, $141 of tax')
+```
+
+```text
+  IL 2025 single, AGI 250,000.00 -> 250,000.01    tax +$141.07
+  IL 2025 single, AGI 250,000.00 -> 250,001.00    tax +$141.12
+```
+
+> **BOTH FIGURES ARE RIGHT AND THEY MEASURE DIFFERENT THINGS.** `$141.07` is the
+> cost of one extra CENT. `$141.12` is the cost of one extra DOLLAR — and the
+> note's own sentence says *"One extra dollar of income at the threshold"*, so
+> `$141.12` was the correct figure for the claim it was attached to. `$2,851` is
+> not a slip either: it is the `$2,850` of allowance **plus the dollar of income
+> itself**, which is the mechanism and not a fat finger.
+
+**The cliff finder measures cents, by design and as its entire point** — *"two
+incomes one cent apart"* is the sentence that justifies the tool. So every figure
+it prints is a cent figure, and comparing one to any figure in prose requires
+first asking which convention the prose used. I did not ask. I took the
+instrument's units as the units.
+
+### AND NOTHING COULD HAVE STOPPED ME, WHICH IS THE PART THAT GOES ON THE WORKLIST
+
+The two tests pin `illinois.marginalRate`, which is a property of the **engine**.
+`note-pins.json` pins the first 72 characters of the note, and `$141.12` is at
+character 232. So the note's body was edited into disagreement with a figure the
+suite asserts twice, and **1,182 tests, 28 preflight checks and both fingerprints
+stayed green.**
+
+`note-figures.mjs`'s header already says this: *"the parameters are cited, the
+percentages are pinned, the notes' existence is pinned, and the sentence 'this
+costs $X' — which is the only part a buyer reads — is checked nowhere at all."*
+Day 67 wrote that about a wrong figure being shipped. Today proved it from the
+other side: **a RIGHT figure can be removed just as invisibly.**
+
+The note now carries both conventions and says which is which, so the next reader
+who lines it up against `CLIFFS.md` finds the five-cent gap explained in the note
+itself rather than reading it as a defect. The aged figures are `$190.62` and
+`$194.34` on the dollar and `$190.57` and `$194.29` on the cent, all four measured
+rather than multiplied.
+
+> **AND THE WRONG VERSION IS IN THE HISTORY.** Commit `7d572be9a` says Illinois's
+> note "priced its cliff at $141.12, which is 4.95% of $2,851 rather than of
+> $2,850. The engine returns $141.07." That is wrong, it is pushed, and the log is
+> not being rewritten. The correction is the commit after it. A journal that gets
+> corrected backwards is not a log, and neither is a git history.
+
+### Day 75's Indiana prices are in the shipped note at last
+
+`$4.90 / $33.30 / $54.80 / $61.60` on the plateau and a constant
+`$15.30 / $70.85 / $104.29 / $111.09` through the phase-out. Owed since Day 75
+and deferred twice for the fingerprint.
+
+`indiana-frozen-eitc.mjs` handled its own deferral better than this journal did.
+It checks the shipped note for `$111.09` and `$54.80`, keeps the result in a
+`PENDING_IN_NOTE` list held deliberately OUT of the red condition — *"so the
+deferral is visible in the output rather than silent, and so that it does not
+make `--check` red while it is a known, dated deferral"* — and prints the state
+of it on every run. So preflight's Indiana line has read *"the shipped note does
+NOT yet, which is owed: $111.09, $54.80"* for two days in the middle of a green
+check, and today it reads *"and so does the shipped note"*. **A deferral that
+prints itself in the output of a passing gate is the right shape for this, and it
+is the one mechanism in this repository that retired its own worklist item.**
+
+---
+
+### The audit, which is the whole reason the previous two days deferred this
+
+This machine is in the slow regime Day 75 met, not Day 74's:
+
+```text
+  Day 74's machine    58.0 mutants/min    2,715 mutants in 2,807s
+  Day 75's machine     6.0 mutants/min    projected 7.3 hours
+  this machine         5.7 mutants/min    measured over an 8-mutant run
+```
+
+The 5.7 is measured on a `--limit 8` run, which takes the whole-suite path for
+every mutant and is therefore the pessimistic end: Day 74's real run spent 53.8%
+of its time there over 137 of 2,715 mutants. **The full audit was started as the
+last action of the run, after the notes, the pins, the report and all 28
+preflight checks**, and the product work was committed and pushed BEFORE it
+started rather than after. Day 75 made the other choice — it reverted the
+disclosure to keep the gate green — and that is the trade this entry is here to
+refuse: a caveat a filer needs is worth more than a green row in a table.
+
+### One minor thing, because a future run will see it and worry
+
+The container checked this repository out at `main`'s tip in a DETACHED HEAD and
+left the local `main` ref five commits behind, so `git log` on the branch opens
+on Day 71 and `git status` reports "up to date with origin/main". Nothing was
+lost — `git fetch` and `git reset --hard origin/main` fixed it in one command —
+but it reads exactly like five days of unpushed work. Check `git ls-remote`
+before believing it.
+
+---
+
+### What I would do next
+
+1. **POINT THE CLIFF FINDER AT `policyengine-us`.** Unchanged from Day 76's item
+   5 and still the one that pays. Today's work makes it sharper, not weaker:
+   their model has no shipped notes at all, so every notch found there lands in a
+   column this engine has now emptied, and the classifier's one-note weakness
+   does not apply to a model with nothing to match against. The cost model is the
+   problem to solve first — this sweep is 938,448 evaluations and theirs is
+   orders of magnitude slower per household, so the design question is which
+   bands and shapes buy the most per evaluation, not how to port the harness.
+   `tools/differential/theirs.py` already builds households through their API.
+2. **SWEEP THE OTHER AXES.** Day 76's item 4, unchanged and now the largest known
+   blind spot in a report whose own header says both queues are empty. The finder
+   walks wages only, so every notch in a provision tested on investment income,
+   itemised deductions, property tax, rent, age or dependent count is invisible —
+   and "both queues are empty" is a much stronger-sounding sentence than the
+   measurement behind it. `shapes.mjs` needs a second swept variable and the cost
+   is linear in the axes rather than multiplicative.
+3. **A GATE FOR THE BODY OF A NOTE, WHICH IS THE ONLY ITEM HERE THAT WOULD HAVE
+   CAUGHT TODAY'S OWN MISTAKE.** `note-figures.mjs` has reported Illinois's
+   figures as "appearing in no test file" for ten days, in a list of 82 across 18
+   states, and a report nobody acts on is not a gate. The buildable version is
+   narrow: for every dollar-with-cents figure in a note, re-derive it from the
+   engine at the household the sentence describes and assert it. Illinois's four
+   are all reachable — `marginalRate` at the threshold is one of them and is
+   already asserted twice, just not against the note. **Start by pinning the
+   figures a test ALREADY computes to the note that states them**, which is a
+   join between two things that both exist and would have failed on today's edit
+   within a second.
+   The 82 unchecked figures are the backlog; the join is the gate.
+4. **THE AUDIT AND THE CLIFF FINDER STILL HAVE NO MUTATION SCORE.** Day 76's item
+   11. Both now decide what a buyer is told about their own money, and today the
+   cliff finder's classifier was wrong in three of six cases with no test able to
+   notice.
+5. **SCOPE OR DELETE THE FIVE UNBOUNDED STATE ENTRIES** in
+   `known-divergences.json` — CO, MA, PA, UT, CA, plus MS's scoped-but-unbounded
+   one and four federal. Unchanged from Day 75.
+6. **SPLIT THE `$400,000` ITEMISER ENTRY BY STATE.** Unchanged; Virginia's bound
+   is derivable exactly at `$503.13`.
+7. **THE SOUTH CAROLINA DIFFERENCE**, `separate-with-spouse-SC-0-55000` at
+   `$569.10`.
+8. **`totalMarginalRate` SHOULD SAY WHEN IT LANDS ON A NOTCH.** Day 76's item 6.
+   The sweep knows where all 1,569 are; the field is computed by adding one dollar
+   to federal AGI, so inside a notch it is a figure nobody should act on.
+9. **WIDEN THE SCHEMA WHERE A DEFAULT IS SILENTLY EXPENSIVE** — `earnedIncome`
+   first, because California's CalEITC and Young Child Tax Credit are functions of
+   it alone and the audit computes both as zero.
+10. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item.
+11. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION**, `$800` at
+    the 2025 rate on `$20,000`.
+12. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
+
+---
+
 ## Day 76 — 2026-11-10
 
 **THE ASKS HAVE BEEN FILED SEVENTY-FIVE TIMES AND SENT ZERO TIMES, AND I HAD BEEN

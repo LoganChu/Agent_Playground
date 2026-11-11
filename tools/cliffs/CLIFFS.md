@@ -23,7 +23,7 @@ itself rather than by sampling households.
     not named at all           0
     unattributable             6   the notch is in the rate schedule; no provision moved
   states with none             25 of 42
-  sweep wall clock             163s
+  sweep wall clock             160s
 ```
 
 ## How to read the four numbers, because none of them is an arithmetic defect
@@ -4503,7 +4503,7 @@ the note quoted under each group rather than trusting the count.
           tax: 11940.64 -> 12375
 ```
 
-> Matched on `250,000`: Illinois' exemption allowance is a CLIFF and not a phase-out: 35 ILCS 5/204(g) disallows it entirely above $250,000 of federal AGI ($500,000 on a joint return), so one cent of extra income at the threshold costs a filer the whole allowance at once. For a single filer with no dependents that is $2,850 of exemption and $141.07 of tax in 2025, and $2,925 and $144.79 in 2026. THE $1,000 ADDITIONS FOR AGE AND BLINDNESS RIDE THE SAME CLIFF, so a single filer of 65 loses $3,850 of allowance and $190.57 of tax in 2025 ($3,925 and $194.29 in 2026). This note read $141.12 for the basic case until Day 77, which is 4.95% of $2,851 rather than of $2,850.
+> Matched on `250,000`: Illinois' exemption allowance is a CLIFF and not a phase-out: 35 ILCS 5/204(g) disallows it entirely above $250,000 of federal AGI ($500,000 on a joint return), so there is no taper and the allowance goes all at once. One extra dollar of income at the threshold costs a single filer the whole $2,850 allowance and $141.12 of tax on that single dollar, which is 4.95% of the $2,850 plus the dollar itself. THE $1,000 ADDITIONS FOR AGE AND BLINDNESS RIDE THE SAME CLIFF, so a single filer of 65 loses $3,850 of allowance and $190.62 of tax; for 2026 the allowance is $2,925 and the two figures are $144.84 and $194.34. MEASURED ONE CENT ABOVE THE THRESHOLD, which is how tools/cliffs/CLIFFS.md measures every notch in this engine, the same four are $141.07, $190.57, $144.79 and $194.29 — each lower by 4.95% of the 99 cents in between. The two conventions answer different questions and both appear in this repository, so a figure that disagrees with CLIFFS.md by about a nickel is the cent reading rather than a defect.
 
 ### IN — 2 notch(es)
 
