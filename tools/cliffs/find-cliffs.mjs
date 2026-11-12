@@ -135,7 +135,7 @@ function fmt(n) {
   return `${n < 0 ? '-' : ''}$${s}`;
 }
 
-function report(rows, seconds) {
+function report(rows) {
   const all = [];
   for (const r of rows) for (const c of r.cliffs) all.push({ ...c, state: r.state, year: r.year, shape: r.shape, axis: r.axis });
   const declared = all.filter((c) => c.disclosure === 'declared');
@@ -209,7 +209,17 @@ function report(rows, seconds) {
   L.push('');
   L.push(`  jump sizes found on >1 axis  ${multiAxis}   a threshold on a TOTAL, met from more than one direction`);
   L.push(`  jump sizes found on 1 axis   ${singleAxis}   a threshold on a COMPONENT, or a size reached one way`);
-  L.push(`  sweep wall clock             ${seconds}s`);
+  // NO WALL CLOCK HERE, and this is the one line in the file with a CI failure
+  // behind it. `ci.yml` regenerates this report and diffs it byte for byte
+  // against the committed one, which is the right gate for a document that
+  // claims to be the complete list. A duration is a property of the MACHINE,
+  // so the committed report and the runner's report could never agree, and
+  // **CI had been red on a one-line diff for three days** while two journal
+  // entries called the repository green. The timing is printed on the console
+  // line at the end of a run, where it is a measurement of the machine that
+  // took it; it is not a fact about the engine and does not belong in a
+  // document about the engine. Same rule as `--limit` refusing to record a
+  // score: the number is real, and it is a number about the instrument.
   L.push('```');
   L.push('');
 
@@ -587,7 +597,7 @@ if (process.env.CLIFF_WORKER) {
     );
   } else {
     writeFileSync(LEDGER, json);
-    writeFileSync(join(HERE, 'CLIFFS.md'), report(rows, seconds));
+    writeFileSync(join(HERE, 'CLIFFS.md'), report(rows));
     console.log(`wrote ${LEDGER}`);
     console.log(`wrote ${join(HERE, 'CLIFFS.md')}`);
   }

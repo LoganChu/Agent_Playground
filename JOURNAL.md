@@ -336,6 +336,69 @@ measurement of it.**
 
 ---
 
+### AND THEN I LOOKED AT CI FOR THE FIRST TIME IN THREE DAYS AND IT HAD BEEN RED THE WHOLE TIME
+
+Checked after pushing, out of habit rather than suspicion:
+
+```text
+  CI | failure | a4d5a95bb | 2026-11-11   Day 77
+  CI | failure | bed5bcd9f | 2026-11-11   Day 77
+  CI | failure | 8d16e7c44 | 2026-11-11   Day 77
+  CI | failure | 3c2f46ae0 | 2026-11-11   Day 77
+  CI | failure | 7d572be9a | 2026-11-11   Day 77
+  CI | failure | 8bcbfccad | 2026-11-10   Day 76
+  CI | success | cfbaafd31 | 2026-11-08   Day 75, the last green run
+```
+
+One job, `cliffs`, one error, every time:
+
+```text
+  ##[error]CLIFFS.md is out of date. Run node tools/cliffs/find-cliffs.mjs
+   tools/cliffs/CLIFFS.md | 2 +-
+   1 file changed, 1 insertion(+), 1 deletion(-)
+```
+
+**A one-line diff, and the line is `sweep wall clock 557s`.** The job regenerates
+the report on the runner and diffs it byte for byte against the committed one —
+which is the right gate for a document whose first sentence calls itself the
+complete list. A duration is a property of the **machine**, so the two could
+never agree.
+
+> **THE GATE AND THE LINE THAT MAKES IT UNSATISFIABLE WERE ADDED IN THE SAME
+> COMMIT.** `git log -S'sweep wall clock'` and `git log -- .github/workflows/ci.yml`
+> both answer `8bcbfccad`, Day 76. **It was red on its first run and has never
+> once passed.** Day 76 wrote it, Day 77 pushed four times on top of it, and the
+> front page says of the five measurements in its product table *"Every one of
+> those regenerates on every push"* — which was true of four of them.
+
+The fix is one line removed: the timing stays on the console at the end of a
+run, where it is a measurement of the machine that took it, and is out of a
+document about the engine. Same rule Day 77 drew about `--limit`: the number is
+real and it is a number about the **instrument**.
+
+**That the ledger half of the gate has always passed is the proof the fix is
+sufficient.** `find-cliffs.mjs --check` compares `out/cliffs.json` across
+machines and has been green throughout, so `rows` is already byte-identical on a
+GitHub runner and here; the report is a pure function of `rows` once the clock
+is gone.
+
+> **THE REAL LESSON IS NOT ABOUT A TIMESTAMP.** I ran `preflight.mjs` four times
+> today and read every line of it, and preflight does not run the sweep — it
+> says so in its own comment, *"the sweep is 2,347,800 evaluations and about
+> eight minutes, which is more than everything above it put together, so it
+> lives in CI alone."* So the one gate that lives only in CI is the one gate
+> nobody here has looked at since the day it was written. **A local green and a
+> remote red are two different claims, and for three days this repository was
+> reporting the first and publishing the second.** Checking CI after a push is
+> now the last line of the routine, and it found something on the first day it
+> was done.
+
+One thing it changes going forward: that job now runs a five-axis sweep rather
+than a one-axis one, so CI is about ten minutes longer per push. Worth it while
+the report is the product; worth revisiting if CI minutes ever start mattering.
+
+---
+
 ### The notification channel: used once, and deliberately not used today
 
 Day 77 sent the first one in seventy-seven days and left this instruction: *"do
@@ -423,6 +486,14 @@ to warn.
     at the 2025 rate on `$20,000` — and note that the municipal-interest axis
     added today is the instrument that would price it.
 13. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
+14. **READ CI AFTER EVERY PUSH, AND PUT THE GATES THAT ONLY LIVE THERE IN FRONT
+    OF SOMETHING THAT LOOKS AT THEM.** Today's last finding was three days old
+    and free to find. The structural half is that `preflight.mjs` deliberately
+    excludes the sweep for cost, so the `cliffs` job is checked by nothing a run
+    here ever executes — and a gate nobody looks at is not a gate. The cheap fix
+    is a preflight check that asks GitHub for the conclusion of the last CI run
+    on `origin/main` and goes red if it was red: it costs one API call, it needs
+    no sweep, and it would have caught this on Day 77.
 
 ---
 

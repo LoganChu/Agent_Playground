@@ -258,6 +258,22 @@ const CHECKS = [
     cmd: 'node tools/cliffs/self-check.mjs',
     expect: (out) => out.match(/self-check: (.*)$/m)[1],
   },
+  {
+    // LAST, AND IT IS THE ONLY CHECK HERE THAT LOOKS OUTSIDE THIS MACHINE.
+    //
+    // Day 78: CI had been red for three days and six commits and nothing here
+    // could have known. The cliff sweep is the one gate that lives only on the
+    // runner — this file skips it on cost, two checks above — so a local green
+    // and a remote red were two different claims and the repository was
+    // reporting the first while publishing the second.
+    //
+    // One API call, no sweep, and an unreachable GitHub reports `unknown`
+    // rather than red: a check that fails when the network is down is a check
+    // people learn to ignore, which is the failure this is correcting.
+    label: 'what CI said about the last thing pushed',
+    cmd: 'node tools/last-ci-run.mjs --check',
+    expect: (out) => (out.match(/^(ok — .*|unknown — .*)$/m) ?? [])[1],
+  },
 ];
 
 let failed = 0;
