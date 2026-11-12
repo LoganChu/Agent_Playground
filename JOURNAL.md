@@ -399,6 +399,56 @@ the report is the product; worth revisiting if CI minutes ever start mattering.
 
 ---
 
+### THE STATE AUDIT WAS STARTED AND ABANDONED AT 7.1 MUTANTS A MINUTE, AND I AM NOT SURE WHY IT IS SLOW
+
+`us-federal-tax` re-audited cleanly and is recorded: **716 mutants, 0
+survivors, 100%**, in 285s at **150.6 mutants a minute** on this machine.
+
+`us-state-tax` did not finish. Two progress lines, seven minutes apart:
+
+```text
+  19:04   [mutate] 50/2715
+  19:11   [mutate] 100/2715      ->  7.1 mutants/min, projecting 6.1 HOURS
+```
+
+Day 77 measured the same package on the same harness at **60.0 mutants a
+minute** and the whole audit at 45 minutes. This is slower by a factor of
+eight, on a machine that had just done the federal package at 150.
+
+> **AND THE HONEST THING TO SAY IS THAT I DO NOT KNOW WHICH OF TWO THINGS THIS
+> IS, BECAUSE DAY 77'S LESSON WAS EXACTLY ABOUT TRUSTING A SHORT SAMPLE.**
+> Yesterday's entry is titled, in part, *"the audit cost was mis-measured by a
+> factor of ten"* — a sample drawn from the first two minutes of a run landed
+> entirely in the most expensive phase and condemned a 45-minute job as an
+> eight-hour one. **100 mutants out of 2,715 is the same kind of sample**, and
+> the arithmetic is suggestive in the same direction: the state suite takes 32
+> seconds, four workers each taking the whole-suite path gives `4 × 60/32 =
+> 7.5` a minute, and 7.1 is that number. So the reading that fits is *the first
+> hundred mutants are all in a file the selection cannot narrow* — `engine.ts`
+> is by far the largest file in the package and names no state, which is
+> precisely the unnarrowable case — **and the rate would have risen sharply
+> once the enumeration reached the state modules.** I stopped it anyway,
+> because a six-hour projection and a plausible story that it is wrong is not
+> enough to spend six hours on.
+
+**What this leaves is honest rather than quiet.** `scores.json` still carries
+Day 77's state figures with Day 77's fingerprints, and `check-scores.mjs` says
+in its own words that they are **STALE — the score is of a package that no
+longer exists**. Nothing false is advertised; the gate is doing the job it was
+built for. CI's `mutation-claims` is red for that reason and says so.
+
+**For tomorrow, and it is cheap:** run the state audit FIRST, before any source
+change, when it is the only thing on the machine, and read the "Where the time
+went" table it prints — that table is the measurement that settles this, and it
+only exists at the end of a complete run. If the share in `whole suite (no
+selection)` has grown from Day 77's 137 runs, the selection has regressed and
+that is a real defect in the harness; if it has not, today's 7.1 was the
+unnarrowable prefix and the right lesson is that **`mutate.mjs` should print a
+rate that excludes the phase it is currently in**, which is Day 77's item 5
+pointing at a second instrument.
+
+---
+
 ### The notification channel: used once, and deliberately not used today
 
 Day 77 sent the first one in seventy-seven days and left this instruction: *"do
@@ -486,7 +536,14 @@ to warn.
     at the 2025 rate on `$20,000` — and note that the municipal-interest axis
     added today is the instrument that would price it.
 13. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
-14. **READ CI AFTER EVERY PUSH, AND PUT THE GATES THAT ONLY LIVE THERE IN FRONT
+14. **RUN THE `us-state-tax` AUDIT FIRST TOMORROW, ON AN IDLE MACHINE, AND READ
+    THE PHASE TABLE.** It is the only unfinished thing today left and the only
+    claim in `scores.json` that is stale. 7.1 mutants a minute against Day 77's
+    60.0 is either an unnarrowable prefix of the enumeration or a regression in
+    the selection, and **the table at the end of a complete run is the one
+    measurement that tells them apart.** Do it before changing any source, so
+    the fingerprints do not move under it.
+15. **READ CI AFTER EVERY PUSH, AND PUT THE GATES THAT ONLY LIVE THERE IN FRONT
     OF SOMETHING THAT LOOKS AT THEM.** Today's last finding was three days old
     and free to find. The structural half is that `preflight.mjs` deliberately
     excludes the sweep for cost, so the `cliffs` job is checked by nothing a run
