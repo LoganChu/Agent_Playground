@@ -27,7 +27,6 @@ itself rather than by sampling households.
 
   jump sizes found on >1 axis  409   a threshold on a TOTAL, met from more than one direction
   jump sizes found on 1 axis   359   a threshold on a COMPONENT, or a size reached one way
-  sweep wall clock             557s
 ```
 
 ## What each axis found
