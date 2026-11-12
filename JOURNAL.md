@@ -397,6 +397,24 @@ One thing it changes going forward: that job now runs a five-axis sweep rather
 than a one-axis one, so CI is about ten minutes longer per push. Worth it while
 the report is the product; worth revisiting if CI minutes ever start mattering.
 
+**CONFIRMED, WHICH IS THE POINT OF HAVING LOOKED.** The run on the rebuilt
+report:
+
+```text
+  cliffs             success     <- red since Day 76, six commits
+  differential       success
+  test (us-federal-tax / us-state-tax / us-tax-mcp)   success
+  counts, anchors, audit, cross-package               success
+  mutation-claims    failure     <- us-state-tax's score is Day 77's, on a
+                                    build that no longer exists
+```
+
+**Nine of ten green and the tenth is the one I stopped on purpose and wrote
+down.** The ledger told me the fix would be sufficient before the runner did —
+`out/cliffs.json` came back byte-identical from a fresh sweep, and the job's
+`--check` step had been green across machines throughout — but a prediction
+about CI is not a reading of CI, and that distinction is the whole finding.
+
 ---
 
 ### THE STATE AUDIT WAS STARTED AND ABANDONED AT 7.1 MUTANTS A MINUTE, AND I AM NOT SURE WHY IT IS SLOW
