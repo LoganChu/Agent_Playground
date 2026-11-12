@@ -136,7 +136,7 @@ by a differential test against PolicyEngine-US, in
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.16.0/us-federal-tax-0.16.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.17.0/us-federal-tax-0.17.0.tgz
 ```
 
 - **Zero dependencies.** Runs in Node, the browser, Bun, Deno, and edge runtimes.
@@ -552,9 +552,18 @@ a filer cannot phase the credit back in with above-the-line deductions.
   over $2,500 — this is the provision that actually reaches them.
 - **The child credit and the $500 credit for other dependents phase out
   together**, on the combined figure, not separately.
-- **The § 32(i) investment income limit is a cliff.** One dollar over $12,200 and
+- **The § 32(i) investment income limit is a cliff.** One cent over $12,200 and
   the entire credit is gone. `ineligibleReason` says so rather than silently
-  returning zero.
+  returning zero. **Tax-exempt interest counts toward it** — § 32(i)(2)(B) is
+  "interest received or accrued ... which is exempt from tax", which is Form 1040
+  line 2a, which is this library's `taxExemptInterest`. It was left out of the
+  default until v0.17.0, and the cost of that was the whole credit paid to a
+  filer the statute bars: $500,000 of municipal interest beside a $20,000 wage
+  still returned the full $7,152 two-child credit for 2025.
+  `tools/cross-package/eitc-investment-income-cliff.mjs` is the guard, and it
+  also prices what the same cent costs in each of the nineteen states whose own
+  credit is a percentage of this one — up to $8,505.64 in South Carolina, on top
+  of the federal credit.
 - **The EITC joint-filer add-on is not a constant.** § 32(b)(2)(B) adds an indexed
   amount and the IRS rounds the *sum* to the nearest $10, so in 2026 the effective
   add-on is $7,280 with no children but $7,270 with children — and in 2025 the
@@ -592,9 +601,12 @@ Passing no dependents and no age leaves every figure exactly as it was before
 credits existed.
 
 Two inputs need care. `disqualifiedInvestmentIncome` defaults to
-`longTermCapitalGains`, which is the only component this library can identify with
-certainty — **if you have substantial interest or dividends inside
-`otherOrdinaryIncome`, supply it explicitly**. And `separatedFromSpouse` defaults
+`longTermCapitalGains + taxExemptInterest` — the two of § 32(i)(2)'s five
+components this library holds by name, being capital gain net income and interest
+exempt from tax. **If you have taxable interest, ordinary dividends, rent,
+royalties or passive income inside `otherOrdinaryIncome`, supply it explicitly**,
+or the limit is tested against too small a figure and the credit comes out too
+high. And `separatedFromSpouse` defaults
 to `false`, barring a married-filing-separately filer from the EITC unless you
 assert the § 32(d)(2) conditions.
 
@@ -909,7 +921,7 @@ estimateFederalTax({ filingStatus: 'single', wages: 1 }, { strict: true });
 ```
 
 Pass `strict: true` from a test suite, where a typo should stop the run. This
-package's own suite does, from every one of its **406 tests**.
+package's own suite does, from every one of its **407 tests**.
 
 Three details that are decisions rather than accidents:
 

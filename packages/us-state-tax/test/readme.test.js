@@ -2128,6 +2128,16 @@ test("README: the gap list cannot name a state this package covers", () => {
 
 /** Every release that has a "New in" paragraph, newest first, with its subject. */
 const RELEASE_HEADLINES = [
+  // 0.63.0 is the first entry in this table that is not about a state at all.
+  // The provision is FEDERAL — § 32(i)'s investment-income bar — and nineteen
+  // states inherit it through the figure a caller passes, so the disclosure
+  // ships from `engine.ts` rather than from nineteen state files. It is also
+  // the first whose figures are re-derived by a gate rather than pinned by a
+  // test: `tools/cross-package/eitc-investment-income-cliff.mjs` compares two
+  // returns a cent apart against prose the engine generated, which is the join
+  // Day 77 asked for and which refused four drafts of the note's own
+  // arithmetic.
+  ['0.63.0', /CEILING ON INVESTMENT INCOME/],
   // 0.62.0 is the SECOND consecutive entry that is a rule this package never
   // had, in the same state, found by the same instrument — and the first whose
   // headline is a claim about the REFERENCE MODEL rather than about this one.

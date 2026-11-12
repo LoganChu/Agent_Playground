@@ -213,10 +213,12 @@ export interface EstimateInput {
    * income. Above the limit ($12,200 in 2026) the earned income credit is
    * disallowed entirely.
    *
-   * Defaults to `longTermCapitalGains`, which is the only component this function
-   * can identify with certainty. **A filer with substantial interest or ordinary
-   * dividends inside `otherOrdinaryIncome` must supply this explicitly**,
-   * otherwise the limit is tested against too small a figure.
+   * Defaults to `longTermCapitalGains + taxExemptInterest` — the two components
+   * this function holds by name, being § 32(i)(2)(D) capital gain net income and
+   * § 32(i)(2)(B) interest exempt from tax. **A filer with taxable interest,
+   * ordinary dividends, rent, royalties or passive income inside
+   * `otherOrdinaryIncome` must supply this explicitly**, otherwise the limit is
+   * tested against too small a figure and the credit is overstated.
    */
   disqualifiedInvestmentIncome?: number;
   /**
@@ -774,7 +776,21 @@ export function estimateFederalTax(
         earnedIncome,
         adjustedGrossIncome,
         qualifyingChildren: eitcChildren,
-        investmentIncome: input.disqualifiedInvestmentIncome ?? ltcg,
+        // § 32(i)(2) lists five components of disqualified income, and this
+        // function holds two of them by name: `longTermCapitalGains` is (D)
+        // capital gain net income, and `taxExemptInterest` is (B) "interest
+        // received or accrued ... which is exempt from tax". Both go in.
+        //
+        // Tax-exempt interest was left OUT of this default until Day 78, which
+        // handed the whole credit to a filer the statute bars: $500,000 of
+        // municipal interest and a $20,000 wage still paid the full $7,152 in
+        // 2025, and nineteen state credits computed as a percentage of it
+        // inherited the error. The input's own documentation calls it "Form 1040
+        // line 2a", which is the exact line the Pub. 596 investment-income
+        // worksheet reads, so there was never a question of identification.
+        investmentIncome:
+          input.disqualifiedInvestmentIncome ??
+          ltcg + nonNegative(input.taxExemptInterest, 'taxExemptInterest'),
         age: input.age,
         separatedFromSpouse: input.separatedFromSpouse,
       })

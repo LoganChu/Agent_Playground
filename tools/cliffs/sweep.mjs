@@ -52,11 +52,21 @@
  * anybody's money. But it does mean a notch can exist for one household shape
  * and be invisible for another, which is why `shapes.mjs` carries a childless
  * shape whose only job is to have no credit to hide behind.
+ *
+ * ## The axis, which is the second thing that hides a notch
+ *
+ * This file is parameterised by an `axis` — the one variable that moves while
+ * the rest of the household stands still. A means test keyed on a component of
+ * income is invisible to every axis that does not move that component, and
+ * before Day 78 there was one axis. `shapes.mjs` holds the list and the
+ * argument for each entry; the detector and the refinement below are identical
+ * on all of them, because a discontinuity in a function of one variable is the
+ * same object whichever variable it is.
  */
 
 import { stateIncomeTax } from '../../packages/us-state-tax/dist/esm/index.js';
 import { householdInput } from '../differential/ours.mjs';
-import { BANDS, FLAG_THRESHOLD, MIN_JUMP, caseFor } from './shapes.mjs';
+import { FLAG_THRESHOLD, MIN_JUMP, WAGE_AXIS, caseFor } from './shapes.mjs';
 
 /** Cents, so a wage is never 59478.000000001. */
 const cents = (x) => Math.round(x * 100) / 100;
@@ -68,15 +78,15 @@ const cents = (x) => Math.round(x * 100) / 100;
  * and the binary search re-evaluates its own bounds. Without it the sweep costs
  * about 40% more for the same answer.
  */
-export function evaluator(shape, state, year) {
+export function evaluator(shape, state, year, axis = WAGE_AXIS) {
   const seen = new Map();
-  return (wages) => {
-    const key = cents(wages);
+  return (value) => {
+    const key = cents(value);
     const hit = seen.get(key);
     if (hit !== undefined) return hit;
     let out;
     try {
-      out = stateIncomeTax(householdInput(caseFor(shape, state, year, key)).base);
+      out = stateIncomeTax(householdInput(caseFor(shape, state, year, key, axis)).base);
     } catch (e) {
       out = { error: String(e?.message ?? e), totalTax: NaN };
     }
@@ -175,8 +185,8 @@ export function explain(f, at, next) {
       moved.push({ field: k, from: a[k] ?? null, to: b[k] ?? null });
     }
   }
-  const pair = (key, label) => {
-    const m = (r) => new Map((r[key] ?? []).map((c) => [c.name, c.amount]));
+  const pair = (key, label, amountOf = (c) => c.amount) => {
+    const m = (r) => new Map((r[key] ?? []).map((c) => [c.name, amountOf(c)]));
     const ma = m(a);
     const mb = m(b);
     for (const name of new Set([...ma.keys(), ...mb.keys()])) {
@@ -187,6 +197,19 @@ export function explain(f, at, next) {
   };
   pair('credits', 'credit');
   pair('surtaxes', 'surtax');
+  // THE THREE NAMED LISTS THIS FUNCTION DID NOT READ UNTIL DAY 78, and the
+  // first of them is why `named` and `unattributed` both had the wrong rows in
+  // them. New Jersey's retirement income exclusion is a wall — 100% of the
+  // maximum to $100,000 of total income, then 50%, then 25%, then nothing —
+  // and the package's own note calls it "the largest one-dollar cliff in this
+  // package". All that showed in `moved` was the SCALAR `subtractions`, whose
+  // only label is the field name, so the classifier had nothing to match and
+  // reported a notch the package declares in one sentence and prices in the
+  // next. The result object had the name all along, in
+  // `computedSubtractions[].name`.
+  pair('computedSubtractions', 'subtraction');
+  pair('addBacks', 'addition');
+  pair('incomeClasses', 'class');
   const loc = (r) => new Map((r.localTaxes ?? []).map((c) => [c.name, c.tax]));
   const la = loc(a);
   const lb = loc(b);
@@ -195,23 +218,35 @@ export function explain(f, at, next) {
       moved.push({ field: `local:${name}`, from: la.get(name) ?? null, to: lb.get(name) ?? null });
     }
   }
+  // EVERYTHING THAT MOVED IS RETURNED, including the figures that moved by the
+  // swept cent and nothing more. They are not attribution and the classifier
+  // ignores them for that purpose (see `MOVEMENT_FLOOR` in `classify.mjs`) —
+  // but they ARE the needle set for the figure path, which is the strongest
+  // disclosure this tool can find. A first version of the floor was applied
+  // here instead, and it took about forty-five Arkansas notches from `declared`
+  // to `unattributed` by deleting the very figures their notes quote. The
+  // inventory keeps what moved; the classifier decides what caused it.
   return moved;
 }
 
 /**
- * One household shape, one state, one year: every jump in its tax function over
- * the committed bands.
+ * One household shape, one state, one year, one axis: every jump in the tax
+ * function of that axis's variable over the committed bands.
  */
-export function sweepOne(shape, state, year) {
-  const f = evaluator(shape, state, year);
-  const probe = f(50_000);
+export function sweepOne(shape, state, year, axis = WAGE_AXIS) {
+  const f = evaluator(shape, state, year, axis);
+  // The probe has to be a value the axis can take: $50,000 of Social Security
+  // benefits is inside that axis's band, but $50,000 of anything is NOT inside
+  // an axis whose band stops earlier, and a probe outside the band would decide
+  // a sweep's fate on a point the sweep never visits.
+  const probe = f(Math.min(50_000, axis.bands[0].to));
   if (probe.error) return { cliffs: [], flags: 0, evals: 1, error: probe.error };
 
   const cliffs = [];
   const found = new Set();
   let flags = 0;
 
-  for (const band of BANDS) {
+  for (const band of axis.bands) {
     const xs = [];
     const ys = [];
     for (let w = band.from; w <= band.to; w += band.step) {

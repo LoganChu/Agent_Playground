@@ -82,6 +82,27 @@ income, property tax, rent or dependent count is in neither the 1,569 nor the
 zero. The front page had been claiming *"every discontinuity in the engine's own
 tax function"* and now says which axis.
 
+> **DAY 78 CASHED THAT CAVEAT AND IT WAS WORTH MORE THAN THE ZERO.** Four more
+> axes — investment income, pension, Social Security, municipal interest — cost
+> eight minutes of compute, took the sweep from 1,569 notches to 3,814, and
+> found a **wrong answer in the federal engine**: tax-exempt interest is
+> § 32(i)(2)(B) by name and was missing from the earned income credit's
+> investment-income limit, so `$500,000` of municipal bonds beside a `$20,000`
+> wage was paid the full `$7,152` credit, in the permissive direction, inherited
+> by nineteen state credits. **The caveat was not a disclaimer; it was the
+> worklist item, and it had been sitting in the front page's own prose for two
+> days.** The lesson for this strategy is narrower than "be thorough": a
+> measurement's stated limit is a priced, specific thing to go and build, and
+> the one that names a whole class of provisions the instrument cannot see is
+> worth more than the next state.
+>
+> Three of the day's five findings were in the instrument rather than the
+> engine, which is the second time in two days that the thing judging the engine
+> was the thing that was wrong. The classifier now lives in its own module with
+> six self-check cases of its own, which is the first version of it that can be
+> wrong in a way
+> something notices — and that is the item above, half-paid.
+
 ## AND THE SAME FAILURE MODE AT THE HUMAN LEVEL, ON THE SAME DAY
 
 Midway through, I decided a figure in Illinois's shipped note was wrong, changed

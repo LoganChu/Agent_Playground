@@ -5486,6 +5486,81 @@ function computeWholeReturn(
         `this return is too high for exactly the low-income filers the credit exists for.`,
     );
   }
+  // § 32(i), disclosed ONCE here rather than in nineteen state note lists,
+  // because the condition is federal and every state that matches the federal
+  // credit inherits it whether its own statute mentions it or not. Only
+  // Missouri and Indiana legislate their own limit, and those two are the only
+  // ones whose notes said anything about an investment income test before Day
+  // 78.
+  //
+  // THE DEFECT CLASS THIS CLOSES IS THE ONE `tools/cliffs` WAS BUILT TO FIND.
+  // The sibling note below quantifies this credit's phase-out to the hundredth
+  // of a point, and three states' notes walk the taper through two layers of
+  // percentage. All of that describes a SLOPE. The largest thing that can
+  // happen to this credit is not a slope: one cent of investment income over
+  // the federal ceiling takes the whole of it, in every one of these states at
+  // once. A caller who reads the notes and builds a taper here builds the
+  // wrong shape, which is the exact failure the shipped notes exist to prevent.
+  //
+  // The dollar ceiling is deliberately NOT quoted. It is a federal parameter
+  // and lives in `us-federal-tax`; a second copy here would be a figure that is
+  // right until the day it is not, which is what
+  // `tools/cross-package/eitc-investment-income-cliff.mjs` exists to guard.
+  if (def.earnedIncomeCredit && input.federal.earnedIncomeCredit) {
+    const cliffRule = def.earnedIncomeCredit;
+    // PRICED OFF THIS RETURN'S OWN CREDITS, not off the match rate times the
+    // federal credit. The first version of this note did the multiplication and
+    // `tools/cross-package/eitc-investment-income-cliff.mjs` refused it in four
+    // states on its first run, each for a different reason, and every one of
+    // them is a reason the product is NOT the credit:
+    //
+    //   NY  § 606(d) reduces the 30% match BY the household credit, so the
+    //       note said $2,041.35 and the engine took $2,001.35 — the $40 credit.
+    //   WI  § 71.07(9e)(aj) is four rates by child count, so `matchRate` is 0
+    //       and the note priced a $748.50 loss at nothing.
+    //   MD  two published credits are one credit, and the refundable half is
+    //       $1,974.53 the product never saw.
+    //   SC  the match is non-refundable and limited by the liability, which in
+    //       2026 made the product 44 times the real figure.
+    //
+    // Summing what this return actually computed is exact in all four, costs no
+    // extra probe — `test/probe-cost.test.js` counts those — and is the right
+    // claim anyway: a note that prices a loss is making an assertion about this
+    // engine's own answer, so it should read that answer.
+    const goesWithIt = here.credits
+      .filter(
+        (c) =>
+          c.name === cliffRule.name ||
+          c.name.startsWith(`${cliffRule.name} (`) ||
+          c.name === def.earnedIncomeCreditChildBonus?.name,
+      )
+      // EACH LINE ROUNDED, THEN SUMMED — the same rule `totalTax` states a few
+      // hundred lines below, for the same reason: these are the figures the
+      // result object reports to the caller, and a note that prices a loss at
+      // the sum of the unrounded amounts behind them is a cent out from the
+      // numbers on the page. Maryland is where it shows, because its two
+      // published credits are two lines of one credit: $5,376.78 summed raw
+      // against $5,376.79 summed from the lines.
+      .reduce((n, c) => n + roundCents(c.amount), 0);
+    const atRisk = roundCents(goesWithIt);
+    const alsoGoes =
+      def.earnedIncomeCreditChildBonus !== undefined ||
+      cliffRule.refundableMatchRate !== undefined;
+    dynamic.push(
+      `${cliffRule.name} is a percentage of a federal credit that is barred OUTRIGHT, not ` +
+        `tapered, above a ceiling on investment income — § 32(i), tested on taxable and ` +
+        `tax-exempt interest, dividends, net capital gain, net rent and royalty income, and ` +
+        `net passive income, at a limit near $12,000 that is low enough to bind on an ordinary ` +
+        `household that sells one asset. It is a CLIFF: one cent over it and the federal ` +
+        `credit is nothing, so this credit is nothing. On the federal credit supplied here ` +
+        `that is $${atRisk.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ` +
+        `of ${def.name} credit lost on one cent of investment income` +
+        `${alsoGoes ? ' — the whole of every line above that this credit carries, bonus and refundable half included' : ''}` +
+        `. ${def.name}'s own statute does not mention the limit, because the condition is ` +
+        `federal and is inherited through the figure you pass. Nothing about this credit ` +
+        `tapers in investment income; it stops.`,
+    );
+  }
   if (def.earnedIncomeCredit && input.federal.earnedIncomeCredit && !input.federalOneDollarHigher) {
     dynamic.push(
       'marginalRate holds the federal earned income credit constant. Inside that credit’s ' +

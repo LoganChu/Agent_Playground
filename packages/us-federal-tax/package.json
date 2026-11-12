@@ -1,6 +1,6 @@
 {
   "name": "us-federal-tax",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "US federal tax engine for 2024-2026: brackets, FICA, self-employment tax, capital gains, NIIT, QBI, the SALT cap, OBBBA deductions, Section 86 Social Security and Publication 15-T withholding. Every figure cited to the IRS release. Zero deps, MIT.",
   "keywords": [
     "federal-tax",

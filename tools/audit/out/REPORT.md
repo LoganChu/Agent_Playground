@@ -131,7 +131,7 @@ The last line is the one worth reading twice. **A tool that explains every disag
 
 *2 explanations match this gap arithmetically. They are listed strongest-evidence first and are not mutually exclusive; which one is the cause is a question about your code, not about this number.*
 
-*This return carries 22 note(s) from the engine about things a caller would otherwise get wrong. They are omitted here because the gap is explained above; `--json` carries them.*
+*This return carries 23 note(s) from the engine about things a caller would otherwise get wrong. They are omitted here because the gap is explained above; `--json` carries them.*
 
 *This harness defaulted 4 field(s) on this row — pension treated as 0; socialSecurity treated as 0; longTermCapitalGains treated as 0; taxExemptInterest treated as 0. Where that matters the gap is this harness's silence rather than your engine's answer.*
 
@@ -161,7 +161,7 @@ The last line is the one worth reading twice. **A tool that explains every disag
 **1. Empire State child credit — $1,000.00, not taken**  
 *ARITHMETIC* — $986.06 is this engine's answer plus exactly $1,000.00, which is this return's Empire State child credit. It is refundable, so it is not capped at the tax.
 
-*This return carries 22 note(s) from the engine about things a caller would otherwise get wrong. They are omitted here because the gap is explained above; `--json` carries them.*
+*This return carries 23 note(s) from the engine about things a caller would otherwise get wrong. They are omitted here because the gap is explained above; `--json` carries them.*
 
 *This harness defaulted 4 field(s) on this row — pension treated as 0; socialSecurity treated as 0; longTermCapitalGains treated as 0; taxExemptInterest treated as 0. Where that matters the gap is this harness's silence rather than your engine's answer.*
 

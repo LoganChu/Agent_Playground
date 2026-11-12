@@ -143,9 +143,29 @@ const CLAIMS = [
       read('tools/cliffs/CLIFFS.md').match(/DISCONTINUITIES FOUND\s+(\d+)/)[1],
     ),
     find: () =>
-      [...text.matchAll(/([0-9][0-9,]*) over 938,448 income points/g)].map((m) =>
+      [...text.matchAll(/([0-9][0-9,]*) over [0-9][0-9,]* income points/g)].map((m) =>
         Number(m[1].replaceAll(',', '')),
       ),
+  },
+  {
+    // Day 78. The denominator, which was a LITERAL in the pattern above until
+    // the sweep gained four axes and it became wrong by 1.4 million. A check
+    // that hard-codes one of the two numbers it is comparing is half a check.
+    label: 'income points the cliff sweep evaluated',
+    want: Number(
+      read('tools/cliffs/CLIFFS.md').match(/income points evaluated\s+([0-9][0-9,]*)/)[1].replaceAll(',', ''),
+    ),
+    find: () =>
+      [...text.matchAll(/over ([0-9][0-9,]*) income points/g)].map((m) =>
+        Number(m[1].replaceAll(',', '')),
+      ),
+  },
+  {
+    // And the number of axes, because the sentence "on N axes of income" is the
+    // one claim in that row a reader checks the rest of it against.
+    label: 'income axes the cliff sweep walks',
+    want: Number(read('tools/cliffs/CLIFFS.md').match(/income axes swept\s+(\d+)/)[1]),
+    find: () => [...text.matchAll(/on \*\*(\d+) axes of income\*\*/g)].map((m) => Number(m[1])),
   },
   {
     label: 'cliff notches declared as steps in the notes',
@@ -164,6 +184,14 @@ const CLAIMS = [
     ),
     find: () =>
       [...text.matchAll(/([0-9][0-9,]*) are named without being called a step/g)].map((m) =>
+        Number(m[1].replaceAll(',', '')),
+      ),
+  },
+  {
+    label: 'cliff notches inside a rate schedule, with no provision to name',
+    want: Number(read('tools/cliffs/CLIFFS.md').match(/unattributable\s+(\d+)/)[1]),
+    find: () =>
+      [...text.matchAll(/the remaining ([0-9][0-9,]*) are inside a rate/g)].map((m) =>
         Number(m[1].replaceAll(',', '')),
       ),
   },

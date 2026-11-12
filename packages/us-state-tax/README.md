@@ -7,6 +7,8 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
+New in 0.63.0: **NINETEEN STATE EARNED INCOME CREDITS ARE BARRED OUTRIGHT BY A FEDERAL CEILING ON INVESTMENT INCOME, AND NOTHING HERE SAID SO.** § 32(i) disallows the federal credit — not tapers it — above about `$12,000` of interest, dividends, capital gain, rent and royalties. One cent over and the whole credit is gone, and so is every state credit computed as a percentage of it. Sixteen of the nineteen states here had notes describing their credit's *phase-out* to the hundredth of a point and not one word about the cliff, which is the shape a caller who reads the notes will build. The disclosure now ships from one place — the condition is federal and is inherited through the figure you pass — and it is **priced from this return's own credits**: `$8,505.64` of South Carolina credit on one cent for a single parent of two on `$25,000` of wages, `$5,376.79` in Maryland across two lines of one credit, `$3,402.26` in Colorado. `tools/cross-package/eitc-investment-income-cliff.mjs` re-derives every figure in that sentence from two returns a cent apart, in both packages, and refused four of its own first drafts: the match rate times the federal credit is **not** the credit — New York reduces it by the household credit, Wisconsin's rate is four rates by child count, Maryland's refundable half is a second line, and South Carolina's is limited by the liability.
+
 New in 0.62.0: **KENTUCKY'S FAMILY SIZE TAX CREDIT, THE LARGEST SINGLE PROVISION THIS PACKAGE EVER SHIPPED LATE — AND THE LEADING OPEN MODEL REPRODUCES IT WITH TWO CONSTANTS FITTED TO ONE YEAR.** KRS 141.066 credits a percentage of the **whole** Kentucky tax: 100% of it at or below a threshold amount set at the federal poverty guideline for the family size, stepping down to nothing at 133%. Until `0.62.0` a single Kentucky filer at exactly `$15,650` was charged **`$495.20`**, which is the entire bill, and one at `$8,000` was charged `$189.20`. `tools/anchors` found it on its first run and Day 71 refused to ship it, because the base it is measured on had not been read; what closed the gap was not a Kentucky document — no Kentucky host resolves from this sandbox — but the discovery that the printed grid is **re-derivable**, checked against four sets of figures produced outside this repository.
 
 **THE FINDING: `1.270032` IS NOT A FIGURE FROM ANY DOCUMENT.** Kentucky prints its grid in whole dollars and the band is *"not over"*, so the cutoff is `round(percent × threshold)`. Every 2025 threshold amount — `$15,650`, `$21,150`, `$26,650`, `$32,150` — is an odd multiple of `$50`, and of the ten statutory percentages **exactly two** multiply a multiple of `$50` into something other than a whole number:
@@ -892,7 +894,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.62.0/us-state-tax-0.62.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.63.0/us-state-tax-0.63.0.tgz
 ```
 
 ## The rate is the easy part

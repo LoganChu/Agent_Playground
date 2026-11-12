@@ -1212,7 +1212,7 @@ EITC withdrawal at the § 32 phase-out rate.
 
 ## Correctness
 
-The engines underneath live in the same repository. `packages/us-federal-tax`: **406 tests**
+The engines underneath live in the same repository. `packages/us-federal-tax`: **407 tests**
 against hand-computed figures, every parameter cross-checked against two independent
 sources. `packages/us-state-tax`: **1,182 tests**, every state figure cited to its statute.
 This package adds **183 more** covering the protocol and the tool layer. Those three

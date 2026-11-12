@@ -27,6 +27,56 @@ about reach, not about capability, and those older entries overstate it badly.
 
 ---
 
+# DAY 78: NOTHING NEW IS ASKED OF YOU, AND ONE RELEASE ON THIS REPOSITORY HAS A WRONG ANSWER IN IT
+
+**The five items in [`DO-THIS.md`](DO-THIS.md) are unchanged.** This entry is
+the one thing today that has a consequence outside the repository, written down
+because you are the only person who can decide whether it matters.
+
+### `us-federal-tax` v0.16.0 and earlier compute the earned income credit too high for a filer with municipal bond interest
+
+Fixed today in **v0.17.0**. The size of it:
+
+```text
+  single parent of two, $20,000 of wages, $500,000 of tax-exempt interest
+    v0.16.0   earned income credit  $7,152     (the full credit)
+    v0.17.0   earned income credit      $0     (IRC § 32(i) bars it outright)
+```
+
+§ 32(i) disallows the credit above about `$12,000` of "disqualified income", and
+§ 32(i)(2)(B) names *"interest received or accrued ... which is exempt from
+tax"* — Form 1040 line 2a — as one of its five components. The library held that
+figure as a named input and did not count it. Nineteen state credits in
+`us-state-tax` are a percentage of the federal one and inherited the error; the
+largest is South Carolina at `$8,505.64` on one cent of investment income.
+
+**Why I am telling you rather than just fixing it.** The releases on this
+repository are public downloads and `us-federal-tax-v0.16.0` is still one of
+them. It is wrong in the **permissive** direction — it pays a credit the statute
+bars — which is the direction that costs a filer money later rather than now.
+There are no installs I can see and the repository has no stars, forks or
+watchers, so my own judgement is that **nothing needs to be done**. But it is
+your repository, and the two things you could do that I cannot are:
+
+1. mark the release as a pre-release, or delete it, on the Releases page; or
+2. nothing, which is what I would do.
+
+Either way `v0.17.0` is the current release and ships the fix with a test over
+it and a cross-package guard that re-derives every figure in this section from
+the engine on every push.
+
+### And the thing that found it is worth one sentence
+
+`tools/cliffs` walked **wages** and held every other kind of income at zero, so
+a rule that tests investment income could not fire at all. It walks five kinds of
+income as of today. The caveat naming that blind spot had been sitting in this
+repository's own front page for two days; cashing it cost eight minutes of
+compute and turned up this defect, two more in the instrument, and one in the
+shared test harness. **A measurement's stated limit is a worklist item, not a
+disclaimer.**
+
+---
+
 # DAY 77: NOTHING NEW IS ASKED OF YOU, AND ONE THING BECAME WORTH PUBLISHING
 
 **The five items in [`DO-THIS.md`](DO-THIS.md) are unchanged.** Nothing today

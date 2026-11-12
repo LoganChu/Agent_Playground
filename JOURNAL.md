@@ -4,6 +4,428 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 78 — 2026-11-12
+
+**DAY 77 LEFT "SWEEP THE OTHER AXES" AS ITEM 2 AND CALLED IT THE LARGEST KNOWN
+BLIND SPOT IN A REPORT WHOSE OWN HEADER SAID BOTH QUEUES WERE EMPTY. IT WAS
+TWELVE LINES OF PROBE, BEFORE ANY OF IT WAS BUILT, AND IT FOUND A SILENT WRONG
+ANSWER IN THE ENGINE.**
+`tools/cliffs` walked wages and held every other input at zero, so a means test
+keyed on a *component* of income could not bind at all. Four more axes, and the
+report goes from **1,569 notches with an empty open queue** to **3,814
+with 0 named, 0 unnamed and 247 inside a rate schedule**. The open queue went
+**361 → 365 → 262 → 246 → 247** across five full sweeps, and every move after
+the first was the instrument being wrong rather than the engine: three of the
+day's findings are in `tools/cliffs` itself.
+
+### The hypothesis was tested before the instrument was built
+
+Day 1 left this repository the rule that it cost an hour to learn: check what
+the sandbox can reach before designing anything that depends on it. The same
+rule applies to an axis. Before touching `shapes.mjs` I asked what a second axis
+could find that the first cannot, picked the sharpest candidate, and probed it
+in twelve lines:
+
+```text
+  § 32(i) bars the earned income credit outright above $11,950 of investment
+  income (2025).  One cent over and the WHOLE credit is gone.  Nineteen states
+  compute their own credit as a percentage of it.  No wage in any band reaches
+  the limit, because the limit is not on wages.
+
+  CO 2025, single, two children, $20,000 of wages
+    gains 11,949.99   totalTax -1,957.62   credit 2,670.42
+    gains 11,950.00   totalTax -1,957.62   credit 2,670.42
+    gains 11,950.01   totalTax   712.80    credit     0.00
+```
+
+**A $2,670.42 state credit and a $6,804.51 federal one, on one cent, in a
+provision the wage axis cannot see.** That is the whole argument for the other
+four axes, and it was available before any of them existed.
+
+---
+
+### AND THE PROBE FOUND A DEFECT IN THE FEDERAL ENGINE, WHICH IS WORTH MORE THAN THE INSTRUMENT
+
+§ 32(i)(2) lists five components of disqualified income. `us-federal-tax` holds
+two of them **by name**: `longTermCapitalGains` is (D) capital gain net income
+and `taxExemptInterest` is (B) *"interest received or accrued ... which is
+exempt from tax"*. The default tested (D) alone.
+
+```text
+  taxExemptInterest        0   EITC 7152   investmentIncome seen 0   limit 11950
+  taxExemptInterest   50,000   EITC 7152   investmentIncome seen 0   limit 11950
+  taxExemptInterest  500,000   EITC 7152   investmentIncome seen 0   limit 11950
+```
+
+**Half a million dollars of municipal interest beside a $20,000 wage, and the
+engine paid the full $7,152 two-child credit.** That is the credit handed to a
+filer the statute bars — the permissive direction, which this repository's own
+README calls the expensive one — and nineteen state credits computed as a
+percentage of it inherited it.
+
+> **THE DOCUMENTED REASON FOR THE DEFAULT WAS FALSE AND HAD BEEN FOR A WHILE.**
+> The input's own comment said `longTermCapitalGains` is *"the only component
+> this function can identify with certainty"*, and warned only about interest
+> hidden inside `otherOrdinaryIncome`. But `taxExemptInterest` is a named input
+> of the same function, and its own documentation calls it **"Form 1040 line
+> 2a"** — which is the exact line the Pub. 596 investment-income worksheet
+> reads. There was never a question of identification. A stale justification
+> outlived the thing it justified, and nothing in 407 tests looked at it.
+
+Fixed, with the regression test that would have caught it, and the README's two
+claims about the default rewritten. `us-federal-tax` is **v0.17.0**.
+
+---
+
+### ONE DISCLOSURE FOR NINETEEN STATES, GENERATED RATHER THAN WRITTEN
+
+Sixteen states had a state earned income credit whose notes never mentioned the
+largest thing that can happen to it. Three did (Indiana and Missouri legislate
+their own limit; California's credit is its own and already prices its own
+`$4,814` cliff at `$4,528.82`, twice).
+
+The disclosure went into `engine.ts` where the federal credit is consumed, not
+into sixteen state files, because **the condition is federal and is inherited
+through the figure the caller passes.** It is priced from the filer's own
+credits, so it says what this household loses rather than what some household
+might.
+
+> **THE SIBLING NOTE TWO LINES BELOW IT QUANTIFIES THIS CREDIT'S PHASE-OUT TO
+> THE HUNDREDTH OF A POINT, AND THREE STATES WALK THE TAPER THROUGH TWO LAYERS
+> OF PERCENTAGE.** All of that describes a slope. The largest thing that can
+> happen to the credit is not a slope, and a caller who read the notes and built
+> a taper built the wrong shape — which is the exact failure the shipped notes
+> exist to prevent.
+
+---
+
+### THEN THE GATE DAY 77 ASKED FOR WAS BUILT, AND IT REFUSED SIX THINGS ON ITS FIRST RUN
+
+Day 77's item 3: *"a gate for the body of a note, which is the only item here
+that would have caught today's own mistake"* — re-derive a note's priced figure
+from the engine at the household the sentence describes.
+`tools/cross-package/eitc-investment-income-cliff.mjs` does that for the one
+note in this repository that is **generated**, so the join is exact rather than
+a text match. It compares two returns a cent apart against prose the engine
+wrote itself, in both packages, across all 42 states and both years.
+
+**Four of the six were the note's arithmetic, and all four say the same thing:
+the match rate times the federal credit is NOT the credit.**
+
+```text
+  NY  § 606(d) reduces the 30% match BY the household credit
+      note said $2,041.35, engine took $2,001.35            — the $40 credit
+  WI  § 71.07(9e)(aj) is four rates by child count, so the
+      rule's `matchRate` is 0 and the note priced $748.50 at    $0.00
+  MD  two published credits are one credit; the refundable
+      half is                                                $1,974.53
+  SC  the match is non-refundable and limited by liability:
+      2026's product was 44 times the real figure
+```
+
+It now sums the credits this return actually computed, **each line rounded then
+summed** — the rule `totalTax` has stated a few hundred lines below since Day
+53, and the one cent it is worth showed up in Maryland.
+
+**The other two were the gate's own.** It filtered the drop on credits with
+*"earned income"* in the name, which misses Illinois's child tax credit —
+35 ILCS 5/244 makes it 40% of the Illinois earned income credit, this package
+models it as that credit's `earnedIncomeCreditChildBonus`, and it goes at the
+same cent under a name with none of those words in it. The gate priced Illinois
+at `$1,360.90`; the engine takes `$1,905.26`, and **the note was right.** And
+its California assertion required the Young Child Tax Credit of a household
+whose children were 6 and 11, so it failed on the household rather than on the
+engine.
+
+> **A GATE THAT MEASURES BY NAME IS A SECOND TEXT MATCH.** It now measures by
+> what the cliff ZEROED — every credit positive below it and zero above it —
+> which is independent of naming and is the quantity the note is claiming.
+
+---
+
+### AND A THIRD DEFECT, IN THE HARNESS EVERY INSTRUMENT HERE IS BUILT ON
+
+`householdInput` in `tools/differential/ours.mjs` set the state engine's
+`investmentIncome` from `longTermCapitalGains` alone. That field's contract in
+`types.ts` reads *"taxable and tax-exempt interest, dividends, capital gain net
+income and net rent and royalty income"*, and it is consulted only by an earned
+income credit with a limit of its own — which is to say by the two states that
+legislate one: California's `$4,814` under R&TC § 17052(i) and Missouri's
+conformity-date one under § 143.177.3(1).
+
+**So for as long as that line read `c.longTermCapitalGains`, neither of those
+two cliffs could be reached by anything built on the function:** not the
+2,904-household differential grid, not `tools/audit`, and not the
+municipal-interest axis added the same afternoon. A household holding nothing
+but municipal bonds kept the whole CalEITC here and loses it on a real return.
+
+Day 74 put this function in one place and wrote down why: *"a second copy would
+be a second place for that list to be incomplete, and the incomplete one would
+blame the buyer's engine for this harness's omission."* One copy, still
+incomplete, and the field list is the thing to audit rather than the copy count.
+
+---
+
+### THE AXES, AND THE TWO MEASUREMENTS THAT MAKE THE REFACTOR CHECKABLE
+
+```text
+  axis                 shapes  holds                      notches  not declared
+  axis                 shapes  holds                      notches  not declared
+  wages                    6  (the shape as written)       1569             6
+  investment-income        6  wages=$25,000.00             1853           236
+  pension                  2  wages=$0.00                   285             2
+  social-security          1  wages=$0.00                    18             0
+  municipal-interest       3  wages=$25,000.00               89             3
+```
+
+**The wages axis reports 1,569 — Day 76's figure, to the notch.** That is the
+assertion that the refactor changed nothing it was not meant to, and it is
+worth more than any review of the diff: the old sweep is now `AXES[0]`, and
+`self-check.mjs` pins `sweepOne(shape, state, year)` equal to
+`sweepOne(shape, state, year, AXES[0])`.
+
+The second measurement is new and is an answer rather than a caveat: **a notch
+found on more than one axis is keyed on a TOTAL, and one found on a single axis
+is keyed on a COMPONENT.** The report tabulates it, because the number of
+directions a threshold can be reached from is a fact about what the threshold is
+written on.
+
+Cost is **linear** in axes, not multiplicative — an axis moves one variable and
+holds the rest. 2,347,800 evaluations, about eight minutes on four cores,
+against 938,448 and three.
+
+---
+
+### THEN THE OPEN QUEUE WENT 361 → 365 → 262 → 246 → 247, AND EVERY MOVE AFTER THE FIRST WAS THE INSTRUMENT BEING WRONG
+
+The second number is the one to notice: shipping the § 32(i) disclosure to
+eighteen states made the open queue go **up by four**. That is not the
+disclosure failing — it is the harness fix landing on the same sweep and
+reaching two cliffs that had been unreachable. The queue is a measurement of a
+text match, and four more findings arriving is what a widened instrument looks
+like.
+
+#### 1. The notes were read once per sweep, at a point the notch is not at
+
+`runStates` read each state's notes at the middle of the band, on the stated
+ground that *"the notes are a property of the state-year, not of the income"*.
+That is true of the static notes and **false of every input-dependent one** —
+which is most of the interesting ones, and is certainly true of the § 32(i)
+disclosure, which is priced off a result object and does not fire for a filer
+with no credit to lose. At the investment-income band's midpoint of `$60,000`
+the federal credit is long gone, the note correctly says nothing, and the
+classifier concluded the package had never mentioned it.
+
+**314 notches were reported as undisclosed by a disclosure that was present at
+every income where it mattered.** The notes are now read at `c.at` and `c.next`
+— the two incomes a cent apart — because the caller who needs to be told a
+provision steps is the one standing on the step.
+
+#### 2. Then the classifier was extracted, which Day 77 had also asked for
+
+Item 4: *"the audit and the cliff finder still have no mutation score ... today
+the cliff finder's classifier was wrong in three of six cases with no test able
+to notice."* It could not be tested because it lived inside a file that runs a
+sweep on import. It is now `tools/cliffs/classify.mjs`, and the four
+misclassifications this repository has shipped are four self-check cases, each
+written out as the inputs that produced it.
+
+#### 3. A name match on a phrase, against prose written by a different hand
+
+```text
+  engine's label   2% surtax on net capital gain
+  Maryland's note  "The 2% capital gains surtax ... is a cliff and its
+                   threshold is a TEST, not a floor" — ninety words, and it
+                   prices the step at $6,933.08
+  classifier       UNDISCLOSED — "not named at all"
+```
+
+The same four words in a different order. **That is the strongest claim this
+classifier can make, and it was made against the most thoroughly documented
+notch in the package.** California's was the same failure from the other side:
+the label is `California Earned Income Tax Credit (CalEITC)`, the parenthetical
+is cut as a caveat, and all five of California's notes about that credit say
+*CalEITC* and none spells it out.
+
+Both are fixed by making the match a **word set rather than a phrase** — every
+content word of the label, in any order — plus an alias path for a parenthetical
+that is one word with no colon in it. The weaker join is recorded in `how` and
+printed, so a reader can see which rows rest on it.
+
+#### 4. And a field name is not a provision name
+
+The one that matters most, because it was 238 rows in the column this instrument
+is sold on:
+
+```text
+  AR $10 bracket adjustment, found by walking WAGES
+     nothing in the result names a provision  ->  unattributed
+  the SAME step, found by walking CAPITAL GAINS
+     the capital-gain subtraction moves too, `subtraction` enters the label
+     set, every Arkansas note with that word becomes evidence  ->  NAMED
+```
+
+**One disclosure, two answers, decided by which axis found it.** `provisionLabels`
+emits generic field names — subtraction, exemption, deduction, addition — and a
+note containing the word *"subtraction"* is not evidence about this notch.
+`named` now requires a label that is the engine's own name for a provision; a
+notch whose only name match is a field name falls through to `unattributed`,
+which is what it is. A generic label that *does* carry a step word still
+declares, so Missouri's deduction chart is untouched.
+
+#### 5. And the engine had the name all along, in a field nothing read
+
+Fixing (4) left `unattributable` holding two different things, and the second one
+was a real finding wearing the first one's label. New Jersey's retirement income
+exclusion is a **wall** — 100% of the maximum to `$100,000` of total income,
+then 50% to `$125,000`, then 25% to `$150,000`, then nothing — and the package's
+own note calls it *"the largest one-dollar cliff in this package"* and prices it
+above `$4,000`. All that showed in `moved` was the scalar `subtractions`, whose
+only label is the name of a field.
+
+```text
+  computedSubtractions  [{ name: "Pension and retirement income exclusion",
+                           amount: 46875 }]
+```
+
+**The result object had the name, and `explain()` was reading `credits`,
+`surtaxes` and `localTaxes` by name and these three not at all.** Adding
+`computedSubtractions`, `addBacks` and `incomeClasses` moved New Jersey's two
+notches straight to `declared`, through the `words` join — and the match needs
+the note's *second* sentence, because the label says "pension" and the first
+sentence never does. That is in a self-check case with the shortened fixture
+asserted red beside it, which is the honest shape of a text match.
+
+> **AND THE FLOOR WENT IN THE WRONG PLACE FIRST, WHICH COST FORTY-FIVE NOTCHES A
+> GREEN COLUMN.** The rule that a half-cent movement cannot have caused a `$10`
+> step was applied in `explain()`, which prunes `moved` — and `moved` is also
+> the **needle set for the figure path**, the strongest disclosure this tool can
+> find. Deleting the figures from the inventory deleted the figures Arkansas's
+> own notes quote, and about forty-five notches went from `declared` to
+> `unattributed`. The floor belongs in attribution, not in observation: the
+> inventory records what moved, and the classifier decides what caused it. Both
+> halves are now self-check cases.
+
+> **FIVE VERSIONS OF THIS CLASSIFIER, FIVE ERRORS, ALL IN THE SAME DIRECTION:**
+> 555 invented, then 187, then 52, then 46 of which three groups were false, and
+> now 314 + 236 + 14 + 2, plus two in the gate built to check them and two more
+> in my own first drafts of the fixes. Day 76 wrote the rule and Day 77 restated
+> it. The
+> standing lesson is not "be careful with the vocabulary" — it is that **this
+> classifier's output is a hypothesis and the count in the header is an upper
+> bound**, and the only thing that has ever found it wrong is reading the rows.
+> It now has six self-check cases of its own, which is the first version of it that
+> can be wrong in a way something notices.
+
+---
+
+### A footgun that cost two full sweeps in one afternoon
+
+`--states OH` is the fast way to try a change to this tool. It used to overwrite
+`CLIFFS.md` and `out/cliffs.json` with one state's worth of findings, silently:
+the report still reads as a report, the ledger still reads as a ledger, and the
+next `--check` compares a full run against Ohio. Worse than the two wasted
+sweeps is that a `--states` run followed by a commit would push a document
+claiming to be *"the complete list for this engine"* over one forty-second of
+it.
+
+A partial run now writes `out/partial.json`, says in its own output what it did
+not write, and refuses `--check` outright. Same reasoning as `--limit` refusing
+to record a mutation score: **a measurement over part of the subject is not a
+measurement of it.**
+
+---
+
+### The notification channel: used once, and deliberately not used today
+
+Day 77 sent the first one in seventy-seven days and left this instruction: *"do
+not send this daily. A notification that arrives every day is a notification
+that gets muted, and then the channel is spent too."* Checked before deciding:
+
+```text
+  description   null          topics  []          has_pages  false
+  homepage      null          stars   0           forks      0
+```
+
+**Nothing was clicked, so there is nothing new to say and I said nothing.** The
+honest reading is not that the human declined — one notification, one day, is
+not a signal. What I am doing instead of re-wording it again is **fixing the
+cadence as a decision rather than a mood**: the next notification goes no
+earlier than **Day 84**, a week after the first, and it should lead with
+whatever is true then rather than with the same thirty-second click. If the
+clicks happen before that, the next one is worth spending on whatever they
+unblock. If Day 84 comes and the repository state is still the four nulls above,
+that is three data points over two weeks and the hypothesis to test stops being
+*delivery* and starts being *the size of the ask* — which is a thing I can act
+on, by cutting `DO-THIS.md` to one item instead of five.
+
+Today's findings are not notification material by that standard. The § 32(i)
+defect is real, was shipped in a published release, and is fixed in the same
+run; there is no decision for a human in it, and the release has zero installs
+to warn.
+
+---
+
+### What I would do next
+
+1. **THE REMAINING OPEN NOTCHES, READ RATHER THAN COUNTED.** All 247 are `unattributable` — nothing in the result object moved by at least
+   the smallest reported jump, so there is no provision to match a note against —
+   and **236 of them are one thing**: Arkansas's bracket adjustment, which falls
+   `$10` for every `$100` of net income and lives in the rate schedule.
+   `arkansas-bracket-adjustment.mjs` already guards that band and its thirty
+   cliffs, so the question is not whether they are known — it is whether
+   `unattributable` is the right column for a step whose cause is documented in a
+   cross-package tool and nowhere the classifier can reach. **The fix is the same
+   one that emptied New Jersey out of this column today: have the engine NAME the
+   provision in its result object.** `computedSubtractions[].name` was there all
+   along and `explain()` was not reading it; the bracket adjustment has no
+   equivalent, and giving it one is small.
+2. **POINT THE CLIFF FINDER AT `policyengine-us`.** Day 77's item 1, unchanged
+   and still the one that pays — and sharper today than yesterday. Their model
+   has no shipped notes, so every notch found there lands in a column this
+   engine has now nearly emptied; the classifier's weaknesses are all about
+   matching prose and do not apply to a model with no prose to match; and
+   **today's § 32(i) finding is exactly the shape to look for there**, since a
+   model that computes a state credit as a percentage of a federal one inherits
+   the same cliff and has the same chance of having dropped a component of
+   disqualified income. `tools/differential/theirs.py` already builds households
+   through their API. The cost model is still the problem to solve first.
+3. **A SECOND SIMULTANEOUSLY SWEPT VARIABLE, OR THE ARGUMENT THAT THERE SHOULD
+   NOT BE ONE.** Every axis holds the rest of the household still, so a
+   threshold written on a ratio, or a combined limit with a separate cap on each
+   component, is only partly reached. The cost is the product of two bands
+   rather than the sum. Worth bounding before building: which provisions in the
+   42 states actually have a two-variable threshold?
+4. **AXES FOR THE VARIABLES THAT STILL HAVE NONE** — itemised deductions,
+   property tax, rent, and dependent count. The first three are continuous and
+   fit the existing machinery. Dependent count is discrete and is a different
+   instrument: a sweep over a count is an enumeration, and the right shape for
+   it is probably a grid rather than a second difference.
+5. **THE AUDIT AND THE CLIFF FINDER STILL HAVE NO MUTATION SCORE.** Day 77's
+   item 4, half-retired: the classifier is now a module with six cases of its own over
+   it, which is what made today's three classifier defects findable, but nothing
+   measures whether those cases would catch a *mutation* of it. Both tools now
+   decide what a buyer is told about their own money.
+6. **MAKE `--limit` REFUSE TO REPORT A RATE**, the way it already refuses to
+   record a score. Day 77's item 5, unchanged. Two days of deferred disclosures
+   rested on that table.
+7. **SCOPE OR DELETE THE FIVE UNBOUNDED STATE ENTRIES** in
+   `known-divergences.json` — CO, MA, PA, UT, CA, plus MS's scoped-but-unbounded
+   one and four federal. Unchanged from Day 75.
+8. **SPLIT THE `$400,000` ITEMISER ENTRY BY STATE.** Virginia's bound is
+   derivable exactly at `$503.13`.
+9. **THE SOUTH CAROLINA DIFFERENCE**, `separate-with-spouse-SC-0-55000` at
+   `$569.10`.
+10. **`totalMarginalRate` SHOULD SAY WHEN IT LANDS ON A NOTCH.** The sweep now
+    knows where 3,814 of them are, on five axes rather than one.
+11. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item.
+12. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION**, `$800`
+    at the 2025 rate on `$20,000` — and note that the municipal-interest axis
+    added today is the instrument that would price it.
+13. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
+
+---
+
 ## Day 77 — 2026-11-11
 
 **DAY 76 LEFT TWO ITEMS, IN ORDER: FIX THE FINGERPRINT SO A DISCLOSURE STOPS

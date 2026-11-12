@@ -68,22 +68,52 @@ finding that needs two households a cent apart, which neither this repository's
 all of them sample incomes in round thousands.
 
 `tools/cliffs/find-cliffs.mjs` walks the **function** instead. It sweeps 6
-household shapes across 42 states and 2 tax years, 938,448 income points, flags
-every neighbourhood where the second difference says the curve jumped, and
-narrows each flag to **two incomes one cent apart** — then diffs the engine's own
-result objects to name the figure that moved.
+household shapes across 42 states, 2 tax years and **5 axes of income**,
+2,347,800 income points, flags every neighbourhood where the second difference
+says the curve jumped, and narrows each flag to **two incomes one cent apart** —
+then diffs the engine's own result objects to name the figure that moved.
 
 ```text
-  1,569   discontinuities in this engine, over 938,448 income points
-  1,563     declared as a step in the package's own notes
+  3,814   discontinuities in this engine, over 2,347,800 income points
+  3,567     declared as a step in the package's own notes
       0     named in a note that never says they step
       0     not named at all
-      6     inside a rate schedule, where no provision moved to name
+    247     inside a rate schedule, where nothing moved far enough to name
 ```
 
+**An AXIS is the one variable the sweep moves while the rest of the household
+stands still, and until Day 78 there was one of them.** That is the single
+largest thing a buyer should know about a report like this, because **a means
+test keyed on a component of income cannot bind on an axis that does not move
+that component** — so a one-axis sweep returns an empty queue and means almost
+nothing by it. Four more axes cost four more sweeps rather than four
+dimensions, and the first thing they found was not in this engine's own tables
+at all:
+
+```text
+  § 32(i) bars the FEDERAL earned income credit outright above about $12,000 of
+  investment income — interest taxable and tax-exempt, dividends, capital gain,
+  rent, royalties. One cent over and the whole credit is gone. Nineteen states
+  here compute their own credit as a percentage of it.
+
+  what that one cent costs in STATE credit, single parent of two on $25,000:
+    SC  $8,505.64     MD  $5,376.79     CO  $3,402.26     NY  $2,001.35
+```
+
+Sixteen of those nineteen states had notes describing their credit's phase-out
+to the hundredth of a point and **not one word about the cliff**, which is
+exactly the defect class the column below counts. And the probe that found it
+found a wrong answer in the federal engine on the way: tax-exempt interest is
+§ 32(i)(2)(B) by name, was not in the limit's default, and `$500,000` of
+municipal bonds beside a `$20,000` wage was still being paid the full `$7,152`
+credit.
+
 **What a buyer gets from this is their own version of that table, and the reason
-it is worth paying for is the second row — which in this engine is now zero, and
-was 46 on Day 76.** Every notch in it is a figure computed correctly from a
+it is worth paying for is the second row — which in this engine is now zero, was
+46 on Day 76, and was 314 for most of Day 78 when four more axes were pointed at
+it.** That last number is the one to weigh: an empty column means "the text
+match found nothing", and widening the instrument by one dimension refilled it
+in an afternoon. Every notch in it is a figure computed correctly from a
 statutory table, so none of them is an arithmetic defect; what the row counts is
 provisions the package never told a caller were steps. A developer who reads the
 documentation, sees a credit described without the word *step*, and builds a
@@ -115,16 +145,35 @@ paying for:
 > half its findings is worth nothing, so `CLIFFS.md` now carries that measurement
 > in its own header and prints the matching note under every group.
 
-**AND THE EMPTY COLUMN IS NARROWER THAN IT SOUNDS, WHICH MATTERS MORE TO A BUYER
-THAN THE ZERO DOES.** The sweep walks **wages** and holds every other input at
-zero. A notch in a provision tested on investment income, itemised deductions,
-property tax, rent, age or dependent count is not in the 1,569 and not in the
-zero either — Maryland's capital gains surtax, Michigan's and New Jersey's
-property tax credits and Utah's municipal interest are all on that list.
-`CLIFFS.md` enumerates the limits in a section of its own, from a committed file
-rather than as a disclaimer, and extending the sweep to a second axis costs
-linear time rather than multiplicative. **What is for sale is the instrument and
-the reading, not a certificate that an engine has no notches.**
+**AND THE EMPTY COLUMN IS STILL NARROWER THAN IT SOUNDS, WHICH MATTERS MORE TO A
+BUYER THAN THE ZERO DOES.** Five axes is not every axis. Itemised deductions,
+property tax, rent, age and dependent count are still held fixed, so a notch in
+a provision tested on one of those is not in the 3,814 and not in the zero
+either — Michigan's and New Jersey's property tax credits are on that list. So
+is any threshold written on **two** components at once, because every axis holds
+the rest of the household still and a second *simultaneously* swept variable
+costs the product of the bands rather than the sum. `CLIFFS.md` enumerates the
+limits in a section of its own, from a committed file rather than as a
+disclaimer. **What is for sale is the instrument and the reading, not a
+certificate that an engine has no notches** — and the day the sweep gained four
+axes it is worth saying that the previous day's empty queue was a true statement
+about one axis and a misleading one about the engine.
+
+> **THREE OF THE DAY'S FIVE FINDINGS WERE IN THE INSTRUMENT.** The classifier
+> read each state's notes once at a band midpoint, which is wrong for every note
+> whose text depends on the household — including the § 32(i) disclosure, which
+> prices itself off the return and correctly says nothing to a filer with no
+> credit left to lose; it reported 314 notches as undisclosed against a
+> disclosure present at every income where it mattered. It matched a provision's
+> name as a *phrase*, so Maryland's label `2% surtax on net capital gain` missed
+> a ninety-word note saying `the 2% capital gains surtax ... is a cliff` and
+> priced at `$6,933.08` — and it called that "not named at all", which is the
+> strongest claim the tool can make. And it took a *field* name for a provision
+> name, so 236 Arkansas rate-schedule steps were attributed to a capital-gain
+> exclusion that had moved by half a cent. All three are fixed, the classifier
+> is now a module with six self-check cases of its own, and **the count in that header is an
+> upper bound on what is owed rather than a count of it** — which is written
+> into the report in its own prose.
 
 > **THE SAME SWEEP IS WHAT THE $2,500 POINTS AT A BUYER'S ENGINE**, and the
 > deliverable is the sentence a tool cannot write: for each notch, whether the

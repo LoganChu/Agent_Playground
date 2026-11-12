@@ -32,9 +32,21 @@ pointed at this engine first.
 
 ## How it works
 
-1. **Sweep.** For each of 6 household shapes × 42 states × 2 years, walk wages
-   from `$0` to `$150,000` in `$100` steps and on to `$1,050,000` in `$2,500`
-   steps. 938,448 evaluations, about three minutes on four cores.
+1. **Sweep.** For each household shape × 42 states × 2 years × **axis**, walk
+   that axis's variable over its committed bands — wages from `$0` to
+   `$150,000` in `$100` steps and on to `$1,050,000` in `$2,500` steps, and
+   four more variables over their own. 1,512 sweeps, about 2.3 million
+   evaluations, about eight minutes on four cores.
+
+   An **axis** is the one variable that moves while the rest of the household
+   stands still. Until Day 78 there was one, `wages`, and everything else was
+   held at zero — which meant **a means test keyed on a component of income
+   could not bind at all.** The case that forced the other four: § 32(i) bars
+   the federal earned income credit outright above about `$12,000` of
+   investment income, one cent takes the whole of it, nineteen states match it,
+   and no wage in any band reaches it. The cost of an axis is linear, not
+   multiplicative — four axes is four sweeps, not four dimensions — and
+   `shapes.mjs` holds the list with the argument for each entry.
 2. **Flag.** A piecewise-linear function has a second difference of zero where
    it is linear and `|dr| × h` at a kink, so at `h = $100` a one-point bracket
    change contributes about `$1` and a notch contributes its whole size. A
@@ -80,8 +92,20 @@ and finds no sentence will build a taper.
   income is invisible to every shape here *with children*, because Ohio's earned
   income credit covers the whole bill there — which is why `shapes.mjs` carries
   a childless shape whose only job is to have no credit to hide behind.
-- **A notch on an axis other than wages.** Investment income, municipal
-  interest, itemised deductions, property tax and rent are all held at zero.
+- **A notch on an axis that is not here.** Itemised deductions, property tax,
+  rent, and the number and ages of dependents are held fixed. Investment income,
+  pension income, Social Security benefits and municipal interest were on this
+  list until Day 78 and are now four of the five axes.
+- **A notch that needs two variables to move at once.** Every axis holds the
+  rest of the household still, so a threshold written on a ratio, or a combined
+  limit with a separate cap on each component, is only partly reached. A second
+  *simultaneously* swept variable costs the product of the bands rather than the
+  sum, which is why there is not one.
+- **Where a notch sits on a held axis is a sample.** An axis other than wages
+  has to decide what wages are, and there is no neutral answer: a means test on
+  investment income binds only where there is earned income to lose. Each axis
+  names its held values and the report prints them. What is *not* a sample is
+  that the notch exists and how big it is.
 - **A notch smaller than the step can separate from a kink**, about `$3` below
   `$150,000` and about `$50` above it.
 - **Local income tax.** No county, city or school district is supplied, so

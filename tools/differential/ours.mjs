@@ -191,7 +191,29 @@ export function householdInput(c) {
     dependents: c.childAges.length || undefined,
     dependentAges: c.childAges.length ? c.childAges : undefined,
     earnedIncome: c.wages,
-    investmentIncome: c.longTermCapitalGains,
+    // TAX-EXEMPT INTEREST BELONGS IN THIS FIGURE AND WAS MISSING FROM IT UNTIL
+    // DAY 78. The field's own contract in `types.ts` reads "taxable and
+    // tax-exempt interest, dividends, capital gain net income and net rent and
+    // royalty income", and it is consulted only by an earned income credit with
+    // an investment-income limit — which is to say by the two states that
+    // legislate their own: California's $4,814 cliff under R&TC § 17052(i) and
+    // Missouri's conformity-date one under § 143.177.3(1).
+    //
+    // So for as long as this line read `c.longTermCapitalGains` alone, NEITHER
+    // of those two cliffs could be reached by anything built on this function:
+    // not the differential grid, not `tools/audit`, and not the municipal-
+    // interest axis `tools/cliffs` gained the same day. A household with
+    // $100,000 of municipal bonds kept the whole CalEITC here and loses it on a
+    // real return. The federal half of the same omission is in
+    // `us-federal-tax`'s § 32(i) default and was fixed the same day; this is
+    // the half that lives in the harness, and it is the half Day 74 warned
+    // about when it put this function in one place: an incomplete field list
+    // here blames a buyer's engine for this harness's omission.
+    //
+    // It is NOT added to `retirement.filer.investmentIncome` above. That field
+    // is Georgia's, its contract lists only income Georgia AGI contains, and
+    // exempt interest is not in it.
+    investmentIncome: c.longTermCapitalGains + c.taxExemptInterest,
     // The same dollars a third time, under the name Missouri's subtraction asks
     // for. § 143.121.3(14) takes "one hundred percent of all income reported as
     // a capital gain for federal income tax purposes" out of Missouri AGI, and

@@ -8,6 +8,10 @@
  * node tools/cliffs/find-cliffs.mjs --check         # compare to the ledger
  * ```
  *
+ * `--states` writes `out/partial.json` and leaves the committed report and
+ * ledger alone, because a sweep of two states is not the complete list the
+ * report says it is. It cannot be combined with `--check`.
+ *
  * ## The two things it produces, and why the second one is the product
  *
  * `out/cliffs.json` is the **inventory**: every discontinuity in this engine's
@@ -41,169 +45,16 @@ import { dirname, join } from 'node:path';
 import { cpus } from 'node:os';
 import { stateIncomeTax } from '../../packages/us-state-tax/dist/esm/index.js';
 import { householdInput } from '../differential/ours.mjs';
-import { STATES, YEARS, SHAPES, BANDS, FLAG_THRESHOLD, MIN_JUMP, caseFor } from './shapes.mjs';
+import {
+  STATES, YEARS, SHAPES, BANDS, AXES, FLAG_THRESHOLD, MIN_JUMP,
+  caseFor, shapesFor, midpointFor,
+} from './shapes.mjs';
 import { sweepOne } from './sweep.mjs';
+import { classify } from './classify.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT = join(HERE, 'out');
 const LEDGER = join(OUT, 'cliffs.json');
-
-/* ------------------------------------------------------------------ */
-/* Classification                                                      */
-/* ------------------------------------------------------------------ */
-
-/** `1234.5` -> `["1,234.50", "1234.50", "1,234.5", "1234.5"]` and friends. */
-function moneyForms(n) {
-  const a = Math.abs(n);
-  const withCommas = (s) => {
-    const [i, d] = s.split('.');
-    return i.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (d ? `.${d}` : '');
-  };
-  const out = new Set();
-  for (const s of [a.toFixed(2), String(a), a.toFixed(0)]) {
-    out.add(s);
-    out.add(withCommas(s));
-  }
-  return [...out].filter((s) => s.length >= 3);
-}
-
-/**
- * The vocabulary a note uses when it is telling a reader that a provision is a
- * step rather than a taper.
- *
- * This list is the whole classifier, so it is a committed literal and not a
- * regex built in a hurry. Every term was taken from a note already in the
- * package: Connecticut's *"the personal tax credit steps down in $500 bands"*,
- * Ohio's *"Ohio's rate schedule is DISCONTINUOUS"*, Missouri's *"A cliff chart
- * and not a phase-out"*, New York's *"it is a staircase"*, § 12-702(a)(1)'s
- * *"or fraction thereof"*.
- */
-const NOTCH_WORDS =
-  /cliff|staircase|notch|steps?\b|stepped|stepping|discontinu|at once|fraction thereof|all.or.nothing|bands?\b/i;
-
-/**
- * The provision names a moved field stands for, as a note would spell them.
- *
- * A credit's `name` in the result is the engine's own label for it, so matching
- * a note against it is matching the package against itself rather than against
- * a guess. The parenthetical that several credits carry — `(assumed: ...)` — is
- * cut, because it is a caveat about inputs and never appears in a note.
- */
-function provisionLabels(moved, stateName) {
-  const out = new Set();
-  for (const m of moved) {
-    const [kind, ...rest] = m.field.split(':');
-    const name = rest.join(':').split(' (')[0].trim();
-    if (name) {
-      out.add(name.toLowerCase());
-      // AND the same name with the state's own name taken off the front. The
-      // engine labels a credit `"Kentucky family size tax credit"` and KRS
-      // 141.066's note calls it `"the family size tax credit"`, because a note
-      // inside Kentucky's own file does not repeat which state it is in. Without
-      // this variant the classifier called 64 Kentucky notches `undisclosed`
-      // against a note that names the provision AND says it has "ten
-      // percentage steps" — the worst kind of wrong answer, because it was
-      // wrong in the direction that manufactures findings.
-      const bare = name.toLowerCase().replace(new RegExp(`^${stateName.toLowerCase()}\\s+`), '');
-      if (bare !== name.toLowerCase()) out.add(bare);
-    }
-    if (kind === 'subtractions' || m.field === 'subtractions') out.add('subtraction');
-    if (m.field === 'exemptions') out.add('exemption');
-    if (m.field === 'deduction') out.add('deduction');
-    if (m.field === 'lowIncomeTableTax') out.add('low income tax table');
-    if (m.field === 'additions') out.add('addition');
-  }
-  return [...out];
-}
-
-/**
- * How well does this package already disclose this notch?
- *
- * Three answers, and the middle one is the finding this instrument exists to
- * produce:
- *
- * ```text
- *   declared     a note names the provision AND says it steps, or a note
- *                carries the notch's own dollar figures
- *   named        a note names the provision and never says it is a step, so a
- *                caller reading the notes would expect a taper
- *   undisclosed  no note mentions the provision at all
- * ```
- *
- * **`named` is not a defect in the arithmetic.** Every `named` row below is a
- * figure this engine computes correctly from a table it transcribed from a
- * statute. It is a defect in what the engine *says*, which this package treats
- * as the same kind of defect: the whole argument of `provenance.ts` and of the
- * shipped `notes` array is that a caller is owed the shape of a provision and
- * not only its value, and a provision that can cost a filer `$100` on one cent
- * of income has a shape worth a sentence.
- *
- * The dollar-figure path stays because it catches the cases where the note
- * quotes the step directly — Ohio's `$18.69`, New York's `$16.50` — and those
- * are the strongest disclosures in the package.
- */
-function classify(notes, cliff, stateName) {
-  const needles = new Set();
-  for (const s of moneyForms(cliff.jump)) needles.add(s);
-  for (const m of cliff.moved) {
-    for (const v of [m.from, m.to]) {
-      if (typeof v === 'number' && v !== 0) for (const s of moneyForms(v)) needles.add(s);
-    }
-    if (typeof m.from === 'number' && typeof m.to === 'number') {
-      for (const s of moneyForms(m.to - m.from)) needles.add(s);
-    }
-  }
-  const labels = provisionLabels(cliff.moved, stateName);
-
-  const byFigure = [];
-  const byName = [];
-  for (const note of notes) {
-    const lower = note.toLowerCase();
-    if (labels.some((l) => lower.includes(l))) byName.push(note);
-    for (const n of needles) {
-      if (note.includes(n)) {
-        byFigure.push({ note, matched: n });
-        break;
-      }
-    }
-  }
-
-  const saysItSteps = byName.filter((n) => NOTCH_WORDS.test(n));
-  if (byFigure.length) {
-    return { disclosure: 'declared', how: 'figure', evidence: byFigure.slice(0, 2) };
-  }
-  if (saysItSteps.length) {
-    return {
-      disclosure: 'declared',
-      how: 'name-and-shape',
-      evidence: saysItSteps.slice(0, 2).map((note) => ({ note, matched: labels.join(' / ') })),
-    };
-  }
-  if (byName.length) {
-    return {
-      disclosure: 'named',
-      how: 'name-only',
-      evidence: byName.slice(0, 2).map((note) => ({ note, matched: labels.join(' / ') })),
-    };
-  }
-  // Nothing in the result object names a provision, which happens when the
-  // notch is in the RATE SCHEDULE itself rather than in a credit, a deduction
-  // or an exemption: Arkansas's two schedules swap at a threshold and its
-  // bracket adjustment falls $10 per $100 of income, and all that moves in the
-  // result is `taxBeforeCredits`. A classifier with no label has nothing to
-  // match, and saying so is better than either of the two lies available —
-  // calling it undisclosed, which manufactures a finding against a state whose
-  // notes describe thirty of these, or guessing a label from a generic word
-  // like "bracket", which would hand out clean bills of health.
-  if (!labels.length) {
-    return {
-      disclosure: 'unattributed',
-      how: null,
-      evidence: notes.filter((n) => NOTCH_WORDS.test(n)).slice(0, 2).map((note) => ({ note, matched: '(state notes on notches)' })),
-    };
-  }
-  return { disclosure: 'undisclosed', how: null, evidence: [] };
-}
 
 /* ------------------------------------------------------------------ */
 /* Worker                                                              */
@@ -213,29 +64,62 @@ function runStates(states) {
   const rows = [];
   for (const state of states) {
     for (const year of YEARS) {
-      for (const shape of SHAPES) {
-        const { cliffs, flags, error } = sweepOne(shape, state, year);
-        if (error) {
-          rows.push({ state, year, shape: shape.id, error, cliffs: [], flags: 0 });
-          continue;
+      for (const axis of AXES) {
+        for (const shape of shapesFor(axis)) {
+          const { cliffs, flags, error } = sweepOne(shape, state, year, axis);
+          if (error) {
+            rows.push({ state, year, axis: axis.id, shape: shape.id, error, cliffs: [], flags: 0 });
+            continue;
+          }
+          // THE NOTES ARE READ AT THE NOTCH, not once in the middle of the
+          // band. They are NOT a property of the state-year, which is what this
+          // loop assumed until Day 78 and what cost the day's largest finding
+          // its green column: an input-dependent note fires for the household
+          // it applies to and not for the others. The § 32(i) disclosure says
+          // what one cent of investment income takes from a filer's earned
+          // income credit, and it is read off a result object — so at the
+          // midpoint of the investment-income band, $60,000, the federal credit
+          // is long gone, there is nothing to lose, the note correctly does not
+          // fire, and a classifier reading it there concludes the package never
+          // said anything. 314 notches were reported as undisclosed by a
+          // disclosure that was present at every income where it mattered.
+          //
+          // `c.at` is the income just BELOW the jump, which is the right place
+          // to ask the question: the caller who needs to be told a provision
+          // steps is the one standing on the step. One extra evaluation per
+          // notch, and `evaluator` has it cached already.
+          const mid = stateIncomeTax(
+            householdInput(caseFor(shape, state, year, midpointFor(axis), axis)).base,
+          );
+          const stateName = mid.stateName ?? state;
+          const notesAt = (value) => {
+            try {
+              return (
+                stateIncomeTax(householdInput(caseFor(shape, state, year, value, axis)).base)
+                  .notes ?? []
+              );
+            } catch {
+              return [];
+            }
+          };
+          rows.push({
+            state,
+            year,
+            axis: axis.id,
+            shape: shape.id,
+            flags,
+            error: null,
+            cliffs: cliffs.map((c) => {
+              // Both sides of the cent. A note can be the one that fires BELOW
+              // the step ("this is what you are about to lose") or the one that
+              // fires above it ("this is why you lost it"), and either is the
+              // package having said so.
+              const notes = [...new Set([...notesAt(c.at), ...notesAt(c.next), ...(mid.notes ?? [])])];
+              const k = classify(notes, c, stateName);
+              return { ...c, disclosure: k.disclosure, how: k.how, evidence: k.evidence };
+            }),
+          });
         }
-        // The notes are a property of the state-year, not of the income, so
-        // one evaluation in the middle of the band is enough and the sweep
-        // does not carry 1,800 copies of them.
-        const mid = stateIncomeTax(householdInput(caseFor(shape, state, year, 60_000)).base);
-        const notes = mid.notes ?? [];
-        const stateName = mid.stateName ?? state;
-        rows.push({
-          state,
-          year,
-          shape: shape.id,
-          flags,
-          error: null,
-          cliffs: cliffs.map((c) => {
-            const k = classify(notes, c, stateName);
-            return { ...c, disclosure: k.disclosure, how: k.how, evidence: k.evidence };
-          }),
-        });
       }
     }
   }
@@ -253,20 +137,37 @@ function fmt(n) {
 
 function report(rows, seconds) {
   const all = [];
-  for (const r of rows) for (const c of r.cliffs) all.push({ ...c, state: r.state, year: r.year, shape: r.shape });
+  for (const r of rows) for (const c of r.cliffs) all.push({ ...c, state: r.state, year: r.year, shape: r.shape, axis: r.axis });
   const declared = all.filter((c) => c.disclosure === 'declared');
   const named = all.filter((c) => c.disclosure === 'named');
   const undisclosed = all.filter((c) => c.disclosure === 'undisclosed');
   const unattributed = all.filter((c) => c.disclosure === 'unattributed');
   const open = [...undisclosed, ...named];
   const errors = rows.filter((r) => r.error);
-  const points = rows.length * BANDS.reduce((n, b) => n + Math.floor((b.to - b.from) / b.step) + 1, 0);
+  const pointsIn = (axis) => axis.bands.reduce((n, b) => n + Math.floor((b.to - b.from) / b.step) + 1, 0);
+  const byAxisId = new Map(AXES.map((a) => [a.id, a]));
+  const points = rows.reduce((n, r) => n + pointsIn(byAxisId.get(r.axis) ?? AXES[0]), 0);
 
   // Distinct notches, which is the number worth quoting: the same statutory
   // step is found once per shape and once per year, and six shapes finding
   // Ohio's exemption chart is one provision and not twelve.
-  const key = (c) => `${c.state}|${c.year}|${c.at.toFixed(2)}|${c.jump.toFixed(2)}`;
+  const key = (c) => `${c.state}|${c.year}|${c.axis}|${c.at.toFixed(2)}|${c.jump.toFixed(2)}`;
   const distinct = new Set(all.map(key)).size;
+
+  // A provision means-tested on a TOTAL is found on every axis that feeds the
+  // total; one means-tested on a COMPONENT is found on one axis only. The jump
+  // SIZE is what survives a change of coordinate, so grouping by state, year
+  // and size is how the two are told apart. Not proof — two unrelated notches
+  // can share a size — which is why the table prints the sizes and lets a
+  // reader check.
+  const sizeAxes = new Map();
+  for (const c of all) {
+    const k = `${c.state}|${c.year}|${c.jump.toFixed(2)}`;
+    if (!sizeAxes.has(k)) sizeAxes.set(k, new Set());
+    sizeAxes.get(k).add(c.axis);
+  }
+  const multiAxis = [...sizeAxes.values()].filter((v) => v.size > 1).length;
+  const singleAxis = [...sizeAxes.values()].filter((v) => v.size === 1).length;
 
   const byState = new Map();
   for (const c of all) {
@@ -291,21 +192,83 @@ function report(rows, seconds) {
   );
   L.push('```text');
   L.push(`  household shapes swept        ${SHAPES.length}`);
+  L.push(`  income axes swept             ${AXES.length}   ${AXES.map((a) => a.id).join(', ')}`);
   L.push(`  states x years               ${STATES.length} x ${YEARS.length}`);
   L.push(`  income points evaluated      ${points.toLocaleString('en-US')}`);
   L.push(`  second-difference threshold   ${fmt(FLAG_THRESHOLD)}   (a flag, not a finding)`);
   L.push(`  smallest reported jump        ${fmt(MIN_JUMP)}`);
   L.push('');
-  L.push(`  DISCONTINUITIES FOUND        ${all.length}  (${distinct} distinct state-year-income notches)`);
+  L.push(`  DISCONTINUITIES FOUND        ${all.length}  (${distinct} distinct axis-state-year-income notches)`);
   L.push(`    declared as a step         ${declared.length}   a note names the provision AND says it steps`);
   L.push(`    named, not as a step       ${named.length}   a note names it; nothing says it is a notch`);
   L.push(`    not named at all           ${undisclosed.length}`);
-  L.push(`    unattributable             ${unattributed.length}   the notch is in the rate schedule; no provision moved`);
+  L.push(
+    `    unattributable             ${unattributed.length}   nothing in the result moved far enough to have caused it`,
+  );
   L.push(`  states with none             ${STATES.length - byState.size} of ${STATES.length}`);
+  L.push('');
+  L.push(`  jump sizes found on >1 axis  ${multiAxis}   a threshold on a TOTAL, met from more than one direction`);
+  L.push(`  jump sizes found on 1 axis   ${singleAxis}   a threshold on a COMPONENT, or a size reached one way`);
   L.push(`  sweep wall clock             ${seconds}s`);
   L.push('```');
   L.push('');
 
+  L.push('## What each axis found');
+  L.push('');
+  L.push(
+    'An axis is the one variable the sweep moves while the rest of the household',
+    'stands still. **A means test keyed on a component of income cannot bind on an',
+    'axis that does not move that component**, so an instrument with one axis has a',
+    'blind spot the size of the other four. This table is the measurement of that',
+    'blind spot, taken the day the axes were added.',
+    '',
+  );
+  L.push('```text');
+  L.push('  axis                 shapes  holds                      notches  not declared');
+  for (const axis of AXES) {
+    const mine = all.filter((c) => c.axis === axis.id);
+    const held = Object.entries(axis.holds).map(([k, v]) => `${k}=${fmt(v)}`).join(' ') || '(the shape as written)';
+    L.push(
+      `  ${axis.id.padEnd(20)} ${String(shapesFor(axis).length).padStart(5)}  ${held.padEnd(25)} ` +
+        `${String(mine.length).padStart(7)}  ${String(mine.filter((c) => c.disclosure !== 'declared').length).padStart(12)}`,
+    );
+  }
+  L.push('```');
+  L.push('');
+  L.push(
+    'A held value is a **sample and not a statutory threshold**: where a notch sits',
+    'on a held axis depends on what the other variables were holding. What does not',
+    'depend on it is that the notch exists and how big it is.',
+    '',
+  );
+
+  L.push('## The two open columns are an UPPER BOUND on what is owed, not a count of it');
+  L.push('');
+  L.push(
+    'Five versions of the classifier below have been wrong and every one of them was',
+    'wrong in the same direction: it invented findings. 555, then 187, then 52, then 46',
+    'of which three groups were false, and then — on the day the sweep gained four axes',
+    '— 314 notches reported as undisclosed against a note that fires only for the',
+    'households it applies to, 236 attributed to a figure that had moved by half a cent,',
+    'and 14 against a credit whose notes use its abbreviation.',
+    '',
+    '**For a tool whose output is sold as a defect list, the expensive failure is the',
+    'one that invents.** So: every count below is a count of what a *text match* could',
+    'not find, each group prints the note it matched and the join it matched on, and the',
+    'only thing that has ever found this classifier wrong is reading the rows. The',
+    'classifier is `tools/cliffs/classify.mjs`, and six of `self-check.mjs`\'s twenty-one',
+    'cases are its own \u2014 each one a real misclassification this repository shipped.',
+    '',
+    '`unattributable` is the weakest column and the one to read first. It means nothing',
+    'in the result object moved by at least the smallest reported jump, so there is no',
+    'provision to match a note against — which is the honest answer for a step in a rate',
+    "schedule, and almost all of these are Arkansas's bracket adjustment. It is not a",
+    'clean bill of health: a provision the engine does not NAME in its result cannot be',
+    'attributed however well the notes describe it, and that is a gap in the result',
+    "object rather than in the notes. New Jersey's retirement income exclusion sat here",
+    'until the sweep learned to read `computedSubtractions[].name`.',
+    '',
+  );
   L.push('## How to read the four numbers, because none of them is an arithmetic defect');
   L.push('');
   L.push(
@@ -412,7 +375,13 @@ function report(rows, seconds) {
       const jumps = [...new Set(cs.map((c) => c.jump))].sort((a, b) => a - b);
       const range = jumps.length <= 3 ? jumps.map(fmt).join(', ') : `${jumps.length} sizes, ${fmt(jumps[0])} to ${fmt(jumps[jumps.length - 1])}`;
       L.push(`  ${String(cs.length).padStart(4)}  ${k}`);
-      L.push(`        ${range};  first at ${fmt(Math.min(...cs.map((c) => c.at)))} of wages`);
+      const axes = [...new Set(cs.map((c) => c.axis))];
+      const lowest = cs.reduce((p, q) => (q.at < p.at ? q : p));
+      const noun = (byAxisId.get(lowest.axis) ?? AXES[0]).noun;
+      L.push(
+        `        ${range};  first at ${fmt(lowest.at)} of ${noun}` +
+          (axes.length > 1 ? `;  on ${axes.length} axes: ${axes.join(', ')}` : ''),
+      );
     }
     L.push('```');
     L.push('');
@@ -425,9 +394,16 @@ function report(rows, seconds) {
     '  which is floored at zero, so a notch where a credit already covers the whole',
     '  bill moves nothing. Ohio’s `$342` constant is invisible to every shape here',
     '  with children, because Ohio’s earned income credit covers the bill there.',
-    '- **A notch in a variable other than wages.** Investment income, municipal',
-    '  interest, itemised deductions and property tax are held at zero. A provision',
-    '  tested on one of those has its notch on that axis.',
+    '- **A notch in a variable no axis walks.** Itemised deductions, property tax,',
+    '  rent and the number and ages of dependents are held fixed. A provision tested',
+    '  on one of those has its notch on an axis that is not here. Investment income,',
+    '  pension income, Social Security benefits and municipal interest WERE on this',
+    '  list until Day 78 and are now four of the five axes above.',
+    '- **A notch that needs two variables to move at once.** Every axis holds the',
+    '  rest of the household still, so a provision whose threshold is a function of',
+    '  two components — a ratio, or a combined limit with a separate cap on each —',
+    '  is only partly reached. The cost of a second swept variable is the product of',
+    '  the two bands rather than the sum, which is why there is not one.',
     '- **A notch smaller than the step can separate from a kink** — about `$3` below',
     `  ${fmt(150_000)} of wages and about ${fmt(50)} above it, where the grid steps by ${fmt(2_500)}.`,
     '- **Local income tax.** No county, city or school district is supplied, so',
@@ -444,7 +420,7 @@ function report(rows, seconds) {
     L.push('```text');
     for (const c of cs) {
       L.push(
-        `  ${c.year}  ${c.shape.padEnd(20)} ${fmt(c.at).padStart(14)} -> ${(c.jump > 0 ? '+' : '') + fmt(c.jump)}` +
+        `  ${c.year}  ${c.axis.padEnd(18)} ${c.shape.padEnd(20)} ${fmt(c.at).padStart(14)} -> ${(c.jump > 0 ? '+' : '') + fmt(c.jump)}` +
           `${c.disclosure === 'declared' ? '' : `   [${c.disclosure.toUpperCase()}]`}`,
       );
       for (const m of c.moved) L.push(`          ${m.field}: ${m.from} -> ${m.to}`);
@@ -462,7 +438,7 @@ function report(rows, seconds) {
     L.push('## Shapes the engine refused');
     L.push('');
     L.push('```text');
-    for (const e of errors) L.push(`  ${e.state} ${e.year} ${e.shape}: ${e.error}`);
+    for (const e of errors) L.push(`  ${e.state} ${e.year} ${e.axis} ${e.shape}: ${e.error}`);
     L.push('```');
     L.push('');
   }
@@ -520,12 +496,17 @@ if (process.env.CLIFF_WORKER) {
       ),
   );
 
-  const rows = results.flat().sort((a, b) => `${a.state}${a.year}${a.shape}`.localeCompare(`${b.state}${b.year}${b.shape}`));
+  const rows = results
+    .flat()
+    .sort((a, b) =>
+      `${a.state}${a.year}${a.axis}${a.shape}`.localeCompare(`${b.state}${b.year}${b.axis}${b.shape}`),
+    );
   const seconds = Math.round((Date.now() - t0) / 1000);
 
   const inventory = {
     generatedBy: 'tools/cliffs/find-cliffs.mjs',
     shapes: SHAPES.map((s) => s.id),
+    axes: AXES.map((a) => ({ id: a.id, field: a.field, bands: a.bands, shapes: a.shapes, holds: a.holds })),
     years: YEARS,
     bands: BANDS,
     flagThreshold: FLAG_THRESHOLD,
@@ -533,6 +514,7 @@ if (process.env.CLIFF_WORKER) {
     rows: rows.map((r) => ({
       state: r.state,
       year: r.year,
+      axis: r.axis,
       shape: r.shape,
       error: r.error,
       cliffs: r.cliffs.map((c) => ({
@@ -548,6 +530,14 @@ if (process.env.CLIFF_WORKER) {
   const json = `${JSON.stringify(inventory, null, 1)}\n`;
 
   if (check) {
+    if (only) {
+      console.error(
+        `--check compares against the committed inventory, which is all ${STATES.length} ` +
+          `states. A run of ${states.length} of them disagrees with it by construction. Drop ` +
+          `--states, or drop --check and read out/partial.json.`,
+      );
+      process.exit(1);
+    }
     if (!existsSync(LEDGER)) {
       console.error(`${LEDGER} does not exist. Run the sweep without --check first.`);
       process.exit(1);
@@ -568,12 +558,37 @@ if (process.env.CLIFF_WORKER) {
     process.exit(1);
   }
 
-  mkdirSync(OUT, { recursive: true });
-  writeFileSync(LEDGER, json);
-  writeFileSync(join(HERE, 'CLIFFS.md'), report(rows, seconds));
   const n = rows.reduce((k, r) => k + r.cliffs.length, 0);
   const open = rows.reduce((k, r) => k + r.cliffs.filter((c) => c.disclosure !== 'declared').length, 0);
   console.log(`${rows.length} sweeps, ${seconds}s, ${n} discontinuities, ${open} not declared as a step`);
-  console.log(`wrote ${LEDGER}`);
-  console.log(`wrote ${join(HERE, 'CLIFFS.md')}`);
+
+  // A PARTIAL RUN DOES NOT WRITE THE COMMITTED FILES, and this guard is here
+  // because the absence of it cost two full sweeps in one afternoon. `--states
+  // OH` is the fast way to try a change, it used to overwrite `CLIFFS.md` and
+  // `out/cliffs.json` with one state's worth of findings, and the overwrite is
+  // silent: the report still reads as a report, the ledger still reads as a
+  // ledger, and `--check` compares the next full run against Ohio. Worse than
+  // the wasted time is that a `--states` run followed by a commit would push a
+  // document claiming to be "the complete list for this engine" over 1/42nd of
+  // it.
+  //
+  // Written to a side path instead, so the fast loop still gives something to
+  // read. Same reasoning as `--limit` refusing to record a mutation score:
+  // a measurement over part of the subject is not a measurement of it.
+  mkdirSync(OUT, { recursive: true });
+  if (only) {
+    const side = join(OUT, 'partial.json');
+    writeFileSync(side, json);
+    console.log(`wrote ${side}`);
+    console.log(
+      `NOT written: ${LEDGER} and CLIFFS.md. --states ${states.join(',')} is ` +
+        `${states.length} of ${STATES.length} states, and the committed report claims to be ` +
+        `the complete list. Run without --states to regenerate them.`,
+    );
+  } else {
+    writeFileSync(LEDGER, json);
+    writeFileSync(join(HERE, 'CLIFFS.md'), report(rows, seconds));
+    console.log(`wrote ${LEDGER}`);
+    console.log(`wrote ${join(HERE, 'CLIFFS.md')}`);
+  }
 }

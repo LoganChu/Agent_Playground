@@ -30,7 +30,8 @@
 
 import assert from 'node:assert/strict';
 import { locate, sweepOne, evaluator } from './sweep.mjs';
-import { SHAPES, MIN_JUMP } from './shapes.mjs';
+import { SHAPES, AXES, MIN_JUMP } from './shapes.mjs';
+import { classify, provisionLabels, nameMatch } from './classify.mjs';
 
 let passed = 0;
 const check = (name, fn) => {
@@ -168,13 +169,289 @@ check("New York's child credit staircase steps by $16.50 per $1,000", () => {
 });
 
 /* ------------------------------------------------------------------ */
+/* 2b. The axes, and the notch each one exists to reach                */
+/* ------------------------------------------------------------------ */
+
+const axisById = (id) => AXES.find((a) => a.id === id);
+
+check('the wage axis is the sweep that existed before the axes did', () => {
+  // The refactor that added axes had to leave the old one alone, and this is
+  // the assertion of that rather than a claim about it: the wage axis is AXES[0]
+  // and `sweepOne` with no axis argument must be the same sweep.
+  const shape = shapeById('joint-two-children');
+  const implicit = sweepOne(shape, 'OH', 2025);
+  const explicit = sweepOne(shape, 'OH', 2025, axisById('wages'));
+  assert.deepEqual(
+    implicit.cliffs.map((c) => [c.at, c.jump]),
+    explicit.cliffs.map((c) => [c.at, c.jump]),
+  );
+  assert.ok(implicit.cliffs.length > 0, 'Ohio reported no notches at all');
+});
+
+check('§ 32(i) is found on the investment-income axis and nowhere else', () => {
+  // THE NOTCH THE OTHER AXES EXIST FOR. One cent of investment income over the
+  // federal ceiling takes the whole state earned income credit, and no wage in
+  // any band reaches it — which is the entire argument for this file having
+  // more than one axis. Colorado, because its credit is a plain percentage of
+  // the federal one with no cap, no bonus and no liability limit, so the notch
+  // is the credit.
+  const shape = shapeById('single-two-children');
+  const gains = sweepOne(shape, 'CO', 2025, axisById('investment-income'));
+  const hit = gains.cliffs.find((c) => c.at === 11_950);
+  assert.ok(
+    hit,
+    `no notch at $11,950 of gains; found ${JSON.stringify(gains.cliffs.map((c) => c.at))}`,
+  );
+  assert.ok(
+    hit.jump > 2_000,
+    `the whole Colorado credit should go, and only $${hit.jump} did`,
+  );
+  assert.ok(
+    hit.moved.some((m) => /earned income/i.test(m.field) && m.to === 0),
+    `the credit did not go to zero: ${JSON.stringify(hit.moved)}`,
+  );
+
+  // And the wage axis cannot see it, which is the half that makes the first
+  // half worth asserting. Investment income is zero on that axis, so there is
+  // no amount of wages at which § 32(i) binds.
+  const wages = sweepOne(shape, 'CO', 2025, axisById('wages'));
+  assert.ok(
+    !wages.cliffs.some((c) => c.jump > 2_000),
+    `the wage axis found a notch of this size, so this is not an axis-only finding: ` +
+      JSON.stringify(wages.cliffs.filter((c) => c.jump > 2_000)),
+  );
+});
+
+check('an axis probes inside its own bands', () => {
+  // `sweepOne` probes one point before sweeping, to tell a refusal from an
+  // empty result. The first version probed $50,000 whatever the axis, which is
+  // outside the municipal-interest band's own range at the top end and would
+  // decide a sweep's fate on a point the sweep never visits.
+  for (const axis of AXES) {
+    for (const shape of axis.shapes ? SHAPES.filter((x) => axis.shapes.includes(x.id)) : SHAPES) {
+      const { error } = sweepOne(shape, 'CO', 2025, axis);
+      assert.equal(error, null, `${axis.id} / ${shape.id} refused: ${error}`);
+    }
+  }
+});
+
+/* ------------------------------------------------------------------ */
+/* 2c. The classifier, which could not be tested until Day 78          */
+/* ------------------------------------------------------------------ */
+
+/*
+ * Day 77's item 4: "the cliff finder's classifier was wrong in three of six
+ * cases with no test able to notice." It lived inside `find-cliffs.mjs`, which
+ * runs a sweep on import, so importing it to test it was not possible. It is
+ * now `classify.mjs` and these are the cases — every one of them a real
+ * misclassification this repository shipped, written out as the inputs that
+ * produced it.
+ */
+
+const notch = (moved, jump = 100) => ({ at: 50_000, next: 50_000.01, jump, moved });
+
+check('a note that names a provision in a different word order still names it', () => {
+  // MARYLAND, and the worst answer this classifier can give. Its label is
+  // `2% surtax on net capital gain`; the note is ninety words long, says "the
+  // 2% capital gains surtax ... is a cliff", and prices the step at $6,933.08.
+  // The phrase match called it `undisclosed` — "not named at all".
+  const moved = [
+    { field: 'tax', from: 16_097.88, to: 21_829.88 },
+    { field: 'surtax:2% surtax on net capital gain (federal AGI over $350,000)', from: null, to: 5_732 },
+  ];
+  const note =
+    'The 2% capital gains surtax (new for 2025) is a cliff and its threshold is a TEST, not ' +
+    'a floor: a filer whose federal AGI exceeds $350,000 owes 2% of their whole net capital gain.';
+  const got = classify([note], notch(moved, 5_732), 'Maryland');
+  assert.equal(got.disclosure, 'declared', JSON.stringify(got));
+  assert.match(got.how, /words/, 'the weaker join should be recorded, not hidden');
+
+  // And the word-set path must NOT match a note about a different provision
+  // that happens to share a word or two.
+  const unrelated = 'Maryland subtracts military retirement pay, and the county tax is a surtax on the state figure.';
+  assert.equal(classify([unrelated], notch(moved, 5_732), 'Maryland').disclosure, 'undisclosed');
+});
+
+check("a credit's abbreviation is the name its own notes use", () => {
+  // CALIFORNIA. The label is `California Earned Income Tax Credit (CalEITC)`;
+  // all five of California's notes about it say "CalEITC" and none spells it
+  // out. Cutting the parenthetical cost 14 notches a green column against a
+  // note that declares the $4,814 cliff and prices it at $4,528.82.
+  const moved = [{ field: 'credit:California Earned Income Tax Credit (CalEITC)', from: 331.76, to: 0 }];
+  const labels = provisionLabels(moved, 'California').map((l) => l.text);
+  assert.ok(labels.includes('caleitc'), JSON.stringify(labels));
+  const note =
+    'The $4,814 investment-income limit is a cliff, not a phase-out. One dollar of interest ' +
+    'over it costs the whole CalEITC and, because that credit gates it, the whole Young Child ' +
+    'Tax Credit — $4,528.82 at the worst point.';
+  assert.equal(classify([note], notch(moved, 1_520.76), 'California').disclosure, 'declared');
+
+  // `(assumed: ...)` is a caveat about inputs, not a name, and must not become
+  // a label — it has a colon in it, which is the test.
+  const assumed = provisionLabels(
+    [{ field: 'credit:Ohio joint filing credit (assumed: both spouses have qualifying income)', from: 0, to: 50 }],
+    'Ohio',
+  ).map((l) => l.text);
+  assert.ok(!assumed.some((l) => l.includes('assumed')), JSON.stringify(assumed));
+});
+
+check('a field name is not a provision name, and cannot put a notch in `named`', () => {
+  // ARKANSAS, and the finding that made this file necessary. The $10 bracket
+  // adjustment step is in the RATE SCHEDULE. Found by walking wages, nothing in
+  // the result names a provision and it is reported `unattributed`. Found by
+  // walking capital gains, the capital-gain subtraction moves too, `subtraction`
+  // enters the label set, and every Arkansas note containing that word becomes
+  // evidence — 238 notches in the column this instrument is sold on, for one
+  // disclosure, decided by which axis found it.
+  const wages = [
+    { field: 'taxBeforeCredits', from: 3_137.7, to: 3_147.7 },
+    { field: 'tax', from: 3_108.7, to: 3_118.7 },
+  ];
+  const gains = [
+    { field: 'subtractions', from: 72_270, to: 72_270.01 },
+    { field: 'taxBeforeCredits', from: 3_297.9, to: 3_307.9 },
+  ];
+  const notes = ['Arkansas allows a subtraction for 50% of net long-term capital gain.'];
+  const onWages = classify(notes, notch(wages, 10), 'Arkansas');
+  const onGains = classify(notes, notch(gains, 10), 'Arkansas');
+  assert.equal(onWages.disclosure, 'unattributed');
+  assert.equal(
+    onGains.disclosure,
+    onWages.disclosure,
+    'the same notch and the same notes gave two answers, decided by the axis',
+  );
+  // TWO GUARDS CATCH THIS CASE AND THE STRONGER ONE WINS. The exclusion moved
+  // by half the swept cent, so `MOVEMENT_FLOOR` drops it before it can become a
+  // label at all and the notch has no label of any kind — which is why `how`
+  // is null rather than `generic-field-only`. That is the better answer: the
+  // field did not move enough to have caused a $10 step, so the question of
+  // whether its name is a provision name never arises.
+  assert.equal(onGains.how, null);
+
+  // The generic-field path is still reachable, by a field that DID move enough.
+  const bigGeneric = classify(
+    ['Arkansas allows a subtraction for 50% of net long-term capital gain.'],
+    notch([{ field: 'subtractions', from: 20_000, to: 10_000 }, { field: 'tax', from: 100, to: 200 }], 100),
+    'Arkansas',
+  );
+  assert.equal(bigGeneric.disclosure, 'unattributed');
+  assert.equal(bigGeneric.how, 'generic-field-only', 'the weak match should still be recorded');
+
+  // A generic field name that DOES carry a step word is still a disclosure:
+  // Missouri's deduction chart is declared this way and must stay declared.
+  const mo = classify(
+    ['The $143.171 deduction is a cliff chart and not a phase-out.'],
+    notch([{ field: 'deduction', from: 5_000, to: 4_000 }], 1_000),
+    'Missouri',
+  );
+  assert.equal(mo.disclosure, 'declared');
+});
+
+check('a figure that moved by the swept cent is in the inventory, not in the attribution', () => {
+  // The floor is a rule about ATTRIBUTION and not about the inventory, and the
+  // first version of it was applied in `explain` instead — which took about
+  // forty-five Arkansas notches from `declared` to `unattributed` by deleting
+  // the very figures their notes quote. So: the cent-sized movement must still
+  // be able to DECLARE a notch through the figure path, while never naming a
+  // provision through the label path.
+  const moved = [
+    { field: 'subtractions', from: 72_270, to: 72_270.01 },
+    { field: 'taxBeforeCredits', from: 3_297.9, to: 3_307.9 },
+  ];
+  assert.deepEqual(provisionLabels(moved, 'Arkansas'), [], 'a half-cent movement named a provision');
+  const quoted = classify(
+    ['The bracket adjustment is $290 at $89,100 of net income and falls by $10 for every $100 above it, ' +
+      'so the tax before credits at that point is $3,297.90 and a step.'],
+    notch(moved, 10),
+    'Arkansas',
+  );
+  assert.equal(quoted.disclosure, 'declared');
+  assert.equal(quoted.how, 'figure');
+});
+
+check("New Jersey's retirement exclusion is named by the result object, not only by the scalar", () => {
+  // THE FINDING THAT MADE `explain` READ `computedSubtractions`. N.J.S.A.
+  // 54A:6-15's exclusion is a wall — 100% of the maximum to $100,000 of total
+  // income, then 50%, then 25%, then nothing — and the package's own note
+  // calls it "the largest one-dollar cliff in this package". All that showed in
+  // `moved` was the scalar `subtractions`, whose only label is the field name,
+  // so a notch the package declares in one sentence and prices in the next had
+  // nothing for the classifier to match. The name was in the result all along.
+  const moved = [
+    { field: 'subtractions', from: 46_875, to: 23_437.5 },
+    { field: 'subtraction:Pension and retirement income exclusion', from: 46_875, to: 23_437.5 },
+    { field: 'tax', from: 2_722.91, to: 4_215.88 },
+  ];
+  const labels = provisionLabels(moved, 'New Jersey');
+  assert.ok(
+    labels.some((l) => l.specific && l.text.includes('retirement income exclusion')),
+    JSON.stringify(labels),
+  );
+  // The note VERBATIM, and the second sentence is load-bearing: the engine's
+  // label is "Pension and retirement income exclusion" and the first sentence
+  // never says "pension", so a word-set match needs "pension income" from the
+  // sentence that prices it. Shortening the fixture by one sentence turns this
+  // assertion red, which is the honest shape of a text match and the reason
+  // every answer carries `how`.
+  const note =
+    'The retirement income exclusion is a wall, not a phase-out: 100% of the maximum up to ' +
+    '$100,000 of total income, then 50% (joint) to $125,000, then 25% to $150,000, and nothing ' +
+    'at $150,001. For a joint return with $100,000 of pension income that single dollar is ' +
+    'worth more than $4,000 of New Jersey tax — the largest one-dollar cliff in this package.';
+  const got = classify([note], notch(moved, 1_492.97), 'New Jersey');
+  assert.equal(got.disclosure, 'declared', JSON.stringify(got));
+
+  // And the first sentence alone is NOT enough, which is the measurement of
+  // how much of this rests on one word.
+  const firstSentenceOnly = note.split('. For a joint')[0];
+  assert.equal(
+    classify([firstSentenceOnly], notch(moved, 1_492.97), 'New Jersey').disclosure,
+    'undisclosed',
+  );
+});
+
+check('nameMatch needs two content words, so one short word is not a name', () => {
+  // The guard on the word-set path. A label of one content word would match any
+  // note containing that word, which is the substring match it replaces with
+  // extra steps.
+  assert.equal(nameMatch('the exemption is withdrawn in bands', 'exemption'), 'phrase');
+  assert.equal(nameMatch('the senior exemption is a step', 'senior exemption'), 'phrase');
+  // The reordering the path exists for — and the word-set match is a SUBSTRING
+  // match per word, so "seniors" carries "senior" and plurals cost nothing.
+  assert.equal(nameMatch('the exemption for seniors steps', 'senior exemption'), 'words');
+  // One of the two content words present is not a name match.
+  assert.equal(nameMatch('a note about exemptions generally', 'senior exemption'), null);
+  assert.equal(nameMatch('seniors get a credit here', 'senior exemption'), null);
+  // A label with only one content word must not reach the word-set path, or it
+  // is the substring match it replaces with extra steps: `income` and `credit`
+  // are in the stoplist, so this label has one content word and no phrase.
+  assert.equal(nameMatch('a credit against income tax', 'earned income tax credit'), null);
+});
+
+/* ------------------------------------------------------------------ */
 /* 3. A state whose tax function is identically zero                   */
 /* ------------------------------------------------------------------ */
 
-check('a state that taxes no wage income has no notches', () => {
-  for (const state of ['FL', 'TX', 'WA']) {
-    const { cliffs } = sweepOne(shapeById('childless-single'), state, 2025);
-    assert.equal(cliffs.length, 0, `${state} reported ${cliffs.length} notches and taxes no wage income`);
+check('a state that taxes no income has no notches, on any axis', () => {
+  // Widened with the axes: a state whose tax function is identically zero is
+  // continuous in every variable, not only in wages, so this is now a check on
+  // the whole instrument rather than on one sweep of it. New Hampshire and
+  // Tennessee are deliberately in the list — both taxed investment income
+  // within living memory, and the investment-income axis is the one that would
+  // find a leftover interest-and-dividends rule.
+  for (const state of ['AK', 'FL', 'NH', 'NV', 'SD', 'TN', 'TX', 'WA', 'WY']) {
+    for (const axis of AXES) {
+      const shapes = axis.shapes ? SHAPES.filter((x) => axis.shapes.includes(x.id)) : SHAPES;
+      for (const shape of shapes) {
+        const { cliffs } = sweepOne(shape, state, 2025, axis);
+        assert.equal(
+          cliffs.length,
+          0,
+          `${state} reported ${cliffs.length} notches on the ${axis.id} axis (${shape.id}) ` +
+            `and taxes no income: ${JSON.stringify(cliffs.map((c) => [c.at, c.jump]))}`,
+        );
+      }
+    }
   }
 });
 

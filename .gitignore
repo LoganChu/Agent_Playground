@@ -38,3 +38,8 @@ tools/anchors/out/fixtures/
 # The lock the deliberate-error audit holds while it runs. Per-container, never
 # committed: a lock from another machine would refuse builds here for no reason.
 tools/mutation/.audit-lock.json
+
+# `--states` runs of the cliff sweep write here instead of over the committed
+# report, which claims to be the complete list. A partial measurement is for
+# reading in the fast loop, not for committing.
+tools/cliffs/out/partial.json

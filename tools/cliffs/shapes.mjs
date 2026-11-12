@@ -38,12 +38,14 @@
  *
  * ## What is deliberately NOT here
  *
- * **Investment income, municipal interest and itemised deductions.** Each would
- * multiply the sweep's cost by the number of values it can take, and a notch in
- * a provision tested on investment income is a notch in *that* variable rather
- * than in wages — the sweep walks wages. Finding those needs a sweep over the
- * other variable, which is the same instrument pointed at a different axis and
- * is on the worklist rather than claimed here.
+ * **Itemised deductions, property tax and rent.** A notch in a provision tested
+ * on one of those is a notch in *that* variable, and no axis below walks it.
+ *
+ * Investment income, pension income, Social Security benefits and municipal
+ * interest WERE in this paragraph until Day 78, when they became the four axes
+ * in `AXES` below. The sentence they were retired from said that finding those
+ * notches "needs a sweep over the other variable, which is the same instrument
+ * pointed at a different axis". That was right, and it cost about four minutes.
  *
  * **Localities.** No `locality`, `county` or `city` is supplied, so this is the
  * state tax alone for the states whose local tax is universal — Maryland's
@@ -170,16 +172,136 @@ export const FLAG_THRESHOLD = 3;
  */
 export const MIN_JUMP = 0.5;
 
-/** A full case for `householdInput`, from a shape and a wage. */
-export function caseFor(shape, state, year, wages) {
-  return {
+/**
+ * The axes the sweep walks, which is the variable it moves while everything
+ * else stands still.
+ *
+ * ## Why more than one axis, and what the extra ones can see
+ *
+ * Until Day 78 this instrument walked `wages` and nothing else, and said so in
+ * the report's own limitations section. That is a real blind spot rather than a
+ * tidy one: **a means test keyed on a component of income cannot bind on an
+ * axis that does not move that component.** The $11,950 investment-income bar
+ * in § 32(i) is the example that forced this file — one cent over it and the
+ * whole earned income credit is gone, in nineteen states as well as federally,
+ * and no wage in any band reaches it.
+ *
+ * The cost is **linear** in the number of axes, not multiplicative, because an
+ * axis moves one variable and holds the rest. Four axes is four sweeps, not
+ * four dimensions.
+ *
+ * ## `holds`, and why a held value is a sample and is named as one
+ *
+ * An axis other than wages has to decide what wages are, and there is no
+ * neutral answer: a means test on investment income binds only where there is
+ * earned income to lose, so `wages: 0` would find nothing on the axis that was
+ * worth adding. Each axis therefore names the deviations it makes from the
+ * shape, the report prints them, and **a notch's position on a held axis is a
+ * position in that sample rather than a statutory threshold.** What is NOT a
+ * sample is the notch's existence and its size.
+ *
+ * Anything a `holds` map does not mention keeps the shape's own value, so the
+ * retiree keeps its pension on the Social Security axis and the working-age
+ * shapes keep their zero.
+ *
+ * ## Reading a notch that appears on more than one axis
+ *
+ * A provision means-tested on a TOTAL — state AGI, federal AGI, gross income —
+ * is found on every axis that feeds that total, at a different coordinate each
+ * time. A provision means-tested on a COMPONENT is found on one axis only. So
+ * the number of axes a notch appears on is evidence about what the threshold is
+ * written on, and the report tabulates it.
+ */
+export const AXES = [
+  {
+    id: 'wages',
+    field: 'wages',
+    noun: 'wages',
+    bands: BANDS,
+    shapes: null,
+    holds: {},
+  },
+  {
+    id: 'investment-income',
+    field: 'longTermCapitalGains',
+    noun: 'long-term capital gains',
+    // Capital gain net income is § 32(i)(2)(D), and this field is also what the
+    // state engine reads as `investmentIncome`, so one axis reaches both the
+    // federal disqualified-income cliff and every state provision tested on
+    // investment income. The band stops at $550,000 because above that the
+    // thresholds in state law are AGI thresholds, which the wage axis walks.
+    bands: [
+      { from: 0, to: 150_000, step: 100 },
+      { from: 150_000, to: 550_000, step: 2_500 },
+    ],
+    shapes: null,
+    // In the earned income credit's plateau for a household with children, so
+    // the § 32(i) bar has a credit to take away. $25,000 is also above every
+    // state's standard deduction, so a subtraction that is capped rather than
+    // means-tested still shows its cap.
+    holds: { wages: 25_000 },
+  },
+  {
+    id: 'pension',
+    field: 'pension',
+    noun: 'pension income',
+    bands: [{ from: 0, to: 150_000, step: 100 }],
+    // Two shapes, because the age test is the whole point: Pennsylvania taxes a
+    // qualified-plan distribution at 35 and exempts it at 67, and a state
+    // pension exclusion that is means-tested is means-tested at retirement age.
+    shapes: ['single-retiree', 'childless-single'],
+    holds: { wages: 0 },
+  },
+  {
+    id: 'social-security',
+    field: 'socialSecurity',
+    noun: 'Social Security benefits',
+    // The maximum benefit at full retirement age is about $48,000 a year and
+    // about $62,000 at 70, so $80,000 covers a joint household's worth of it.
+    bands: [{ from: 0, to: 80_000, step: 100 }],
+    shapes: ['single-retiree'],
+    holds: { wages: 0 },
+  },
+  {
+    id: 'municipal-interest',
+    field: 'taxExemptInterest',
+    noun: 'tax-exempt interest',
+    // § 32(i)(2)(B) and, in the states, the out-of-state municipal bond
+    // addition. The band is short because this is the smallest of the four
+    // variables in practice and the provisions keyed on it are keyed on modest
+    // amounts.
+    bands: [{ from: 0, to: 100_000, step: 100 }],
+    shapes: ['childless-single', 'single-two-children', 'single-retiree'],
+    holds: { wages: 25_000 },
+  },
+];
+
+/** The axis the sweep walked before Day 78, and the default for `caseFor`. */
+export const WAGE_AXIS = AXES[0];
+
+/** The shapes an axis is swept over. */
+export function shapesFor(axis) {
+  return axis.shapes ? SHAPES.filter((s) => axis.shapes.includes(s.id)) : SHAPES;
+}
+
+/**
+ * A full case for `householdInput`: a shape, an axis, and the axis's value.
+ *
+ * Order matters and is the one thing to get right here. The shape's own fields
+ * go in first, then the axis's `holds` override them, then the axis's own
+ * `field` takes the swept value. So an axis that holds `wages: 0` wins over the
+ * shape, and an axis sweeping `socialSecurity` wins over its own hold if it
+ * declared one.
+ */
+export function caseFor(shape, state, year, value, axis = WAGE_AXIS) {
+  const c = {
     state,
     year,
     filingStatus: shape.filingStatus,
     primaryAge: shape.primaryAge,
     spouseAge: shape.spouseAge ?? null,
     childAges: shape.childAges,
-    wages,
+    wages: 0,
     pension: shape.pension ?? 0,
     socialSecurity: shape.socialSecurity ?? 0,
     longTermCapitalGains: 0,
@@ -187,4 +309,17 @@ export function caseFor(shape, state, year, wages) {
     blind: 0,
     oregonPriorYearTaxBeforeCredits: null,
   };
+  for (const [k, v] of Object.entries(axis.holds)) c[k] = v;
+  c[axis.field] = value;
+  return c;
+}
+
+/**
+ * A point in the middle of an axis's band, used to read the state's notes and
+ * name. The notes are a property of the state-year rather than of the income,
+ * but they have to be read at a point the axis can actually reach.
+ */
+export function midpointFor(axis) {
+  const b = axis.bands[0];
+  return Math.min(b.to, b.from + 60_000);
 }

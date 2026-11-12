@@ -19,7 +19,7 @@ reason the figure is now right is the only thing here worth paying attention to:
 | **Every figure is cited** | 7,009 figures across 84 state-years, each mapped to the document it came from and what kind of authority that is, behind 632 citation entries. The ledger covers 311 further numeric leaves and classifies them as sentinels — a bracket with no ceiling — which no document states |
 | **Checked against filled returns** | not against another model — the anchor set's right answers come off returns entered into commercial tax software and states' own paper worksheets, and it reproduces TaxAct's New Mexico PIT-1 to eighteen cents |
 | **Checked against a model we did not write** | 2,904 households through both this engine and `policyengine-us`, 20,328 figures compared; every difference is either explained with a statute cite or counted as unexplained, and there are 2 |
-| **Checked for notches** | every discontinuity the engine's tax function has **in wages**, over the swept bands, found by walking the function rather than sampling households: 1,569 over 938,448 income points, of which 1,563 are declared as steps in the package's own notes, 0 are named without being called a step, and 0 are unnamed; the remaining 6 are inside Arkansas's rate schedule, where no provision moves and there is no label to match. **Wages are the only swept axis**, so a notch in a provision tested on investment income, itemised deductions, property tax, rent or dependent count is outside this count — [`tools/cliffs/CLIFFS.md`](tools/cliffs/CLIFFS.md) lists what it cannot see |
+| **Checked for notches** | every discontinuity the engine's tax function has, over the swept bands and on **5 axes of income** rather than one, found by walking the function rather than sampling households: 3,814 over 2,347,800 income points, of which 3,567 are declared as steps in the package's own notes, 0 are named without being called a step, and 0 are unnamed; the remaining 247 are inside a rate schedule, almost all of them Arkansas's bracket adjustment, where no provision moves far enough to have caused the step and there is no label to match. **Four of the five axes are new on Day 78** — investment income, pension income, Social Security benefits and municipal interest — and the first notch they found was a federal one the wage axis cannot reach: § 32(i) bars the earned income credit outright above about `$12,000` of investment income, which takes up to `$8,505.64` of state credit on one cent in South Carolina. Itemised deductions, property tax, rent and dependent count still have no axis — [`tools/cliffs/CLIFFS.md`](tools/cliffs/CLIFFS.md) lists what it cannot see |
 | **Checked by deliberate sabotage** | 100% mutation score on the federal engine, 99.7% on the state rule parameters, both re-derived in CI rather than transcribed |
 
 Every one of those regenerates on every push. [`site/checks.html`](site/checks.html)
@@ -79,8 +79,8 @@ runtime dependencies**, so `npm pack` produces a self-contained tarball, and npm
 installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.62.0/us-state-tax-0.62.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.16.0/us-federal-tax-0.16.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.63.0/us-state-tax-0.63.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.17.0/us-federal-tax-0.17.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.65.0/us-tax-mcp-0.65.0.tgz
 ```
 

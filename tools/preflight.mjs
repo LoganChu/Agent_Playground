@@ -134,6 +134,15 @@ const CHECKS = [
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
   },
   {
+    // The join Day 77's item 3 asked for, on the one note in this repository
+    // that is generated rather than written: the figure in its prose is
+    // re-derived from two returns a cent apart. It caught six defects on its
+    // first run — four in the note's own arithmetic, two in this check's.
+    label: '§ 32(i): the investment-income cliff in both packages, and the note that prices it',
+    cmd: 'node tools/cross-package/eitc-investment-income-cliff.mjs --check',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
     label: 'what the mutation score does NOT cover, declared field by field',
     cmd: 'node tools/mutation/blind-spots.mjs --check',
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
@@ -232,11 +241,13 @@ const CHECKS = [
   },
   {
     // Day 76. The cliff finder's self-check, and NOT the full sweep: the sweep
-    // is 938,448 evaluations and about three minutes, which is more than
-    // everything above it put together, so it lives in CI alone. What runs here
-    // is the part that can be wrong without anybody noticing — the locator, on
-    // synthetic functions whose jumps were put at chosen cents by hand, and
-    // four notches this package documented in prose before the tool existed.
+    // is 2,347,800 evaluations over five axes and about eight minutes, which is
+    // more than everything above it put together, so it lives in CI alone. What
+    // runs here is the part that can be wrong without anybody noticing — the
+    // locator, on synthetic functions whose jumps were put at chosen cents by
+    // hand, four notches this package documented in prose before the tool
+    // existed, and (Day 78) the § 32(i) notch that exists to prove an axis
+    // other than wages reaches something the wage axis cannot.
     //
     // Three of the synthetic cases failed on the first run and found a real
     // defect in the binary search: both subdivision steps were computed from

@@ -746,6 +746,57 @@ test('capital gains can disqualify a filer from the EITC entirely', () => {
   assert.equal(large.credits.childTaxCredit.creditAfterPhaseOut, 2_200);
 });
 
+test('tax-exempt interest is disqualified income for the § 32(i) test', () => {
+  // § 32(i)(2)(B) is "interest received or accrued during the taxable year
+  // which is exempt from tax", and `taxExemptInterest` is documented in this
+  // package as Form 1040 line 2a — the exact line the Pub. 596 investment
+  // income worksheet reads. Until Day 78 the default ignored it.
+  const base = {
+    filingStatus: 'single',
+    year: 2025,
+    w2Wages: 20_000,
+    age: 38,
+    qualifyingChildren: 2,
+    eitcQualifyingChildren: 2,
+  };
+  const none = estimateFederalTax(base);
+  assert.equal(none.credits.earnedIncomeCredit.credit, 7_152);
+
+  // The size of the answer that used to be given: half a million dollars of
+  // municipal interest and the full credit was still paid.
+  const rich = estimateFederalTax({ ...base, taxExemptInterest: 500_000 });
+  assert.equal(rich.credits.earnedIncomeCredit.investmentIncome, 500_000);
+  assert.equal(rich.credits.earnedIncomeCredit.credit, 0);
+  assert.equal(rich.credits.earnedIncomeCredit.ineligibleReason, 'investmentIncomeTooHigh');
+
+  // It is a CLIFF and it is the sum of the two components, not either alone:
+  // the 2025 limit is $11,950, and $6,000 of gains plus $5,950 of exempt
+  // interest is exactly at it.
+  const at = estimateFederalTax({
+    ...base,
+    longTermCapitalGains: 6_000,
+    taxExemptInterest: 5_950,
+  });
+  const overByACent = estimateFederalTax({
+    ...base,
+    longTermCapitalGains: 6_000,
+    taxExemptInterest: 5_950.01,
+  });
+  assert.equal(at.credits.earnedIncomeCredit.investmentIncome, 11_950);
+  assert.ok(at.credits.earnedIncomeCredit.credit > 0);
+  assert.equal(overByACent.credits.earnedIncomeCredit.credit, 0);
+
+  // An explicit figure still wins, including a smaller one: a caller who has
+  // read § 32(i) and knows the exempt interest is not disqualified for their
+  // filer is not overridden by the default.
+  const declared = estimateFederalTax({
+    ...base,
+    taxExemptInterest: 500_000,
+    disqualifiedInvestmentIncome: 0,
+  });
+  assert.equal(declared.credits.earnedIncomeCredit.credit, 7_152);
+});
+
 test('disqualified investment income can be supplied explicitly', () => {
   // Interest inside `otherOrdinaryIncome` is invisible to the default, which is
   // exactly why the input exists.

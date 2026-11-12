@@ -1,6 +1,6 @@
 {
   "name": "us-state-tax",
-  "version": "0.62.0",
+  "version": "0.63.0",
   "description": "US state and local income tax engine for 2024-2026: 42 states and 1,033 local income taxes - New York City, Yonkers, every Maryland and Indiana county, 24 Michigan cities, 679 municipalities and 214 Ohio school districts. Zero dependencies, MIT.",
   "keywords": [
     "state-income-tax",
