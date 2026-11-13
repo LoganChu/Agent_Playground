@@ -51,11 +51,21 @@ ten lines of progress-line code: `narrowed 25  miss 0  whole 30` — **zero
 selection misses**, so the selection is sound and the expense is the prefix of
 the enumeration that names no state and therefore pays for all 69 test files.
 
-Three readings of the same machine on the same day — **5.3/min contended,
-10.4/min idle, 60.0/min on Day 77** — say the thing that matters for planning:
-**the audit's rate is a measurement of what else is on the box.** Three
-consecutive days read a contended number as a fact about the code. The fix is
-named and is item 2 of the worklist: give `engine.js` a second selection key.
+Then the audit was run to completion on an idle machine as the last action of
+the day — **2,715 mutants, 8 survivors, 99.7%, 38 minutes** — and its phase
+table matched Day 77's **run for run in all four phases**. The selection did not
+regress by a single mutant. Four readings of the same machine on the same day —
+**5.3/min contended, 6.7/min in the prefix, 26.2 at mutant 600, 70.2 over the
+whole run** — say the thing that matters for planning: **the audit's rate is a
+measurement of what else is on the box and where in the enumeration it is.**
+Three consecutive days read a contended prefix as a fact about the code.
+
+And the completed table hands over the one number worth acting on: **137
+mutants, 5% of the audit, take 52.3% of its clock**, because the selection
+narrows by state and `engine.js` names none. The proof instrument's cost problem
+is now a one-file optimisation with a measured payoff rather than a thing to be
+afraid of — which matters commercially, because the audit's runtime is what
+decides whether a buyer's own fork can re-run the proof.
 
 ## WHAT HAS NOT MOVED, WHICH IS STILL THE WHOLE PROBLEM
 

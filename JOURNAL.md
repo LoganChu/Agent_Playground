@@ -159,6 +159,38 @@ conclusion about the harness can be drawn from it without saying what else was
 running. That is now three days of this repository reading a contended number as
 a fact about the code.
 
+### AND IT FINISHED, IN 38 MINUTES, AND THE TABLE SAYS WHAT TO FIX
+
+The audit started as the last action completed at 18:08 UTC: **2,715 mutants,
+2,707 killed, 8 survivors, 99.7%, 2,321 seconds at 70.2 a minute.** The same
+eight survivors for the fifth consecutive complete run, by file, kind, value and
+line number. `check-scores.mjs` is green and `scores.json` carries today's
+fingerprints.
+
+The phase table beside Day 77's:
+
+```text
+                                   runs           kills        share
+                               D77    D79      D77   D79    D77    D79
+  step 1 (narrowed)           2578   2578     1979  1979   19.5%  20.3%
+  step 2 (whole files)         599    599      575   575   17.4%  17.7%
+  full re-run (selection miss)  24     24       16    16   10.1%   9.7%
+  whole suite (no selection)   137    137      137   137   53.1%  52.3%
+```
+
+**Every run count is identical.** Not one mutant moved between phases across two
+days, a parameter change and six new notes. The selection is sound, the
+projection of six hours was an artefact of reading a contended prefix, and the
+rate inside this one run went **6.7 -> 26.2 -> 70.2** as the enumeration left
+`engine.js` — watched live, which is the thing the progress line was built for
+and the thing no previous day could do.
+
+> **AND THE NUMBER WORTH ACTING ON IS `52.3%`.** 137 mutants — **5% of the
+> audit** — take **half the clock**, at 34.75 seconds a kill against 0.93 for a
+> narrowed one. That is the whole of the expense, it is in one file, and it has
+> a name: the selection narrows by STATE and `engine.js` has no state. A six-
+> hour fear has become a one-file optimisation with a measured payoff.
+
 ### The order of operations, corrected mid-run
 
 Day 78's item 14 said to run the state audit FIRST, before any source change. I
@@ -192,24 +224,19 @@ fifty-eight days, so the next thing to vary is not the wording.
 
 ### What I would do next
 
-1. **FINISH THE STATE AUDIT, AND READ THE PHASE TABLE THIS TIME.** It was
-   started as the last action of today at 17:29 UTC on an idle machine, from
-   scratch, over the tree the disclosures created. At the 10.4/min measured
-   today it is about four hours; the prefix hypothesis says it should accelerate
-   sharply once the enumeration leaves `engine.js`, and the live phase line will
-   show that happening. **If it completes, update `tools/mutation/scores.json`
-   and `mutation-claims` goes green.** If it does not, the partial is at
-   `state-mutants.json.partial` in the scratchpad and dies with the container —
-   so a future run should pass `--json` into a path under `tools/` and decide
-   whether a partial is worth committing.
-2. **MAKE THE UNNARROWABLE PREFIX NARROWABLE, WHICH IS NOW A MEASURED PROBLEM
-   RATHER THAN A SUSPICION.** `narrowed 25  miss 0  whole 30` says 60% of the
-   prefix pays for all 69 test files because `engine.js` names no state. The
-   selection narrows by STATE and `engine.js` has no state to narrow to — but it
-   has FUNCTIONS, and a mutant in the Social Security worksheet does not need
-   the Arkansas bracket tests. A second selection key would cut the most
-   expensive phase of the audit, and today's phase line is the instrument that
-   would show it working.
+1. **MAKE THE UNNARROWABLE PREFIX NARROWABLE. IT IS 52.3% OF THE AUDIT AND IT IS
+   IN ONE FILE.** 137 mutants of 2,715 take half the clock, at 34.75 seconds a
+   kill against 0.93 for a narrowed one, because the selection narrows by STATE
+   and `engine.js` names none. But it has FUNCTIONS, and a mutant in the Social
+   Security worksheet does not need the Arkansas bracket tests. The measurement
+   is in `STATE-SURVIVORS.md`, the instrument that would show a fix working is
+   the live phase line, and the safety net already exists — a narrowed run that
+   comes back green re-runs the whole suite, so a wrong guess costs time and
+   never a false survivor. **This is the cheapest large win in the repository.**
+2. **THE AUDIT IS GREEN AND THE SCORE IS TODAY'S**, so the next source change
+   makes it stale again. The rule that worked today: make every note and
+   documentation edit FIRST, start the audit LAST, and do not start it early to
+   get a measurement a progress line can give you in five minutes.
 3. **A CAP DETECTOR FOR THE DEPENDENT COUNT.** The third detector named above:
    report where the marginal value of one more dependent goes FLAT rather than
    where it changes. "This credit stops at the third child" is a sentence worth

@@ -22,13 +22,13 @@
       }
     },
     "us-state-tax": {
-      "measured": "2026-11-11",
+      "measured": "2026-11-13",
       "mutants": 2715,
       "killed": 2707,
       "survivors": 8,
       "score": 99.7,
-      "mutantFingerprint": "398d723da0ccb67f",
-      "suiteFingerprint": "3b5b4f82d74e7e1d",
+      "mutantFingerprint": "018d3d48e65bde59",
+      "suiteFingerprint": "91626268ad787c0c",
       "skipped": [
         "localities/ohio.js",
         "localities/ohio-school-districts.js",
@@ -39,29 +39,29 @@
         "localities/counties.js"
       ],
       "cost": {
-        "seconds": 2713,
+        "seconds": 2321,
         "workers": 4,
-        "mutantsPerMinute": 60,
+        "mutantsPerMinute": 70.2,
         "phases": {
           "step 1 (narrowed)": {
             "runs": 2578,
             "kills": 1979,
-            "share": 19.5
+            "share": 20.3
           },
           "step 2 (whole files)": {
             "runs": 599,
             "kills": 575,
-            "share": 17.4
+            "share": 17.7
           },
           "full re-run (selection miss)": {
             "runs": 24,
             "kills": 16,
-            "share": 10.1
+            "share": 9.7
           },
           "whole suite (no selection)": {
             "runs": 137,
             "kills": 137,
-            "share": 53.1
+            "share": 52.3
           }
         }
       }

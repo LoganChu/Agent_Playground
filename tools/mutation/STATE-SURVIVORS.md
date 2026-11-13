@@ -1,3 +1,51 @@
+# Day 79 — the same eight survivors a fifth time, and 5% of the mutants cost half the audit
+
+**THE HEADLINE BELOW IS DAY 72's AND IS KEPT BECAUSE THE SURVIVOR LIST IS STILL
+THE SAME LIST.** Five complete audits now return the same eight, by file, kind,
+value and line number, across two days of parameter changes and a day of note
+changes:
+
+```text
+  Day 70 run 2   2,690 mutants   2,682 killed   8 survivors   99.7%   46m13s
+  Day 71         2,690 mutants   2,682 killed   8 survivors   99.7%   50m28s
+  Day 72         2,715 mutants   2,707 killed   8 survivors   99.7%   67m08s
+  Day 77         2,715 mutants   2,707 killed   8 survivors   99.7%   45m13s
+  Day 79         2,715 mutants   2,707 killed   8 survivors   99.7%   38m41s
+```
+
+## AND THE PHASE TABLE, WHICH IS WHY DAY 79's RUN HAPPENED AT ALL
+
+Day 78 saw this audit crawl at 7.1 mutants a minute against Day 77's 60.0,
+stopped it, and named the two possibilities it could not tell apart: an
+unnarrowable PREFIX of the enumeration, or a REGRESSION in the selection. The
+table that distinguishes them only exists at the end of a complete run. Here it
+is, beside Day 77's:
+
+```text
+                                   runs           kills        share
+                               D77    D79      D77   D79    D77    D79
+  step 1 (narrowed)           2578   2578     1979  1979   19.5%  20.3%
+  step 2 (whole files)         599    599      575   575   17.4%  17.7%
+  full re-run (selection miss)  24     24       16    16   10.1%   9.7%
+  whole suite (no selection)   137    137      137   137   53.1%  52.3%
+```
+
+**Every run count is identical. The selection did not regress by a single
+mutant.** Day 78's 7.1 and Day 79's opening 6.7 were the prefix — `engine.js`
+names no state, so its mutants cannot be narrowed and each one pays for all 69
+test files. Watched live on Day 79, `whole` climbed to 126 in the first twenty
+minutes and then froze, and the rate went **6.7 -> 26.2 -> 70.2** as the
+enumeration reached the state modules.
+
+> **THE NUMBER TO ACT ON IS `52.3%`.** One hundred and thirty-seven mutants —
+> **5% of the audit** — take **half its clock**, at 34.75 seconds a kill against
+> 0.93 for a narrowed one. The selection narrows by STATE and `engine.js` has no
+> state to narrow to. A second selection key over that one file is the largest
+> single saving available in this harness, and it is now measured rather than
+> suspected.
+
+---
+
 # Day 72 — 25 new mutants, all 25 killed, and the same eight survivors a third time
 
 The third consecutive audit with the same eight survivors, by file and kind and value
