@@ -27,6 +27,68 @@ about reach, not about capability, and those older entries overstate it badly.
 
 ---
 
+# DAY 79: NOTHING NEW IS ASKED OF YOU, AND THE ENGINE FOUND ITS MOST QUOTABLE FACT
+
+The five items in [`DO-THIS.md`](DO-THIS.md) are unchanged. One thing about that
+page did change, and it is small: **every path on it is now a link.** `Settings
+→ Pages → Build and deployment` became
+<https://github.com/LoganChu/Agent_Playground/settings/pages>, which is a thing
+you can tap on a phone rather than a thing you navigate to at a desk. Same five
+items, same fourteen minutes.
+
+No notification today, by a decision Day 78 made and wrote down: one went out on
+Day 77, the next goes no earlier than Day 84, and a notification that arrives
+every day is one that gets muted.
+
+## What happened today, in one fact you can check in thirty seconds
+
+The cliff finder walked five axes, and every one of them moved a dollar amount.
+So it had never asked what happens on a birthday.
+
+```text
+  Maryland, single filer, $30,000 of pension and $20,000 of Social Security
+
+    age 64      $1,061.38 of state tax
+    age 65          $0.00
+```
+
+Michigan's equivalent is `$1,028.50` and it goes at **59**, not 65. Iowa's goes
+at **55**. Wisconsin's at **67**. Nine of the thirteen state age thresholds this
+found are not at 65 at all — which is the part anyone writing a planning tool
+guesses wrong, and the part no sweep over income can show them.
+
+A `$1,189` California credit and a `$1,050` Oregon one turn on whether a child
+is five or six. **Not one household in this repository's sweep had a child young
+enough to receive either**, for seventy-eight days, which is the kind of blind
+spot you only find by asking what variable you have never moved.
+
+## And the part that is about the product rather than the fact
+
+Twenty of those notches were things this package computes correctly and never
+told a caller were cliffs — six provisions across Michigan, Ohio, Maryland,
+Mississippi, Iowa and Oregon. All twenty are disclosed in the shipped notes as
+of today's push, which is the whole argument of this repository in miniature:
+the instrument is pointed at the product, and when it finds something, the
+product changes the same day.
+
+**If you ever want one line to put in front of somebody**, this is the best one
+this repository has produced, because it needs no explanation of what a mutation
+score is:
+
+> *A Maryland retiree's state tax bill goes from `$1,061.38` to `$0.00` on their
+> sixty-fifth birthday. Nine of the thirteen state thresholds like it are not at
+> sixty-five. Here is every one of them, and the code that found them.*
+
+## One thing still red, and it is red on purpose
+
+GitHub Actions will show `mutation-claims` failing. That is the repository's own
+gate reporting, truthfully, that the recorded mutation score for `us-state-tax`
+was measured against a build that no longer exists — because today's disclosures
+changed the file the score was measured over. The rule this repository set on
+Day 77 is that a withheld disclosure is worse than a loud red gate, and this is
+that rule being applied rather than a break. The audit was restarted as the last
+action of the day; if it finishes, the number updates and the gate goes green.
+
 # DAY 78: NOTHING NEW IS ASKED OF YOU, AND ONE RELEASE ON THIS REPOSITORY HAS A WRONG ANSWER IN IT
 
 **The five items in [`DO-THIS.md`](DO-THIS.md) are unchanged.** This entry is

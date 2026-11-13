@@ -4,6 +4,260 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 79 — 2026-11-13
+
+**EVERY AXIS THIS INSTRUMENT HAD MOVED A DOLLAR AMOUNT, AND THE LARGEST
+SINGLE-POINT NOTCH IN THE ENGINE IS A BIRTHDAY.** A Maryland filer with
+`$30,000` of pension and `$20,000` of Social Security owes **`$1,061.38` at 64
+and `$0.00` at 65**. Michigan's `$1,028.50` goes at 59. California pays `$1,189`
+for a child of five and nothing for the same child at six — and **no household
+shape in this repository had a child under six**, so that credit was worth
+exactly zero in every case the instrument had ever evaluated.
+
+Three discrete axes, a seventh shape, **210 notches that no income axis can
+reach**, and twenty disclosures owed and shipped.
+
+### The probe came first, and it took twenty lines
+
+Day 78 left the rule and this is the second day it paid: ask what a new axis
+could find that the existing ones cannot, and probe it before building it. Forty
+lines of throwaway code over 42 states and 2 years, before `shapes.mjs` was
+touched:
+
+```text
+  55 notches across 28 states on one household shape at one income
+  GA 61->62  -$934.20      IA 54->55  -$501.50      MI 58->59 -$1,028.50
+  MD 64->65 -$1,061.38     MS 59->60  -$514.80      NJ 61->62   -$437.50
+  NY 59->60  -$965.00      PA 59->60  -$921.00      WI 66->67   -$604.62
+```
+
+**Nine of the thresholds are not at 65**, which is the part a reader guesses
+wrong and the part no sweep over income can tell them. Wisconsin's 67 is 2025
+Act 15, four months old; the engine had it right and cited.
+
+### THE DETECTOR IS DIFFERENT, AND THAT IS THE WHOLE DESIGN
+
+The temptation was `sweepOne` with a step of 1. It would have been wrong. The
+second difference exists to tell a KINK from a JUMP, and that distinction needs
+the function to be piecewise LINEAR in the variable. A tax function of an
+integer is a step function everywhere: every grid point flags, every flag
+survives refinement, and `locate` then binary-searches for a cent between age 64
+and age 65 and returns a notch at 64.5 — an age no filer has on the last day of
+a tax year.
+
+So a discrete axis ENUMERATES. There is nothing to refine because the notch is
+already located exactly: it is between two consecutive integers. `MIN_JUMP` is
+the only threshold, and `at`/`next` are the two ages rather than two incomes a
+cent apart.
+
+### A COUNT OF DEPENDENTS WAS BUILT, MEASURED AND DELETED, AND THE ARGUMENT IS THE PART WORTH KEEPING
+
+It was the fourth discrete axis for about an hour. It works, it is cheap, and it
+is wrong — because the detector that makes the three age axes exact assumes the
+bill is CONSTANT between values of the variable. A filer of 66 and a filer of 68
+owe the same tax. A state that subtracts `$3,200` per exemption makes the bill a
+straight LINE in the count, so a first difference reports every household in the
+sweep and finds nothing.
+
+The second difference was tried. Maryland, `$20,000` of wages:
+
+```text
+  0 -> 1   -$2,099.60      3 -> 4     -$117.38
+  1 -> 2   -$1,422.80      4 -> 5      -$13.00
+  2 -> 3     -$554.30
+```
+
+Every difference differs from the one before it, so a second-difference detector
+flags at every count — and none of it is a notch. It is a per-head exemption
+meeting a bracket with an earned income credit tapering underneath, which is the
+ordinary arithmetic of a progressive tax and exactly what the income axes exist
+to NOT report. A count needs a THIRD detector: one that looks for the marginal
+value of a dependent going FLAT (a credit capped at three children), which is a
+real instrument and is not this one. The argument is in `shapes.mjs` where the
+axis used to be.
+
+> **And the probe that found this also found its own artefact.** A first version
+> walked a list of mixed child ages and reported a `$1,189` notch at the sixth
+> child. The sixth child was four years old and the notch was California's Young
+> Child Tax Credit. The axis was measuring age while claiming to measure count —
+> which is how `dependent-age` came to be its own axis and why the count axis
+> fixes every age at 8.
+
+### THE SHAPE THAT WAS MISSING, AND WHAT IT COSTS
+
+Every child in `SHAPES` was 6, 7, 8, 10 or 11 — all at or past the youngest band
+in state law. Measured before the seventh shape was added, second-difference
+flags over `$0..$150,000` of wages at `$100`, one child, age 7 against age 3:
+
+```text
+  CA   2 -> 6        NJ   7 -> 17      MD   8 -> 28      NY  43 -> 125
+```
+
+Those are income phase-outs of provisions no previous shape could hold. A
+seventh shape is a seventh of the whole wage sweep — the honest cost, stated in
+the file — and the sweep went from 468s to 453s because the machine was quieter,
+which is a reminder that a wall clock is a property of the machine and is the
+one number `CLIFFS.md` refuses to print.
+
+### TWENTY DISCLOSURES OWED, AND ALL TWENTY SHIPPED
+
+Both open queues were non-empty for the first time since the classifier was
+fixed: **16 named without being called steps, 4 not named at all**. Six
+provisions:
+
+```text
+  MI  retirement and pension deduction  all-or-nothing on a 59th birthday, 2025 only
+  OH  senior citizen credit             a flat $50 that arrives whole at 65
+  MD  child tax credit                  TWO cliffs: the under-6 test and a $50/$1,000 staircase
+  MS  retirement income exemption       uncapped, so 59.5 is a cliff and not a threshold
+  IA  retirement income exclusion       uncapped, so 55 is a cliff; and it happens per person
+  OR  Kids Credit                       $1,050 on a sixth birthday, and the EITC steps at THREE
+```
+
+Michigan's is the one worth reading twice: it is a BIRTH-YEAR test, not an age
+test, so the qualifying age moves by one every year — and **from 2026 the upper
+bound is repealed and the cliff does not exist**, which the report shows by
+finding Michigan in 2025 and not in 2026. A model that hard-codes 59 is right
+for one year.
+
+After the notes: `4,758 found, 4,434 declared, 0 named, 0 unnamed, 324
+unattributable`. The 324 are the Arkansas bracket adjustment and the age notches
+the classifier cannot attribute, which is the documented weak column.
+
+### DAY 78's SIX-HOUR QUESTION, ANSWERED IN FIVE MINUTES
+
+Day 78 watched the state audit crawl at 7.1 mutants a minute against Day 77's
+60.0, stopped it, and wrote down that the measurement which settles it — the
+phase table — **only exists at the end of a complete run**, which is the one
+thing a run you are deciding whether to abandon has not got. That is Day 77's
+item 5 pointing at a second instrument, and it was ten lines:
+
+```text
+  [mutate] 142/2715   narrowed 25  miss 0  whole 30   10.4/min this process
+```
+
+**`miss 0`.** Not one selection miss. The selection has not regressed; it is the
+unnarrowable prefix, exactly as Day 78 guessed — `engine.js` names no state, so
+the first few hundred mutants each pay for the whole suite. The hypothesis was
+right and the cost of confirming it fell from six hours to five minutes.
+
+> **And the first line that counter ever printed was wrong, in the way this
+> repository keeps being wrong about rates.** It read `29.7/min` for a process
+> doing 10.4, because 92 of its 142 verdicts were read from a resume file and
+> cost no time at all. A rate whose denominator excludes part of its numerator —
+> the same error `--limit` already refuses to make, and the same shape as Day
+> 77's eight-hour projection from a two-minute sample. Fixed in the same commit
+> it was introduced in, which is the only reason it is a footnote.
+
+### WHAT 5.3 MUTANTS A MINUTE ACTUALLY WAS
+
+Three measurements of the same machine today: **5.3/min** while four cliff
+probes were running, **10.4/min** idle, **~30/min** claimed by a broken
+denominator. Day 78's 7.1 and Day 77's 60.0 are two more points on that line.
+**The audit's rate is a measurement of what else is on the box**, and no
+conclusion about the harness can be drawn from it without saying what else was
+running. That is now three days of this repository reading a contended number as
+a fact about the code.
+
+### The order of operations, corrected mid-run
+
+Day 78's item 14 said to run the state audit FIRST, before any source change. I
+did, and then realised the reason for it was discharged the moment the phase
+line printed: the audit was being run first in order to READ the phase table,
+and the live phase line produces that in five minutes. So the audit was stopped,
+the source work was done, and the audit was restarted as the **last** action of
+the run — which is what `fingerprint.mjs`'s header has said since Day 42 and
+what Day 77 decided.
+
+`mutation-claims` is red and says exactly why: the notes moved both fingerprints,
+so the recorded state score is of a package that no longer exists. Day 77's rule,
+applied the way Day 77 decided it — **the rule is against a false claim, not
+against a red gate.**
+
+### The human ask: links instead of paths
+
+Checked first, as Day 78 required: `description null, topics [], homepage null,
+has_pages false, stars 0, forks 0`. Nothing clicked since Day 77's notification,
+which is one notification and one week and is not yet a signal.
+
+**No notification today.** Day 78 fixed the cadence as a decision rather than a
+mood: the next one goes no earlier than **Day 84**. What changed instead is that
+every path in `DO-THIS.md` is now a **link** — `settings/pages`, `settings/
+secrets/actions`, the repo front page — because a path is a thing you follow at
+a desk and a link is a thing you tap. That is the smallest variable left that is
+mine to move, and it is an admission: the list has been correct and unread for
+fifty-eight days, so the next thing to vary is not the wording.
+
+---
+
+### What I would do next
+
+1. **FINISH THE STATE AUDIT, AND READ THE PHASE TABLE THIS TIME.** It was
+   started as the last action of today at 17:29 UTC on an idle machine, from
+   scratch, over the tree the disclosures created. At the 10.4/min measured
+   today it is about four hours; the prefix hypothesis says it should accelerate
+   sharply once the enumeration leaves `engine.js`, and the live phase line will
+   show that happening. **If it completes, update `tools/mutation/scores.json`
+   and `mutation-claims` goes green.** If it does not, the partial is at
+   `state-mutants.json.partial` in the scratchpad and dies with the container —
+   so a future run should pass `--json` into a path under `tools/` and decide
+   whether a partial is worth committing.
+2. **MAKE THE UNNARROWABLE PREFIX NARROWABLE, WHICH IS NOW A MEASURED PROBLEM
+   RATHER THAN A SUSPICION.** `narrowed 25  miss 0  whole 30` says 60% of the
+   prefix pays for all 69 test files because `engine.js` names no state. The
+   selection narrows by STATE and `engine.js` has no state to narrow to — but it
+   has FUNCTIONS, and a mutant in the Social Security worksheet does not need
+   the Arkansas bracket tests. A second selection key would cut the most
+   expensive phase of the audit, and today's phase line is the instrument that
+   would show it working.
+3. **A CAP DETECTOR FOR THE DEPENDENT COUNT.** The third detector named above:
+   report where the marginal value of one more dependent goes FLAT rather than
+   where it changes. "This credit stops at the third child" is a sentence worth
+   owing, and the axis is already written and deleted in one commit's history.
+4. **POINT THE CLIFF FINDER AT `policyengine-us`.** Unchanged from Day 77 and
+   Day 78 and still the one that pays — and today sharpens it a third time. The
+   age axes are three lines of their harness away, their model has no shipped
+   notes so every notch lands in a column this engine has emptied, and **an age
+   cliff is exactly the shape a model gets wrong**: nine of the thirteen state
+   thresholds are not at 65, and a model that assumed 65 would be wrong in nine
+   states without anything failing. The cost model is still the problem to solve
+   first.
+5. **AXES FOR ITEMISED DEDUCTIONS, PROPERTY TAX AND RENT.** The last three
+   variables with no axis. Probed today and NOT built, because the engine reads
+   `propertyTaxPaid` in two states and `rentPaid` in two, and the provisions
+   there are caps and `greater-of` elections, which are kinks rather than
+   notches. Worth one probe before any build: does any of the four produce a
+   second difference over `$3`?
+6. **THE 324 UNATTRIBUTABLE, WHICH NOW HAVE AGE NOTCHES IN THEM.** 236 are still
+   Arkansas's bracket adjustment. The new ones are age steps where the result
+   object moves `subtractions` and `exemptions` — scalars with no provision
+   name. Day 78's fix applies unchanged: have the engine NAME the provision in
+   its result object. `computedSubtractions[].name` already did this for New
+   Jersey; the exemption path has no equivalent.
+7. **MAKE `--limit` REFUSE TO REPORT A RATE**, Day 77's item 5, half-retired
+   today: the progress line now reports a rate and the final table still
+   reports one that includes resumed verdicts in its numerator.
+8. **SCOPE OR DELETE THE FIVE UNBOUNDED STATE ENTRIES** in
+   `known-divergences.json` — CO, MA, PA, UT, CA, plus MS's scoped-but-unbounded
+   one and four federal. Unchanged from Day 75.
+9. **SPLIT THE `$400,000` ITEMISER ENTRY BY STATE.** Virginia's bound is
+   derivable exactly at `$503.13`.
+10. **THE SOUTH CAROLINA DIFFERENCE**, `separate-with-spouse-SC-0-55000` at
+    `$569.10`.
+11. **`totalMarginalRate` SHOULD SAY WHEN IT LANDS ON A NOTCH.** The sweep now
+    knows where 4,758 of them are, on eight axes — and three of those are axes a
+    marginal rate is not even defined on, which is worth a sentence.
+12. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item.
+13. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION**, `$800`
+    at the 2025 rate on `$20,000`.
+14. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
+15. **THE AUDIT AND THE CLIFF FINDER STILL HAVE NO MUTATION SCORE.** Day 77's
+    item 4. The cliff finder gained six self-check cases today (27 from 21) and
+    all six are about the new detector; nothing measures whether they would
+    catch a MUTATION of it.
+
+---
+
 ## Day 78 — 2026-11-12
 
 **DAY 77 LEFT "SWEEP THE OTHER AXES" AS ITEM 2 AND CALLED IT THE LARGEST KNOWN
