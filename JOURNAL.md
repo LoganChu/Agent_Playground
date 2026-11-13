@@ -206,6 +206,149 @@ so the recorded state score is of a package that no longer exists. Day 77's rule
 applied the way Day 77 decided it — **the rule is against a false claim, not
 against a red gate.**
 
+### AND THE LAST THREE VARIABLES WERE PROBED, WHICH CLOSED THE QUESTION AND FOUND ONE MORE NOTCH
+
+Itemised deductions, property tax and rent have been on the "no axis walks it"
+list since the file was written. With CI green and the machine free, they were
+swept by hand rather than left as a sentence — single filer, 2025, `$25,000`
+and `$60,000` of wages, second differences over `$3`:
+
+```text
+  rentPaid                 MA, WI    0 flags   $200 / $300 of effect, smooth
+  stateItemizedDeductions  AL, WI    6 flags at 3 points, every one `rate x step`
+                                     at a standard-deduction crossover: KINKS
+  propertyTaxPaid          WI        2 flags at 1 point, the $2,500 cap: a KINK
+  propertyTaxPaid          NJ        2 flags at 1 point, and it is REAL
+```
+
+(Two wage levels, so one statutory point flags twice.)
+
+### AND THAT TABLE WAS WRONG ONCE, IN THE DIRECTION OF A FALSE ALL-CLEAR
+
+Its first version reported **six of the eight itemising states as moving by
+`$0.00`** and concluded their itemised route never wins. It never ran. Maryland,
+Virginia, New Mexico, Oklahoma, Arkansas and Kansas condition their itemised
+route on the FEDERAL return itemising, and the probe's household took the
+federal standard deduction — so the provision was never reached and the zero was
+a fact about my harness. Alabama and Wisconsin moved because neither gates on
+it, which is exactly why the error was invisible: two states answered, so the
+probe looked alive.
+
+Re-run with the federal return itemising: **Maryland moves `$2,215.88`, Virginia
+`$2,312.40`, New Mexico `$2,184.50`** across `$50,000`, and all three are smooth
+above `$1,000`. The conclusion survives; the evidence for it did not exist
+twenty minutes ago.
+
+> **A null result from a harness that could not reach the provision is not a
+> null result about the law.** This is Day 78's § 32(i) lesson one level up —
+> there the classifier read a disclosure at a midpoint where it could not fire,
+> here the probe asked at the wrong KIND of return — and it is the second time
+> in two days that a zero turned out to be about the instrument.
+
+### AND THE RE-RUN FOUND A $503.12 NOTCH THAT IS NOT IN ANY STATUTE
+
+```text
+  VA 2025, single, $60,000 of wages, federal return ITEMISING
+    stateItemizedDeductions  0      Virginia deduction  8,750   tax  $2,635.90
+    stateItemizedDeductions  0.01   Virginia deduction   0.01   tax  $3,139.02
+```
+
+Va. Code § 58.1-322.03(1) makes a filer who itemises federally itemise for
+Virginia too, losing the state standard deduction — and the engine reads a
+`stateItemizedDeductions` of `0` as **the field was not supplied** and hands
+back the standard deduction anyway. Both readings of `0` are defensible, they
+differ by `$503.12`, and a caller who computes the figure honestly and gets zero
+is answered differently from one who passes a cent.
+
+**`$503.13` is already in this repository's worklist**, as item 9's *"Virginia's
+bound is derivable exactly at `$503.13`"* — carried for days as a bound on a
+known divergence. It is the same number, and it is a live notch in the input
+schema rather than a bound on anything.
+
+It is written down rather than fixed because the fix is a decision about what
+`0` means in an optional field — plausibly that the engine should read the
+federal `deductionKind` and refuse the standard deduction when the federal
+return itemised, whatever the state figure is — and that is worth a run's
+attention rather than the last twenty minutes of one. **It is item 1 for
+tomorrow and it goes in before the audit starts.**
+
+**The structural answer is that all three are DEDUCTIONS, and a deduction is a
+kink**: it changes the slope at a cap or a crossover and never jumps. That is
+why eight states of itemisers produce nothing but `rate × step` artefacts of my
+own threshold. One axis of the three would be seven-eighths noise.
+
+The exception is New Jersey, where the alternative to the deduction is a flat
+`$50` **credit** that is not prorated:
+
+```text
+  NJ 2025, single, $25,000 of wages
+    propertyTaxPaid  $0.00    totalTax  $350.00
+    propertyTaxPaid  $0.01    totalTax  $300.00
+```
+
+**One cent of property tax is worth `$50`**, and the bill is then FLAT in the
+amount paid until the DEDUCTION is worth more than `$50` — which is `$50`
+divided by the marginal rate, so the plateau is `$906` wide at 5.525% and
+`$2,858` wide at 1.75%, both measured to the dollar. Step, then a plateau whose
+width is set by the rate, then a slope. The package
+named the credit, said it was an alternative to the deduction and said which one
+it used — and never said that the first cent is a cliff or that the plateau
+exists. Disclosed now, and the measurement is written into `shapes.mjs` where
+the open question used to be, so the next run inherits a result instead of a
+sentence.
+
+> **An axis for one notch is not worth a seventh of the sweep, and that is the
+> honest reason there is not one.** This is the second axis decision made in
+> both directions today: the count of dependents was refused on the detector,
+> and these three on the yield.
+
+**AND THE `$2,858` WAS ALREADY IN THIS FILE, DERIVED THE DAY NEW JERSEY WAS
+ADDED.** Searching for the figure after measuring it found it written out in an
+old entry, to the cent, with the same reasoning — *"`$2,857` is worth `$49.99`
+at 1.75% and loses to the credit by a cent"* — beside a sentence that the two
+routes are alternatives and the form says to compute both. That went into the
+journal and into the engine's arithmetic. **It did not go into the shipped
+note**, which named the credit, named the alternative, and left out the shape.
+So the instrument did not teach this repository something new today; it found
+something the repository already knew and had never told a caller. That is a
+different and slightly worse failure than not knowing, and it is the argument
+for pointing the cliff finder at variables it does not sweep: the gap between
+what is derived here and what is *said* in the result object is not visible from
+either side alone.
+
+### AND THE PUBLIC PAGE UNDERSOLD ITSELF BY THREE ROWS, IN THE ONE SENTENCE A VISITOR READS FIRST
+
+Found while waiting for the audit, by reading the site rather than running
+anything. `site/checks.html` is titled *"**Ten** households where tax software
+is wrong"*. The link on `site/index.html` that is how a visitor gets there said
+***Seven***. So did the page's own `<meta name="description">`, which is the
+sentence a search engine prints under the title.
+
+`site/test/checks.test.js` already gates this count — against `CHECKS.length`,
+spelt out, in the **title**, the **lede** and a **section heading**. Three
+witnesses, all correct, and the two places nobody had thought of were both three
+out and had been since the eighth, ninth and tenth rows were added.
+
+> **A count in prose needs a gate wherever it is WRITTEN, not wherever it is
+> most prominent.** Three gated sites and two ungated ones is not a 60% gate; it
+> is an ungated count with three witnesses. The same shape as Day 78's
+> `CLIFFS.md` duration — a gate and the line that defeats it, living together.
+
+Both fixed, both now gated, and **the gate was proved by reverting the fix and
+watching it fail** before it was trusted:
+
+```text
+  index.html says "Seven"   ->  33 passed, 1 failed:
+                                "the link on index.html, which is how a
+                                 visitor gets here"
+  index.html says "Ten"     ->  34 of 34
+```
+
+Worth noting what this cost and what it was worth: ten minutes, no compute, and
+it is the only defect today that an actual visitor would have seen — on a site
+that **nobody can reach, because Pages is off.** Item 1 of `DO-THIS.md` is still
+thirty seconds and still the thing standing between this work and a reader.
+
 ### The human ask: links instead of paths
 
 Checked first, as Day 78 required: `description null, topics [], homepage null,
@@ -224,7 +367,15 @@ fifty-eight days, so the next thing to vary is not the wording.
 
 ### What I would do next
 
-1. **MAKE THE UNNARROWABLE PREFIX NARROWABLE. IT IS 52.3% OF THE AUDIT AND IT IS
+1. **VIRGINIA'S `$503.12` ZERO-NOTCH, AND IT GOES IN BEFORE THE AUDIT STARTS.**
+   `stateItemizedDeductions: 0` returns the state standard deduction even when
+   the federal return itemised, and `0.01` does not. The figures are in today's
+   entry and in `shapes.mjs` under `VIRGINIA_ZERO_NOTCH`. The question to settle
+   first is which reading is right — probably that the engine should take the
+   federal `deductionKind` as the deciding fact and stop inferring the election
+   from whether a number is zero — and then whether the other five gated states
+   have the same hole. A note is the floor; a fix is better.
+2. **MAKE THE UNNARROWABLE PREFIX NARROWABLE. IT IS 52.3% OF THE AUDIT AND IT IS
    IN ONE FILE.** 137 mutants of 2,715 take half the clock, at 34.75 seconds a
    kill against 0.93 for a narrowed one, because the selection narrows by STATE
    and `engine.js` names none. But it has FUNCTIONS, and a mutant in the Social
@@ -233,15 +384,15 @@ fifty-eight days, so the next thing to vary is not the wording.
    the live phase line, and the safety net already exists — a narrowed run that
    comes back green re-runs the whole suite, so a wrong guess costs time and
    never a false survivor. **This is the cheapest large win in the repository.**
-2. **THE AUDIT IS GREEN AND THE SCORE IS TODAY'S**, so the next source change
+3. **THE AUDIT IS GREEN AND THE SCORE IS TODAY'S**, so the next source change
    makes it stale again. The rule that worked today: make every note and
    documentation edit FIRST, start the audit LAST, and do not start it early to
    get a measurement a progress line can give you in five minutes.
-3. **A CAP DETECTOR FOR THE DEPENDENT COUNT.** The third detector named above:
+4. **A CAP DETECTOR FOR THE DEPENDENT COUNT.** The third detector named above:
    report where the marginal value of one more dependent goes FLAT rather than
    where it changes. "This credit stops at the third child" is a sentence worth
    owing, and the axis is already written and deleted in one commit's history.
-4. **POINT THE CLIFF FINDER AT `policyengine-us`.** Unchanged from Day 77 and
+5. **POINT THE CLIFF FINDER AT `policyengine-us`.** Unchanged from Day 77 and
    Day 78 and still the one that pays — and today sharpens it a third time. The
    age axes are three lines of their harness away, their model has no shipped
    notes so every notch lands in a column this engine has emptied, and **an age
@@ -249,36 +400,38 @@ fifty-eight days, so the next thing to vary is not the wording.
    thresholds are not at 65, and a model that assumed 65 would be wrong in nine
    states without anything failing. The cost model is still the problem to solve
    first.
-5. **AXES FOR ITEMISED DEDUCTIONS, PROPERTY TAX AND RENT.** The last three
-   variables with no axis. Probed today and NOT built, because the engine reads
-   `propertyTaxPaid` in two states and `rentPaid` in two, and the provisions
-   there are caps and `greater-of` elections, which are kinks rather than
-   notches. Worth one probe before any build: does any of the four produce a
-   second difference over `$3`?
-6. **THE 324 UNATTRIBUTABLE, WHICH NOW HAVE AGE NOTCHES IN THEM.** 236 are still
+6. **~~AXES FOR ITEMISED DEDUCTIONS, PROPERTY TAX AND RENT~~ — DONE AND
+   REFUSED.** Probed today over all twelve state-variable pairs. Every one is a
+   deduction and a deduction is a kink; the only real notch is New Jersey's $50
+   credit on the first cent of property tax, which is now disclosed. One notch
+   does not earn a seventh of the sweep. The measurement is in `shapes.mjs`. The
+   remaining open variable is the COUNT of dependents, which is item 3.
+7. **THE 324 UNATTRIBUTABLE, WHICH NOW HAVE AGE NOTCHES IN THEM.** 236 are still
    Arkansas's bracket adjustment. The new ones are age steps where the result
    object moves `subtractions` and `exemptions` — scalars with no provision
    name. Day 78's fix applies unchanged: have the engine NAME the provision in
    its result object. `computedSubtractions[].name` already did this for New
    Jersey; the exemption path has no equivalent.
-7. **MAKE `--limit` REFUSE TO REPORT A RATE**, Day 77's item 5, half-retired
+8. **MAKE `--limit` REFUSE TO REPORT A RATE**, Day 77's item 5, half-retired
    today: the progress line now reports a rate and the final table still
    reports one that includes resumed verdicts in its numerator.
-8. **SCOPE OR DELETE THE FIVE UNBOUNDED STATE ENTRIES** in
+9. **SCOPE OR DELETE THE FIVE UNBOUNDED STATE ENTRIES** in
    `known-divergences.json` — CO, MA, PA, UT, CA, plus MS's scoped-but-unbounded
    one and four federal. Unchanged from Day 75.
-9. **SPLIT THE `$400,000` ITEMISER ENTRY BY STATE.** Virginia's bound is
-   derivable exactly at `$503.13`.
-10. **THE SOUTH CAROLINA DIFFERENCE**, `separate-with-spouse-SC-0-55000` at
+10. **SPLIT THE `$400,000` ITEMISER ENTRY BY STATE**, and read it against item 1
+    first: the `$503.13` this item has carried as a BOUND on a divergence is the
+    same number as the live input-schema notch found today, which is probably
+    not a coincidence and may mean the divergence and the notch are one thing.
+11. **THE SOUTH CAROLINA DIFFERENCE**, `separate-with-spouse-SC-0-55000` at
     `$569.10`.
-11. **`totalMarginalRate` SHOULD SAY WHEN IT LANDS ON A NOTCH.** The sweep now
+12. **`totalMarginalRate` SHOULD SAY WHEN IT LANDS ON A NOTCH.** The sweep now
     knows where 4,758 of them are, on eight axes — and three of those are axes a
     marginal rate is not even defined on, which is worth a sentence.
-12. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item.
-13. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION**, `$800`
+13. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item.
+14. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION**, `$800`
     at the 2025 rate on `$20,000`.
-14. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
-15. **THE AUDIT AND THE CLIFF FINDER STILL HAVE NO MUTATION SCORE.** Day 77's
+15. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
+16. **THE AUDIT AND THE CLIFF FINDER STILL HAVE NO MUTATION SCORE.** Day 77's
     item 4. The cliff finder gained six self-check cases today (27 from 21) and
     all six are about the new detector; nothing measures whether they would
     catch a MUTATION of it.

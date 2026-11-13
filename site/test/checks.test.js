@@ -196,6 +196,28 @@ test('every number the page states in prose is the engine\'s own', () => {
     html.includes(`Run these ${word.toLowerCase()} against your own calculator`),
     'the lede',
   );
+
+  // AND THE TWO PLACES THE COUNT ALSO APPEARS, WHICH THIS TEST DID NOT COVER
+  // AND WHICH WERE BOTH THREE OUT. Day 79: the title, the lede and the section
+  // heading above were gated and said "Ten"; the page's own META DESCRIPTION
+  // and the LINK on `index.html` that sends every visitor here were not gated
+  // and both said "Seven". So the front page undersold the page it links to by
+  // three rows, and the description a search engine reads disagreed with the
+  // title it reads beside it.
+  //
+  // **The rule this is an instance of: a count in prose needs a gate wherever
+  // it is WRITTEN, not wherever it is most prominent.** Three gated sites and
+  // two ungated ones is not a 60% gate, it is an ungated count with three
+  // witnesses.
+  assert.ok(
+    html.includes(`content="${word} US state income tax households,`),
+    "the page's own meta description",
+  );
+  const index = readFileSync(join(root, 'index.html'), 'utf8');
+  assert.ok(
+    index.includes(`<strong>${word} households where tax software is wrong</strong>`),
+    "the link on index.html, which is how a visitor gets here",
+  );
 });
 
 test('the page renders every row and references no file it does not ship', () => {

@@ -38,8 +38,79 @@
  *
  * ## What is deliberately NOT here
  *
- * **Itemised deductions, property tax and rent.** A notch in a provision tested
- * on one of those is a notch in *that* variable, and no axis below walks it.
+ * **Itemised deductions, property tax and rent — PROBED ON DAY 79 AND STILL NOT
+ * HERE, WHICH IS A DIFFERENT STATEMENT FROM THE ONE THIS PARAGRAPH USED TO
+ * MAKE.** Two states read `propertyTaxPaid`, two read `rentPaid` and nine read
+ * `stateItemizedDeductions`, and all three were swept by hand before any axis
+ * was proposed. Second differences over `$3`, single filer, 2025, at `$25,000`
+ * and `$60,000` of wages:
+ *
+ * ```text
+ *   rentPaid                MA, WI    0 flags     effect $200 / $300, smooth
+ *   stateItemizedDeductions AL, WI    6 flags at 3 points, all `rate x step` at
+ *                                     a standard-deduction crossover: KINKS
+ *   stateItemizedDeductions MD VA NM  smooth above $1,000; see the paragraph
+ *                           OK AR KS  below, which is the correction
+ *   propertyTaxPaid         WI        2 flags at 1 point, the $2,500 cap: KINK
+ *   propertyTaxPaid         NJ        2 flags at 1 point, and it is REAL
+ * ```
+ *
+ * (Flags are counted over two wage levels, `$25,000` and `$60,000`, so a single
+ * statutory point is flagged twice. The distinct-point column is the one to
+ * read, for the same reason `CLIFFS.md` quotes distinct notches.)
+ *
+ * **AND THE FIRST VERSION OF THAT TABLE WAS WRONG ABOUT SIX OF THE EIGHT
+ * ITEMISING STATES, IN THE DIRECTION OF A FALSE ALL-CLEAR.** It reported them
+ * as moving by `$0.00` and concluded their itemised route never wins. It never
+ * RAN: Maryland, Virginia, New Mexico, Oklahoma, Arkansas and Kansas condition
+ * their itemised route on the FEDERAL return itemising, and the probe's
+ * household took the federal standard deduction, so the provision was never
+ * reached. Alabama and Wisconsin moved because neither gates on it.
+ *
+ * Re-run with the federal return itemising, Maryland moves `$2,215.88`,
+ * Virginia `$2,312.40` and New Mexico `$2,184.50` across `$50,000` — and all
+ * three are smooth above `$1,000`. **A null result from a harness that could
+ * not reach the provision is not a null result about the law**, which is the
+ * same lesson as Day 78's § 32(i) note read at a midpoint where it could not
+ * fire, one level up: there the instrument asked the right question at the
+ * wrong income, here it asked at the wrong kind of return.
+ *
+ * Virginia's re-run found the one thing in this whole probe that is a notch and
+ * is NOT a statute. See `VIRGINIA_ZERO_NOTCH` below.
+ *
+ * **Every one of those variables is a deduction, and a deduction is a KINK**:
+ * it changes the slope at a cap or a crossover and never jumps. The exception
+ * is New Jersey, where the alternative to the deduction is a flat `$50` CREDIT
+ * that is not prorated — `$350.00` of tax at `$0` of property tax and `$300.00`
+ * at one cent. One notch, in one state, on an amount PAID rather than on
+ * income, now disclosed in New Jersey's own notes.
+ *
+ * An axis for one notch is not worth a seventh of the sweep, which is the
+ * honest reason there is not one. The finding is kept here so the next run
+ * inherits the measurement rather than the open question.
+ *
+ * ## `VIRGINIA_ZERO_NOTCH` — a $503.12 step at the boundary of an INPUT, not a statute
+ *
+ * Virginia, 2025, single, `$60,000` of wages, federal return itemising:
+ *
+ * ```text
+ *   stateItemizedDeductions   0        Virginia deduction  8,750   tax  $2,635.90
+ *   stateItemizedDeductions   0.01     Virginia deduction   0.01   tax  $3,139.02
+ * ```
+ *
+ * **One cent of itemised deductions costs `$503.12`.** Va. Code
+ * § 58.1-322.03(1) makes a filer who itemises federally itemise for Virginia
+ * too, which costs them the state standard deduction — and the engine reads a
+ * `stateItemizedDeductions` of `0` as *the field was not supplied* and hands
+ * back the standard deduction anyway. Both readings of `0` are defensible and
+ * they differ by `$503.12`, so a caller who computes the figure and passes a
+ * genuine zero gets a different answer from one who passes a cent.
+ *
+ * It is the only notch found anywhere in this probe that is a property of the
+ * INPUT SCHEMA rather than of a statute, every other point is a kink, and above
+ * `$1,000` Virginia is smooth. It is written down rather than fixed because the
+ * fix is a design decision about what `0` means in an optional field, and that
+ * is worth a run's attention rather than the last twenty minutes of one.
  *
  * Investment income, pension income, Social Security benefits and municipal
  * interest WERE in this paragraph until Day 78, when they became the four axes

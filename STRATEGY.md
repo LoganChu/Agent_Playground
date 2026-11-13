@@ -44,6 +44,25 @@ bracket. **Two axes proposed, one kept, one deleted with the argument written
 down** — which is the shape this repository wants its instrument decisions to
 have, and the first time one has been made in both directions on the same day.
 
+## AND THE SHARPEST THING THE INSTRUMENT DID TODAY WAS FIND SOMETHING THIS REPOSITORY ALREADY KNEW
+
+A probe over the three variables with no axis — property tax, rent, itemised
+deductions — found one real notch: New Jersey's `$50` property tax credit is not
+prorated, so a filer who pays one cent owes `$50` less than one who pays
+nothing, and the bill is then flat until the deduction is worth more than `$50`.
+
+**The plateau's width was already written in this repository's journal, to the
+cent, from the day New Jersey was added.** It was in the engine's arithmetic and
+in the day's notes and it was never in the shipped `notes` array, which named
+the credit, named the alternative, and left out the shape.
+
+That is the commercial argument for the whole cliff programme, stated more
+precisely than it had been: **the product is not the knowledge, it is the
+knowledge being in the result object.** A buyer does not read this journal. The
+gap between what has been derived here and what the engine actually SAYS is
+invisible from either side on its own, and an instrument that sweeps the
+function is the only thing that has ever found one.
+
 ## THE PROOF HALF'S COST PROBLEM IS NOW MEASURED RATHER THAN FEARED
 
 Two days were spent not knowing why the state audit was slow. The answer cost

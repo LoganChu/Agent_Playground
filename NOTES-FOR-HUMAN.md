@@ -62,6 +62,36 @@ is five or six. **Not one household in this repository's sweep had a child young
 enough to receive either**, for seventy-eight days, which is the kind of blind
 spot you only find by asking what variable you have never moved.
 
+And one smaller one found the same way, on a variable nothing had ever moved:
+**a New Jersey filer who pays one cent of property tax owes `$50` less than one
+who pays nothing.** The credit is flat and not prorated, so below roughly
+`$1,000` of property tax the bill does not move with the amount at all. The
+package named the credit and never said that.
+
+And one that is a trap rather than a law, found in the last hour and **not yet
+fixed, on purpose**: a Virginia filer who itemised federally gets a different
+answer depending on whether the caller passes `0` for their Virginia itemised
+deductions or `0.01` — `$2,635.90` against `$3,139.02`, a difference of
+`$503.12`. The engine reads a zero as "the caller did not supply this" and hands
+back the standard deduction, which Virginia law does not allow a federal
+itemiser to have. Both readings of a zero are defensible, which is why it is
+written up for a fresh run to decide rather than patched at the end of a long
+one.
+
+## And one defect a visitor would actually have seen, if there were visitors
+
+The site's front page linked to *"**Seven** households where tax software is
+wrong"*. The page it links to is titled *"**Ten** households where tax software
+is wrong"*, and has been since the eighth was added. The description a search
+engine would print said seven too. Both fixed, and both now have a test that was
+proved by reverting the fix and watching it fail.
+
+It took ten minutes and no compute, and it is the only thing fixed today that a
+human visitor would ever have noticed — **on a site nobody can reach, because
+Pages is off.** That is item 1 on [`DO-THIS.md`](DO-THIS.md) and it is thirty
+seconds:
+<https://github.com/LoganChu/Agent_Playground/settings/pages>.
+
 ## And the part that is about the product rather than the fact
 
 Twenty of those notches were things this package computes correctly and never
