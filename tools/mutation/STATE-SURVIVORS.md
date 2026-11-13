@@ -1,17 +1,24 @@
-# Day 79 — the same eight survivors a fifth time, and 5% of the mutants cost half the audit
+# Day 79 — the same eight survivors a sixth time, and 5% of the mutants cost half the audit
 
 **THE HEADLINE BELOW IS DAY 72's AND IS KEPT BECAUSE THE SURVIVOR LIST IS STILL
-THE SAME LIST.** Five complete audits now return the same eight, by file, kind,
-value and line number, across two days of parameter changes and a day of note
-changes:
+THE SAME LIST.** Six complete audits now return the same eight, by file, kind
+and value — and by line number too, except where a shipped note moved one down
+the file, which is the only thing that has ever moved any of them:
 
 ```text
   Day 70 run 2   2,690 mutants   2,682 killed   8 survivors   99.7%   46m13s
   Day 71         2,690 mutants   2,682 killed   8 survivors   99.7%   50m28s
   Day 72         2,715 mutants   2,707 killed   8 survivors   99.7%   67m08s
   Day 77         2,715 mutants   2,707 killed   8 survivors   99.7%   45m13s
-  Day 79         2,715 mutants   2,707 killed   8 survivors   99.7%   38m41s
+  Day 79 run 1   2,715 mutants   2,707 killed   8 survivors   99.7%   38m41s
+  Day 79 run 2   2,715 mutants   2,707 killed   8 survivors   99.7%   44m09s
 ```
+
+Two complete runs on Day 79, because a note was added to New Jersey between
+them and a note moves both fingerprints. The second is the recorded one. The
+survivor list is the same list with **one line number one higher** —
+`states/new-jersey.js` 229 becomes 230 — which is the note, and is the whole
+reason a note costs an audit.
 
 ## AND THE PHASE TABLE, WHICH IS WHY DAY 79's RUN HAPPENED AT ALL
 
@@ -22,13 +29,26 @@ table that distinguishes them only exists at the end of a complete run. Here it
 is, beside Day 77's:
 
 ```text
-                                   runs           kills        share
-                               D77    D79      D77   D79    D77    D79
-  step 1 (narrowed)           2578   2578     1979  1979   19.5%  20.3%
-  step 2 (whole files)         599    599      575   575   17.4%  17.7%
-  full re-run (selection miss)  24     24       16    16   10.1%   9.7%
-  whole suite (no selection)   137    137      137   137   53.1%  52.3%
+                                 runs                kills            share
+                            D77  D79a D79b     D77  D79a D79b   D77   D79a  D79b
+  step 1 (narrowed)        2578  2578 2578    1979  1979 1979  19.5% 20.3% 24.1%
+  step 2 (whole files)      599   599  599     575   575  575  17.4% 17.7% 21.3%
+  full re-run (miss)         24    24   24      16    16   16  10.1%  9.7%  8.5%
+  whole suite (no select)   137   137  137     137   137  137  53.1% 52.3% 46.1%
 ```
+
+**THE RUN COUNTS AND THE KILL COUNTS ARE IDENTICAL IN ALL THREE RUNS. THE
+SHARES ARE NOT, AND THAT IS THE SAME LESSON AGAIN.** Day 79's second run shared
+the machine with a cliff probe and a site test suite, so its wall clock was
+2,649s against 2,321s and every phase got slower by a different amount —
+`step 1` from 0.93 to 1.27 seconds a kill, `whole suite` from 34.75 to 35.02.
+The cheap phase is the one contention hurts, because its seconds are mostly
+process startup, so the EXPENSIVE phase's share falls when the machine is
+busier. A share is a ratio of two contended numbers.
+
+So read the RUN COUNTS for whether the selection is working, and read the
+shares only against a wall clock you know the machine was idle for. Run 1 was
+idle: **52.3%** is the figure to act on.
 
 **Every run count is identical. The selection did not regress by a single
 mutant.** Day 78's 7.1 and Day 79's opening 6.7 were the prefix — `engine.js`
@@ -37,7 +57,7 @@ test files. Watched live on Day 79, `whole` climbed to 126 in the first twenty
 minutes and then froze, and the rate went **6.7 -> 26.2 -> 70.2** as the
 enumeration reached the state modules.
 
-> **THE NUMBER TO ACT ON IS `52.3%`.** One hundred and thirty-seven mutants —
+> **THE NUMBER TO ACT ON IS `52.3%`**, from the idle run. One hundred and thirty-seven mutants —
 > **5% of the audit** — take **half its clock**, at 34.75 seconds a kill against
 > 0.93 for a narrowed one. The selection narrows by STATE and `engine.js` has no
 > state to narrow to. A second selection key over that one file is the largest

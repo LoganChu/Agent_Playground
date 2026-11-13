@@ -161,11 +161,14 @@ a fact about the code.
 
 ### AND IT FINISHED, IN 38 MINUTES, AND THE TABLE SAYS WHAT TO FIX
 
-The audit started as the last action completed at 18:08 UTC: **2,715 mutants,
-2,707 killed, 8 survivors, 99.7%, 2,321 seconds at 70.2 a minute.** The same
-eight survivors for the fifth consecutive complete run, by file, kind, value and
-line number. `check-scores.mjs` is green and `scores.json` carries today's
-fingerprints.
+The audit ran to completion twice today, because a New Jersey note was added
+between the two and a note moves both fingerprints. **2,715 mutants, 2,707
+killed, 8 survivors, 99.7%** both times — 2,321s at 70.2 a minute on an idle
+machine, then 2,649s at 61.5 sharing it with a probe. The same eight survivors
+for the fifth and sixth consecutive complete runs, with **one line number one
+higher** in the second: `states/new-jersey.js` 229 became 230, which is the
+note, and is the whole reason a note costs an audit. `check-scores.mjs` is green
+and `scores.json` carries the second run's fingerprints.
 
 The phase table beside Day 77's:
 
@@ -178,8 +181,14 @@ The phase table beside Day 77's:
   whole suite (no selection)   137    137      137   137   53.1%  52.3%
 ```
 
-**Every run count is identical.** Not one mutant moved between phases across two
-days, a parameter change and six new notes. The selection is sound, the
+**Every run count and every kill count is identical across all three runs — Day
+77's and both of today's. The SHARES are not**, and that is the same lesson a
+third time: today's second run shared the machine, so its wall clock was 2,649s
+against 2,321s, `step 1` went from 0.93 to 1.27 seconds a kill, and the
+expensive phase's share FELL to 46.1% because the cheap phase is the one
+contention hurts. A share is a ratio of two contended numbers; `52.3%` is the
+figure to act on because run 1 had the machine to itself. Not one mutant moved
+between phases across two days, a parameter change and seven new notes. The selection is sound, the
 projection of six hours was an artefact of reading a contended prefix, and the
 rate inside this one run went **6.7 -> 26.2 -> 70.2** as the enumeration left
 `engine.js` — watched live, which is the thing the progress line was built for
