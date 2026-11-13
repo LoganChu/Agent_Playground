@@ -453,8 +453,18 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // Oklahoma's 342, North Dakota's 272 and Louisiana's 95. Its doc comment is
   // prose and one table rather than four published rate schedules, which is
   // what that ratio measures.
-  assert.deepEqual(at('states/iowa.js', 156), {
-    rel: 'states/iowa.js', offset: 19_076, from: '9_000', to: '18000', kind: 'money', line: 156,
+  //
+  // THE ANCHOR MOVED ON DAY 79 AND ITS MOVING IS THE POINT. A shipped note was
+  // added to `IA_NOTES` saying that the retirement income exclusion's age test
+  // is a CLIFF rather than a threshold, which is prose and changes no
+  // parameter — and it pushed this literal from line 156 to 157 and from offset
+  // 19,076 to 19,620. The mutant is the same mutant, Iowa's count is still 14,
+  // and the total is still 2,715. **An anchor that cannot tell a parameter
+  // change from a prose change is doing half its job**, and this is the half it
+  // does: it says the file moved and makes somebody look. The half it does not
+  // do is why `fingerprint.mjs` exists and why a note costs a re-audit.
+  assert.deepEqual(at('states/iowa.js', 157), {
+    rel: 'states/iowa.js', offset: 19_620, from: '9_000', to: '18000', kind: 'money', line: 157,
   });
   assert.equal(
     mutants.filter((m) => m.rel === 'states/iowa.js').length,

@@ -392,7 +392,7 @@ The last line is the one worth reading twice. **A tool that explains every disag
 **1. $0.37 — a rounding difference, not a reading of the law**  
 *ARITHMETIC* — The two figures differ by less than a dollar. States differ on whether the filer rounds to the dollar, at which line, and in which direction; New Mexico's Department changed its own rule after 2023. Worth settling once, and not worth settling per household.
 
-*This return carries 20 note(s) from the engine about things a caller would otherwise get wrong. They are omitted here because the gap is explained above; `--json` carries them.*
+*This return carries 21 note(s) from the engine about things a caller would otherwise get wrong. They are omitted here because the gap is explained above; `--json` carries them.*
 
 *This harness defaulted 4 field(s) on this row — pension treated as 0; socialSecurity treated as 0; longTermCapitalGains treated as 0; taxExemptInterest treated as 0. Where that matters the gap is this harness's silence rather than your engine's answer.*
 

@@ -46,8 +46,8 @@ import { cpus } from 'node:os';
 import { stateIncomeTax } from '../../packages/us-state-tax/dist/esm/index.js';
 import { householdInput } from '../differential/ours.mjs';
 import {
-  STATES, YEARS, SHAPES, BANDS, AXES, FLAG_THRESHOLD, MIN_JUMP,
-  caseFor, shapesFor, midpointFor,
+  STATES, YEARS, SHAPES, BANDS, AXES, DISCRETE_AXES, ALL_AXES, FLAG_THRESHOLD, MIN_JUMP,
+  caseFor, shapesFor, midpointFor, isDiscrete, pointsIn, formatAt,
 } from './shapes.mjs';
 import { sweepOne } from './sweep.mjs';
 import { classify } from './classify.mjs';
@@ -64,7 +64,7 @@ function runStates(states) {
   const rows = [];
   for (const state of states) {
     for (const year of YEARS) {
-      for (const axis of AXES) {
+      for (const axis of ALL_AXES) {
         for (const shape of shapesFor(axis)) {
           const { cliffs, flags, error } = sweepOne(shape, state, year, axis);
           if (error) {
@@ -144,14 +144,22 @@ function report(rows) {
   const unattributed = all.filter((c) => c.disclosure === 'unattributed');
   const open = [...undisclosed, ...named];
   const errors = rows.filter((r) => r.error);
-  const pointsIn = (axis) => axis.bands.reduce((n, b) => n + Math.floor((b.to - b.from) / b.step) + 1, 0);
-  const byAxisId = new Map(AXES.map((a) => [a.id, a]));
+  const byAxisId = new Map(ALL_AXES.map((a) => [a.id, a]));
+  const axisOf = (c) => byAxisId.get(c.axis) ?? AXES[0];
+  // The axis says how to write its own coordinate. Everything in this report is
+  // money EXCEPT the coordinate of a discrete axis, and `$64.00` for a
+  // sixty-four-year-old would be the most misleading line the instrument could
+  // print, so no call site is allowed to reach for `fmt` on an `at`.
+  const at = (c) => formatAt(axisOf(c), c.at);
+  const nextAt = (c) => formatAt(axisOf(c), c.next);
   const points = rows.reduce((n, r) => n + pointsIn(byAxisId.get(r.axis) ?? AXES[0]), 0);
 
   // Distinct notches, which is the number worth quoting: the same statutory
   // step is found once per shape and once per year, and six shapes finding
   // Ohio's exemption chart is one provision and not twelve.
   const key = (c) => `${c.state}|${c.year}|${c.axis}|${c.at.toFixed(2)}|${c.jump.toFixed(2)}`;
+  const continuous = all.filter((c) => !isDiscrete(axisOf(c)));
+  const discrete = all.filter((c) => isDiscrete(axisOf(c)));
   const distinct = new Set(all.map(key)).size;
 
   // A provision means-tested on a TOTAL is found on every axis that feeds the
@@ -186,6 +194,13 @@ function report(rows) {
     'and a filer has a reason to turn down a raise. Some of those notches are real —',
     'written into a statute, printed on a form, and owed. Others are defects.',
     '',
+    '**Income is not the only variable a notch can sit on.** A birthday is a notch',
+    'too, and a larger one than almost anything income does: this engine has a state',
+    'whose whole bill goes from four figures to zero between a filer’s sixty-fourth',
+    'and sixty-fifth birthday. Those live on the *discrete* axes below, where the',
+    'variable is an integer and a step needs no refinement to locate — it is already',
+    'between two consecutive whole numbers.',
+    '',
     'This file is the complete list for this engine, found by walking the tax function',
     'itself rather than by sampling households.',
     '',
@@ -193,12 +208,21 @@ function report(rows) {
   L.push('```text');
   L.push(`  household shapes swept        ${SHAPES.length}`);
   L.push(`  income axes swept             ${AXES.length}   ${AXES.map((a) => a.id).join(', ')}`);
+  L.push(
+    `  discrete axes swept           ${DISCRETE_AXES.length}   ${DISCRETE_AXES.map((a) => a.id).join(', ')}`,
+  );
   L.push(`  states x years               ${STATES.length} x ${YEARS.length}`);
-  L.push(`  income points evaluated      ${points.toLocaleString('en-US')}`);
+  L.push(`  points evaluated       ${points.toLocaleString('en-US').padStart(13)}`);
   L.push(`  second-difference threshold   ${fmt(FLAG_THRESHOLD)}   (a flag, not a finding)`);
   L.push(`  smallest reported jump        ${fmt(MIN_JUMP)}`);
   L.push('');
-  L.push(`  DISCONTINUITIES FOUND        ${all.length}  (${distinct} distinct axis-state-year-income notches)`);
+  L.push(
+    `  DISCONTINUITIES FOUND        ${all.length}  (${distinct} distinct axis-state-year-coordinate notches)`,
+  );
+  L.push(
+    `    on an income axis          ${continuous.length}`,
+    `    on a discrete axis         ${discrete.length}   an age or a count, where a jump needs no refinement`,
+  );
   L.push(`    declared as a step         ${declared.length}   a note names the provision AND says it steps`);
   L.push(`    named, not as a step       ${named.length}   a note names it; nothing says it is a notch`);
   L.push(`    not named at all           ${undisclosed.length}`);
@@ -235,7 +259,7 @@ function report(rows) {
   );
   L.push('```text');
   L.push('  axis                 shapes  holds                      notches  not declared');
-  for (const axis of AXES) {
+  for (const axis of ALL_AXES) {
     const mine = all.filter((c) => c.axis === axis.id);
     const held = Object.entries(axis.holds).map(([k, v]) => `${k}=${fmt(v)}`).join(' ') || '(the shape as written)';
     L.push(
@@ -334,10 +358,12 @@ function report(rows) {
     L.push('## Found, but the result object names no provision');
     L.push('');
     for (const c of unattributed) {
-      L.push(`### ${c.state} ${c.year}, ${c.shape} — ${fmt(c.jump)} at ${fmt(c.at)} of wages`);
+      L.push(`### ${c.state} ${c.year}, ${c.shape} — ${fmt(c.jump)} at ${at(c)} of ${axisOf(c).noun}`);
       L.push('');
       L.push('```text');
-      L.push(`  wages ${fmt(c.at)} -> ${fmt(c.next)}   total tax moves ${c.jump > 0 ? '+' : ''}${fmt(c.jump)}`);
+      L.push(
+        `  ${axisOf(c).noun} ${at(c)} -> ${nextAt(c)}   total tax moves ${c.jump > 0 ? '+' : ''}${fmt(c.jump)}`,
+      );
       for (const m of c.moved) L.push(`  ${m.field}: ${m.from} -> ${m.to}`);
       L.push('```');
       L.push('');
@@ -349,10 +375,12 @@ function report(rows) {
     L.push('## Not named in any note');
     L.push('');
     for (const c of undisclosed) {
-      L.push(`### ${c.state} ${c.year}, ${c.shape} — ${fmt(c.jump)} at ${fmt(c.at)} of wages`);
+      L.push(`### ${c.state} ${c.year}, ${c.shape} — ${fmt(c.jump)} at ${at(c)} of ${axisOf(c).noun}`);
       L.push('');
       L.push('```text');
-      L.push(`  wages ${fmt(c.at)} -> ${fmt(c.next)}   total tax moves ${c.jump > 0 ? '+' : ''}${fmt(c.jump)}`);
+      L.push(
+        `  ${axisOf(c).noun} ${at(c)} -> ${nextAt(c)}   total tax moves ${c.jump > 0 ? '+' : ''}${fmt(c.jump)}`,
+      );
       for (const m of c.moved) L.push(`  ${m.field}: ${m.from} -> ${m.to}`);
       L.push('```');
       L.push('');
@@ -386,10 +414,19 @@ function report(rows) {
       const range = jumps.length <= 3 ? jumps.map(fmt).join(', ') : `${jumps.length} sizes, ${fmt(jumps[0])} to ${fmt(jumps[jumps.length - 1])}`;
       L.push(`  ${String(cs.length).padStart(4)}  ${k}`);
       const axes = [...new Set(cs.map((c) => c.axis))];
-      const lowest = cs.reduce((p, q) => (q.at < p.at ? q : p));
-      const noun = (byAxisId.get(lowest.axis) ?? AXES[0]).noun;
+      // THE SMALLEST COORDINATE, WITHIN ONE AXIS. Comparing `at` across axes was
+      // sound while every axis was dollars and became nonsense the moment one of
+      // them was an age: 64 is below every income in the sweep, so a provision
+      // found on both the wage axis and the filer-age axis would report "first
+      // at $64.00". The minimum is taken inside the axis that holds the most of
+      // this provision's notches, which is the one a reader is being told about.
+      const busiest = axes
+        .map((id) => [id, cs.filter((c) => c.axis === id).length])
+        .reduce((p, q) => (q[1] > p[1] ? q : p))[0];
+      const lowest = cs.filter((c) => c.axis === busiest).reduce((p, q) => (q.at < p.at ? q : p));
+      const noun = axisOf(lowest).noun;
       L.push(
-        `        ${range};  first at ${fmt(lowest.at)} of ${noun}` +
+        `        ${range};  first at ${at(lowest)} of ${noun}` +
           (axes.length > 1 ? `;  on ${axes.length} axes: ${axes.join(', ')}` : ''),
       );
     }
@@ -405,10 +442,18 @@ function report(rows) {
     '  bill moves nothing. Ohio’s `$342` constant is invisible to every shape here',
     '  with children, because Ohio’s earned income credit covers the bill there.',
     '- **A notch in a variable no axis walks.** Itemised deductions, property tax,',
-    '  rent and the number and ages of dependents are held fixed. A provision tested',
-    '  on one of those has its notch on an axis that is not here. Investment income,',
-    '  pension income, Social Security benefits and municipal interest WERE on this',
-    '  list until Day 78 and are now four of the five axes above.',
+    '  rent and the NUMBER of dependents are held fixed. A provision tested on one',
+    '  of those has its notch on an axis that is not here. Investment income, pension',
+    '  income, Social Security benefits and municipal interest were on this list',
+    '  until Day 78, and the filer’s age, the spouse’s age and a dependent’s age',
+    '  until Day 79; they are now seven of the eight axes above.',
+    '- **A notch in the number of dependents**, which is held fixed on every axis',
+    '  and is the one variable here that was tried and deliberately left out. The',
+    '  detector that makes the three age axes exact assumes the bill is CONSTANT',
+    '  between values of the variable, and a per-head exemption makes it a straight',
+    '  line instead — so a first difference reports every household and a second',
+    '  difference reports a per-head amount meeting a bracket. Finding a cap at the',
+    '  third child needs a third detector, and `shapes.mjs` says which one.',
     '- **A notch that needs two variables to move at once.** Every axis holds the',
     '  rest of the household still, so a provision whose threshold is a function of',
     '  two components — a ratio, or a combined limit with a separate cap on each —',
@@ -430,7 +475,7 @@ function report(rows) {
     L.push('```text');
     for (const c of cs) {
       L.push(
-        `  ${c.year}  ${c.axis.padEnd(18)} ${c.shape.padEnd(20)} ${fmt(c.at).padStart(14)} -> ${(c.jump > 0 ? '+' : '') + fmt(c.jump)}` +
+        `  ${c.year}  ${c.axis.padEnd(18)} ${c.shape.padEnd(20)} ${at(c).padStart(14)} -> ${(c.jump > 0 ? '+' : '') + fmt(c.jump)}` +
           `${c.disclosure === 'declared' ? '' : `   [${c.disclosure.toUpperCase()}]`}`,
       );
       for (const m of c.moved) L.push(`          ${m.field}: ${m.from} -> ${m.to}`);
@@ -516,7 +561,15 @@ if (process.env.CLIFF_WORKER) {
   const inventory = {
     generatedBy: 'tools/cliffs/find-cliffs.mjs',
     shapes: SHAPES.map((s) => s.id),
-    axes: AXES.map((a) => ({ id: a.id, field: a.field, bands: a.bands, shapes: a.shapes, holds: a.holds })),
+    axes: ALL_AXES.map((a) => ({
+      id: a.id,
+      field: a.field ?? null,
+      bands: a.bands ?? null,
+      values: a.values ? [a.values[0], a.values[a.values.length - 1]] : null,
+      unit: a.unit ?? 'dollars',
+      shapes: a.shapes,
+      holds: a.holds,
+    })),
     years: YEARS,
     bands: BANDS,
     flagThreshold: FLAG_THRESHOLD,

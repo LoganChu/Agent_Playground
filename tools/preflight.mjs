@@ -241,8 +241,12 @@ const CHECKS = [
   },
   {
     // Day 76. The cliff finder's self-check, and NOT the full sweep: the sweep
-    // is 2,347,800 evaluations over five axes and about eight minutes, which is
-    // more than everything above it put together, so it lives in CI alone. What
+    // is 2,656,248 evaluations over eight axes and about eight minutes, which is
+    // more than everything above it put together, so it lives in CI alone.
+    // Day 79 added three of those axes and a seventh household shape for about
+    // 13% more points, because the three are integers — a filer's age, a
+    // spouse's age and a dependent's age — and an enumeration of 36 ages is a
+    // rounding error beside 1,860 incomes. What
     // runs here is the part that can be wrong without anybody noticing — the
     // locator, on synthetic functions whose jumps were put at chosen cents by
     // hand, four notches this package documented in prose before the tool

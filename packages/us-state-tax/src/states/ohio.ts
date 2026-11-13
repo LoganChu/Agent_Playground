@@ -208,6 +208,7 @@ const JOINT_FILING_STEPS: readonly CreditStep[] = [
 ];
 
 const NOTES: readonly string[] = [
+  'THE SENIOR CITIZEN CREDIT IS A FLAT $50 THAT ARRIVES WHOLE ON A BIRTHDAY. § 5747.05(C) allows $50 a return — one $50 however many filers are 65, not indexed, and not prorated for the year a filer turns 65 — so this is a STEP and not a phase-in: an Ohio retiree with $30,000 of pension and $20,000 of Social Security pays $184.63 at 64 and $134.63 at 65. The $100,000 income limit it sits under is a cliff of its own, on modified adjusted gross income less exemptions. A model that tapers either test is wrong about both, and a caller who sees only a `minimumAge` and an `incomeLimit` in the result object has been told the parameters and not the shape.',
   'Ohio\'s rate schedule is DISCONTINUOUS and this is not a rounding artifact. O.R.C. § 5747.02(A)(3) charges a flat constant the moment Ohio taxable nonbusiness income clears $26,050 — $342.00 for 2025, $332.00 from 2026 — on top of 2.75% of the excess. A filer at $26,050 owes $0 and a filer at $26,050.01 owes $342.00. Reading the printed table as ordinary marginal brackets, which is what "Ohio: 0% / 2.75% / 3.125%" invites, understates every Ohio filer above the threshold by the whole constant.',
   'For 2025 the table steps a SECOND time. HB 96 lowered the $26,050 constant from $360.69 to $342.00 but left the $100,000 constant at $2,394.32, which is what $360.69 chained to. $342.00 + 2.75% x $73,950 is $2,375.63, so crossing $100,000 costs a further $18.69 on one cent of income. This package implements the constants as printed rather than the smooth schedule they were probably meant to describe.',
   'Ohio taxes business income separately and at a flat rate. The first $250,000 ($125,000 married filing separately) of Ohio business income is DEDUCTED from Ohio AGI under § 5747.01(A)(31) and the excess is taxed at a flat 3% — so a filer with $250,000 of business income and nothing else owes no Ohio income tax at all, where a wage earner with the same $250,000 owes $7,022.45. Pass businessIncome (Schedule IT BUS line 10, before the deduction); it is treated as zero when absent, which overstates the tax for anyone with Schedule C, Schedule F or active Schedule E income.',
@@ -337,6 +338,14 @@ export function ohio(year: number): StateIncomeTaxDefinition | undefined {
       steps: RETIREMENT_CREDIT_STEPS,
       incomeLimit: 100_000,
     },
+    // § 5747.05(C). A FLAT $50 THAT ARRIVES WHOLE ON A BIRTHDAY, and the only
+    // thing about it that tapers is the income limit it sits under. A filer who
+    // is 64 at the end of the year gets nothing and one who is 65 gets the
+    // whole $50 — found on the filer-age axis on Day 79, where an Ohio retiree
+    // with $30,000 of pension and $20,000 of Social Security goes from $184.63
+    // to $134.63 on one birthday. Disclosed in `notes` as a step, because a
+    // caller who reads a credit with a `minimumAge` and an `incomeLimit` and
+    // sees no sentence will build a taper for both.
     seniorCredit: {
       name: 'Senior citizen credit',
       minimumAge: 65,

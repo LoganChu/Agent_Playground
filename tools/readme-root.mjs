@@ -143,7 +143,7 @@ const CLAIMS = [
       read('tools/cliffs/CLIFFS.md').match(/DISCONTINUITIES FOUND\s+(\d+)/)[1],
     ),
     find: () =>
-      [...text.matchAll(/([0-9][0-9,]*) over [0-9][0-9,]* income points/g)].map((m) =>
+      [...text.matchAll(/([0-9][0-9,]*) over [0-9][0-9,]* points/g)].map((m) =>
         Number(m[1].replaceAll(',', '')),
       ),
   },
@@ -151,21 +151,28 @@ const CLAIMS = [
     // Day 78. The denominator, which was a LITERAL in the pattern above until
     // the sweep gained four axes and it became wrong by 1.4 million. A check
     // that hard-codes one of the two numbers it is comparing is half a check.
-    label: 'income points the cliff sweep evaluated',
+    //
+    // Day 79: "income points" became "points", because three of the eight axes
+    // are ages and a count of income points that includes 36 birthdays is a
+    // wrong label on a right number.
+    label: 'points the cliff sweep evaluated',
     want: Number(
-      read('tools/cliffs/CLIFFS.md').match(/income points evaluated\s+([0-9][0-9,]*)/)[1].replaceAll(',', ''),
+      read('tools/cliffs/CLIFFS.md').match(/points evaluated\s+([0-9][0-9,]*)/)[1].replaceAll(',', ''),
     ),
     find: () =>
-      [...text.matchAll(/over ([0-9][0-9,]*) income points/g)].map((m) =>
+      [...text.matchAll(/over ([0-9][0-9,]*) points/g)].map((m) =>
         Number(m[1].replaceAll(',', '')),
       ),
   },
   {
-    // And the number of axes, because the sentence "on N axes of income" is the
-    // one claim in that row a reader checks the rest of it against.
-    label: 'income axes the cliff sweep walks',
-    want: Number(read('tools/cliffs/CLIFFS.md').match(/income axes swept\s+(\d+)/)[1]),
-    find: () => [...text.matchAll(/on \*\*(\d+) axes of income\*\*/g)].map((m) => Number(m[1])),
+    // And the number of axes, because the sentence "on N axes" is the one claim
+    // in that row a reader checks the rest of it against. It counts BOTH kinds:
+    // the five that move an amount and the three that move an integer.
+    label: 'axes the cliff sweep walks',
+    want:
+      Number(read('tools/cliffs/CLIFFS.md').match(/income axes swept\s+(\d+)/)[1]) +
+      Number(read('tools/cliffs/CLIFFS.md').match(/discrete axes swept\s+(\d+)/)[1]),
+    find: () => [...text.matchAll(/on \*\*(\d+) axes\*\*/g)].map((m) => Number(m[1])),
   },
   {
     label: 'cliff notches declared as steps in the notes',

@@ -66,7 +66,7 @@
 
 import { stateIncomeTax } from '../../packages/us-state-tax/dist/esm/index.js';
 import { householdInput } from '../differential/ours.mjs';
-import { FLAG_THRESHOLD, MIN_JUMP, WAGE_AXIS, caseFor } from './shapes.mjs';
+import { FLAG_THRESHOLD, MIN_JUMP, WAGE_AXIS, caseFor, isDiscrete } from './shapes.mjs';
 
 /** Cents, so a wage is never 59478.000000001. */
 const cents = (x) => Math.round(x * 100) / 100;
@@ -234,6 +234,7 @@ export function explain(f, at, next) {
  * function of that axis's variable over the committed bands.
  */
 export function sweepOne(shape, state, year, axis = WAGE_AXIS) {
+  if (isDiscrete(axis)) return enumerateOne(shape, state, year, axis);
   const f = evaluator(shape, state, year, axis);
   // The probe has to be a value the axis can take: $50,000 of Social Security
   // benefits is inside that axis's band, but $50,000 of anything is NOT inside
@@ -272,5 +273,58 @@ export function sweepOne(shape, state, year, axis = WAGE_AXIS) {
   }
 
   cliffs.sort((p, q) => p.at - q.at);
+  return { cliffs, flags, error: null };
+}
+
+/**
+ * One shape, one state, one year, one DISCRETE axis: every value of an integer
+ * variable at which the bill changes.
+ *
+ * ## Why this is not `sweepOne` with a step of 1
+ *
+ * It would be, if the detector were the same detector. It is not. The second
+ * difference exists to tell a KINK from a JUMP, and on an integer axis there
+ * are no kinks: a tax function of an age is constant between thresholds and
+ * steps at them, so every change is a jump and every flag would survive
+ * refinement. `locate` would then binary-search for a cent between age 64 and
+ * age 65, where there is nothing to find, and return it as a notch at 64.5 -
+ * an age no filer has on the last day of a tax year.
+ *
+ * So the detector here is subtraction, and the exactness that `locate` works
+ * for is free: the notch is between two integers because those are the only two
+ * values either side of it.
+ *
+ * ## What `at` and `next` mean on this axis
+ *
+ * The same thing they mean everywhere: `at` is the value BELOW the step and
+ * `next` is the value above it. Consumers that format them as money must ask
+ * the axis first - `formatAt` in `shapes.mjs` is that question - because `64`
+ * here is an age and `$64.00` would be a lie about a figure.
+ *
+ * `evals` is the whole enumeration, which is also the whole cost: there is no
+ * refinement budget because there is nothing to refine.
+ */
+export function enumerateOne(shape, state, year, axis) {
+  const f = evaluator(shape, state, year, axis);
+  const probe = f(axis.values[Math.floor(axis.values.length / 2)]);
+  if (probe.error) return { cliffs: [], flags: 0, evals: 1, error: probe.error };
+
+  const cliffs = [];
+  let flags = 0;
+  for (let i = 1; i < axis.values.length; i++) {
+    const at = axis.values[i - 1];
+    const next = axis.values[i];
+    const a = f(at).totalTax;
+    const b = f(next).totalTax;
+    if (!Number.isFinite(a) || !Number.isFinite(b)) continue;
+    const jump = b - a;
+    if (Math.abs(jump) < MIN_JUMP) continue;
+    flags++;
+    // `jump` keeps the sign convention the income axes use: POSITIVE is a bill
+    // that rose on one more unit of the variable. A birthday almost always
+    // lowers a bill, so most of this axis's jumps are negative, and that is a
+    // fact about age provisions rather than about this code.
+    cliffs.push({ at, next, before: a, after: b, jump, moved: explain(f, at, next) });
+  }
   return { cliffs, flags, error: null };
 }

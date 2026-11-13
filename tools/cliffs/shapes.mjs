@@ -118,6 +118,29 @@ export const SHAPES = [
     childAges: [7],
   },
   {
+    // THE SIX STATES WITH A CREDIT FOR A CHILD UNDER SIX COULD NOT BE REACHED BY
+    // ANY SHAPE ABOVE, AND THIS IS WHY THIS ONE EXISTS. Every child in the list
+    // above is 6, 7, 8, 10 or 11 — all of them at or past the youngest age band
+    // in state law — so California's Young Child Tax Credit ($1,189 on this
+    // household), New Jersey's $1,000 child credit, Oregon's $1,050 Kids'
+    // Credit, Maryland's $250 and Georgia's 2026 $250 were worth exactly zero in
+    // every case this instrument had ever evaluated. New York's credit steps
+    // again under four.
+    //
+    // The cost is real and is the reason to state the argument: a seventh shape
+    // is a seventh of the whole wage sweep. What it buys, measured before it was
+    // added, is new notches on the WAGE axis as well as the dependent-age one —
+    // flags over $0..$150,000 at $100 went 2 -> 6 in California, 7 -> 17 in New
+    // Jersey, 8 -> 28 in Maryland and 43 -> 125 in New York when the single
+    // child's age moved from 7 to 3. Those are income phase-outs of provisions
+    // no previous shape could hold.
+    id: 'single-young-child',
+    filingStatus: 'headOfHousehold',
+    primaryAge: 31,
+    spouseAge: null,
+    childAges: [3],
+  },
+  {
     id: 'single-retiree',
     filingStatus: 'single',
     primaryAge: 67,
@@ -276,6 +299,173 @@ export const AXES = [
   },
 ];
 
+/**
+ * The DISCRETE axes, which are a different instrument wearing the same name.
+ *
+ * ## Why the second difference cannot be pointed at these
+ *
+ * Every axis above moves a dollar amount, and the whole detector rests on the
+ * tax function being piecewise LINEAR in that amount: a kink contributes
+ * `|dr| x h` to the second difference, a jump contributes its whole size, and a
+ * `$3` threshold separates them. **None of that survives a change of units.** A
+ * filer's age, a child's age and a count of dependents are integers, and a tax
+ * function of an integer is a step function everywhere - it has no slope to
+ * take a second difference of, so every grid point would flag and every flag
+ * would then be refined by a binary search over a variable that has no values
+ * between 64 and 65.
+ *
+ * The right instrument for an integer axis is therefore not a refinement but an
+ * ENUMERATION: evaluate every value the variable can take, and report every
+ * consecutive pair that differs by at least `MIN_JUMP`. There is nothing to
+ * locate, because the notch is already located exactly - it is between two
+ * integers, and the `at`/`next` pair is those two integers rather than two
+ * incomes a cent apart.
+ *
+ * ## What they can see that nothing else here can
+ *
+ * **Age.** Measured before this file was changed, on a single filer with
+ * `$30,000` of pension and `$20,000` of Social Security: **55 notches across 28
+ * states, one of them `$1,061.38` on a single birthday** (Maryland's pension
+ * exclusion), and Georgia, Iowa, Michigan, Mississippi, New Jersey, New York,
+ * Pennsylvania, South Carolina and Wisconsin each taking a whole state tax bill
+ * to zero on one. Nine of the thresholds are NOT at 65 - Iowa's is 55,
+ * Michigan's 59, New York's, Pennsylvania's and Mississippi's 60, Georgia's,
+ * Missouri's and New Jersey's 62, Wisconsin's 67 - which is the part a reader
+ * guesses wrong, and the part no sweep over income can tell them.
+ *
+ * **A dependent's age.** The under-six credits, which no household shape in
+ * this file could hold until the same day these axes were added.
+ *
+ * A COUNT of dependents is deliberately not one of them, and the paragraph
+ * below this list is the argument — it is the one variable here whose tax
+ * function is not constant between values, so the detector that makes the other
+ * three exact reports every household and finds nothing.
+ *
+ * ## The cost, which is the reason there was never an argument against this
+ *
+ * All three discrete axes together are about **9,000 evaluations**, against
+ * roughly **940,000** for the wage axis alone. They are about one percent of
+ * the sweep, and they were missing for seventy-eight days.
+ */
+export const DISCRETE_AXES = [
+  {
+    id: 'filer-age',
+    unit: 'age',
+    noun: "the filer's age",
+    // 50 to 85 covers every age band in the forty-two states: 55 (Iowa), 59
+    // (Michigan's birth-year tiers), 60 (New York's 59.5, Pennsylvania,
+    // Mississippi), 62 (Georgia, Missouri, New Jersey), 65 (most), 67
+    // (Wisconsin's 2025 Act 15 subtraction) and 70.
+    values: range(50, 85),
+    field: 'primaryAge',
+    // Two shapes so the FILER's age amount is separated from the spouse's: the
+    // joint shape's spouse stays 44 while the filer walks past every threshold,
+    // so a state that gives one amount per person and a state that gives one
+    // per return answer differently here.
+    shapes: ['single-retiree', 'joint-no-children'],
+    // Retirement income on BOTH shapes, because an age test with no retirement
+    // income to test reaches only the extra standard deduction and the extra
+    // exemption, and those are the two smallest age provisions in state law.
+    holds: { pension: 30_000, socialSecurity: 20_000 },
+  },
+  {
+    id: 'spouse-age',
+    unit: 'age',
+    noun: "the spouse's age",
+    values: range(50, 85),
+    field: 'spouseAge',
+    // Only the joint shape has a spouse. The filer stays 45, so everything this
+    // axis finds is an amount the state gives for the SECOND person - which is
+    // the asymmetry a transcription error lands in.
+    shapes: ['joint-no-children'],
+    holds: { pension: 30_000, socialSecurity: 20_000 },
+  },
+  {
+    id: 'dependent-age',
+    unit: 'age',
+    noun: "the first dependent's age",
+    // 0 to 19 spans every band: under 4 (New York), under 6 (California, New
+    // Jersey, Oregon, Maryland, Georgia), under 12 (Illinois), under 13
+    // (Massachusetts), under 17 (the federal child credit and the states that
+    // track it) and 19, where dependency itself ends.
+    values: range(0, 19),
+    // `childAges` is an array, so this axis cannot be a plain field: it moves
+    // the FIRST child's age and leaves the rest of the household alone, which
+    // is what makes a two-child shape a test of a per-child band rather than a
+    // test of the whole family moving together.
+    apply: (c, v) => {
+      c.childAges = [v, ...c.childAges.slice(1)];
+    },
+    shapes: ['hoh-one-child', 'single-two-children'],
+    // $20,000 is inside every state credit's live range: above it the
+    // refundable credits taper and a band boundary stops moving the bill.
+    holds: { wages: 20_000 },
+  },
+];
+
+/**
+ * THE AXIS THAT WAS BUILT, MEASURED AND THEN DELETED, AND THE ARGUMENT AGAINST
+ * IT, WHICH IS THE PART WORTH KEEPING.
+ *
+ * A `dependents` axis — the COUNT of dependents, 0 to 6, every one of them the
+ * same age so that a change is a change in count and never in age — was written
+ * and run before this paragraph replaced it. It works. It is cheap. It is
+ * wrong, and the reason is the thing to understand before anyone builds it
+ * again.
+ *
+ * **The detector above assumes the tax function is CONSTANT between the values
+ * of the variable.** That is what makes a first difference the right instrument
+ * for an age: a filer of 66 and a filer of 68 owe the same tax, so every change
+ * is a threshold and every threshold is a finding. A count of dependents has no
+ * such property. A state that subtracts `$3,200` per exemption makes the bill a
+ * straight LINE in the count, and a line has a non-zero first difference at
+ * every point — so the axis reports every household in the sweep and finds
+ * nothing.
+ *
+ * The second difference is the right detector for a count, and it was tried.
+ * What it reports is not a notch either. Maryland, `$20,000` of wages, one
+ * exemption at a time:
+ *
+ * ```text
+ *   0 -> 1   -$2,099.60
+ *   1 -> 2   -$1,422.80
+ *   2 -> 3     -$554.30
+ *   3 -> 4     -$117.38
+ *   4 -> 5      -$13.00
+ * ```
+ *
+ * Every one of those differences differs from the one before it, so the second
+ * difference flags at every count — and none of it is a notch. It is a per-head
+ * exemption meeting a bracket boundary and an earned income credit tapering
+ * underneath it, which is the ordinary arithmetic of a progressive tax and
+ * exactly what the income axes are built to NOT report.
+ *
+ * So a count axis needs a third detector: one that looks for the marginal value
+ * of a dependent going FLAT (a credit capped at three children) rather than for
+ * it changing at all. That is a real instrument and a real finding — "this
+ * credit stops at the third child" is worth a sentence in a note — and it is
+ * not this one. Until it is built, a count is not an axis in this file.
+ */
+
+/** Inclusive integer range, which is what a discrete axis walks. */
+function range(from, to) {
+  return Array.from({ length: to - from + 1 }, (_, i) => from + i);
+}
+
+/** True for an axis whose variable is an integer rather than an amount. */
+export function isDiscrete(axis) {
+  return Array.isArray(axis.values);
+}
+
+/** How many points a sweep of this axis evaluates. */
+export function pointsIn(axis) {
+  if (isDiscrete(axis)) return axis.values.length;
+  return axis.bands.reduce((n, b) => n + Math.floor((b.to - b.from) / b.step) + 1, 0);
+}
+
+/** Every axis the sweep walks, continuous first. */
+export const ALL_AXES = [...AXES, ...DISCRETE_AXES];
+
 /** The axis the sweep walked before Day 78, and the default for `caseFor`. */
 export const WAGE_AXIS = AXES[0];
 
@@ -310,7 +500,12 @@ export function caseFor(shape, state, year, value, axis = WAGE_AXIS) {
     oregonPriorYearTaxBeforeCredits: null,
   };
   for (const [k, v] of Object.entries(axis.holds)) c[k] = v;
-  c[axis.field] = value;
+  // A discrete axis may move a field that is not a scalar - `childAges` is an
+  // array and `dependents` is its length - so an axis may bring its own
+  // projection. `field` remains the common case and the only one the four
+  // income axes need.
+  if (axis.apply) axis.apply(c, value);
+  else c[axis.field] = value;
   return c;
 }
 
@@ -320,6 +515,29 @@ export function caseFor(shape, state, year, value, axis = WAGE_AXIS) {
  * but they have to be read at a point the axis can actually reach.
  */
 export function midpointFor(axis) {
+  // A discrete axis has no band to take a midpoint of, and the point of this
+  // value is to be somewhere the state's own notes can be read. The middle of
+  // the enumeration is that, and for an age axis it is also a real age.
+  if (isDiscrete(axis)) return axis.values[Math.floor(axis.values.length / 2)];
   const b = axis.bands[0];
   return Math.min(b.to, b.from + 60_000);
 }
+
+/**
+ * The axis's value, written the way a reader of the report meets it.
+ *
+ * An income is dollars; an age is an age; a count is a count. Printing `$64.00`
+ * for a sixty-four-year-old would be the single most misleading line this
+ * instrument could emit, because every other number in the report is money.
+ */
+export function formatAt(axis, value) {
+  if (!isDiscrete(axis)) {
+    const s = Math.abs(value).toFixed(2).replace(SEP, ',');
+    return (value < 0 ? '-' : '') + '$' + s;
+  }
+  if (axis.unit === 'age') return 'age ' + value;
+  return value + ' dependent' + (value === 1 ? '' : 's');
+}
+
+/** Thousands separators, as a named constant so `formatAt` reads as prose. */
+const SEP = /\B(?=(\d{3})+(?!\d))/g;

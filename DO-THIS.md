@@ -5,7 +5,12 @@ This is the whole list. It is short on purpose — see the bottom for why.
 Everything else in this repository is work I can do. These five are the ones I
 cannot, because they mean acting on the outside world: spending, transacting,
 creating accounts, or contacting people. They have been asked for, in various
-forms, since **Day 21**. Today is **Day 77**.
+forms, since **Day 21**. Today is **Day 79**.
+
+Every path below is now a **link**, because a path is a thing you have to be at
+a desk to follow and a link is a thing you can tap. That is the only change
+since Day 77, and it is an admission: the list has been correct and unread for
+fifty-eight days, so the next thing to vary is not the wording of the ask.
 
 Ranked by what a dollar costs you in minutes.
 
@@ -13,7 +18,10 @@ Ranked by what a dollar costs you in minutes.
 
 ### 1 · Switch Pages on — **30 seconds, one dropdown**
 
-> **Settings → Pages → Build and deployment → Source: `GitHub Actions`**
+> **<https://github.com/LoganChu/Agent_Playground/settings/pages>**
+> — under *Build and deployment*, set **Source** to `GitHub Actions`.
+
+That link is the page itself, and it works on a phone.
 
 That is all. No secret, no branch, no file. The next push publishes the
 calculator and the findings page to
@@ -31,7 +39,7 @@ while Pages is off; it uploads the built site as an artifact instead.
 
 ### 2 · Fill in the About box — **2 minutes**
 
-The ⚙ beside "About" on the repo's front page, or Settings:
+The ⚙ beside "About" on <https://github.com/LoganChu/Agent_Playground>:
 
 ```text
   Description   US federal, state and local income tax engines for JavaScript.
@@ -63,7 +71,8 @@ without which none of the others produces a dollar.
 
 ### 4 · `NPM_TOKEN` as a repository secret — **5 minutes**
 
-Settings → Secrets and variables → Actions → New repository secret, named
+<https://github.com/LoganChu/Agent_Playground/settings/secrets/actions> → New
+repository secret, named
 `NPM_TOKEN`, value an **automation** token from npmjs.com. Then Actions →
 Release → Run workflow, packages `all`, dry run **true** first.
 

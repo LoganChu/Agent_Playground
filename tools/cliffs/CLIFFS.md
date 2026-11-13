@@ -7,26 +7,36 @@ should never cost more than a cent of tax. Where it does, the law has a *notch*
 and a filer has a reason to turn down a raise. Some of those notches are real —
 written into a statute, printed on a form, and owed. Others are defects.
 
+**Income is not the only variable a notch can sit on.** A birthday is a notch
+too, and a larger one than almost anything income does: this engine has a state
+whose whole bill goes from four figures to zero between a filer’s sixty-fourth
+and sixty-fifth birthday. Those live on the *discrete* axes below, where the
+variable is an integer and a step needs no refinement to locate — it is already
+between two consecutive whole numbers.
+
 This file is the complete list for this engine, found by walking the tax function
 itself rather than by sampling households.
 
 ```text
-  household shapes swept        6
+  household shapes swept        7
   income axes swept             5   wages, investment-income, pension, social-security, municipal-interest
+  discrete axes swept           3   filer-age, spouse-age, dependent-age
   states x years               42 x 2
-  income points evaluated      2,347,800
+  points evaluated           2,656,248
   second-difference threshold   $3.00   (a flag, not a finding)
   smallest reported jump        $0.50
 
-  DISCONTINUITIES FOUND        3814  (2778 distinct axis-state-year-income notches)
-    declared as a step         3567   a note names the provision AND says it steps
+  DISCONTINUITIES FOUND        4758  (3034 distinct axis-state-year-coordinate notches)
+    on an income axis          4548
+    on a discrete axis         210   an age or a count, where a jump needs no refinement
+    declared as a step         4434   a note names the provision AND says it steps
     named, not as a step       0   a note names it; nothing says it is a notch
     not named at all           0
-    unattributable             247   nothing in the result moved far enough to have caused it
-  states with none             16 of 42
+    unattributable             324   nothing in the result moved far enough to have caused it
+  states with none             12 of 42
 
-  jump sizes found on >1 axis  409   a threshold on a TOTAL, met from more than one direction
-  jump sizes found on 1 axis   359   a threshold on a COMPONENT, or a size reached one way
+  jump sizes found on >1 axis  434   a threshold on a TOTAL, met from more than one direction
+  jump sizes found on 1 axis   515   a threshold on a COMPONENT, or a size reached one way
 ```
 
 ## What each axis found
@@ -39,11 +49,14 @@ blind spot, taken the day the axes were added.
 
 ```text
   axis                 shapes  holds                      notches  not declared
-  wages                    6  (the shape as written)       1569             6
-  investment-income        6  wages=$25,000.00             1853           236
+  wages                    7  (the shape as written)       1932             7
+  investment-income        7  wages=$25,000.00             2224           292
   pension                  2  wages=$0.00                   285             2
   social-security          1  wages=$0.00                    18             0
   municipal-interest       3  wages=$25,000.00               89             3
+  filer-age                2  pension=$30,000.00 socialSecurity=$20,000.00      86            14
+  spouse-age               1  pension=$30,000.00 socialSecurity=$20,000.00      22             6
+  dependent-age            2  wages=$20,000.00              102             0
 ```
 
 A held value is a **sample and not a statutory threshold**: where a notch sits
@@ -123,10 +136,10 @@ the note quoted under each group rather than trusting the count.
 
 ## Found, but the result object names no provision
 
-### AR 2025, childless-single — $10.00 at $144,540.00 of wages
+### AR 2025, childless-single — $10.00 at $144,540.00 of long-term capital gains
 
 ```text
-  wages $144,540.00 -> $144,540.01   total tax moves +$10.00
+  long-term capital gains $144,540.00 -> $144,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97270 -> 97270.01
   subtractions: 72270 -> 72270.01
   taxableIncome: 94800 -> 94800.01
@@ -139,10 +152,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $144,740.00 of wages
+### AR 2025, childless-single — $10.00 at $144,740.00 of long-term capital gains
 
 ```text
-  wages $144,740.00 -> $144,740.01   total tax moves +$10.00
+  long-term capital gains $144,740.00 -> $144,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97370 -> 97370.01
   subtractions: 72370 -> 72370.01
   taxableIncome: 94900 -> 94900.01
@@ -155,10 +168,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $144,940.00 of wages
+### AR 2025, childless-single — $10.00 at $144,940.00 of long-term capital gains
 
 ```text
-  wages $144,940.00 -> $144,940.01   total tax moves +$10.00
+  long-term capital gains $144,940.00 -> $144,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97470 -> 97470.01
   subtractions: 72470 -> 72470.01
   taxableIncome: 95000 -> 95000.01
@@ -171,10 +184,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $145,140.00 of wages
+### AR 2025, childless-single — $10.00 at $145,140.00 of long-term capital gains
 
 ```text
-  wages $145,140.00 -> $145,140.01   total tax moves +$10.00
+  long-term capital gains $145,140.00 -> $145,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97570 -> 97570.01
   subtractions: 72570 -> 72570.01
   taxableIncome: 95100 -> 95100.01
@@ -187,10 +200,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $145,340.00 of wages
+### AR 2025, childless-single — $10.00 at $145,340.00 of long-term capital gains
 
 ```text
-  wages $145,340.00 -> $145,340.01   total tax moves +$10.00
+  long-term capital gains $145,340.00 -> $145,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97670 -> 97670.01
   subtractions: 72670 -> 72670.01
   taxableIncome: 95200 -> 95200.01
@@ -203,10 +216,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $145,540.00 of wages
+### AR 2025, childless-single — $10.00 at $145,540.00 of long-term capital gains
 
 ```text
-  wages $145,540.00 -> $145,540.01   total tax moves +$10.00
+  long-term capital gains $145,540.00 -> $145,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97770 -> 97770.01
   subtractions: 72770 -> 72770.01
   taxableIncome: 95300 -> 95300.01
@@ -219,10 +232,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $145,740.00 of wages
+### AR 2025, childless-single — $10.00 at $145,740.00 of long-term capital gains
 
 ```text
-  wages $145,740.00 -> $145,740.01   total tax moves +$10.00
+  long-term capital gains $145,740.00 -> $145,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97870 -> 97870.01
   subtractions: 72870 -> 72870.01
   taxableIncome: 95400 -> 95400.01
@@ -235,10 +248,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $145,940.00 of wages
+### AR 2025, childless-single — $10.00 at $145,940.00 of long-term capital gains
 
 ```text
-  wages $145,940.00 -> $145,940.01   total tax moves +$10.00
+  long-term capital gains $145,940.00 -> $145,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97970 -> 97970.01
   subtractions: 72970 -> 72970.01
   taxableIncome: 95500 -> 95500.01
@@ -251,10 +264,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $146,140.00 of wages
+### AR 2025, childless-single — $10.00 at $146,140.00 of long-term capital gains
 
 ```text
-  wages $146,140.00 -> $146,140.01   total tax moves +$10.00
+  long-term capital gains $146,140.00 -> $146,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98070 -> 98070.01
   subtractions: 73070 -> 73070.01
   taxableIncome: 95600 -> 95600.01
@@ -267,10 +280,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $146,340.00 of wages
+### AR 2025, childless-single — $10.00 at $146,340.00 of long-term capital gains
 
 ```text
-  wages $146,340.00 -> $146,340.01   total tax moves +$10.00
+  long-term capital gains $146,340.00 -> $146,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98170 -> 98170.01
   subtractions: 73170 -> 73170.01
   taxableIncome: 95700 -> 95700.01
@@ -283,10 +296,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $146,540.00 of wages
+### AR 2025, childless-single — $10.00 at $146,540.00 of long-term capital gains
 
 ```text
-  wages $146,540.00 -> $146,540.01   total tax moves +$10.00
+  long-term capital gains $146,540.00 -> $146,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98270 -> 98270.01
   subtractions: 73270 -> 73270.01
   taxableIncome: 95800 -> 95800.01
@@ -299,10 +312,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $146,740.00 of wages
+### AR 2025, childless-single — $10.00 at $146,740.00 of long-term capital gains
 
 ```text
-  wages $146,740.00 -> $146,740.01   total tax moves +$10.00
+  long-term capital gains $146,740.00 -> $146,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98370 -> 98370.01
   subtractions: 73370 -> 73370.01
   taxableIncome: 95900 -> 95900.01
@@ -315,10 +328,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $146,940.00 of wages
+### AR 2025, childless-single — $10.00 at $146,940.00 of long-term capital gains
 
 ```text
-  wages $146,940.00 -> $146,940.01   total tax moves +$10.00
+  long-term capital gains $146,940.00 -> $146,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98470 -> 98470.01
   subtractions: 73470 -> 73470.01
   taxableIncome: 96000 -> 96000.01
@@ -331,10 +344,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $147,140.00 of wages
+### AR 2025, childless-single — $10.00 at $147,140.00 of long-term capital gains
 
 ```text
-  wages $147,140.00 -> $147,140.01   total tax moves +$10.00
+  long-term capital gains $147,140.00 -> $147,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98570 -> 98570.01
   subtractions: 73570 -> 73570.01
   taxableIncome: 96100 -> 96100.01
@@ -347,10 +360,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $147,340.00 of wages
+### AR 2025, childless-single — $10.00 at $147,340.00 of long-term capital gains
 
 ```text
-  wages $147,340.00 -> $147,340.01   total tax moves +$10.00
+  long-term capital gains $147,340.00 -> $147,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98670 -> 98670.01
   subtractions: 73670 -> 73670.01
   taxableIncome: 96200 -> 96200.01
@@ -363,10 +376,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $147,540.00 of wages
+### AR 2025, childless-single — $10.00 at $147,540.00 of long-term capital gains
 
 ```text
-  wages $147,540.00 -> $147,540.01   total tax moves +$10.00
+  long-term capital gains $147,540.00 -> $147,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98770 -> 98770.01
   subtractions: 73770 -> 73770.01
   taxableIncome: 96300 -> 96300.01
@@ -379,10 +392,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $147,740.00 of wages
+### AR 2025, childless-single — $10.00 at $147,740.00 of long-term capital gains
 
 ```text
-  wages $147,740.00 -> $147,740.01   total tax moves +$10.00
+  long-term capital gains $147,740.00 -> $147,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98870 -> 98870.01
   subtractions: 73870 -> 73870.01
   taxableIncome: 96400 -> 96400.01
@@ -395,10 +408,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $147,940.00 of wages
+### AR 2025, childless-single — $10.00 at $147,940.00 of long-term capital gains
 
 ```text
-  wages $147,940.00 -> $147,940.01   total tax moves +$10.00
+  long-term capital gains $147,940.00 -> $147,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98970 -> 98970.01
   subtractions: 73970 -> 73970.01
   taxableIncome: 96500 -> 96500.01
@@ -411,10 +424,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $148,140.00 of wages
+### AR 2025, childless-single — $10.00 at $148,140.00 of long-term capital gains
 
 ```text
-  wages $148,140.00 -> $148,140.01   total tax moves +$10.00
+  long-term capital gains $148,140.00 -> $148,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99070 -> 99070.01
   subtractions: 74070 -> 74070.01
   taxableIncome: 96600 -> 96600.01
@@ -427,10 +440,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $148,340.00 of wages
+### AR 2025, childless-single — $10.00 at $148,340.00 of long-term capital gains
 
 ```text
-  wages $148,340.00 -> $148,340.01   total tax moves +$10.00
+  long-term capital gains $148,340.00 -> $148,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99170 -> 99170.01
   subtractions: 74170 -> 74170.01
   taxableIncome: 96700 -> 96700.01
@@ -443,10 +456,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $148,540.00 of wages
+### AR 2025, childless-single — $10.00 at $148,540.00 of long-term capital gains
 
 ```text
-  wages $148,540.00 -> $148,540.01   total tax moves +$10.00
+  long-term capital gains $148,540.00 -> $148,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99270 -> 99270.01
   subtractions: 74270 -> 74270.01
   taxableIncome: 96800 -> 96800.01
@@ -459,10 +472,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $148,740.00 of wages
+### AR 2025, childless-single — $10.00 at $148,740.00 of long-term capital gains
 
 ```text
-  wages $148,740.00 -> $148,740.01   total tax moves +$10.00
+  long-term capital gains $148,740.00 -> $148,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99370 -> 99370.01
   subtractions: 74370 -> 74370.01
   taxableIncome: 96900 -> 96900.01
@@ -475,10 +488,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $148,940.00 of wages
+### AR 2025, childless-single — $10.00 at $148,940.00 of long-term capital gains
 
 ```text
-  wages $148,940.00 -> $148,940.01   total tax moves +$10.00
+  long-term capital gains $148,940.00 -> $148,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99470 -> 99470.01
   subtractions: 74470 -> 74470.01
   taxableIncome: 97000 -> 97000.01
@@ -491,10 +504,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $149,140.00 of wages
+### AR 2025, childless-single — $10.00 at $149,140.00 of long-term capital gains
 
 ```text
-  wages $149,140.00 -> $149,140.01   total tax moves +$10.00
+  long-term capital gains $149,140.00 -> $149,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99570 -> 99570.01
   subtractions: 74570 -> 74570.01
   taxableIncome: 97100 -> 97100.01
@@ -507,10 +520,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $149,340.00 of wages
+### AR 2025, childless-single — $10.00 at $149,340.00 of long-term capital gains
 
 ```text
-  wages $149,340.00 -> $149,340.01   total tax moves +$10.00
+  long-term capital gains $149,340.00 -> $149,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99670 -> 99670.01
   subtractions: 74670 -> 74670.01
   taxableIncome: 97200 -> 97200.01
@@ -523,10 +536,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $149,540.00 of wages
+### AR 2025, childless-single — $10.00 at $149,540.00 of long-term capital gains
 
 ```text
-  wages $149,540.00 -> $149,540.01   total tax moves +$10.00
+  long-term capital gains $149,540.00 -> $149,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99770 -> 99770.01
   subtractions: 74770 -> 74770.01
   taxableIncome: 97300 -> 97300.01
@@ -539,10 +552,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $149,740.00 of wages
+### AR 2025, childless-single — $10.00 at $149,740.00 of long-term capital gains
 
 ```text
-  wages $149,740.00 -> $149,740.01   total tax moves +$10.00
+  long-term capital gains $149,740.00 -> $149,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99870 -> 99870.01
   subtractions: 74870 -> 74870.01
   taxableIncome: 97400 -> 97400.01
@@ -555,10 +568,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, childless-single — $10.00 at $149,940.00 of wages
+### AR 2025, childless-single — $10.00 at $149,940.00 of long-term capital gains
 
 ```text
-  wages $149,940.00 -> $149,940.01   total tax moves +$10.00
+  long-term capital gains $149,940.00 -> $149,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99970 -> 99970.01
   subtractions: 74970 -> 74970.01
   taxableIncome: 97500 -> 97500.01
@@ -571,10 +584,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $144,540.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $144,540.00 of long-term capital gains
 
 ```text
-  wages $144,540.00 -> $144,540.01   total tax moves +$10.00
+  long-term capital gains $144,540.00 -> $144,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97270 -> 97270.01
   subtractions: 72270 -> 72270.01
   taxableIncome: 94800 -> 94800.01
@@ -587,10 +600,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $144,740.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $144,740.00 of long-term capital gains
 
 ```text
-  wages $144,740.00 -> $144,740.01   total tax moves +$10.00
+  long-term capital gains $144,740.00 -> $144,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97370 -> 97370.01
   subtractions: 72370 -> 72370.01
   taxableIncome: 94900 -> 94900.01
@@ -603,10 +616,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $144,940.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $144,940.00 of long-term capital gains
 
 ```text
-  wages $144,940.00 -> $144,940.01   total tax moves +$10.00
+  long-term capital gains $144,940.00 -> $144,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97470 -> 97470.01
   subtractions: 72470 -> 72470.01
   taxableIncome: 95000 -> 95000.01
@@ -619,10 +632,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $145,140.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $145,140.00 of long-term capital gains
 
 ```text
-  wages $145,140.00 -> $145,140.01   total tax moves +$10.00
+  long-term capital gains $145,140.00 -> $145,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97570 -> 97570.01
   subtractions: 72570 -> 72570.01
   taxableIncome: 95100 -> 95100.01
@@ -635,10 +648,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $145,340.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $145,340.00 of long-term capital gains
 
 ```text
-  wages $145,340.00 -> $145,340.01   total tax moves +$10.00
+  long-term capital gains $145,340.00 -> $145,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97670 -> 97670.01
   subtractions: 72670 -> 72670.01
   taxableIncome: 95200 -> 95200.01
@@ -651,10 +664,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $145,540.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $145,540.00 of long-term capital gains
 
 ```text
-  wages $145,540.00 -> $145,540.01   total tax moves +$10.00
+  long-term capital gains $145,540.00 -> $145,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97770 -> 97770.01
   subtractions: 72770 -> 72770.01
   taxableIncome: 95300 -> 95300.01
@@ -667,10 +680,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $145,740.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $145,740.00 of long-term capital gains
 
 ```text
-  wages $145,740.00 -> $145,740.01   total tax moves +$10.00
+  long-term capital gains $145,740.00 -> $145,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97870 -> 97870.01
   subtractions: 72870 -> 72870.01
   taxableIncome: 95400 -> 95400.01
@@ -683,10 +696,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $145,940.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $145,940.00 of long-term capital gains
 
 ```text
-  wages $145,940.00 -> $145,940.01   total tax moves +$10.00
+  long-term capital gains $145,940.00 -> $145,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97970 -> 97970.01
   subtractions: 72970 -> 72970.01
   taxableIncome: 95500 -> 95500.01
@@ -699,10 +712,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $146,140.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $146,140.00 of long-term capital gains
 
 ```text
-  wages $146,140.00 -> $146,140.01   total tax moves +$10.00
+  long-term capital gains $146,140.00 -> $146,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98070 -> 98070.01
   subtractions: 73070 -> 73070.01
   taxableIncome: 95600 -> 95600.01
@@ -715,10 +728,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $146,340.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $146,340.00 of long-term capital gains
 
 ```text
-  wages $146,340.00 -> $146,340.01   total tax moves +$10.00
+  long-term capital gains $146,340.00 -> $146,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98170 -> 98170.01
   subtractions: 73170 -> 73170.01
   taxableIncome: 95700 -> 95700.01
@@ -731,10 +744,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $146,540.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $146,540.00 of long-term capital gains
 
 ```text
-  wages $146,540.00 -> $146,540.01   total tax moves +$10.00
+  long-term capital gains $146,540.00 -> $146,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98270 -> 98270.01
   subtractions: 73270 -> 73270.01
   taxableIncome: 95800 -> 95800.01
@@ -747,10 +760,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $146,740.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $146,740.00 of long-term capital gains
 
 ```text
-  wages $146,740.00 -> $146,740.01   total tax moves +$10.00
+  long-term capital gains $146,740.00 -> $146,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98370 -> 98370.01
   subtractions: 73370 -> 73370.01
   taxableIncome: 95900 -> 95900.01
@@ -763,10 +776,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $146,940.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $146,940.00 of long-term capital gains
 
 ```text
-  wages $146,940.00 -> $146,940.01   total tax moves +$10.00
+  long-term capital gains $146,940.00 -> $146,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98470 -> 98470.01
   subtractions: 73470 -> 73470.01
   taxableIncome: 96000 -> 96000.01
@@ -779,10 +792,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $147,140.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $147,140.00 of long-term capital gains
 
 ```text
-  wages $147,140.00 -> $147,140.01   total tax moves +$10.00
+  long-term capital gains $147,140.00 -> $147,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98570 -> 98570.01
   subtractions: 73570 -> 73570.01
   taxableIncome: 96100 -> 96100.01
@@ -795,10 +808,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $147,340.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $147,340.00 of long-term capital gains
 
 ```text
-  wages $147,340.00 -> $147,340.01   total tax moves +$10.00
+  long-term capital gains $147,340.00 -> $147,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98670 -> 98670.01
   subtractions: 73670 -> 73670.01
   taxableIncome: 96200 -> 96200.01
@@ -811,10 +824,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $147,540.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $147,540.00 of long-term capital gains
 
 ```text
-  wages $147,540.00 -> $147,540.01   total tax moves +$10.00
+  long-term capital gains $147,540.00 -> $147,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98770 -> 98770.01
   subtractions: 73770 -> 73770.01
   taxableIncome: 96300 -> 96300.01
@@ -827,10 +840,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $147,740.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $147,740.00 of long-term capital gains
 
 ```text
-  wages $147,740.00 -> $147,740.01   total tax moves +$10.00
+  long-term capital gains $147,740.00 -> $147,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98870 -> 98870.01
   subtractions: 73870 -> 73870.01
   taxableIncome: 96400 -> 96400.01
@@ -843,10 +856,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $147,940.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $147,940.00 of long-term capital gains
 
 ```text
-  wages $147,940.00 -> $147,940.01   total tax moves +$10.00
+  long-term capital gains $147,940.00 -> $147,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98970 -> 98970.01
   subtractions: 73970 -> 73970.01
   taxableIncome: 96500 -> 96500.01
@@ -859,10 +872,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $148,140.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $148,140.00 of long-term capital gains
 
 ```text
-  wages $148,140.00 -> $148,140.01   total tax moves +$10.00
+  long-term capital gains $148,140.00 -> $148,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99070 -> 99070.01
   subtractions: 74070 -> 74070.01
   taxableIncome: 96600 -> 96600.01
@@ -875,10 +888,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $148,340.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $148,340.00 of long-term capital gains
 
 ```text
-  wages $148,340.00 -> $148,340.01   total tax moves +$10.00
+  long-term capital gains $148,340.00 -> $148,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99170 -> 99170.01
   subtractions: 74170 -> 74170.01
   taxableIncome: 96700 -> 96700.01
@@ -891,10 +904,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $148,540.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $148,540.00 of long-term capital gains
 
 ```text
-  wages $148,540.00 -> $148,540.01   total tax moves +$10.00
+  long-term capital gains $148,540.00 -> $148,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99270 -> 99270.01
   subtractions: 74270 -> 74270.01
   taxableIncome: 96800 -> 96800.01
@@ -907,10 +920,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $148,740.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $148,740.00 of long-term capital gains
 
 ```text
-  wages $148,740.00 -> $148,740.01   total tax moves +$10.00
+  long-term capital gains $148,740.00 -> $148,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99370 -> 99370.01
   subtractions: 74370 -> 74370.01
   taxableIncome: 96900 -> 96900.01
@@ -923,10 +936,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $148,940.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $148,940.00 of long-term capital gains
 
 ```text
-  wages $148,940.00 -> $148,940.01   total tax moves +$10.00
+  long-term capital gains $148,940.00 -> $148,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99470 -> 99470.01
   subtractions: 74470 -> 74470.01
   taxableIncome: 97000 -> 97000.01
@@ -939,10 +952,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $149,140.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $149,140.00 of long-term capital gains
 
 ```text
-  wages $149,140.00 -> $149,140.01   total tax moves +$10.00
+  long-term capital gains $149,140.00 -> $149,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99570 -> 99570.01
   subtractions: 74570 -> 74570.01
   taxableIncome: 97100 -> 97100.01
@@ -955,10 +968,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $149,340.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $149,340.00 of long-term capital gains
 
 ```text
-  wages $149,340.00 -> $149,340.01   total tax moves +$10.00
+  long-term capital gains $149,340.00 -> $149,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99670 -> 99670.01
   subtractions: 74670 -> 74670.01
   taxableIncome: 97200 -> 97200.01
@@ -971,10 +984,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $149,540.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $149,540.00 of long-term capital gains
 
 ```text
-  wages $149,540.00 -> $149,540.01   total tax moves +$10.00
+  long-term capital gains $149,540.00 -> $149,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99770 -> 99770.01
   subtractions: 74770 -> 74770.01
   taxableIncome: 97300 -> 97300.01
@@ -987,10 +1000,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $149,740.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $149,740.00 of long-term capital gains
 
 ```text
-  wages $149,740.00 -> $149,740.01   total tax moves +$10.00
+  long-term capital gains $149,740.00 -> $149,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99870 -> 99870.01
   subtractions: 74870 -> 74870.01
   taxableIncome: 97400 -> 97400.01
@@ -1003,10 +1016,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, hoh-one-child — $10.00 at $149,940.00 of wages
+### AR 2025, hoh-one-child — $10.00 at $149,940.00 of long-term capital gains
 
 ```text
-  wages $149,940.00 -> $149,940.01   total tax moves +$10.00
+  long-term capital gains $149,940.00 -> $149,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99970 -> 99970.01
   subtractions: 74970 -> 74970.01
   taxableIncome: 97500 -> 97500.01
@@ -1019,10 +1032,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, joint-no-children — $10.00 at $149,480.00 of wages
+### AR 2025, joint-no-children — $10.00 at $149,480.00 of long-term capital gains
 
 ```text
-  wages $149,480.00 -> $149,480.01   total tax moves +$10.00
+  long-term capital gains $149,480.00 -> $149,480.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99740 -> 99740.01
   subtractions: 74740 -> 74740.01
   taxableIncome: 94800 -> 94800.01
@@ -1035,10 +1048,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, joint-no-children — $10.00 at $149,680.00 of wages
+### AR 2025, joint-no-children — $10.00 at $149,680.00 of long-term capital gains
 
 ```text
-  wages $149,680.00 -> $149,680.01   total tax moves +$10.00
+  long-term capital gains $149,680.00 -> $149,680.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99840 -> 99840.01
   subtractions: 74840 -> 74840.01
   taxableIncome: 94900 -> 94900.01
@@ -1051,10 +1064,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, joint-no-children — $10.00 at $149,880.00 of wages
+### AR 2025, joint-no-children — $10.00 at $149,880.00 of long-term capital gains
 
 ```text
-  wages $149,880.00 -> $149,880.01   total tax moves +$10.00
+  long-term capital gains $149,880.00 -> $149,880.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99940 -> 99940.01
   subtractions: 74940 -> 74940.01
   taxableIncome: 95000 -> 95000.01
@@ -1067,10 +1080,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, joint-two-children — $10.00 at $149,480.00 of wages
+### AR 2025, joint-two-children — $10.00 at $149,480.00 of long-term capital gains
 
 ```text
-  wages $149,480.00 -> $149,480.01   total tax moves +$10.00
+  long-term capital gains $149,480.00 -> $149,480.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99740 -> 99740.01
   subtractions: 74740 -> 74740.01
   taxableIncome: 94800 -> 94800.01
@@ -1083,10 +1096,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, joint-two-children — $10.00 at $149,680.00 of wages
+### AR 2025, joint-two-children — $10.00 at $149,680.00 of long-term capital gains
 
 ```text
-  wages $149,680.00 -> $149,680.01   total tax moves +$10.00
+  long-term capital gains $149,680.00 -> $149,680.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99840 -> 99840.01
   subtractions: 74840 -> 74840.01
   taxableIncome: 94900 -> 94900.01
@@ -1099,10 +1112,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, joint-two-children — $10.00 at $149,880.00 of wages
+### AR 2025, joint-two-children — $10.00 at $149,880.00 of long-term capital gains
 
 ```text
-  wages $149,880.00 -> $149,880.01   total tax moves +$10.00
+  long-term capital gains $149,880.00 -> $149,880.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99940 -> 99940.01
   subtractions: 74940 -> 74940.01
   taxableIncome: 95000 -> 95000.01
@@ -1115,10 +1128,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $120,540.00 of wages
+### AR 2025, single-retiree — $10.00 at $120,540.00 of long-term capital gains
 
 ```text
-  wages $120,540.00 -> $120,540.01   total tax moves +$10.00
+  long-term capital gains $120,540.00 -> $120,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97270 -> 97270.01
   subtractions: 86670 -> 86670.01
   taxableIncome: 94800 -> 94800.01
@@ -1131,10 +1144,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $120,740.00 of wages
+### AR 2025, single-retiree — $10.00 at $120,740.00 of long-term capital gains
 
 ```text
-  wages $120,740.00 -> $120,740.01   total tax moves +$10.00
+  long-term capital gains $120,740.00 -> $120,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97370 -> 97370.01
   subtractions: 86770 -> 86770.01
   taxableIncome: 94900 -> 94900.01
@@ -1147,10 +1160,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $120,940.00 of wages
+### AR 2025, single-retiree — $10.00 at $120,940.00 of long-term capital gains
 
 ```text
-  wages $120,940.00 -> $120,940.01   total tax moves +$10.00
+  long-term capital gains $120,940.00 -> $120,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97470 -> 97470.01
   subtractions: 86870 -> 86870.01
   taxableIncome: 95000 -> 95000.01
@@ -1163,10 +1176,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $121,140.00 of wages
+### AR 2025, single-retiree — $10.00 at $121,140.00 of long-term capital gains
 
 ```text
-  wages $121,140.00 -> $121,140.01   total tax moves +$10.00
+  long-term capital gains $121,140.00 -> $121,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97570 -> 97570.01
   subtractions: 86970 -> 86970.01
   taxableIncome: 95100 -> 95100.01
@@ -1179,10 +1192,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $121,340.00 of wages
+### AR 2025, single-retiree — $10.00 at $121,340.00 of long-term capital gains
 
 ```text
-  wages $121,340.00 -> $121,340.01   total tax moves +$10.00
+  long-term capital gains $121,340.00 -> $121,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97670 -> 97670.01
   subtractions: 87070 -> 87070.01
   taxableIncome: 95200 -> 95200.01
@@ -1195,10 +1208,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $121,540.00 of wages
+### AR 2025, single-retiree — $10.00 at $121,540.00 of long-term capital gains
 
 ```text
-  wages $121,540.00 -> $121,540.01   total tax moves +$10.00
+  long-term capital gains $121,540.00 -> $121,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97770 -> 97770.01
   subtractions: 87170 -> 87170.01
   taxableIncome: 95300 -> 95300.01
@@ -1211,10 +1224,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $121,740.00 of wages
+### AR 2025, single-retiree — $10.00 at $121,740.00 of long-term capital gains
 
 ```text
-  wages $121,740.00 -> $121,740.01   total tax moves +$10.00
+  long-term capital gains $121,740.00 -> $121,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97870 -> 97870.01
   subtractions: 87270 -> 87270.01
   taxableIncome: 95400 -> 95400.01
@@ -1227,10 +1240,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $121,940.00 of wages
+### AR 2025, single-retiree — $10.00 at $121,940.00 of long-term capital gains
 
 ```text
-  wages $121,940.00 -> $121,940.01   total tax moves +$10.00
+  long-term capital gains $121,940.00 -> $121,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97970 -> 97970.01
   subtractions: 87370 -> 87370.01
   taxableIncome: 95500 -> 95500.01
@@ -1243,10 +1256,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $122,140.00 of wages
+### AR 2025, single-retiree — $10.00 at $122,140.00 of long-term capital gains
 
 ```text
-  wages $122,140.00 -> $122,140.01   total tax moves +$10.00
+  long-term capital gains $122,140.00 -> $122,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98070 -> 98070.01
   subtractions: 87470 -> 87470.01
   taxableIncome: 95600 -> 95600.01
@@ -1259,10 +1272,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $122,340.00 of wages
+### AR 2025, single-retiree — $10.00 at $122,340.00 of long-term capital gains
 
 ```text
-  wages $122,340.00 -> $122,340.01   total tax moves +$10.00
+  long-term capital gains $122,340.00 -> $122,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98170 -> 98170.01
   subtractions: 87570 -> 87570.01
   taxableIncome: 95700 -> 95700.01
@@ -1275,10 +1288,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $122,540.00 of wages
+### AR 2025, single-retiree — $10.00 at $122,540.00 of long-term capital gains
 
 ```text
-  wages $122,540.00 -> $122,540.01   total tax moves +$10.00
+  long-term capital gains $122,540.00 -> $122,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98270 -> 98270.01
   subtractions: 87670 -> 87670.01
   taxableIncome: 95800 -> 95800.01
@@ -1291,10 +1304,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $122,740.00 of wages
+### AR 2025, single-retiree — $10.00 at $122,740.00 of long-term capital gains
 
 ```text
-  wages $122,740.00 -> $122,740.01   total tax moves +$10.00
+  long-term capital gains $122,740.00 -> $122,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98370 -> 98370.01
   subtractions: 87770 -> 87770.01
   taxableIncome: 95900 -> 95900.01
@@ -1307,10 +1320,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $122,940.00 of wages
+### AR 2025, single-retiree — $10.00 at $122,940.00 of long-term capital gains
 
 ```text
-  wages $122,940.00 -> $122,940.01   total tax moves +$10.00
+  long-term capital gains $122,940.00 -> $122,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98470 -> 98470.01
   subtractions: 87870 -> 87870.01
   taxableIncome: 96000 -> 96000.01
@@ -1323,10 +1336,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $123,140.00 of wages
+### AR 2025, single-retiree — $10.00 at $123,140.00 of long-term capital gains
 
 ```text
-  wages $123,140.00 -> $123,140.01   total tax moves +$10.00
+  long-term capital gains $123,140.00 -> $123,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98570 -> 98570.01
   subtractions: 87970 -> 87970.01
   taxableIncome: 96100 -> 96100.01
@@ -1339,10 +1352,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $123,340.00 of wages
+### AR 2025, single-retiree — $10.00 at $123,340.00 of long-term capital gains
 
 ```text
-  wages $123,340.00 -> $123,340.01   total tax moves +$10.00
+  long-term capital gains $123,340.00 -> $123,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98670 -> 98670.01
   subtractions: 88070 -> 88070.01
   taxableIncome: 96200 -> 96200.01
@@ -1355,10 +1368,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $123,540.00 of wages
+### AR 2025, single-retiree — $10.00 at $123,540.00 of long-term capital gains
 
 ```text
-  wages $123,540.00 -> $123,540.01   total tax moves +$10.00
+  long-term capital gains $123,540.00 -> $123,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98770 -> 98770.01
   subtractions: 88170 -> 88170.01
   taxableIncome: 96300 -> 96300.01
@@ -1371,10 +1384,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $123,740.00 of wages
+### AR 2025, single-retiree — $10.00 at $123,740.00 of long-term capital gains
 
 ```text
-  wages $123,740.00 -> $123,740.01   total tax moves +$10.00
+  long-term capital gains $123,740.00 -> $123,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98870 -> 98870.01
   subtractions: 88270 -> 88270.01
   taxableIncome: 96400 -> 96400.01
@@ -1387,10 +1400,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $123,940.00 of wages
+### AR 2025, single-retiree — $10.00 at $123,940.00 of long-term capital gains
 
 ```text
-  wages $123,940.00 -> $123,940.01   total tax moves +$10.00
+  long-term capital gains $123,940.00 -> $123,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98970 -> 98970.01
   subtractions: 88370 -> 88370.01
   taxableIncome: 96500 -> 96500.01
@@ -1403,10 +1416,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $124,140.00 of wages
+### AR 2025, single-retiree — $10.00 at $124,140.00 of long-term capital gains
 
 ```text
-  wages $124,140.00 -> $124,140.01   total tax moves +$10.00
+  long-term capital gains $124,140.00 -> $124,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99070 -> 99070.01
   subtractions: 88470 -> 88470.01
   taxableIncome: 96600 -> 96600.01
@@ -1419,10 +1432,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $124,340.00 of wages
+### AR 2025, single-retiree — $10.00 at $124,340.00 of long-term capital gains
 
 ```text
-  wages $124,340.00 -> $124,340.01   total tax moves +$10.00
+  long-term capital gains $124,340.00 -> $124,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99170 -> 99170.01
   subtractions: 88570 -> 88570.01
   taxableIncome: 96700 -> 96700.01
@@ -1435,10 +1448,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $124,540.00 of wages
+### AR 2025, single-retiree — $10.00 at $124,540.00 of long-term capital gains
 
 ```text
-  wages $124,540.00 -> $124,540.01   total tax moves +$10.00
+  long-term capital gains $124,540.00 -> $124,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99270 -> 99270.01
   subtractions: 88670 -> 88670.01
   taxableIncome: 96800 -> 96800.01
@@ -1451,10 +1464,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $124,740.00 of wages
+### AR 2025, single-retiree — $10.00 at $124,740.00 of long-term capital gains
 
 ```text
-  wages $124,740.00 -> $124,740.01   total tax moves +$10.00
+  long-term capital gains $124,740.00 -> $124,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99370 -> 99370.01
   subtractions: 88770 -> 88770.01
   taxableIncome: 96900 -> 96900.01
@@ -1467,10 +1480,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $124,940.00 of wages
+### AR 2025, single-retiree — $10.00 at $124,940.00 of long-term capital gains
 
 ```text
-  wages $124,940.00 -> $124,940.01   total tax moves +$10.00
+  long-term capital gains $124,940.00 -> $124,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99470 -> 99470.01
   subtractions: 88870 -> 88870.01
   taxableIncome: 97000 -> 97000.01
@@ -1483,10 +1496,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $125,140.00 of wages
+### AR 2025, single-retiree — $10.00 at $125,140.00 of long-term capital gains
 
 ```text
-  wages $125,140.00 -> $125,140.01   total tax moves +$10.00
+  long-term capital gains $125,140.00 -> $125,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99570 -> 99570.01
   subtractions: 88970 -> 88970.01
   taxableIncome: 97100 -> 97100.01
@@ -1499,10 +1512,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $125,340.00 of wages
+### AR 2025, single-retiree — $10.00 at $125,340.00 of long-term capital gains
 
 ```text
-  wages $125,340.00 -> $125,340.01   total tax moves +$10.00
+  long-term capital gains $125,340.00 -> $125,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99670 -> 99670.01
   subtractions: 89070 -> 89070.01
   taxableIncome: 97200 -> 97200.01
@@ -1515,10 +1528,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $125,540.00 of wages
+### AR 2025, single-retiree — $10.00 at $125,540.00 of long-term capital gains
 
 ```text
-  wages $125,540.00 -> $125,540.01   total tax moves +$10.00
+  long-term capital gains $125,540.00 -> $125,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99770 -> 99770.01
   subtractions: 89170 -> 89170.01
   taxableIncome: 97300 -> 97300.01
@@ -1531,10 +1544,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $125,740.00 of wages
+### AR 2025, single-retiree — $10.00 at $125,740.00 of long-term capital gains
 
 ```text
-  wages $125,740.00 -> $125,740.01   total tax moves +$10.00
+  long-term capital gains $125,740.00 -> $125,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99870 -> 99870.01
   subtractions: 89270 -> 89270.01
   taxableIncome: 97400 -> 97400.01
@@ -1547,10 +1560,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $125,940.00 of wages
+### AR 2025, single-retiree — $10.00 at $125,940.00 of long-term capital gains
 
 ```text
-  wages $125,940.00 -> $125,940.01   total tax moves +$10.00
+  long-term capital gains $125,940.00 -> $125,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99970 -> 99970.01
   subtractions: 89370 -> 89370.01
   taxableIncome: 97500 -> 97500.01
@@ -1563,10 +1576,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-retiree — $10.00 at $126,340.00 of wages
+### AR 2025, single-retiree — $10.00 at $126,340.00 of long-term capital gains
 
 ```text
-  wages $126,340.00 -> $126,340.01   total tax moves +$10.00
+  long-term capital gains $126,340.00 -> $126,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 100170 -> 100170.01
   subtractions: 89570 -> 89570.01
   taxableIncome: 97700 -> 97700.01
@@ -1579,10 +1592,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $144,540.00 of wages
+### AR 2025, single-two-children — $10.00 at $144,540.00 of long-term capital gains
 
 ```text
-  wages $144,540.00 -> $144,540.01   total tax moves +$10.00
+  long-term capital gains $144,540.00 -> $144,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97270 -> 97270.01
   subtractions: 72270 -> 72270.01
   taxableIncome: 94800 -> 94800.01
@@ -1595,10 +1608,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $144,740.00 of wages
+### AR 2025, single-two-children — $10.00 at $144,740.00 of long-term capital gains
 
 ```text
-  wages $144,740.00 -> $144,740.01   total tax moves +$10.00
+  long-term capital gains $144,740.00 -> $144,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97370 -> 97370.01
   subtractions: 72370 -> 72370.01
   taxableIncome: 94900 -> 94900.01
@@ -1611,10 +1624,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $144,940.00 of wages
+### AR 2025, single-two-children — $10.00 at $144,940.00 of long-term capital gains
 
 ```text
-  wages $144,940.00 -> $144,940.01   total tax moves +$10.00
+  long-term capital gains $144,940.00 -> $144,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97470 -> 97470.01
   subtractions: 72470 -> 72470.01
   taxableIncome: 95000 -> 95000.01
@@ -1627,10 +1640,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $145,140.00 of wages
+### AR 2025, single-two-children — $10.00 at $145,140.00 of long-term capital gains
 
 ```text
-  wages $145,140.00 -> $145,140.01   total tax moves +$10.00
+  long-term capital gains $145,140.00 -> $145,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97570 -> 97570.01
   subtractions: 72570 -> 72570.01
   taxableIncome: 95100 -> 95100.01
@@ -1643,10 +1656,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $145,340.00 of wages
+### AR 2025, single-two-children — $10.00 at $145,340.00 of long-term capital gains
 
 ```text
-  wages $145,340.00 -> $145,340.01   total tax moves +$10.00
+  long-term capital gains $145,340.00 -> $145,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97670 -> 97670.01
   subtractions: 72670 -> 72670.01
   taxableIncome: 95200 -> 95200.01
@@ -1659,10 +1672,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $145,540.00 of wages
+### AR 2025, single-two-children — $10.00 at $145,540.00 of long-term capital gains
 
 ```text
-  wages $145,540.00 -> $145,540.01   total tax moves +$10.00
+  long-term capital gains $145,540.00 -> $145,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97770 -> 97770.01
   subtractions: 72770 -> 72770.01
   taxableIncome: 95300 -> 95300.01
@@ -1675,10 +1688,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $145,740.00 of wages
+### AR 2025, single-two-children — $10.00 at $145,740.00 of long-term capital gains
 
 ```text
-  wages $145,740.00 -> $145,740.01   total tax moves +$10.00
+  long-term capital gains $145,740.00 -> $145,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97870 -> 97870.01
   subtractions: 72870 -> 72870.01
   taxableIncome: 95400 -> 95400.01
@@ -1691,10 +1704,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $145,940.00 of wages
+### AR 2025, single-two-children — $10.00 at $145,940.00 of long-term capital gains
 
 ```text
-  wages $145,940.00 -> $145,940.01   total tax moves +$10.00
+  long-term capital gains $145,940.00 -> $145,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97970 -> 97970.01
   subtractions: 72970 -> 72970.01
   taxableIncome: 95500 -> 95500.01
@@ -1707,10 +1720,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $146,140.00 of wages
+### AR 2025, single-two-children — $10.00 at $146,140.00 of long-term capital gains
 
 ```text
-  wages $146,140.00 -> $146,140.01   total tax moves +$10.00
+  long-term capital gains $146,140.00 -> $146,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98070 -> 98070.01
   subtractions: 73070 -> 73070.01
   taxableIncome: 95600 -> 95600.01
@@ -1723,10 +1736,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $146,340.00 of wages
+### AR 2025, single-two-children — $10.00 at $146,340.00 of long-term capital gains
 
 ```text
-  wages $146,340.00 -> $146,340.01   total tax moves +$10.00
+  long-term capital gains $146,340.00 -> $146,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98170 -> 98170.01
   subtractions: 73170 -> 73170.01
   taxableIncome: 95700 -> 95700.01
@@ -1739,10 +1752,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $146,540.00 of wages
+### AR 2025, single-two-children — $10.00 at $146,540.00 of long-term capital gains
 
 ```text
-  wages $146,540.00 -> $146,540.01   total tax moves +$10.00
+  long-term capital gains $146,540.00 -> $146,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98270 -> 98270.01
   subtractions: 73270 -> 73270.01
   taxableIncome: 95800 -> 95800.01
@@ -1755,10 +1768,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $146,740.00 of wages
+### AR 2025, single-two-children — $10.00 at $146,740.00 of long-term capital gains
 
 ```text
-  wages $146,740.00 -> $146,740.01   total tax moves +$10.00
+  long-term capital gains $146,740.00 -> $146,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98370 -> 98370.01
   subtractions: 73370 -> 73370.01
   taxableIncome: 95900 -> 95900.01
@@ -1771,10 +1784,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $146,940.00 of wages
+### AR 2025, single-two-children — $10.00 at $146,940.00 of long-term capital gains
 
 ```text
-  wages $146,940.00 -> $146,940.01   total tax moves +$10.00
+  long-term capital gains $146,940.00 -> $146,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98470 -> 98470.01
   subtractions: 73470 -> 73470.01
   taxableIncome: 96000 -> 96000.01
@@ -1787,10 +1800,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $147,140.00 of wages
+### AR 2025, single-two-children — $10.00 at $147,140.00 of long-term capital gains
 
 ```text
-  wages $147,140.00 -> $147,140.01   total tax moves +$10.00
+  long-term capital gains $147,140.00 -> $147,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98570 -> 98570.01
   subtractions: 73570 -> 73570.01
   taxableIncome: 96100 -> 96100.01
@@ -1803,10 +1816,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $147,340.00 of wages
+### AR 2025, single-two-children — $10.00 at $147,340.00 of long-term capital gains
 
 ```text
-  wages $147,340.00 -> $147,340.01   total tax moves +$10.00
+  long-term capital gains $147,340.00 -> $147,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98670 -> 98670.01
   subtractions: 73670 -> 73670.01
   taxableIncome: 96200 -> 96200.01
@@ -1819,10 +1832,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $147,540.00 of wages
+### AR 2025, single-two-children — $10.00 at $147,540.00 of long-term capital gains
 
 ```text
-  wages $147,540.00 -> $147,540.01   total tax moves +$10.00
+  long-term capital gains $147,540.00 -> $147,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98770 -> 98770.01
   subtractions: 73770 -> 73770.01
   taxableIncome: 96300 -> 96300.01
@@ -1835,10 +1848,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $147,740.00 of wages
+### AR 2025, single-two-children — $10.00 at $147,740.00 of long-term capital gains
 
 ```text
-  wages $147,740.00 -> $147,740.01   total tax moves +$10.00
+  long-term capital gains $147,740.00 -> $147,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98870 -> 98870.01
   subtractions: 73870 -> 73870.01
   taxableIncome: 96400 -> 96400.01
@@ -1851,10 +1864,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $147,940.00 of wages
+### AR 2025, single-two-children — $10.00 at $147,940.00 of long-term capital gains
 
 ```text
-  wages $147,940.00 -> $147,940.01   total tax moves +$10.00
+  long-term capital gains $147,940.00 -> $147,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98970 -> 98970.01
   subtractions: 73970 -> 73970.01
   taxableIncome: 96500 -> 96500.01
@@ -1867,10 +1880,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $148,140.00 of wages
+### AR 2025, single-two-children — $10.00 at $148,140.00 of long-term capital gains
 
 ```text
-  wages $148,140.00 -> $148,140.01   total tax moves +$10.00
+  long-term capital gains $148,140.00 -> $148,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99070 -> 99070.01
   subtractions: 74070 -> 74070.01
   taxableIncome: 96600 -> 96600.01
@@ -1883,10 +1896,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $148,340.00 of wages
+### AR 2025, single-two-children — $10.00 at $148,340.00 of long-term capital gains
 
 ```text
-  wages $148,340.00 -> $148,340.01   total tax moves +$10.00
+  long-term capital gains $148,340.00 -> $148,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99170 -> 99170.01
   subtractions: 74170 -> 74170.01
   taxableIncome: 96700 -> 96700.01
@@ -1899,10 +1912,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $148,540.00 of wages
+### AR 2025, single-two-children — $10.00 at $148,540.00 of long-term capital gains
 
 ```text
-  wages $148,540.00 -> $148,540.01   total tax moves +$10.00
+  long-term capital gains $148,540.00 -> $148,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99270 -> 99270.01
   subtractions: 74270 -> 74270.01
   taxableIncome: 96800 -> 96800.01
@@ -1915,10 +1928,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $148,740.00 of wages
+### AR 2025, single-two-children — $10.00 at $148,740.00 of long-term capital gains
 
 ```text
-  wages $148,740.00 -> $148,740.01   total tax moves +$10.00
+  long-term capital gains $148,740.00 -> $148,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99370 -> 99370.01
   subtractions: 74370 -> 74370.01
   taxableIncome: 96900 -> 96900.01
@@ -1931,10 +1944,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $148,940.00 of wages
+### AR 2025, single-two-children — $10.00 at $148,940.00 of long-term capital gains
 
 ```text
-  wages $148,940.00 -> $148,940.01   total tax moves +$10.00
+  long-term capital gains $148,940.00 -> $148,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99470 -> 99470.01
   subtractions: 74470 -> 74470.01
   taxableIncome: 97000 -> 97000.01
@@ -1947,10 +1960,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $149,140.00 of wages
+### AR 2025, single-two-children — $10.00 at $149,140.00 of long-term capital gains
 
 ```text
-  wages $149,140.00 -> $149,140.01   total tax moves +$10.00
+  long-term capital gains $149,140.00 -> $149,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99570 -> 99570.01
   subtractions: 74570 -> 74570.01
   taxableIncome: 97100 -> 97100.01
@@ -1963,10 +1976,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $149,340.00 of wages
+### AR 2025, single-two-children — $10.00 at $149,340.00 of long-term capital gains
 
 ```text
-  wages $149,340.00 -> $149,340.01   total tax moves +$10.00
+  long-term capital gains $149,340.00 -> $149,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99670 -> 99670.01
   subtractions: 74670 -> 74670.01
   taxableIncome: 97200 -> 97200.01
@@ -1979,10 +1992,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $149,540.00 of wages
+### AR 2025, single-two-children — $10.00 at $149,540.00 of long-term capital gains
 
 ```text
-  wages $149,540.00 -> $149,540.01   total tax moves +$10.00
+  long-term capital gains $149,540.00 -> $149,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99770 -> 99770.01
   subtractions: 74770 -> 74770.01
   taxableIncome: 97300 -> 97300.01
@@ -1995,10 +2008,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $149,740.00 of wages
+### AR 2025, single-two-children — $10.00 at $149,740.00 of long-term capital gains
 
 ```text
-  wages $149,740.00 -> $149,740.01   total tax moves +$10.00
+  long-term capital gains $149,740.00 -> $149,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99870 -> 99870.01
   subtractions: 74870 -> 74870.01
   taxableIncome: 97400 -> 97400.01
@@ -2011,10 +2024,10 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2025, single-two-children — $10.00 at $149,940.00 of wages
+### AR 2025, single-two-children — $10.00 at $149,940.00 of long-term capital gains
 
 ```text
-  wages $149,940.00 -> $149,940.01   total tax moves +$10.00
+  long-term capital gains $149,940.00 -> $149,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99970 -> 99970.01
   subtractions: 74970 -> 74970.01
   taxableIncome: 97500 -> 97500.01
@@ -2027,10 +2040,458 @@ the note quoted under each group rather than trusting the count.
 
 > AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
 
-### AR 2026, childless-single — $10.00 at $144,540.00 of wages
+### AR 2025, single-young-child — $10.00 at $144,540.00 of long-term capital gains
 
 ```text
-  wages $144,540.00 -> $144,540.01   total tax moves +$10.00
+  long-term capital gains $144,540.00 -> $144,540.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97270 -> 97270.01
+  subtractions: 72270 -> 72270.01
+  taxableIncome: 94800 -> 94800.01
+  taxBeforeCredits: 3297.9 -> 3307.9
+  tax: 3210.9 -> 3220.9
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72270 -> 72270.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $144,740.00 of long-term capital gains
+
+```text
+  long-term capital gains $144,740.00 -> $144,740.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97370 -> 97370.01
+  subtractions: 72370 -> 72370.01
+  taxableIncome: 94900 -> 94900.01
+  taxBeforeCredits: 3311.8 -> 3321.8
+  tax: 3224.8 -> 3234.8
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72370 -> 72370.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $144,940.00 of long-term capital gains
+
+```text
+  long-term capital gains $144,940.00 -> $144,940.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97470 -> 97470.01
+  subtractions: 72470 -> 72470.01
+  taxableIncome: 95000 -> 95000.01
+  taxBeforeCredits: 3325.7 -> 3335.7
+  tax: 3238.7 -> 3248.7
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72470 -> 72470.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $145,140.00 of long-term capital gains
+
+```text
+  long-term capital gains $145,140.00 -> $145,140.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97570 -> 97570.01
+  subtractions: 72570 -> 72570.01
+  taxableIncome: 95100 -> 95100.01
+  taxBeforeCredits: 3339.6 -> 3349.6
+  tax: 3252.6 -> 3262.6
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72570 -> 72570.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $145,340.00 of long-term capital gains
+
+```text
+  long-term capital gains $145,340.00 -> $145,340.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97670 -> 97670.01
+  subtractions: 72670 -> 72670.01
+  taxableIncome: 95200 -> 95200.01
+  taxBeforeCredits: 3353.5 -> 3363.5
+  tax: 3266.5 -> 3276.5
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72670 -> 72670.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $145,540.00 of long-term capital gains
+
+```text
+  long-term capital gains $145,540.00 -> $145,540.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97770 -> 97770.01
+  subtractions: 72770 -> 72770.01
+  taxableIncome: 95300 -> 95300.01
+  taxBeforeCredits: 3367.4 -> 3377.4
+  tax: 3280.4 -> 3290.4
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72770 -> 72770.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $145,740.00 of long-term capital gains
+
+```text
+  long-term capital gains $145,740.00 -> $145,740.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97870 -> 97870.01
+  subtractions: 72870 -> 72870.01
+  taxableIncome: 95400 -> 95400.01
+  taxBeforeCredits: 3381.3 -> 3391.3
+  tax: 3294.3 -> 3304.3
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72870 -> 72870.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $145,940.00 of long-term capital gains
+
+```text
+  long-term capital gains $145,940.00 -> $145,940.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97970 -> 97970.01
+  subtractions: 72970 -> 72970.01
+  taxableIncome: 95500 -> 95500.01
+  taxBeforeCredits: 3395.2 -> 3405.2
+  tax: 3308.2 -> 3318.2
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72970 -> 72970.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $146,140.00 of long-term capital gains
+
+```text
+  long-term capital gains $146,140.00 -> $146,140.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98070 -> 98070.01
+  subtractions: 73070 -> 73070.01
+  taxableIncome: 95600 -> 95600.01
+  taxBeforeCredits: 3409.1 -> 3419.1
+  tax: 3322.1 -> 3332.1
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73070 -> 73070.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $146,340.00 of long-term capital gains
+
+```text
+  long-term capital gains $146,340.00 -> $146,340.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98170 -> 98170.01
+  subtractions: 73170 -> 73170.01
+  taxableIncome: 95700 -> 95700.01
+  taxBeforeCredits: 3423 -> 3433
+  tax: 3336 -> 3346
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73170 -> 73170.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $146,540.00 of long-term capital gains
+
+```text
+  long-term capital gains $146,540.00 -> $146,540.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98270 -> 98270.01
+  subtractions: 73270 -> 73270.01
+  taxableIncome: 95800 -> 95800.01
+  taxBeforeCredits: 3436.9 -> 3446.9
+  tax: 3349.9 -> 3359.9
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73270 -> 73270.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $146,740.00 of long-term capital gains
+
+```text
+  long-term capital gains $146,740.00 -> $146,740.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98370 -> 98370.01
+  subtractions: 73370 -> 73370.01
+  taxableIncome: 95900 -> 95900.01
+  taxBeforeCredits: 3450.8 -> 3460.8
+  tax: 3363.8 -> 3373.8
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73370 -> 73370.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $146,940.00 of long-term capital gains
+
+```text
+  long-term capital gains $146,940.00 -> $146,940.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98470 -> 98470.01
+  subtractions: 73470 -> 73470.01
+  taxableIncome: 96000 -> 96000.01
+  taxBeforeCredits: 3464.7 -> 3474.7
+  tax: 3377.7 -> 3387.7
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73470 -> 73470.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $147,140.00 of long-term capital gains
+
+```text
+  long-term capital gains $147,140.00 -> $147,140.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98570 -> 98570.01
+  subtractions: 73570 -> 73570.01
+  taxableIncome: 96100 -> 96100.01
+  taxBeforeCredits: 3478.6 -> 3488.6
+  tax: 3391.6 -> 3401.6
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73570 -> 73570.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $147,340.00 of long-term capital gains
+
+```text
+  long-term capital gains $147,340.00 -> $147,340.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98670 -> 98670.01
+  subtractions: 73670 -> 73670.01
+  taxableIncome: 96200 -> 96200.01
+  taxBeforeCredits: 3492.5 -> 3502.5
+  tax: 3405.5 -> 3415.5
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73670 -> 73670.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $147,540.00 of long-term capital gains
+
+```text
+  long-term capital gains $147,540.00 -> $147,540.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98770 -> 98770.01
+  subtractions: 73770 -> 73770.01
+  taxableIncome: 96300 -> 96300.01
+  taxBeforeCredits: 3506.4 -> 3516.4
+  tax: 3419.4 -> 3429.4
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73770 -> 73770.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $147,740.00 of long-term capital gains
+
+```text
+  long-term capital gains $147,740.00 -> $147,740.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98870 -> 98870.01
+  subtractions: 73870 -> 73870.01
+  taxableIncome: 96400 -> 96400.01
+  taxBeforeCredits: 3520.3 -> 3530.3
+  tax: 3433.3 -> 3443.3
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73870 -> 73870.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $147,940.00 of long-term capital gains
+
+```text
+  long-term capital gains $147,940.00 -> $147,940.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98970 -> 98970.01
+  subtractions: 73970 -> 73970.01
+  taxableIncome: 96500 -> 96500.01
+  taxBeforeCredits: 3534.2 -> 3544.2
+  tax: 3447.2 -> 3457.2
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73970 -> 73970.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $148,140.00 of long-term capital gains
+
+```text
+  long-term capital gains $148,140.00 -> $148,140.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99070 -> 99070.01
+  subtractions: 74070 -> 74070.01
+  taxableIncome: 96600 -> 96600.01
+  taxBeforeCredits: 3548.1 -> 3558.1
+  tax: 3461.1 -> 3471.1
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74070 -> 74070.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $148,340.00 of long-term capital gains
+
+```text
+  long-term capital gains $148,340.00 -> $148,340.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99170 -> 99170.01
+  subtractions: 74170 -> 74170.01
+  taxableIncome: 96700 -> 96700.01
+  taxBeforeCredits: 3562 -> 3572
+  tax: 3475 -> 3485
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74170 -> 74170.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $148,540.00 of long-term capital gains
+
+```text
+  long-term capital gains $148,540.00 -> $148,540.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99270 -> 99270.01
+  subtractions: 74270 -> 74270.01
+  taxableIncome: 96800 -> 96800.01
+  taxBeforeCredits: 3575.9 -> 3585.9
+  tax: 3488.9 -> 3498.9
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74270 -> 74270.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $148,740.00 of long-term capital gains
+
+```text
+  long-term capital gains $148,740.00 -> $148,740.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99370 -> 99370.01
+  subtractions: 74370 -> 74370.01
+  taxableIncome: 96900 -> 96900.01
+  taxBeforeCredits: 3589.8 -> 3599.8
+  tax: 3502.8 -> 3512.8
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74370 -> 74370.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $148,940.00 of long-term capital gains
+
+```text
+  long-term capital gains $148,940.00 -> $148,940.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99470 -> 99470.01
+  subtractions: 74470 -> 74470.01
+  taxableIncome: 97000 -> 97000.01
+  taxBeforeCredits: 3603.7 -> 3613.7
+  tax: 3516.7 -> 3526.7
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74470 -> 74470.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $149,140.00 of long-term capital gains
+
+```text
+  long-term capital gains $149,140.00 -> $149,140.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99570 -> 99570.01
+  subtractions: 74570 -> 74570.01
+  taxableIncome: 97100 -> 97100.01
+  taxBeforeCredits: 3617.6 -> 3627.6
+  tax: 3530.6 -> 3540.6
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74570 -> 74570.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $149,340.00 of long-term capital gains
+
+```text
+  long-term capital gains $149,340.00 -> $149,340.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99670 -> 99670.01
+  subtractions: 74670 -> 74670.01
+  taxableIncome: 97200 -> 97200.01
+  taxBeforeCredits: 3631.5 -> 3641.5
+  tax: 3544.5 -> 3554.5
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74670 -> 74670.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $149,540.00 of long-term capital gains
+
+```text
+  long-term capital gains $149,540.00 -> $149,540.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99770 -> 99770.01
+  subtractions: 74770 -> 74770.01
+  taxableIncome: 97300 -> 97300.01
+  taxBeforeCredits: 3645.4 -> 3655.4
+  tax: 3558.4 -> 3568.4
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74770 -> 74770.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $149,740.00 of long-term capital gains
+
+```text
+  long-term capital gains $149,740.00 -> $149,740.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99870 -> 99870.01
+  subtractions: 74870 -> 74870.01
+  taxableIncome: 97400 -> 97400.01
+  taxBeforeCredits: 3659.3 -> 3669.3
+  tax: 3572.3 -> 3582.3
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74870 -> 74870.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2025, single-young-child — $10.00 at $149,940.00 of long-term capital gains
+
+```text
+  long-term capital gains $149,940.00 -> $149,940.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99970 -> 99970.01
+  subtractions: 74970 -> 74970.01
+  taxableIncome: 97500 -> 97500.01
+  taxBeforeCredits: 3673.2 -> 3683.2
+  tax: 3586.2 -> 3596.2
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74970 -> 74970.01
+```
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+> AND THE BRACKET ADJUSTMENT IS A STAIRCASE OF THIRTY CLIFFS RATHER THAN A SLOPE. Its rows are $100 wide and its amounts are whole dollars, so the tax steps rather than rises: $10 of Arkansas tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025. A provision written to stop a cliff at $94,700 is itself thirty smaller cliffs. In 2026 it also OVERSHOOTS: the tax at $94,700 is $3,136.70 and at $94,701 it is $3,134.04, so one dollar of extra income CUTS the bill by $2.66, where the 2025 card undershoots the same join by $20.70. The provision changed sign between the two years and no act changed it — the 2026 amount is Act 1 of 2026's and the 2025 one is the Department of Finance and Administration's.
+
+### AR 2026, childless-single — $10.00 at $144,540.00 of long-term capital gains
+
+```text
+  long-term capital gains $144,540.00 -> $144,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97270 -> 97270.01
   subtractions: 72270 -> 72270.01
   taxableIncome: 94800 -> 94800.01
@@ -2043,10 +2504,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $144,740.00 of wages
+### AR 2026, childless-single — $10.00 at $144,740.00 of long-term capital gains
 
 ```text
-  wages $144,740.00 -> $144,740.01   total tax moves +$10.00
+  long-term capital gains $144,740.00 -> $144,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97370 -> 97370.01
   subtractions: 72370 -> 72370.01
   taxableIncome: 94900 -> 94900.01
@@ -2059,10 +2520,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $145,140.00 of wages
+### AR 2026, childless-single — $10.00 at $145,140.00 of long-term capital gains
 
 ```text
-  wages $145,140.00 -> $145,140.01   total tax moves +$10.00
+  long-term capital gains $145,140.00 -> $145,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97570 -> 97570.01
   subtractions: 72570 -> 72570.01
   taxableIncome: 95100 -> 95100.01
@@ -2075,10 +2536,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $145,340.00 of wages
+### AR 2026, childless-single — $10.00 at $145,340.00 of long-term capital gains
 
 ```text
-  wages $145,340.00 -> $145,340.01   total tax moves +$10.00
+  long-term capital gains $145,340.00 -> $145,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97670 -> 97670.01
   subtractions: 72670 -> 72670.01
   taxableIncome: 95200 -> 95200.01
@@ -2091,10 +2552,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $145,540.00 of wages
+### AR 2026, childless-single — $10.00 at $145,540.00 of long-term capital gains
 
 ```text
-  wages $145,540.00 -> $145,540.01   total tax moves +$10.00
+  long-term capital gains $145,540.00 -> $145,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97770 -> 97770.01
   subtractions: 72770 -> 72770.01
   taxableIncome: 95300 -> 95300.01
@@ -2107,10 +2568,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $145,740.00 of wages
+### AR 2026, childless-single — $10.00 at $145,740.00 of long-term capital gains
 
 ```text
-  wages $145,740.00 -> $145,740.01   total tax moves +$10.00
+  long-term capital gains $145,740.00 -> $145,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97870 -> 97870.01
   subtractions: 72870 -> 72870.01
   taxableIncome: 95400 -> 95400.01
@@ -2123,10 +2584,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $145,940.00 of wages
+### AR 2026, childless-single — $10.00 at $145,940.00 of long-term capital gains
 
 ```text
-  wages $145,940.00 -> $145,940.01   total tax moves +$10.00
+  long-term capital gains $145,940.00 -> $145,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97970 -> 97970.01
   subtractions: 72970 -> 72970.01
   taxableIncome: 95500 -> 95500.01
@@ -2139,10 +2600,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $146,140.00 of wages
+### AR 2026, childless-single — $10.00 at $146,140.00 of long-term capital gains
 
 ```text
-  wages $146,140.00 -> $146,140.01   total tax moves +$10.00
+  long-term capital gains $146,140.00 -> $146,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98070 -> 98070.01
   subtractions: 73070 -> 73070.01
   taxableIncome: 95600 -> 95600.01
@@ -2155,10 +2616,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $146,340.00 of wages
+### AR 2026, childless-single — $10.00 at $146,340.00 of long-term capital gains
 
 ```text
-  wages $146,340.00 -> $146,340.01   total tax moves +$10.00
+  long-term capital gains $146,340.00 -> $146,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98170 -> 98170.01
   subtractions: 73170 -> 73170.01
   taxableIncome: 95700 -> 95700.01
@@ -2171,10 +2632,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $146,540.00 of wages
+### AR 2026, childless-single — $10.00 at $146,540.00 of long-term capital gains
 
 ```text
-  wages $146,540.00 -> $146,540.01   total tax moves +$10.00
+  long-term capital gains $146,540.00 -> $146,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98270 -> 98270.01
   subtractions: 73270 -> 73270.01
   taxableIncome: 95800 -> 95800.01
@@ -2187,10 +2648,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $146,740.00 of wages
+### AR 2026, childless-single — $10.00 at $146,740.00 of long-term capital gains
 
 ```text
-  wages $146,740.00 -> $146,740.01   total tax moves +$10.00
+  long-term capital gains $146,740.00 -> $146,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98370 -> 98370.01
   subtractions: 73370 -> 73370.01
   taxableIncome: 95900 -> 95900.01
@@ -2203,10 +2664,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $146,940.00 of wages
+### AR 2026, childless-single — $10.00 at $146,940.00 of long-term capital gains
 
 ```text
-  wages $146,940.00 -> $146,940.01   total tax moves +$10.00
+  long-term capital gains $146,940.00 -> $146,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98470 -> 98470.01
   subtractions: 73470 -> 73470.01
   taxableIncome: 96000 -> 96000.01
@@ -2219,10 +2680,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $147,140.00 of wages
+### AR 2026, childless-single — $10.00 at $147,140.00 of long-term capital gains
 
 ```text
-  wages $147,140.00 -> $147,140.01   total tax moves +$10.00
+  long-term capital gains $147,140.00 -> $147,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98570 -> 98570.01
   subtractions: 73570 -> 73570.01
   taxableIncome: 96100 -> 96100.01
@@ -2235,10 +2696,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $147,340.00 of wages
+### AR 2026, childless-single — $10.00 at $147,340.00 of long-term capital gains
 
 ```text
-  wages $147,340.00 -> $147,340.01   total tax moves +$10.00
+  long-term capital gains $147,340.00 -> $147,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98670 -> 98670.01
   subtractions: 73670 -> 73670.01
   taxableIncome: 96200 -> 96200.01
@@ -2251,10 +2712,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $147,540.00 of wages
+### AR 2026, childless-single — $10.00 at $147,540.00 of long-term capital gains
 
 ```text
-  wages $147,540.00 -> $147,540.01   total tax moves +$10.00
+  long-term capital gains $147,540.00 -> $147,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98770 -> 98770.01
   subtractions: 73770 -> 73770.01
   taxableIncome: 96300 -> 96300.01
@@ -2267,10 +2728,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $147,740.00 of wages
+### AR 2026, childless-single — $10.00 at $147,740.00 of long-term capital gains
 
 ```text
-  wages $147,740.00 -> $147,740.01   total tax moves +$10.00
+  long-term capital gains $147,740.00 -> $147,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98870 -> 98870.01
   subtractions: 73870 -> 73870.01
   taxableIncome: 96400 -> 96400.01
@@ -2283,10 +2744,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $147,940.00 of wages
+### AR 2026, childless-single — $10.00 at $147,940.00 of long-term capital gains
 
 ```text
-  wages $147,940.00 -> $147,940.01   total tax moves +$10.00
+  long-term capital gains $147,940.00 -> $147,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98970 -> 98970.01
   subtractions: 73970 -> 73970.01
   taxableIncome: 96500 -> 96500.01
@@ -2299,10 +2760,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $148,140.00 of wages
+### AR 2026, childless-single — $10.00 at $148,140.00 of long-term capital gains
 
 ```text
-  wages $148,140.00 -> $148,140.01   total tax moves +$10.00
+  long-term capital gains $148,140.00 -> $148,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99070 -> 99070.01
   subtractions: 74070 -> 74070.01
   taxableIncome: 96600 -> 96600.01
@@ -2315,10 +2776,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $148,340.00 of wages
+### AR 2026, childless-single — $10.00 at $148,340.00 of long-term capital gains
 
 ```text
-  wages $148,340.00 -> $148,340.01   total tax moves +$10.00
+  long-term capital gains $148,340.00 -> $148,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99170 -> 99170.01
   subtractions: 74170 -> 74170.01
   taxableIncome: 96700 -> 96700.01
@@ -2331,10 +2792,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $148,540.00 of wages
+### AR 2026, childless-single — $10.00 at $148,540.00 of long-term capital gains
 
 ```text
-  wages $148,540.00 -> $148,540.01   total tax moves +$10.00
+  long-term capital gains $148,540.00 -> $148,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99270 -> 99270.01
   subtractions: 74270 -> 74270.01
   taxableIncome: 96800 -> 96800.01
@@ -2347,10 +2808,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $148,740.00 of wages
+### AR 2026, childless-single — $10.00 at $148,740.00 of long-term capital gains
 
 ```text
-  wages $148,740.00 -> $148,740.01   total tax moves +$10.00
+  long-term capital gains $148,740.00 -> $148,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99370 -> 99370.01
   subtractions: 74370 -> 74370.01
   taxableIncome: 96900 -> 96900.01
@@ -2363,10 +2824,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $148,940.00 of wages
+### AR 2026, childless-single — $10.00 at $148,940.00 of long-term capital gains
 
 ```text
-  wages $148,940.00 -> $148,940.01   total tax moves +$10.00
+  long-term capital gains $148,940.00 -> $148,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99470 -> 99470.01
   subtractions: 74470 -> 74470.01
   taxableIncome: 97000 -> 97000.01
@@ -2379,10 +2840,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $149,140.00 of wages
+### AR 2026, childless-single — $10.00 at $149,140.00 of long-term capital gains
 
 ```text
-  wages $149,140.00 -> $149,140.01   total tax moves +$10.00
+  long-term capital gains $149,140.00 -> $149,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99570 -> 99570.01
   subtractions: 74570 -> 74570.01
   taxableIncome: 97100 -> 97100.01
@@ -2395,10 +2856,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $149,340.00 of wages
+### AR 2026, childless-single — $10.00 at $149,340.00 of long-term capital gains
 
 ```text
-  wages $149,340.00 -> $149,340.01   total tax moves +$10.00
+  long-term capital gains $149,340.00 -> $149,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99670 -> 99670.01
   subtractions: 74670 -> 74670.01
   taxableIncome: 97200 -> 97200.01
@@ -2411,10 +2872,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $149,540.00 of wages
+### AR 2026, childless-single — $10.00 at $149,540.00 of long-term capital gains
 
 ```text
-  wages $149,540.00 -> $149,540.01   total tax moves +$10.00
+  long-term capital gains $149,540.00 -> $149,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99770 -> 99770.01
   subtractions: 74770 -> 74770.01
   taxableIncome: 97300 -> 97300.01
@@ -2427,10 +2888,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $149,740.00 of wages
+### AR 2026, childless-single — $10.00 at $149,740.00 of long-term capital gains
 
 ```text
-  wages $149,740.00 -> $149,740.01   total tax moves +$10.00
+  long-term capital gains $149,740.00 -> $149,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99870 -> 99870.01
   subtractions: 74870 -> 74870.01
   taxableIncome: 97400 -> 97400.01
@@ -2443,10 +2904,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $149,940.00 of wages
+### AR 2026, childless-single — $10.00 at $149,940.00 of long-term capital gains
 
 ```text
-  wages $149,940.00 -> $149,940.01   total tax moves +$10.00
+  long-term capital gains $149,940.00 -> $149,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99970 -> 99970.01
   subtractions: 74970 -> 74970.01
   taxableIncome: 97500 -> 97500.01
@@ -2459,10 +2920,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $144,540.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $144,540.00 of long-term capital gains
 
 ```text
-  wages $144,540.00 -> $144,540.01   total tax moves +$10.00
+  long-term capital gains $144,540.00 -> $144,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97270 -> 97270.01
   subtractions: 72270 -> 72270.01
   taxableIncome: 94800 -> 94800.01
@@ -2475,10 +2936,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $144,740.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $144,740.00 of long-term capital gains
 
 ```text
-  wages $144,740.00 -> $144,740.01   total tax moves +$10.00
+  long-term capital gains $144,740.00 -> $144,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97370 -> 97370.01
   subtractions: 72370 -> 72370.01
   taxableIncome: 94900 -> 94900.01
@@ -2491,10 +2952,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $144,940.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $144,940.00 of long-term capital gains
 
 ```text
-  wages $144,940.00 -> $144,940.01   total tax moves +$10.00
+  long-term capital gains $144,940.00 -> $144,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97470 -> 97470.01
   subtractions: 72470 -> 72470.01
   taxableIncome: 95000 -> 95000.01
@@ -2507,10 +2968,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $145,140.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $145,140.00 of long-term capital gains
 
 ```text
-  wages $145,140.00 -> $145,140.01   total tax moves +$10.00
+  long-term capital gains $145,140.00 -> $145,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97570 -> 97570.01
   subtractions: 72570 -> 72570.01
   taxableIncome: 95100 -> 95100.01
@@ -2523,10 +2984,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $145,340.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $145,340.00 of long-term capital gains
 
 ```text
-  wages $145,340.00 -> $145,340.01   total tax moves +$10.00
+  long-term capital gains $145,340.00 -> $145,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97670 -> 97670.01
   subtractions: 72670 -> 72670.01
   taxableIncome: 95200 -> 95200.01
@@ -2539,10 +3000,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $145,540.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $145,540.00 of long-term capital gains
 
 ```text
-  wages $145,540.00 -> $145,540.01   total tax moves +$10.00
+  long-term capital gains $145,540.00 -> $145,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97770 -> 97770.01
   subtractions: 72770 -> 72770.01
   taxableIncome: 95300 -> 95300.01
@@ -2555,10 +3016,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $145,740.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $145,740.00 of long-term capital gains
 
 ```text
-  wages $145,740.00 -> $145,740.01   total tax moves +$10.00
+  long-term capital gains $145,740.00 -> $145,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97870 -> 97870.01
   subtractions: 72870 -> 72870.01
   taxableIncome: 95400 -> 95400.01
@@ -2571,10 +3032,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $145,940.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $145,940.00 of long-term capital gains
 
 ```text
-  wages $145,940.00 -> $145,940.01   total tax moves +$10.00
+  long-term capital gains $145,940.00 -> $145,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97970 -> 97970.01
   subtractions: 72970 -> 72970.01
   taxableIncome: 95500 -> 95500.01
@@ -2587,10 +3048,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $146,140.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $146,140.00 of long-term capital gains
 
 ```text
-  wages $146,140.00 -> $146,140.01   total tax moves +$10.00
+  long-term capital gains $146,140.00 -> $146,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98070 -> 98070.01
   subtractions: 73070 -> 73070.01
   taxableIncome: 95600 -> 95600.01
@@ -2603,10 +3064,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $146,340.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $146,340.00 of long-term capital gains
 
 ```text
-  wages $146,340.00 -> $146,340.01   total tax moves +$10.00
+  long-term capital gains $146,340.00 -> $146,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98170 -> 98170.01
   subtractions: 73170 -> 73170.01
   taxableIncome: 95700 -> 95700.01
@@ -2619,10 +3080,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $146,540.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $146,540.00 of long-term capital gains
 
 ```text
-  wages $146,540.00 -> $146,540.01   total tax moves +$10.00
+  long-term capital gains $146,540.00 -> $146,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98270 -> 98270.01
   subtractions: 73270 -> 73270.01
   taxableIncome: 95800 -> 95800.01
@@ -2635,10 +3096,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $146,740.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $146,740.00 of long-term capital gains
 
 ```text
-  wages $146,740.00 -> $146,740.01   total tax moves +$10.00
+  long-term capital gains $146,740.00 -> $146,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98370 -> 98370.01
   subtractions: 73370 -> 73370.01
   taxableIncome: 95900 -> 95900.01
@@ -2651,10 +3112,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $146,940.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $146,940.00 of long-term capital gains
 
 ```text
-  wages $146,940.00 -> $146,940.01   total tax moves +$10.00
+  long-term capital gains $146,940.00 -> $146,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98470 -> 98470.01
   subtractions: 73470 -> 73470.01
   taxableIncome: 96000 -> 96000.01
@@ -2667,10 +3128,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $147,140.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $147,140.00 of long-term capital gains
 
 ```text
-  wages $147,140.00 -> $147,140.01   total tax moves +$10.00
+  long-term capital gains $147,140.00 -> $147,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98570 -> 98570.01
   subtractions: 73570 -> 73570.01
   taxableIncome: 96100 -> 96100.01
@@ -2683,10 +3144,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $147,340.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $147,340.00 of long-term capital gains
 
 ```text
-  wages $147,340.00 -> $147,340.01   total tax moves +$10.00
+  long-term capital gains $147,340.00 -> $147,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98670 -> 98670.01
   subtractions: 73670 -> 73670.01
   taxableIncome: 96200 -> 96200.01
@@ -2699,10 +3160,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $147,540.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $147,540.00 of long-term capital gains
 
 ```text
-  wages $147,540.00 -> $147,540.01   total tax moves +$10.00
+  long-term capital gains $147,540.00 -> $147,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98770 -> 98770.01
   subtractions: 73770 -> 73770.01
   taxableIncome: 96300 -> 96300.01
@@ -2715,10 +3176,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $147,740.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $147,740.00 of long-term capital gains
 
 ```text
-  wages $147,740.00 -> $147,740.01   total tax moves +$10.00
+  long-term capital gains $147,740.00 -> $147,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98870 -> 98870.01
   subtractions: 73870 -> 73870.01
   taxableIncome: 96400 -> 96400.01
@@ -2731,10 +3192,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $147,940.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $147,940.00 of long-term capital gains
 
 ```text
-  wages $147,940.00 -> $147,940.01   total tax moves +$10.00
+  long-term capital gains $147,940.00 -> $147,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98970 -> 98970.01
   subtractions: 73970 -> 73970.01
   taxableIncome: 96500 -> 96500.01
@@ -2747,10 +3208,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $148,140.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $148,140.00 of long-term capital gains
 
 ```text
-  wages $148,140.00 -> $148,140.01   total tax moves +$10.00
+  long-term capital gains $148,140.00 -> $148,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99070 -> 99070.01
   subtractions: 74070 -> 74070.01
   taxableIncome: 96600 -> 96600.01
@@ -2763,10 +3224,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $148,340.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $148,340.00 of long-term capital gains
 
 ```text
-  wages $148,340.00 -> $148,340.01   total tax moves +$10.00
+  long-term capital gains $148,340.00 -> $148,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99170 -> 99170.01
   subtractions: 74170 -> 74170.01
   taxableIncome: 96700 -> 96700.01
@@ -2779,10 +3240,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $148,540.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $148,540.00 of long-term capital gains
 
 ```text
-  wages $148,540.00 -> $148,540.01   total tax moves +$10.00
+  long-term capital gains $148,540.00 -> $148,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99270 -> 99270.01
   subtractions: 74270 -> 74270.01
   taxableIncome: 96800 -> 96800.01
@@ -2795,10 +3256,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $148,740.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $148,740.00 of long-term capital gains
 
 ```text
-  wages $148,740.00 -> $148,740.01   total tax moves +$10.00
+  long-term capital gains $148,740.00 -> $148,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99370 -> 99370.01
   subtractions: 74370 -> 74370.01
   taxableIncome: 96900 -> 96900.01
@@ -2811,10 +3272,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $148,940.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $148,940.00 of long-term capital gains
 
 ```text
-  wages $148,940.00 -> $148,940.01   total tax moves +$10.00
+  long-term capital gains $148,940.00 -> $148,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99470 -> 99470.01
   subtractions: 74470 -> 74470.01
   taxableIncome: 97000 -> 97000.01
@@ -2827,10 +3288,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $149,140.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $149,140.00 of long-term capital gains
 
 ```text
-  wages $149,140.00 -> $149,140.01   total tax moves +$10.00
+  long-term capital gains $149,140.00 -> $149,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99570 -> 99570.01
   subtractions: 74570 -> 74570.01
   taxableIncome: 97100 -> 97100.01
@@ -2843,10 +3304,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $149,340.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $149,340.00 of long-term capital gains
 
 ```text
-  wages $149,340.00 -> $149,340.01   total tax moves +$10.00
+  long-term capital gains $149,340.00 -> $149,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99670 -> 99670.01
   subtractions: 74670 -> 74670.01
   taxableIncome: 97200 -> 97200.01
@@ -2859,10 +3320,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $149,540.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $149,540.00 of long-term capital gains
 
 ```text
-  wages $149,540.00 -> $149,540.01   total tax moves +$10.00
+  long-term capital gains $149,540.00 -> $149,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99770 -> 99770.01
   subtractions: 74770 -> 74770.01
   taxableIncome: 97300 -> 97300.01
@@ -2875,10 +3336,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $149,740.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $149,740.00 of long-term capital gains
 
 ```text
-  wages $149,740.00 -> $149,740.01   total tax moves +$10.00
+  long-term capital gains $149,740.00 -> $149,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99870 -> 99870.01
   subtractions: 74870 -> 74870.01
   taxableIncome: 97400 -> 97400.01
@@ -2891,10 +3352,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, hoh-one-child — $10.00 at $149,940.00 of wages
+### AR 2026, hoh-one-child — $10.00 at $149,940.00 of long-term capital gains
 
 ```text
-  wages $149,940.00 -> $149,940.01   total tax moves +$10.00
+  long-term capital gains $149,940.00 -> $149,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99970 -> 99970.01
   subtractions: 74970 -> 74970.01
   taxableIncome: 97500 -> 97500.01
@@ -2907,10 +3368,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, joint-no-children — $10.00 at $149,480.00 of wages
+### AR 2026, joint-no-children — $10.00 at $149,480.00 of long-term capital gains
 
 ```text
-  wages $149,480.00 -> $149,480.01   total tax moves +$10.00
+  long-term capital gains $149,480.00 -> $149,480.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99740 -> 99740.01
   subtractions: 74740 -> 74740.01
   taxableIncome: 94800 -> 94800.01
@@ -2923,10 +3384,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, joint-no-children — $10.00 at $149,680.00 of wages
+### AR 2026, joint-no-children — $10.00 at $149,680.00 of long-term capital gains
 
 ```text
-  wages $149,680.00 -> $149,680.01   total tax moves +$10.00
+  long-term capital gains $149,680.00 -> $149,680.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99840 -> 99840.01
   subtractions: 74840 -> 74840.01
   taxableIncome: 94900 -> 94900.01
@@ -2939,10 +3400,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, joint-no-children — $10.00 at $149,880.00 of wages
+### AR 2026, joint-no-children — $10.00 at $149,880.00 of long-term capital gains
 
 ```text
-  wages $149,880.00 -> $149,880.01   total tax moves +$10.00
+  long-term capital gains $149,880.00 -> $149,880.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99940 -> 99940.01
   subtractions: 74940 -> 74940.01
   taxableIncome: 95000 -> 95000.01
@@ -2955,10 +3416,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, joint-two-children — $10.00 at $149,480.00 of wages
+### AR 2026, joint-two-children — $10.00 at $149,480.00 of long-term capital gains
 
 ```text
-  wages $149,480.00 -> $149,480.01   total tax moves +$10.00
+  long-term capital gains $149,480.00 -> $149,480.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99740 -> 99740.01
   subtractions: 74740 -> 74740.01
   taxableIncome: 94800 -> 94800.01
@@ -2971,10 +3432,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, joint-two-children — $10.00 at $149,680.00 of wages
+### AR 2026, joint-two-children — $10.00 at $149,680.00 of long-term capital gains
 
 ```text
-  wages $149,680.00 -> $149,680.01   total tax moves +$10.00
+  long-term capital gains $149,680.00 -> $149,680.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99840 -> 99840.01
   subtractions: 74840 -> 74840.01
   taxableIncome: 94900 -> 94900.01
@@ -2987,10 +3448,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, joint-two-children — $10.00 at $149,880.00 of wages
+### AR 2026, joint-two-children — $10.00 at $149,880.00 of long-term capital gains
 
 ```text
-  wages $149,880.00 -> $149,880.01   total tax moves +$10.00
+  long-term capital gains $149,880.00 -> $149,880.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99940 -> 99940.01
   subtractions: 74940 -> 74940.01
   taxableIncome: 95000 -> 95000.01
@@ -3003,10 +3464,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $120,540.00 of wages
+### AR 2026, single-retiree — $10.00 at $120,540.00 of long-term capital gains
 
 ```text
-  wages $120,540.00 -> $120,540.01   total tax moves +$10.00
+  long-term capital gains $120,540.00 -> $120,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97270 -> 97270.01
   subtractions: 86670 -> 86670.01
   taxableIncome: 94800 -> 94800.01
@@ -3019,10 +3480,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $120,740.00 of wages
+### AR 2026, single-retiree — $10.00 at $120,740.00 of long-term capital gains
 
 ```text
-  wages $120,740.00 -> $120,740.01   total tax moves +$10.00
+  long-term capital gains $120,740.00 -> $120,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97370 -> 97370.01
   subtractions: 86770 -> 86770.01
   taxableIncome: 94900 -> 94900.01
@@ -3035,10 +3496,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $120,940.00 of wages
+### AR 2026, single-retiree — $10.00 at $120,940.00 of long-term capital gains
 
 ```text
-  wages $120,940.00 -> $120,940.01   total tax moves +$10.00
+  long-term capital gains $120,940.00 -> $120,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97470 -> 97470.01
   subtractions: 86870 -> 86870.01
   taxableIncome: 95000 -> 95000.01
@@ -3051,10 +3512,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $121,140.00 of wages
+### AR 2026, single-retiree — $10.00 at $121,140.00 of long-term capital gains
 
 ```text
-  wages $121,140.00 -> $121,140.01   total tax moves +$10.00
+  long-term capital gains $121,140.00 -> $121,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97570 -> 97570.01
   subtractions: 86970 -> 86970.01
   taxableIncome: 95100 -> 95100.01
@@ -3067,10 +3528,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $121,340.00 of wages
+### AR 2026, single-retiree — $10.00 at $121,340.00 of long-term capital gains
 
 ```text
-  wages $121,340.00 -> $121,340.01   total tax moves +$10.00
+  long-term capital gains $121,340.00 -> $121,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97670 -> 97670.01
   subtractions: 87070 -> 87070.01
   taxableIncome: 95200 -> 95200.01
@@ -3083,10 +3544,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $121,540.00 of wages
+### AR 2026, single-retiree — $10.00 at $121,540.00 of long-term capital gains
 
 ```text
-  wages $121,540.00 -> $121,540.01   total tax moves +$10.00
+  long-term capital gains $121,540.00 -> $121,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97770 -> 97770.01
   subtractions: 87170 -> 87170.01
   taxableIncome: 95300 -> 95300.01
@@ -3099,10 +3560,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $121,740.00 of wages
+### AR 2026, single-retiree — $10.00 at $121,740.00 of long-term capital gains
 
 ```text
-  wages $121,740.00 -> $121,740.01   total tax moves +$10.00
+  long-term capital gains $121,740.00 -> $121,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97870 -> 97870.01
   subtractions: 87270 -> 87270.01
   taxableIncome: 95400 -> 95400.01
@@ -3115,10 +3576,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $121,940.00 of wages
+### AR 2026, single-retiree — $10.00 at $121,940.00 of long-term capital gains
 
 ```text
-  wages $121,940.00 -> $121,940.01   total tax moves +$10.00
+  long-term capital gains $121,940.00 -> $121,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97970 -> 97970.01
   subtractions: 87370 -> 87370.01
   taxableIncome: 95500 -> 95500.01
@@ -3131,10 +3592,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $122,140.00 of wages
+### AR 2026, single-retiree — $10.00 at $122,140.00 of long-term capital gains
 
 ```text
-  wages $122,140.00 -> $122,140.01   total tax moves +$10.00
+  long-term capital gains $122,140.00 -> $122,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98070 -> 98070.01
   subtractions: 87470 -> 87470.01
   taxableIncome: 95600 -> 95600.01
@@ -3147,10 +3608,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $122,340.00 of wages
+### AR 2026, single-retiree — $10.00 at $122,340.00 of long-term capital gains
 
 ```text
-  wages $122,340.00 -> $122,340.01   total tax moves +$10.00
+  long-term capital gains $122,340.00 -> $122,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98170 -> 98170.01
   subtractions: 87570 -> 87570.01
   taxableIncome: 95700 -> 95700.01
@@ -3163,10 +3624,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $122,540.00 of wages
+### AR 2026, single-retiree — $10.00 at $122,540.00 of long-term capital gains
 
 ```text
-  wages $122,540.00 -> $122,540.01   total tax moves +$10.00
+  long-term capital gains $122,540.00 -> $122,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98270 -> 98270.01
   subtractions: 87670 -> 87670.01
   taxableIncome: 95800 -> 95800.01
@@ -3179,10 +3640,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $122,740.00 of wages
+### AR 2026, single-retiree — $10.00 at $122,740.00 of long-term capital gains
 
 ```text
-  wages $122,740.00 -> $122,740.01   total tax moves +$10.00
+  long-term capital gains $122,740.00 -> $122,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98370 -> 98370.01
   subtractions: 87770 -> 87770.01
   taxableIncome: 95900 -> 95900.01
@@ -3195,10 +3656,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $122,940.00 of wages
+### AR 2026, single-retiree — $10.00 at $122,940.00 of long-term capital gains
 
 ```text
-  wages $122,940.00 -> $122,940.01   total tax moves +$10.00
+  long-term capital gains $122,940.00 -> $122,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98470 -> 98470.01
   subtractions: 87870 -> 87870.01
   taxableIncome: 96000 -> 96000.01
@@ -3211,10 +3672,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $123,140.00 of wages
+### AR 2026, single-retiree — $10.00 at $123,140.00 of long-term capital gains
 
 ```text
-  wages $123,140.00 -> $123,140.01   total tax moves +$10.00
+  long-term capital gains $123,140.00 -> $123,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98570 -> 98570.01
   subtractions: 87970 -> 87970.01
   taxableIncome: 96100 -> 96100.01
@@ -3227,10 +3688,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $123,340.00 of wages
+### AR 2026, single-retiree — $10.00 at $123,340.00 of long-term capital gains
 
 ```text
-  wages $123,340.00 -> $123,340.01   total tax moves +$10.00
+  long-term capital gains $123,340.00 -> $123,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98670 -> 98670.01
   subtractions: 88070 -> 88070.01
   taxableIncome: 96200 -> 96200.01
@@ -3243,10 +3704,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $123,540.00 of wages
+### AR 2026, single-retiree — $10.00 at $123,540.00 of long-term capital gains
 
 ```text
-  wages $123,540.00 -> $123,540.01   total tax moves +$10.00
+  long-term capital gains $123,540.00 -> $123,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98770 -> 98770.01
   subtractions: 88170 -> 88170.01
   taxableIncome: 96300 -> 96300.01
@@ -3259,10 +3720,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $123,740.00 of wages
+### AR 2026, single-retiree — $10.00 at $123,740.00 of long-term capital gains
 
 ```text
-  wages $123,740.00 -> $123,740.01   total tax moves +$10.00
+  long-term capital gains $123,740.00 -> $123,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98870 -> 98870.01
   subtractions: 88270 -> 88270.01
   taxableIncome: 96400 -> 96400.01
@@ -3275,10 +3736,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $123,940.00 of wages
+### AR 2026, single-retiree — $10.00 at $123,940.00 of long-term capital gains
 
 ```text
-  wages $123,940.00 -> $123,940.01   total tax moves +$10.00
+  long-term capital gains $123,940.00 -> $123,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98970 -> 98970.01
   subtractions: 88370 -> 88370.01
   taxableIncome: 96500 -> 96500.01
@@ -3291,10 +3752,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $124,140.00 of wages
+### AR 2026, single-retiree — $10.00 at $124,140.00 of long-term capital gains
 
 ```text
-  wages $124,140.00 -> $124,140.01   total tax moves +$10.00
+  long-term capital gains $124,140.00 -> $124,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99070 -> 99070.01
   subtractions: 88470 -> 88470.01
   taxableIncome: 96600 -> 96600.01
@@ -3307,10 +3768,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $124,340.00 of wages
+### AR 2026, single-retiree — $10.00 at $124,340.00 of long-term capital gains
 
 ```text
-  wages $124,340.00 -> $124,340.01   total tax moves +$10.00
+  long-term capital gains $124,340.00 -> $124,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99170 -> 99170.01
   subtractions: 88570 -> 88570.01
   taxableIncome: 96700 -> 96700.01
@@ -3323,10 +3784,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $124,540.00 of wages
+### AR 2026, single-retiree — $10.00 at $124,540.00 of long-term capital gains
 
 ```text
-  wages $124,540.00 -> $124,540.01   total tax moves +$10.00
+  long-term capital gains $124,540.00 -> $124,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99270 -> 99270.01
   subtractions: 88670 -> 88670.01
   taxableIncome: 96800 -> 96800.01
@@ -3339,10 +3800,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $124,740.00 of wages
+### AR 2026, single-retiree — $10.00 at $124,740.00 of long-term capital gains
 
 ```text
-  wages $124,740.00 -> $124,740.01   total tax moves +$10.00
+  long-term capital gains $124,740.00 -> $124,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99370 -> 99370.01
   subtractions: 88770 -> 88770.01
   taxableIncome: 96900 -> 96900.01
@@ -3355,10 +3816,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $124,940.00 of wages
+### AR 2026, single-retiree — $10.00 at $124,940.00 of long-term capital gains
 
 ```text
-  wages $124,940.00 -> $124,940.01   total tax moves +$10.00
+  long-term capital gains $124,940.00 -> $124,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99470 -> 99470.01
   subtractions: 88870 -> 88870.01
   taxableIncome: 97000 -> 97000.01
@@ -3371,10 +3832,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $125,140.00 of wages
+### AR 2026, single-retiree — $10.00 at $125,140.00 of long-term capital gains
 
 ```text
-  wages $125,140.00 -> $125,140.01   total tax moves +$10.00
+  long-term capital gains $125,140.00 -> $125,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99570 -> 99570.01
   subtractions: 88970 -> 88970.01
   taxableIncome: 97100 -> 97100.01
@@ -3387,10 +3848,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $125,340.00 of wages
+### AR 2026, single-retiree — $10.00 at $125,340.00 of long-term capital gains
 
 ```text
-  wages $125,340.00 -> $125,340.01   total tax moves +$10.00
+  long-term capital gains $125,340.00 -> $125,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99670 -> 99670.01
   subtractions: 89070 -> 89070.01
   taxableIncome: 97200 -> 97200.01
@@ -3403,10 +3864,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $125,540.00 of wages
+### AR 2026, single-retiree — $10.00 at $125,540.00 of long-term capital gains
 
 ```text
-  wages $125,540.00 -> $125,540.01   total tax moves +$10.00
+  long-term capital gains $125,540.00 -> $125,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99770 -> 99770.01
   subtractions: 89170 -> 89170.01
   taxableIncome: 97300 -> 97300.01
@@ -3419,10 +3880,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $125,740.00 of wages
+### AR 2026, single-retiree — $10.00 at $125,740.00 of long-term capital gains
 
 ```text
-  wages $125,740.00 -> $125,740.01   total tax moves +$10.00
+  long-term capital gains $125,740.00 -> $125,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99870 -> 99870.01
   subtractions: 89270 -> 89270.01
   taxableIncome: 97400 -> 97400.01
@@ -3435,10 +3896,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $125,940.00 of wages
+### AR 2026, single-retiree — $10.00 at $125,940.00 of long-term capital gains
 
 ```text
-  wages $125,940.00 -> $125,940.01   total tax moves +$10.00
+  long-term capital gains $125,940.00 -> $125,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99970 -> 99970.01
   subtractions: 89370 -> 89370.01
   taxableIncome: 97500 -> 97500.01
@@ -3451,10 +3912,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $144,540.00 of wages
+### AR 2026, single-two-children — $10.00 at $144,540.00 of long-term capital gains
 
 ```text
-  wages $144,540.00 -> $144,540.01   total tax moves +$10.00
+  long-term capital gains $144,540.00 -> $144,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97270 -> 97270.01
   subtractions: 72270 -> 72270.01
   taxableIncome: 94800 -> 94800.01
@@ -3467,10 +3928,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $144,740.00 of wages
+### AR 2026, single-two-children — $10.00 at $144,740.00 of long-term capital gains
 
 ```text
-  wages $144,740.00 -> $144,740.01   total tax moves +$10.00
+  long-term capital gains $144,740.00 -> $144,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97370 -> 97370.01
   subtractions: 72370 -> 72370.01
   taxableIncome: 94900 -> 94900.01
@@ -3483,10 +3944,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $144,940.00 of wages
+### AR 2026, single-two-children — $10.00 at $144,940.00 of long-term capital gains
 
 ```text
-  wages $144,940.00 -> $144,940.01   total tax moves +$10.00
+  long-term capital gains $144,940.00 -> $144,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97470 -> 97470.01
   subtractions: 72470 -> 72470.01
   taxableIncome: 95000 -> 95000.01
@@ -3499,10 +3960,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $145,140.00 of wages
+### AR 2026, single-two-children — $10.00 at $145,140.00 of long-term capital gains
 
 ```text
-  wages $145,140.00 -> $145,140.01   total tax moves +$10.00
+  long-term capital gains $145,140.00 -> $145,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97570 -> 97570.01
   subtractions: 72570 -> 72570.01
   taxableIncome: 95100 -> 95100.01
@@ -3515,10 +3976,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $145,340.00 of wages
+### AR 2026, single-two-children — $10.00 at $145,340.00 of long-term capital gains
 
 ```text
-  wages $145,340.00 -> $145,340.01   total tax moves +$10.00
+  long-term capital gains $145,340.00 -> $145,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97670 -> 97670.01
   subtractions: 72670 -> 72670.01
   taxableIncome: 95200 -> 95200.01
@@ -3531,10 +3992,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $145,540.00 of wages
+### AR 2026, single-two-children — $10.00 at $145,540.00 of long-term capital gains
 
 ```text
-  wages $145,540.00 -> $145,540.01   total tax moves +$10.00
+  long-term capital gains $145,540.00 -> $145,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97770 -> 97770.01
   subtractions: 72770 -> 72770.01
   taxableIncome: 95300 -> 95300.01
@@ -3547,10 +4008,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $145,740.00 of wages
+### AR 2026, single-two-children — $10.00 at $145,740.00 of long-term capital gains
 
 ```text
-  wages $145,740.00 -> $145,740.01   total tax moves +$10.00
+  long-term capital gains $145,740.00 -> $145,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97870 -> 97870.01
   subtractions: 72870 -> 72870.01
   taxableIncome: 95400 -> 95400.01
@@ -3563,10 +4024,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $145,940.00 of wages
+### AR 2026, single-two-children — $10.00 at $145,940.00 of long-term capital gains
 
 ```text
-  wages $145,940.00 -> $145,940.01   total tax moves +$10.00
+  long-term capital gains $145,940.00 -> $145,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97970 -> 97970.01
   subtractions: 72970 -> 72970.01
   taxableIncome: 95500 -> 95500.01
@@ -3579,10 +4040,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $146,140.00 of wages
+### AR 2026, single-two-children — $10.00 at $146,140.00 of long-term capital gains
 
 ```text
-  wages $146,140.00 -> $146,140.01   total tax moves +$10.00
+  long-term capital gains $146,140.00 -> $146,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98070 -> 98070.01
   subtractions: 73070 -> 73070.01
   taxableIncome: 95600 -> 95600.01
@@ -3595,10 +4056,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $146,340.00 of wages
+### AR 2026, single-two-children — $10.00 at $146,340.00 of long-term capital gains
 
 ```text
-  wages $146,340.00 -> $146,340.01   total tax moves +$10.00
+  long-term capital gains $146,340.00 -> $146,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98170 -> 98170.01
   subtractions: 73170 -> 73170.01
   taxableIncome: 95700 -> 95700.01
@@ -3611,10 +4072,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $146,540.00 of wages
+### AR 2026, single-two-children — $10.00 at $146,540.00 of long-term capital gains
 
 ```text
-  wages $146,540.00 -> $146,540.01   total tax moves +$10.00
+  long-term capital gains $146,540.00 -> $146,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98270 -> 98270.01
   subtractions: 73270 -> 73270.01
   taxableIncome: 95800 -> 95800.01
@@ -3627,10 +4088,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $146,740.00 of wages
+### AR 2026, single-two-children — $10.00 at $146,740.00 of long-term capital gains
 
 ```text
-  wages $146,740.00 -> $146,740.01   total tax moves +$10.00
+  long-term capital gains $146,740.00 -> $146,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98370 -> 98370.01
   subtractions: 73370 -> 73370.01
   taxableIncome: 95900 -> 95900.01
@@ -3643,10 +4104,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $146,940.00 of wages
+### AR 2026, single-two-children — $10.00 at $146,940.00 of long-term capital gains
 
 ```text
-  wages $146,940.00 -> $146,940.01   total tax moves +$10.00
+  long-term capital gains $146,940.00 -> $146,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98470 -> 98470.01
   subtractions: 73470 -> 73470.01
   taxableIncome: 96000 -> 96000.01
@@ -3659,10 +4120,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $147,140.00 of wages
+### AR 2026, single-two-children — $10.00 at $147,140.00 of long-term capital gains
 
 ```text
-  wages $147,140.00 -> $147,140.01   total tax moves +$10.00
+  long-term capital gains $147,140.00 -> $147,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98570 -> 98570.01
   subtractions: 73570 -> 73570.01
   taxableIncome: 96100 -> 96100.01
@@ -3675,10 +4136,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $147,340.00 of wages
+### AR 2026, single-two-children — $10.00 at $147,340.00 of long-term capital gains
 
 ```text
-  wages $147,340.00 -> $147,340.01   total tax moves +$10.00
+  long-term capital gains $147,340.00 -> $147,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98670 -> 98670.01
   subtractions: 73670 -> 73670.01
   taxableIncome: 96200 -> 96200.01
@@ -3691,10 +4152,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $147,540.00 of wages
+### AR 2026, single-two-children — $10.00 at $147,540.00 of long-term capital gains
 
 ```text
-  wages $147,540.00 -> $147,540.01   total tax moves +$10.00
+  long-term capital gains $147,540.00 -> $147,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98770 -> 98770.01
   subtractions: 73770 -> 73770.01
   taxableIncome: 96300 -> 96300.01
@@ -3707,10 +4168,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $147,740.00 of wages
+### AR 2026, single-two-children — $10.00 at $147,740.00 of long-term capital gains
 
 ```text
-  wages $147,740.00 -> $147,740.01   total tax moves +$10.00
+  long-term capital gains $147,740.00 -> $147,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98870 -> 98870.01
   subtractions: 73870 -> 73870.01
   taxableIncome: 96400 -> 96400.01
@@ -3723,10 +4184,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $147,940.00 of wages
+### AR 2026, single-two-children — $10.00 at $147,940.00 of long-term capital gains
 
 ```text
-  wages $147,940.00 -> $147,940.01   total tax moves +$10.00
+  long-term capital gains $147,940.00 -> $147,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 98970 -> 98970.01
   subtractions: 73970 -> 73970.01
   taxableIncome: 96500 -> 96500.01
@@ -3739,10 +4200,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $148,140.00 of wages
+### AR 2026, single-two-children — $10.00 at $148,140.00 of long-term capital gains
 
 ```text
-  wages $148,140.00 -> $148,140.01   total tax moves +$10.00
+  long-term capital gains $148,140.00 -> $148,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99070 -> 99070.01
   subtractions: 74070 -> 74070.01
   taxableIncome: 96600 -> 96600.01
@@ -3755,10 +4216,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $148,340.00 of wages
+### AR 2026, single-two-children — $10.00 at $148,340.00 of long-term capital gains
 
 ```text
-  wages $148,340.00 -> $148,340.01   total tax moves +$10.00
+  long-term capital gains $148,340.00 -> $148,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99170 -> 99170.01
   subtractions: 74170 -> 74170.01
   taxableIncome: 96700 -> 96700.01
@@ -3771,10 +4232,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $148,540.00 of wages
+### AR 2026, single-two-children — $10.00 at $148,540.00 of long-term capital gains
 
 ```text
-  wages $148,540.00 -> $148,540.01   total tax moves +$10.00
+  long-term capital gains $148,540.00 -> $148,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99270 -> 99270.01
   subtractions: 74270 -> 74270.01
   taxableIncome: 96800 -> 96800.01
@@ -3787,10 +4248,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $148,740.00 of wages
+### AR 2026, single-two-children — $10.00 at $148,740.00 of long-term capital gains
 
 ```text
-  wages $148,740.00 -> $148,740.01   total tax moves +$10.00
+  long-term capital gains $148,740.00 -> $148,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99370 -> 99370.01
   subtractions: 74370 -> 74370.01
   taxableIncome: 96900 -> 96900.01
@@ -3803,10 +4264,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $148,940.00 of wages
+### AR 2026, single-two-children — $10.00 at $148,940.00 of long-term capital gains
 
 ```text
-  wages $148,940.00 -> $148,940.01   total tax moves +$10.00
+  long-term capital gains $148,940.00 -> $148,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99470 -> 99470.01
   subtractions: 74470 -> 74470.01
   taxableIncome: 97000 -> 97000.01
@@ -3819,10 +4280,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $149,140.00 of wages
+### AR 2026, single-two-children — $10.00 at $149,140.00 of long-term capital gains
 
 ```text
-  wages $149,140.00 -> $149,140.01   total tax moves +$10.00
+  long-term capital gains $149,140.00 -> $149,140.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99570 -> 99570.01
   subtractions: 74570 -> 74570.01
   taxableIncome: 97100 -> 97100.01
@@ -3835,10 +4296,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $149,340.00 of wages
+### AR 2026, single-two-children — $10.00 at $149,340.00 of long-term capital gains
 
 ```text
-  wages $149,340.00 -> $149,340.01   total tax moves +$10.00
+  long-term capital gains $149,340.00 -> $149,340.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99670 -> 99670.01
   subtractions: 74670 -> 74670.01
   taxableIncome: 97200 -> 97200.01
@@ -3851,10 +4312,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $149,540.00 of wages
+### AR 2026, single-two-children — $10.00 at $149,540.00 of long-term capital gains
 
 ```text
-  wages $149,540.00 -> $149,540.01   total tax moves +$10.00
+  long-term capital gains $149,540.00 -> $149,540.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99770 -> 99770.01
   subtractions: 74770 -> 74770.01
   taxableIncome: 97300 -> 97300.01
@@ -3867,10 +4328,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $149,740.00 of wages
+### AR 2026, single-two-children — $10.00 at $149,740.00 of long-term capital gains
 
 ```text
-  wages $149,740.00 -> $149,740.01   total tax moves +$10.00
+  long-term capital gains $149,740.00 -> $149,740.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99870 -> 99870.01
   subtractions: 74870 -> 74870.01
   taxableIncome: 97400 -> 97400.01
@@ -3883,10 +4344,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $149,940.00 of wages
+### AR 2026, single-two-children — $10.00 at $149,940.00 of long-term capital gains
 
 ```text
-  wages $149,940.00 -> $149,940.01   total tax moves +$10.00
+  long-term capital gains $149,940.00 -> $149,940.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 99970 -> 99970.01
   subtractions: 74970 -> 74970.01
   taxableIncome: 97500 -> 97500.01
@@ -3899,10 +4360,458 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $72,270.00 of wages
+### AR 2026, single-young-child — $10.00 at $144,540.00 of long-term capital gains
 
 ```text
-  wages $72,270.00 -> $72,270.01   total tax moves +$10.00
+  long-term capital gains $144,540.00 -> $144,540.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97270 -> 97270.01
+  subtractions: 72270 -> 72270.01
+  taxableIncome: 94800 -> 94800.01
+  taxBeforeCredits: 3137.7 -> 3147.7
+  tax: 3050.7 -> 3060.7
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72270 -> 72270.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $144,740.00 of long-term capital gains
+
+```text
+  long-term capital gains $144,740.00 -> $144,740.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97370 -> 97370.01
+  subtractions: 72370 -> 72370.01
+  taxableIncome: 94900 -> 94900.01
+  taxBeforeCredits: 3151.4 -> 3161.4
+  tax: 3064.4 -> 3074.4
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72370 -> 72370.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $144,940.00 of long-term capital gains
+
+```text
+  long-term capital gains $144,940.00 -> $144,940.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97470 -> 97470.01
+  subtractions: 72470 -> 72470.01
+  taxableIncome: 95000 -> 95000.01
+  taxBeforeCredits: 3165.1 -> 3175.1
+  tax: 3078.1 -> 3088.1
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72470 -> 72470.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $145,140.00 of long-term capital gains
+
+```text
+  long-term capital gains $145,140.00 -> $145,140.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97570 -> 97570.01
+  subtractions: 72570 -> 72570.01
+  taxableIncome: 95100 -> 95100.01
+  taxBeforeCredits: 3178.8 -> 3188.8
+  tax: 3091.8 -> 3101.8
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72570 -> 72570.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $145,340.00 of long-term capital gains
+
+```text
+  long-term capital gains $145,340.00 -> $145,340.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97670 -> 97670.01
+  subtractions: 72670 -> 72670.01
+  taxableIncome: 95200 -> 95200.01
+  taxBeforeCredits: 3192.5 -> 3202.5
+  tax: 3105.5 -> 3115.5
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72670 -> 72670.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $145,540.00 of long-term capital gains
+
+```text
+  long-term capital gains $145,540.00 -> $145,540.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97770 -> 97770.01
+  subtractions: 72770 -> 72770.01
+  taxableIncome: 95300 -> 95300.01
+  taxBeforeCredits: 3206.2 -> 3216.2
+  tax: 3119.2 -> 3129.2
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72770 -> 72770.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $145,740.00 of long-term capital gains
+
+```text
+  long-term capital gains $145,740.00 -> $145,740.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97870 -> 97870.01
+  subtractions: 72870 -> 72870.01
+  taxableIncome: 95400 -> 95400.01
+  taxBeforeCredits: 3219.9 -> 3229.9
+  tax: 3132.9 -> 3142.9
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72870 -> 72870.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $145,940.00 of long-term capital gains
+
+```text
+  long-term capital gains $145,940.00 -> $145,940.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97970 -> 97970.01
+  subtractions: 72970 -> 72970.01
+  taxableIncome: 95500 -> 95500.01
+  taxBeforeCredits: 3233.6 -> 3243.6
+  tax: 3146.6 -> 3156.6
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 72970 -> 72970.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $146,140.00 of long-term capital gains
+
+```text
+  long-term capital gains $146,140.00 -> $146,140.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98070 -> 98070.01
+  subtractions: 73070 -> 73070.01
+  taxableIncome: 95600 -> 95600.01
+  taxBeforeCredits: 3247.3 -> 3257.3
+  tax: 3160.3 -> 3170.3
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73070 -> 73070.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $146,340.00 of long-term capital gains
+
+```text
+  long-term capital gains $146,340.00 -> $146,340.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98170 -> 98170.01
+  subtractions: 73170 -> 73170.01
+  taxableIncome: 95700 -> 95700.01
+  taxBeforeCredits: 3261 -> 3271
+  tax: 3174 -> 3184
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73170 -> 73170.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $146,540.00 of long-term capital gains
+
+```text
+  long-term capital gains $146,540.00 -> $146,540.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98270 -> 98270.01
+  subtractions: 73270 -> 73270.01
+  taxableIncome: 95800 -> 95800.01
+  taxBeforeCredits: 3274.7 -> 3284.7
+  tax: 3187.7 -> 3197.7
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73270 -> 73270.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $146,740.00 of long-term capital gains
+
+```text
+  long-term capital gains $146,740.00 -> $146,740.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98370 -> 98370.01
+  subtractions: 73370 -> 73370.01
+  taxableIncome: 95900 -> 95900.01
+  taxBeforeCredits: 3288.4 -> 3298.4
+  tax: 3201.4 -> 3211.4
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73370 -> 73370.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $146,940.00 of long-term capital gains
+
+```text
+  long-term capital gains $146,940.00 -> $146,940.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98470 -> 98470.01
+  subtractions: 73470 -> 73470.01
+  taxableIncome: 96000 -> 96000.01
+  taxBeforeCredits: 3302.1 -> 3312.1
+  tax: 3215.1 -> 3225.1
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73470 -> 73470.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $147,140.00 of long-term capital gains
+
+```text
+  long-term capital gains $147,140.00 -> $147,140.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98570 -> 98570.01
+  subtractions: 73570 -> 73570.01
+  taxableIncome: 96100 -> 96100.01
+  taxBeforeCredits: 3315.8 -> 3325.8
+  tax: 3228.8 -> 3238.8
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73570 -> 73570.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $147,340.00 of long-term capital gains
+
+```text
+  long-term capital gains $147,340.00 -> $147,340.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98670 -> 98670.01
+  subtractions: 73670 -> 73670.01
+  taxableIncome: 96200 -> 96200.01
+  taxBeforeCredits: 3329.5 -> 3339.5
+  tax: 3242.5 -> 3252.5
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73670 -> 73670.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $147,540.00 of long-term capital gains
+
+```text
+  long-term capital gains $147,540.00 -> $147,540.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98770 -> 98770.01
+  subtractions: 73770 -> 73770.01
+  taxableIncome: 96300 -> 96300.01
+  taxBeforeCredits: 3343.2 -> 3353.2
+  tax: 3256.2 -> 3266.2
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73770 -> 73770.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $147,740.00 of long-term capital gains
+
+```text
+  long-term capital gains $147,740.00 -> $147,740.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98870 -> 98870.01
+  subtractions: 73870 -> 73870.01
+  taxableIncome: 96400 -> 96400.01
+  taxBeforeCredits: 3356.9 -> 3366.9
+  tax: 3269.9 -> 3279.9
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73870 -> 73870.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $147,940.00 of long-term capital gains
+
+```text
+  long-term capital gains $147,940.00 -> $147,940.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 98970 -> 98970.01
+  subtractions: 73970 -> 73970.01
+  taxableIncome: 96500 -> 96500.01
+  taxBeforeCredits: 3370.6 -> 3380.6
+  tax: 3283.6 -> 3293.6
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 73970 -> 73970.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $148,140.00 of long-term capital gains
+
+```text
+  long-term capital gains $148,140.00 -> $148,140.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99070 -> 99070.01
+  subtractions: 74070 -> 74070.01
+  taxableIncome: 96600 -> 96600.01
+  taxBeforeCredits: 3384.3 -> 3394.3
+  tax: 3297.3 -> 3307.3
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74070 -> 74070.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $148,340.00 of long-term capital gains
+
+```text
+  long-term capital gains $148,340.00 -> $148,340.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99170 -> 99170.01
+  subtractions: 74170 -> 74170.01
+  taxableIncome: 96700 -> 96700.01
+  taxBeforeCredits: 3398 -> 3408
+  tax: 3311 -> 3321
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74170 -> 74170.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $148,540.00 of long-term capital gains
+
+```text
+  long-term capital gains $148,540.00 -> $148,540.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99270 -> 99270.01
+  subtractions: 74270 -> 74270.01
+  taxableIncome: 96800 -> 96800.01
+  taxBeforeCredits: 3411.7 -> 3421.7
+  tax: 3324.7 -> 3334.7
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74270 -> 74270.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $148,740.00 of long-term capital gains
+
+```text
+  long-term capital gains $148,740.00 -> $148,740.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99370 -> 99370.01
+  subtractions: 74370 -> 74370.01
+  taxableIncome: 96900 -> 96900.01
+  taxBeforeCredits: 3425.4 -> 3435.4
+  tax: 3338.4 -> 3348.4
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74370 -> 74370.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $148,940.00 of long-term capital gains
+
+```text
+  long-term capital gains $148,940.00 -> $148,940.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99470 -> 99470.01
+  subtractions: 74470 -> 74470.01
+  taxableIncome: 97000 -> 97000.01
+  taxBeforeCredits: 3439.1 -> 3449.1
+  tax: 3352.1 -> 3362.1
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74470 -> 74470.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $149,140.00 of long-term capital gains
+
+```text
+  long-term capital gains $149,140.00 -> $149,140.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99570 -> 99570.01
+  subtractions: 74570 -> 74570.01
+  taxableIncome: 97100 -> 97100.01
+  taxBeforeCredits: 3452.8 -> 3462.8
+  tax: 3365.8 -> 3375.8
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74570 -> 74570.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $149,340.00 of long-term capital gains
+
+```text
+  long-term capital gains $149,340.00 -> $149,340.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99670 -> 99670.01
+  subtractions: 74670 -> 74670.01
+  taxableIncome: 97200 -> 97200.01
+  taxBeforeCredits: 3466.5 -> 3476.5
+  tax: 3379.5 -> 3389.5
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74670 -> 74670.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $149,540.00 of long-term capital gains
+
+```text
+  long-term capital gains $149,540.00 -> $149,540.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99770 -> 99770.01
+  subtractions: 74770 -> 74770.01
+  taxableIncome: 97300 -> 97300.01
+  taxBeforeCredits: 3480.2 -> 3490.2
+  tax: 3393.2 -> 3403.2
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74770 -> 74770.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $149,740.00 of long-term capital gains
+
+```text
+  long-term capital gains $149,740.00 -> $149,740.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99870 -> 99870.01
+  subtractions: 74870 -> 74870.01
+  taxableIncome: 97400 -> 97400.01
+  taxBeforeCredits: 3493.9 -> 3503.9
+  tax: 3406.9 -> 3416.9
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74870 -> 74870.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, single-young-child — $10.00 at $149,940.00 of long-term capital gains
+
+```text
+  long-term capital gains $149,940.00 -> $149,940.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 99970 -> 99970.01
+  subtractions: 74970 -> 74970.01
+  taxableIncome: 97500 -> 97500.01
+  taxBeforeCredits: 3507.6 -> 3517.6
+  tax: 3420.6 -> 3430.6
+  subtraction:Arkansas net long-term capital gain exclusion (50%): 74970 -> 74970.01
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### AR 2026, childless-single — $10.00 at $72,270.00 of tax-exempt interest
+
+```text
+  tax-exempt interest $72,270.00 -> $72,270.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97270 -> 97270.01
   additions: 72270 -> 72270.01
   taxableIncome: 94800 -> 94800.01
@@ -3915,10 +4824,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $60,270.00 of wages
+### AR 2026, single-retiree — $10.00 at $60,270.00 of tax-exempt interest
 
 ```text
-  wages $60,270.00 -> $60,270.01   total tax moves +$10.00
+  tax-exempt interest $60,270.00 -> $60,270.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97270 -> 97270.01
   additions: 60270 -> 60270.01
   taxableIncome: 94800 -> 94800.01
@@ -3931,10 +4840,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-two-children — $10.00 at $72,270.00 of wages
+### AR 2026, single-two-children — $10.00 at $72,270.00 of tax-exempt interest
 
 ```text
-  wages $72,270.00 -> $72,270.01   total tax moves +$10.00
+  tax-exempt interest $72,270.00 -> $72,270.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97270 -> 97270.01
   additions: 72270 -> 72270.01
   taxableIncome: 94800 -> 94800.01
@@ -3947,10 +4856,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, childless-single — $10.00 at $103,270.00 of wages
+### AR 2026, childless-single — $10.00 at $103,270.00 of pension income
 
 ```text
-  wages $103,270.00 -> $103,270.01   total tax moves +$10.00
+  pension income $103,270.00 -> $103,270.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97270 -> 97270.01
   taxableIncome: 94800 -> 94800.01
   taxBeforeCredits: 3137.7 -> 3147.7
@@ -3961,10 +4870,10 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
-### AR 2026, single-retiree — $10.00 at $103,270.00 of wages
+### AR 2026, single-retiree — $10.00 at $103,270.00 of pension income
 
 ```text
-  wages $103,270.00 -> $103,270.01   total tax moves +$10.00
+  pension income $103,270.00 -> $103,270.01   total tax moves +$10.00
   stateAdjustedGrossIncome: 97270 -> 97270.01
   taxableIncome: 94800 -> 94800.01
   taxBeforeCredits: 3137.7 -> 3147.7
@@ -4059,6 +4968,260 @@ the note quoted under each group rather than trusting the count.
 
 > ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
 
+### AR 2026, single-young-child — $10.00 at $97,270.00 of wages
+
+```text
+  wages $97,270.00 -> $97,270.01   total tax moves +$10.00
+  stateAdjustedGrossIncome: 97270 -> 97270.01
+  taxableIncome: 94800 -> 94800.01
+  taxBeforeCredits: 3137.7 -> 3147.7
+  tax: 3050.7 -> 3060.7
+```
+
+> PROVISIONAL, and the division is unusually clean: every RATE figure for 2026 is published law and every INDEXED figure is carried forward from 2025. Act 1 of the 2026 First Extraordinary Session prints the graduated schedule (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400), the high-income table (2% on the first $4,700 and 3.7% above, on the whole net income) and all thirty rows of the bracket adjustment, so nothing on the rate side is a guess. What has not been published is the standard deduction, which § 26-51-430 indexes to CPI-U rounded DOWN to $10, the seven Low Income Tax Tables and their exempt amounts, which § 26-51-301 indexes, and the $26,500 threshold of the additional tax credit. The deduction exposure is the smallest in this package — one indexation step is $60 to $80 of deduction and $2.22 to $2.96 of tax — and the low-income tables are the larger one, in the other direction: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to about $60.
+
+> ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+
+### CO 2025, joint-no-children — -$110.00 at age 64 of the filer's age
+
+```text
+  the filer's age age 64 -> age 65   total tax moves -$110.00
+  stateAdjustedGrossIncome: 2500 -> 0
+  taxableIncome: 2500 -> 0
+  taxBeforeCredits: 110 -> 0
+  tax: 110 -> 0
+```
+
+### CO 2025, single-retiree — -$352.00 at age 64 of the filer's age
+
+```text
+  the filer's age age 64 -> age 65   total tax moves -$352.00
+  stateAdjustedGrossIncome: 23850 -> 15850
+  taxableIncome: 23850 -> 15850
+  taxBeforeCredits: 1049.4 -> 697.4
+  tax: 1049.4 -> 697.4
+```
+
+### CO 2025, joint-no-children — -$110.00 at age 64 of the spouse's age
+
+```text
+  the spouse's age age 64 -> age 65   total tax moves -$110.00
+  stateAdjustedGrossIncome: 2500 -> 0
+  taxableIncome: 2500 -> 0
+  taxBeforeCredits: 110 -> 0
+  tax: 110 -> 0
+```
+
+### CO 2026, joint-no-children — -$79.20 at age 64 of the filer's age
+
+```text
+  the filer's age age 64 -> age 65   total tax moves -$79.20
+  stateAdjustedGrossIncome: 1800 -> 0
+  taxableIncome: 1800 -> 0
+  taxBeforeCredits: 79.2 -> 0
+  tax: 79.2 -> 0
+```
+
+### CO 2026, single-retiree — -$354.20 at age 64 of the filer's age
+
+```text
+  the filer's age age 64 -> age 65   total tax moves -$354.20
+  stateAdjustedGrossIncome: 23500 -> 15450
+  taxableIncome: 23500 -> 15450
+  taxBeforeCredits: 1034 -> 679.8
+  tax: 1034 -> 679.8
+```
+
+### CO 2026, joint-no-children — -$79.20 at age 64 of the spouse's age
+
+```text
+  the spouse's age age 64 -> age 65   total tax moves -$79.20
+  stateAdjustedGrossIncome: 1800 -> 0
+  taxableIncome: 1800 -> 0
+  taxBeforeCredits: 79.2 -> 0
+  tax: 79.2 -> 0
+```
+
+### ID 2025, single-retiree — -$424.00 at age 64 of the filer's age
+
+```text
+  the filer's age age 64 -> age 65   total tax moves -$424.00
+  stateAdjustedGrossIncome: 14250 -> 6250
+  taxableIncome: 14250 -> 6250
+  taxBeforeCredits: 500.27 -> 76.27
+  tax: 500.27 -> 76.27
+```
+
+### ID 2026, single-retiree — -$426.65 at age 64 of the filer's age
+
+```text
+  the filer's age age 64 -> age 65   total tax moves -$426.65
+  stateAdjustedGrossIncome: 13900 -> 5850
+  taxableIncome: 13900 -> 5850
+  taxBeforeCredits: 481.72 -> 55.07
+  tax: 481.72 -> 55.07
+```
+
+### MA 2025, joint-no-children — -$35.00 at age 64 of the filer's age
+
+```text
+  the filer's age age 64 -> age 65   total tax moves -$35.00
+  exemptions: 8800 -> 9500
+  taxableIncome: 21200 -> 20500
+  taxBeforeCredits: 1060 -> 1025
+  tax: 1060 -> 1025
+```
+
+> The statute still reads 5.95%. M.G.L. c. 62 § 4(b) steps the rate down by 0.05 points in any year the commonwealth's baseline revenue growth clears a statutory test; the steps ran out in tax year 2020 at 5.00% and the rate has not moved since. A model built from the statutory text alone is 19% too high.
+
+> The Limited Income Credit limits the tax to 10% of Massachusetts AGI above the No Tax Status threshold — which is DOUBLE the 5% statutory rate, not a reduction of it. It is the most expensive band of income in the Massachusetts return, and it sits immediately above No Tax Status. The published 175%-of-threshold eligibility ceiling is not where the credit runs out: the credit is the excess of the tax over that 10%, so for a single filer with no dependents it reaches zero at $11,600 of Massachusetts AGI, against a printed ceiling of $14,000.
+
+### MA 2025, joint-no-children — -$35.00 at age 64 of the spouse's age
+
+```text
+  the spouse's age age 64 -> age 65   total tax moves -$35.00
+  exemptions: 8800 -> 9500
+  taxableIncome: 21200 -> 20500
+  taxBeforeCredits: 1060 -> 1025
+  tax: 1060 -> 1025
+```
+
+> The statute still reads 5.95%. M.G.L. c. 62 § 4(b) steps the rate down by 0.05 points in any year the commonwealth's baseline revenue growth clears a statutory test; the steps ran out in tax year 2020 at 5.00% and the rate has not moved since. A model built from the statutory text alone is 19% too high.
+
+> The Limited Income Credit limits the tax to 10% of Massachusetts AGI above the No Tax Status threshold — which is DOUBLE the 5% statutory rate, not a reduction of it. It is the most expensive band of income in the Massachusetts return, and it sits immediately above No Tax Status. The published 175%-of-threshold eligibility ceiling is not where the credit runs out: the credit is the excess of the tax over that 10%, so for a single filer with no dependents it reaches zero at $11,600 of Massachusetts AGI, against a printed ceiling of $14,000.
+
+### MA 2026, joint-no-children — -$35.00 at age 64 of the filer's age
+
+```text
+  the filer's age age 64 -> age 65   total tax moves -$35.00
+  exemptions: 8800 -> 9500
+  taxableIncome: 21200 -> 20500
+  taxBeforeCredits: 1060 -> 1025
+  tax: 1060 -> 1025
+```
+
+> The statute still reads 5.95%. M.G.L. c. 62 § 4(b) steps the rate down by 0.05 points in any year the commonwealth's baseline revenue growth clears a statutory test; the steps ran out in tax year 2020 at 5.00% and the rate has not moved since. A model built from the statutory text alone is 19% too high.
+
+> The Limited Income Credit limits the tax to 10% of Massachusetts AGI above the No Tax Status threshold — which is DOUBLE the 5% statutory rate, not a reduction of it. It is the most expensive band of income in the Massachusetts return, and it sits immediately above No Tax Status. The published 175%-of-threshold eligibility ceiling is not where the credit runs out: the credit is the excess of the tax over that 10%, so for a single filer with no dependents it reaches zero at $11,600 of Massachusetts AGI, against a printed ceiling of $14,000.
+
+### MA 2026, joint-no-children — -$35.00 at age 64 of the spouse's age
+
+```text
+  the spouse's age age 64 -> age 65   total tax moves -$35.00
+  exemptions: 8800 -> 9500
+  taxableIncome: 21200 -> 20500
+  taxBeforeCredits: 1060 -> 1025
+  tax: 1060 -> 1025
+```
+
+> The statute still reads 5.95%. M.G.L. c. 62 § 4(b) steps the rate down by 0.05 points in any year the commonwealth's baseline revenue growth clears a statutory test; the steps ran out in tax year 2020 at 5.00% and the rate has not moved since. A model built from the statutory text alone is 19% too high.
+
+> The Limited Income Credit limits the tax to 10% of Massachusetts AGI above the No Tax Status threshold — which is DOUBLE the 5% statutory rate, not a reduction of it. It is the most expensive band of income in the Massachusetts return, and it sits immediately above No Tax Status. The published 175%-of-threshold eligibility ceiling is not where the credit runs out: the credit is the excess of the tax over that 10%, so for a single filer with no dependents it reaches zero at $11,600 of Massachusetts AGI, against a printed ceiling of $14,000.
+
+### PA 2025, joint-no-children — -$921.00 at age 59 of the filer's age
+
+```text
+  the filer's age age 59 -> age 60   total tax moves -$921.00
+  stateAdjustedGrossIncome: 30000 -> 0
+  taxableIncome: 30000 -> 0
+  taxBeforeCredits: 921 -> 0
+  tax: 921 -> 0
+```
+
+> Special Tax Forgiveness is a staircase, not a phase-out: full forgiveness up to the allowance, then ten percentage points less for each $250 of eligibility income above it, reaching zero $2,500 later. Because each step forgives ten points less of the WHOLE tax, the cost of a step grows with the household. Across the band a single filer faces about 11% and a single parent of two about 34%, against a statutory 3.07%.
+
+### PA 2025, single-retiree — -$921.00 at age 59 of the filer's age
+
+```text
+  the filer's age age 59 -> age 60   total tax moves -$921.00
+  stateAdjustedGrossIncome: 30000 -> 0
+  taxableIncome: 30000 -> 0
+  taxBeforeCredits: 921 -> 0
+  tax: 921 -> 0
+```
+
+> Special Tax Forgiveness is a staircase, not a phase-out: full forgiveness up to the allowance, then ten percentage points less for each $250 of eligibility income above it, reaching zero $2,500 later. Because each step forgives ten points less of the WHOLE tax, the cost of a step grows with the household. Across the band a single filer faces about 11% and a single parent of two about 34%, against a statutory 3.07%.
+
+### PA 2026, joint-no-children — -$921.00 at age 59 of the filer's age
+
+```text
+  the filer's age age 59 -> age 60   total tax moves -$921.00
+  stateAdjustedGrossIncome: 30000 -> 0
+  taxableIncome: 30000 -> 0
+  taxBeforeCredits: 921 -> 0
+  tax: 921 -> 0
+```
+
+> Special Tax Forgiveness is a staircase, not a phase-out: full forgiveness up to the allowance, then ten percentage points less for each $250 of eligibility income above it, reaching zero $2,500 later. Because each step forgives ten points less of the WHOLE tax, the cost of a step grows with the household. Across the band a single filer faces about 11% and a single parent of two about 34%, against a statutory 3.07%.
+
+### PA 2026, single-retiree — -$921.00 at age 59 of the filer's age
+
+```text
+  the filer's age age 59 -> age 60   total tax moves -$921.00
+  stateAdjustedGrossIncome: 30000 -> 0
+  taxableIncome: 30000 -> 0
+  taxBeforeCredits: 921 -> 0
+  tax: 921 -> 0
+```
+
+> Special Tax Forgiveness is a staircase, not a phase-out: full forgiveness up to the allowance, then ten percentage points less for each $250 of eligibility income above it, reaching zero $2,500 later. Because each step forgives ten points less of the WHOLE tax, the cost of a step grows with the household. Across the band a single filer faces about 11% and a single parent of two about 34%, against a statutory 3.07%.
+
+### WI 2025, joint-no-children — -$8.75 at age 64 of the filer's age
+
+```text
+  the filer's age age 64 -> age 65   total tax moves -$8.75
+  exemptions: 1400 -> 1650
+  taxableIncome: 3844.03 -> 3594.03
+  taxBeforeCredits: 134.54 -> 125.79
+  tax: 134.54 -> 125.79
+```
+
+> Wisconsin's standard deduction is a SLIDING SCALE and the withdrawal is a RATE, not a step: § 71.05(22)(dp) takes 12% of every dollar of Wisconsin AGI above the threshold for a single filer, 19.778% on a joint or separate return and 22.515% for a head of household. So inside the phase-out band the filer's marginal rate is the statutory rate MULTIPLIED by one plus the withdrawal rate — a single filer in the 4.4% bracket pays 4.928% on their next dollar and a joint filer in the 5.3% bracket pays 6.348%. Neither figure is in any rate table, and the band covers most of the state's wage earners.
+
+> Wisconsin's highest marginal rate for an ordinary wage earner is NOT 7.65%. The 7.65% bracket begins at $332,720 of taxable income (single, 2026); the 6.348% produced by the 5.3% rate inside the joint phase-out band begins at $69,260 of taxable income. A model that reports Wisconsin's top rate as 7.65% and its rate at $100,000 of joint income as 5.3% is wrong about the second figure in the direction that matters for every planning decision.
+
+### WI 2025, joint-no-children — -$8.75 at age 64 of the spouse's age
+
+```text
+  the spouse's age age 64 -> age 65   total tax moves -$8.75
+  exemptions: 1400 -> 1650
+  taxableIncome: 3844.03 -> 3594.03
+  taxBeforeCredits: 134.54 -> 125.79
+  tax: 134.54 -> 125.79
+```
+
+> Wisconsin's standard deduction is a SLIDING SCALE and the withdrawal is a RATE, not a step: § 71.05(22)(dp) takes 12% of every dollar of Wisconsin AGI above the threshold for a single filer, 19.778% on a joint or separate return and 22.515% for a head of household. So inside the phase-out band the filer's marginal rate is the statutory rate MULTIPLIED by one plus the withdrawal rate — a single filer in the 4.4% bracket pays 4.928% on their next dollar and a joint filer in the 5.3% bracket pays 6.348%. Neither figure is in any rate table, and the band covers most of the state's wage earners.
+
+> Wisconsin's highest marginal rate for an ordinary wage earner is NOT 7.65%. The 7.65% bracket begins at $332,720 of taxable income (single, 2026); the 6.348% produced by the 5.3% rate inside the joint phase-out band begins at $69,260 of taxable income. A model that reports Wisconsin's top rate as 7.65% and its rate at $100,000 of joint income as 5.3% is wrong about the second figure in the direction that matters for every planning decision.
+
+### WI 2026, joint-no-children — -$8.75 at age 64 of the filer's age
+
+```text
+  the filer's age age 64 -> age 65   total tax moves -$8.75
+  exemptions: 1400 -> 1650
+  taxableIncome: 2949.87 -> 2699.87
+  taxBeforeCredits: 103.25 -> 94.5
+  tax: 103.25 -> 94.5
+```
+
+> Wisconsin's standard deduction is a SLIDING SCALE and the withdrawal is a RATE, not a step: § 71.05(22)(dp) takes 12% of every dollar of Wisconsin AGI above the threshold for a single filer, 19.778% on a joint or separate return and 22.515% for a head of household. So inside the phase-out band the filer's marginal rate is the statutory rate MULTIPLIED by one plus the withdrawal rate — a single filer in the 4.4% bracket pays 4.928% on their next dollar and a joint filer in the 5.3% bracket pays 6.348%. Neither figure is in any rate table, and the band covers most of the state's wage earners.
+
+> Wisconsin's highest marginal rate for an ordinary wage earner is NOT 7.65%. The 7.65% bracket begins at $332,720 of taxable income (single, 2026); the 6.348% produced by the 5.3% rate inside the joint phase-out band begins at $69,260 of taxable income. A model that reports Wisconsin's top rate as 7.65% and its rate at $100,000 of joint income as 5.3% is wrong about the second figure in the direction that matters for every planning decision.
+
+### WI 2026, joint-no-children — -$8.75 at age 64 of the spouse's age
+
+```text
+  the spouse's age age 64 -> age 65   total tax moves -$8.75
+  exemptions: 1400 -> 1650
+  taxableIncome: 2949.87 -> 2699.87
+  taxBeforeCredits: 103.25 -> 94.5
+  tax: 103.25 -> 94.5
+```
+
+> Wisconsin's standard deduction is a SLIDING SCALE and the withdrawal is a RATE, not a step: § 71.05(22)(dp) takes 12% of every dollar of Wisconsin AGI above the threshold for a single filer, 19.778% on a joint or separate return and 22.515% for a head of household. So inside the phase-out band the filer's marginal rate is the statutory rate MULTIPLIED by one plus the withdrawal rate — a single filer in the 4.4% bracket pays 4.928% on their next dollar and a joint filer in the 5.3% bracket pays 6.348%. Neither figure is in any rate table, and the band covers most of the state's wage earners.
+
+> Wisconsin's highest marginal rate for an ordinary wage earner is NOT 7.65%. The 7.65% bracket begins at $332,720 of taxable income (single, 2026); the 6.348% produced by the 5.3% rate inside the joint phase-out band begins at $69,260 of taxable income. A model that reports Wisconsin's top rate as 7.65% and its rate at $100,000 of joint income as 5.3% is wrong about the second figure in the direction that matters for every planning decision.
+
 ## What the sweep cannot see
 
 - **A notch inside a credit-absorbed region.** The sweep measures `totalTax`,
@@ -4066,10 +5229,18 @@ the note quoted under each group rather than trusting the count.
   bill moves nothing. Ohio’s `$342` constant is invisible to every shape here
   with children, because Ohio’s earned income credit covers the bill there.
 - **A notch in a variable no axis walks.** Itemised deductions, property tax,
-  rent and the number and ages of dependents are held fixed. A provision tested
-  on one of those has its notch on an axis that is not here. Investment income,
-  pension income, Social Security benefits and municipal interest WERE on this
-  list until Day 78 and are now four of the five axes above.
+  rent and the NUMBER of dependents are held fixed. A provision tested on one
+  of those has its notch on an axis that is not here. Investment income, pension
+  income, Social Security benefits and municipal interest were on this list
+  until Day 78, and the filer’s age, the spouse’s age and a dependent’s age
+  until Day 79; they are now seven of the eight axes above.
+- **A notch in the number of dependents**, which is held fixed on every axis
+  and is the one variable here that was tried and deliberately left out. The
+  detector that makes the three age axes exact assumes the bill is CONSTANT
+  between values of the variable, and a per-head exemption makes it a straight
+  line instead — so a first difference reports every household and a second
+  difference reports a per-head amount meeting a bracket. Finding a cap at the
+  third child needs a third detector, and `shapes.mjs` says which one.
 - **A notch that needs two variables to move at once.** Every axis holds the
   rest of the household still, so a provision whose threshold is a function of
   two components — a ratio, or a combined limit with a separate cap on each —
@@ -4361,6 +5532,18 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 93090 -> 93490.01
           taxBeforeCredits: 4614.5 -> 4634.5
           tax: 4614.5 -> 4634.5
+  2025  investment-income  single-young-child       $25,000.00 -> +$25.00
+          stateAdjustedGrossIncome: 50000 -> 50000.01
+          exemptions: 4000 -> 3500
+          taxableIncome: 43500 -> 44000.01
+          taxBeforeCredits: 2135 -> 2160
+          tax: 2135 -> 2160
+  2025  investment-income  single-young-child       $75,000.00 -> +$10.00
+          stateAdjustedGrossIncome: 100000 -> 100000.01
+          exemptions: 3500 -> 3300
+          taxableIncome: 94000 -> 94200.01
+          taxBeforeCredits: 4660 -> 4670
+          tax: 4660 -> 4670
   2025  wages              hoh-one-child            $50,000.00 -> +$25.00
           stateAdjustedGrossIncome: 50000 -> 50000.01
           exemptions: 4000 -> 3500
@@ -4637,6 +5820,18 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 80801 -> 81201.01
           taxBeforeCredits: 4000.05 -> 4020.05
           tax: 4000.05 -> 4020.05
+  2025  wages              single-young-child       $50,000.00 -> +$25.00
+          stateAdjustedGrossIncome: 50000 -> 50000.01
+          exemptions: 4000 -> 3500
+          taxableIncome: 41619.33 -> 42119.34
+          taxBeforeCredits: 2040.97 -> 2065.97
+          tax: 2040.97 -> 2065.97
+  2025  wages              single-young-child      $100,000.00 -> +$10.00
+          stateAdjustedGrossIncome: 100000 -> 100000.01
+          exemptions: 3500 -> 3300
+          taxableIncome: 81072.5 -> 81272.51
+          taxBeforeCredits: 4013.63 -> 4023.63
+          tax: 4013.63 -> 4023.63
   2026  investment-income  hoh-one-child            $25,000.00 -> +$25.00
           stateAdjustedGrossIncome: 50000 -> 50000.01
           exemptions: 4000 -> 3500
@@ -4913,6 +6108,18 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 93342.5 -> 93742.51
           taxBeforeCredits: 4627.13 -> 4647.13
           tax: 4627.13 -> 4647.13
+  2026  investment-income  single-young-child       $25,000.00 -> +$25.00
+          stateAdjustedGrossIncome: 50000 -> 50000.01
+          exemptions: 4000 -> 3500
+          taxableIncome: 43500 -> 44000.01
+          taxBeforeCredits: 2135 -> 2160
+          tax: 2135 -> 2160
+  2026  investment-income  single-young-child       $75,000.00 -> +$10.00
+          stateAdjustedGrossIncome: 100000 -> 100000.01
+          exemptions: 3500 -> 3300
+          taxableIncome: 94000 -> 94200.01
+          taxBeforeCredits: 4660 -> 4670
+          tax: 4660 -> 4670
   2026  wages              hoh-one-child            $50,000.00 -> +$25.00
           stateAdjustedGrossIncome: 50000 -> 50000.01
           exemptions: 4000 -> 3500
@@ -5189,13 +6396,28 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 81080 -> 81480.01
           taxBeforeCredits: 4014 -> 4034
           tax: 4014 -> 4034
+  2026  wages              single-young-child       $50,000.00 -> +$25.00
+          stateAdjustedGrossIncome: 50000 -> 50000.01
+          exemptions: 4000 -> 3500
+          taxableIncome: 41881.62 -> 42381.63
+          taxBeforeCredits: 2054.08 -> 2079.08
+          tax: 2054.08 -> 2079.08
+  2026  wages              single-young-child      $100,000.00 -> +$10.00
+          stateAdjustedGrossIncome: 100000 -> 100000.01
+          exemptions: 3500 -> 3300
+          taxableIncome: 81462 -> 81662.01
+          taxBeforeCredits: 4033.1 -> 4043.1
+          tax: 4033.1 -> 4043.1
 ```
 
 > Matched on `500`: THE STANDARD DEDUCTION IS A STAIRCASE THAT ROUNDS DOWN. § 40-18-15(b) reduces it by $25 for each $500 of Alabama AGI above $25,500 for a single filer — $175 per $500 joint, $135 per $500 head of family, $88 per $250 separate — to a floor of $2,500 ($5,000 joint). There is no "or fraction thereof" clause, so the first $499 above the threshold cost nothing and the step arrives on the five-hundredth dollar. Connecticut has the clause and charges the whole step on the first dollar: the two conventions are a step of deduction apart at every boundary of either chart.
 
-### AR — 385 notch(es)
+### AR — 387 notch(es)
 
 ```text
+  2025  filer-age          single-retiree               age 64 -> -$29.00
+          tax: 355.05 -> 326.05
+          credit:Arkansas personal tax credits (§ 26-51-501, AR1000F line 31): 29 -> 58
   2025  investment-income  childless-single        $144,340.00 -> +$20.66
           stateAdjustedGrossIncome: 97170 -> 97170.01
           subtractions: 72170 -> 72170.01
@@ -6858,6 +8080,227 @@ the note quoted under each group rather than trusting the count.
           taxBeforeCredits: 3673.2 -> 3683.2
           tax: 3586.2 -> 3596.2
           subtraction:Arkansas net long-term capital gain exclusion (50%): 74970 -> 74970.01
+  2025  investment-income  single-young-child            $0.00 -> +$9.00
+          subtractions: 0 -> 0.01
+          taxBeforeCredits: 453 -> 462
+          lowIncomeTableTax: 453 -> 462
+          tax: 306 -> 315
+          subtraction:Arkansas net long-term capital gain exclusion (50%): null -> 0.01
+  2025  investment-income  single-young-child          $200.00 -> +$9.00
+          subtractions: 100 -> 100.01
+          taxBeforeCredits: 462 -> 471
+          lowIncomeTableTax: 462 -> 471
+          tax: 315 -> 324
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 100 -> 100.01
+  2025  investment-income  single-young-child          $400.00 -> +$10.00
+          subtractions: 200 -> 200.01
+          taxBeforeCredits: 471 -> 481
+          lowIncomeTableTax: 471 -> 481
+          tax: 324 -> 334
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 200 -> 200.01
+  2025  investment-income  single-young-child      $144,340.00 -> +$20.66
+          stateAdjustedGrossIncome: 97170 -> 97170.01
+          subtractions: 72170 -> 72170.01
+          taxableIncome: 94700 -> 94700.01
+          taxBeforeCredits: 3273.34 -> 3294
+          tax: 3186.34 -> 3207
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72170 -> 72170.01
+  2025  investment-income  single-young-child      $144,540.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97270 -> 97270.01
+          subtractions: 72270 -> 72270.01
+          taxableIncome: 94800 -> 94800.01
+          taxBeforeCredits: 3297.9 -> 3307.9
+          tax: 3210.9 -> 3220.9
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72270 -> 72270.01
+  2025  investment-income  single-young-child      $144,740.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97370 -> 97370.01
+          subtractions: 72370 -> 72370.01
+          taxableIncome: 94900 -> 94900.01
+          taxBeforeCredits: 3311.8 -> 3321.8
+          tax: 3224.8 -> 3234.8
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72370 -> 72370.01
+  2025  investment-income  single-young-child      $144,940.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97470 -> 97470.01
+          subtractions: 72470 -> 72470.01
+          taxableIncome: 95000 -> 95000.01
+          taxBeforeCredits: 3325.7 -> 3335.7
+          tax: 3238.7 -> 3248.7
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72470 -> 72470.01
+  2025  investment-income  single-young-child      $145,140.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97570 -> 97570.01
+          subtractions: 72570 -> 72570.01
+          taxableIncome: 95100 -> 95100.01
+          taxBeforeCredits: 3339.6 -> 3349.6
+          tax: 3252.6 -> 3262.6
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72570 -> 72570.01
+  2025  investment-income  single-young-child      $145,340.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97670 -> 97670.01
+          subtractions: 72670 -> 72670.01
+          taxableIncome: 95200 -> 95200.01
+          taxBeforeCredits: 3353.5 -> 3363.5
+          tax: 3266.5 -> 3276.5
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72670 -> 72670.01
+  2025  investment-income  single-young-child      $145,540.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97770 -> 97770.01
+          subtractions: 72770 -> 72770.01
+          taxableIncome: 95300 -> 95300.01
+          taxBeforeCredits: 3367.4 -> 3377.4
+          tax: 3280.4 -> 3290.4
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72770 -> 72770.01
+  2025  investment-income  single-young-child      $145,740.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97870 -> 97870.01
+          subtractions: 72870 -> 72870.01
+          taxableIncome: 95400 -> 95400.01
+          taxBeforeCredits: 3381.3 -> 3391.3
+          tax: 3294.3 -> 3304.3
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72870 -> 72870.01
+  2025  investment-income  single-young-child      $145,940.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97970 -> 97970.01
+          subtractions: 72970 -> 72970.01
+          taxableIncome: 95500 -> 95500.01
+          taxBeforeCredits: 3395.2 -> 3405.2
+          tax: 3308.2 -> 3318.2
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72970 -> 72970.01
+  2025  investment-income  single-young-child      $146,140.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98070 -> 98070.01
+          subtractions: 73070 -> 73070.01
+          taxableIncome: 95600 -> 95600.01
+          taxBeforeCredits: 3409.1 -> 3419.1
+          tax: 3322.1 -> 3332.1
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73070 -> 73070.01
+  2025  investment-income  single-young-child      $146,340.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98170 -> 98170.01
+          subtractions: 73170 -> 73170.01
+          taxableIncome: 95700 -> 95700.01
+          taxBeforeCredits: 3423 -> 3433
+          tax: 3336 -> 3346
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73170 -> 73170.01
+  2025  investment-income  single-young-child      $146,540.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98270 -> 98270.01
+          subtractions: 73270 -> 73270.01
+          taxableIncome: 95800 -> 95800.01
+          taxBeforeCredits: 3436.9 -> 3446.9
+          tax: 3349.9 -> 3359.9
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73270 -> 73270.01
+  2025  investment-income  single-young-child      $146,740.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98370 -> 98370.01
+          subtractions: 73370 -> 73370.01
+          taxableIncome: 95900 -> 95900.01
+          taxBeforeCredits: 3450.8 -> 3460.8
+          tax: 3363.8 -> 3373.8
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73370 -> 73370.01
+  2025  investment-income  single-young-child      $146,940.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98470 -> 98470.01
+          subtractions: 73470 -> 73470.01
+          taxableIncome: 96000 -> 96000.01
+          taxBeforeCredits: 3464.7 -> 3474.7
+          tax: 3377.7 -> 3387.7
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73470 -> 73470.01
+  2025  investment-income  single-young-child      $147,140.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98570 -> 98570.01
+          subtractions: 73570 -> 73570.01
+          taxableIncome: 96100 -> 96100.01
+          taxBeforeCredits: 3478.6 -> 3488.6
+          tax: 3391.6 -> 3401.6
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73570 -> 73570.01
+  2025  investment-income  single-young-child      $147,340.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98670 -> 98670.01
+          subtractions: 73670 -> 73670.01
+          taxableIncome: 96200 -> 96200.01
+          taxBeforeCredits: 3492.5 -> 3502.5
+          tax: 3405.5 -> 3415.5
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73670 -> 73670.01
+  2025  investment-income  single-young-child      $147,540.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98770 -> 98770.01
+          subtractions: 73770 -> 73770.01
+          taxableIncome: 96300 -> 96300.01
+          taxBeforeCredits: 3506.4 -> 3516.4
+          tax: 3419.4 -> 3429.4
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73770 -> 73770.01
+  2025  investment-income  single-young-child      $147,740.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98870 -> 98870.01
+          subtractions: 73870 -> 73870.01
+          taxableIncome: 96400 -> 96400.01
+          taxBeforeCredits: 3520.3 -> 3530.3
+          tax: 3433.3 -> 3443.3
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73870 -> 73870.01
+  2025  investment-income  single-young-child      $147,940.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98970 -> 98970.01
+          subtractions: 73970 -> 73970.01
+          taxableIncome: 96500 -> 96500.01
+          taxBeforeCredits: 3534.2 -> 3544.2
+          tax: 3447.2 -> 3457.2
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73970 -> 73970.01
+  2025  investment-income  single-young-child      $148,140.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99070 -> 99070.01
+          subtractions: 74070 -> 74070.01
+          taxableIncome: 96600 -> 96600.01
+          taxBeforeCredits: 3548.1 -> 3558.1
+          tax: 3461.1 -> 3471.1
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74070 -> 74070.01
+  2025  investment-income  single-young-child      $148,340.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99170 -> 99170.01
+          subtractions: 74170 -> 74170.01
+          taxableIncome: 96700 -> 96700.01
+          taxBeforeCredits: 3562 -> 3572
+          tax: 3475 -> 3485
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74170 -> 74170.01
+  2025  investment-income  single-young-child      $148,540.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99270 -> 99270.01
+          subtractions: 74270 -> 74270.01
+          taxableIncome: 96800 -> 96800.01
+          taxBeforeCredits: 3575.9 -> 3585.9
+          tax: 3488.9 -> 3498.9
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74270 -> 74270.01
+  2025  investment-income  single-young-child      $148,740.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99370 -> 99370.01
+          subtractions: 74370 -> 74370.01
+          taxableIncome: 96900 -> 96900.01
+          taxBeforeCredits: 3589.8 -> 3599.8
+          tax: 3502.8 -> 3512.8
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74370 -> 74370.01
+  2025  investment-income  single-young-child      $148,940.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99470 -> 99470.01
+          subtractions: 74470 -> 74470.01
+          taxableIncome: 97000 -> 97000.01
+          taxBeforeCredits: 3603.7 -> 3613.7
+          tax: 3516.7 -> 3526.7
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74470 -> 74470.01
+  2025  investment-income  single-young-child      $149,140.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99570 -> 99570.01
+          subtractions: 74570 -> 74570.01
+          taxableIncome: 97100 -> 97100.01
+          taxBeforeCredits: 3617.6 -> 3627.6
+          tax: 3530.6 -> 3540.6
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74570 -> 74570.01
+  2025  investment-income  single-young-child      $149,340.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99670 -> 99670.01
+          subtractions: 74670 -> 74670.01
+          taxableIncome: 97200 -> 97200.01
+          taxBeforeCredits: 3631.5 -> 3641.5
+          tax: 3544.5 -> 3554.5
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74670 -> 74670.01
+  2025  investment-income  single-young-child      $149,540.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99770 -> 99770.01
+          subtractions: 74770 -> 74770.01
+          taxableIncome: 97300 -> 97300.01
+          taxBeforeCredits: 3645.4 -> 3655.4
+          tax: 3558.4 -> 3568.4
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74770 -> 74770.01
+  2025  investment-income  single-young-child      $149,740.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99870 -> 99870.01
+          subtractions: 74870 -> 74870.01
+          taxableIncome: 97400 -> 97400.01
+          taxBeforeCredits: 3659.3 -> 3669.3
+          tax: 3572.3 -> 3582.3
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74870 -> 74870.01
+  2025  investment-income  single-young-child      $149,940.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99970 -> 99970.01
+          subtractions: 74970 -> 74970.01
+          taxableIncome: 97500 -> 97500.01
+          taxBeforeCredits: 3673.2 -> 3683.2
+          tax: 3586.2 -> 3596.2
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74970 -> 74970.01
   2025  municipal-interest childless-single         $72,170.00 -> +$20.66
           stateAdjustedGrossIncome: 97170 -> 97170.01
           additions: 72170 -> 72170.01
@@ -7029,6 +8472,25 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 97800 -> 97800.01
           taxBeforeCredits: 3714.9 -> 3724.9
           tax: 3627.9 -> 3637.9
+  2025  wages              single-young-child       $21,800.00 -> +$9.00
+          stateAdjustedGrossIncome: 21800 -> 21800.01
+          taxableIncome: 19330 -> 19330.01
+          taxBeforeCredits: 152 -> 161
+          lowIncomeTableTax: 152 -> 161
+          tax: 5 -> 14
+  2025  wages              single-young-child       $97,170.00 -> +$20.66
+          stateAdjustedGrossIncome: 97170 -> 97170.01
+          taxableIncome: 94700 -> 94700.01
+          taxBeforeCredits: 3273.34 -> 3294
+          tax: 3186.34 -> 3207
+  2025  wages              single-young-child      $100,270.00 -> +$10.00
+          stateAdjustedGrossIncome: 100270 -> 100270.01
+          taxableIncome: 97800 -> 97800.01
+          taxBeforeCredits: 3714.9 -> 3724.9
+          tax: 3627.9 -> 3637.9
+  2026  filer-age          single-retiree               age 64 -> -$29.00
+          tax: 355.02 -> 326.02
+          credit:Arkansas personal tax credits (§ 26-51-501, AR1000F line 31): 29 -> 58
   2026  investment-income  childless-single        $144,540.00 -> +$10.00   [UNATTRIBUTED]
           stateAdjustedGrossIncome: 97270 -> 97270.01
           subtractions: 72270 -> 72270.01
@@ -8627,6 +10089,220 @@ the note quoted under each group rather than trusting the count.
           taxBeforeCredits: 3507.6 -> 3517.6
           tax: 3420.6 -> 3430.6
           subtraction:Arkansas net long-term capital gain exclusion (50%): 74970 -> 74970.01
+  2026  investment-income  single-young-child            $0.00 -> +$9.00
+          subtractions: 0 -> 0.01
+          taxBeforeCredits: 453 -> 462
+          lowIncomeTableTax: 453 -> 462
+          tax: 306 -> 315
+          subtraction:Arkansas net long-term capital gain exclusion (50%): null -> 0.01
+  2026  investment-income  single-young-child          $200.00 -> +$9.00
+          subtractions: 100 -> 100.01
+          taxBeforeCredits: 462 -> 471
+          lowIncomeTableTax: 462 -> 471
+          tax: 315 -> 324
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 100 -> 100.01
+  2026  investment-income  single-young-child          $400.00 -> +$10.00
+          subtractions: 200 -> 200.01
+          taxBeforeCredits: 471 -> 481
+          lowIncomeTableTax: 471 -> 481
+          tax: 324 -> 334
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 200 -> 200.01
+  2026  investment-income  single-young-child      $144,540.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97270 -> 97270.01
+          subtractions: 72270 -> 72270.01
+          taxableIncome: 94800 -> 94800.01
+          taxBeforeCredits: 3137.7 -> 3147.7
+          tax: 3050.7 -> 3060.7
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72270 -> 72270.01
+  2026  investment-income  single-young-child      $144,740.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97370 -> 97370.01
+          subtractions: 72370 -> 72370.01
+          taxableIncome: 94900 -> 94900.01
+          taxBeforeCredits: 3151.4 -> 3161.4
+          tax: 3064.4 -> 3074.4
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72370 -> 72370.01
+  2026  investment-income  single-young-child      $144,940.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97470 -> 97470.01
+          subtractions: 72470 -> 72470.01
+          taxableIncome: 95000 -> 95000.01
+          taxBeforeCredits: 3165.1 -> 3175.1
+          tax: 3078.1 -> 3088.1
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72470 -> 72470.01
+  2026  investment-income  single-young-child      $145,140.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97570 -> 97570.01
+          subtractions: 72570 -> 72570.01
+          taxableIncome: 95100 -> 95100.01
+          taxBeforeCredits: 3178.8 -> 3188.8
+          tax: 3091.8 -> 3101.8
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72570 -> 72570.01
+  2026  investment-income  single-young-child      $145,340.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97670 -> 97670.01
+          subtractions: 72670 -> 72670.01
+          taxableIncome: 95200 -> 95200.01
+          taxBeforeCredits: 3192.5 -> 3202.5
+          tax: 3105.5 -> 3115.5
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72670 -> 72670.01
+  2026  investment-income  single-young-child      $145,540.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97770 -> 97770.01
+          subtractions: 72770 -> 72770.01
+          taxableIncome: 95300 -> 95300.01
+          taxBeforeCredits: 3206.2 -> 3216.2
+          tax: 3119.2 -> 3129.2
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72770 -> 72770.01
+  2026  investment-income  single-young-child      $145,740.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97870 -> 97870.01
+          subtractions: 72870 -> 72870.01
+          taxableIncome: 95400 -> 95400.01
+          taxBeforeCredits: 3219.9 -> 3229.9
+          tax: 3132.9 -> 3142.9
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72870 -> 72870.01
+  2026  investment-income  single-young-child      $145,940.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97970 -> 97970.01
+          subtractions: 72970 -> 72970.01
+          taxableIncome: 95500 -> 95500.01
+          taxBeforeCredits: 3233.6 -> 3243.6
+          tax: 3146.6 -> 3156.6
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 72970 -> 72970.01
+  2026  investment-income  single-young-child      $146,140.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98070 -> 98070.01
+          subtractions: 73070 -> 73070.01
+          taxableIncome: 95600 -> 95600.01
+          taxBeforeCredits: 3247.3 -> 3257.3
+          tax: 3160.3 -> 3170.3
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73070 -> 73070.01
+  2026  investment-income  single-young-child      $146,340.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98170 -> 98170.01
+          subtractions: 73170 -> 73170.01
+          taxableIncome: 95700 -> 95700.01
+          taxBeforeCredits: 3261 -> 3271
+          tax: 3174 -> 3184
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73170 -> 73170.01
+  2026  investment-income  single-young-child      $146,540.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98270 -> 98270.01
+          subtractions: 73270 -> 73270.01
+          taxableIncome: 95800 -> 95800.01
+          taxBeforeCredits: 3274.7 -> 3284.7
+          tax: 3187.7 -> 3197.7
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73270 -> 73270.01
+  2026  investment-income  single-young-child      $146,740.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98370 -> 98370.01
+          subtractions: 73370 -> 73370.01
+          taxableIncome: 95900 -> 95900.01
+          taxBeforeCredits: 3288.4 -> 3298.4
+          tax: 3201.4 -> 3211.4
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73370 -> 73370.01
+  2026  investment-income  single-young-child      $146,940.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98470 -> 98470.01
+          subtractions: 73470 -> 73470.01
+          taxableIncome: 96000 -> 96000.01
+          taxBeforeCredits: 3302.1 -> 3312.1
+          tax: 3215.1 -> 3225.1
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73470 -> 73470.01
+  2026  investment-income  single-young-child      $147,140.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98570 -> 98570.01
+          subtractions: 73570 -> 73570.01
+          taxableIncome: 96100 -> 96100.01
+          taxBeforeCredits: 3315.8 -> 3325.8
+          tax: 3228.8 -> 3238.8
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73570 -> 73570.01
+  2026  investment-income  single-young-child      $147,340.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98670 -> 98670.01
+          subtractions: 73670 -> 73670.01
+          taxableIncome: 96200 -> 96200.01
+          taxBeforeCredits: 3329.5 -> 3339.5
+          tax: 3242.5 -> 3252.5
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73670 -> 73670.01
+  2026  investment-income  single-young-child      $147,540.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98770 -> 98770.01
+          subtractions: 73770 -> 73770.01
+          taxableIncome: 96300 -> 96300.01
+          taxBeforeCredits: 3343.2 -> 3353.2
+          tax: 3256.2 -> 3266.2
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73770 -> 73770.01
+  2026  investment-income  single-young-child      $147,740.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98870 -> 98870.01
+          subtractions: 73870 -> 73870.01
+          taxableIncome: 96400 -> 96400.01
+          taxBeforeCredits: 3356.9 -> 3366.9
+          tax: 3269.9 -> 3279.9
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73870 -> 73870.01
+  2026  investment-income  single-young-child      $147,940.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 98970 -> 98970.01
+          subtractions: 73970 -> 73970.01
+          taxableIncome: 96500 -> 96500.01
+          taxBeforeCredits: 3370.6 -> 3380.6
+          tax: 3283.6 -> 3293.6
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 73970 -> 73970.01
+  2026  investment-income  single-young-child      $148,140.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99070 -> 99070.01
+          subtractions: 74070 -> 74070.01
+          taxableIncome: 96600 -> 96600.01
+          taxBeforeCredits: 3384.3 -> 3394.3
+          tax: 3297.3 -> 3307.3
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74070 -> 74070.01
+  2026  investment-income  single-young-child      $148,340.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99170 -> 99170.01
+          subtractions: 74170 -> 74170.01
+          taxableIncome: 96700 -> 96700.01
+          taxBeforeCredits: 3398 -> 3408
+          tax: 3311 -> 3321
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74170 -> 74170.01
+  2026  investment-income  single-young-child      $148,540.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99270 -> 99270.01
+          subtractions: 74270 -> 74270.01
+          taxableIncome: 96800 -> 96800.01
+          taxBeforeCredits: 3411.7 -> 3421.7
+          tax: 3324.7 -> 3334.7
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74270 -> 74270.01
+  2026  investment-income  single-young-child      $148,740.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99370 -> 99370.01
+          subtractions: 74370 -> 74370.01
+          taxableIncome: 96900 -> 96900.01
+          taxBeforeCredits: 3425.4 -> 3435.4
+          tax: 3338.4 -> 3348.4
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74370 -> 74370.01
+  2026  investment-income  single-young-child      $148,940.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99470 -> 99470.01
+          subtractions: 74470 -> 74470.01
+          taxableIncome: 97000 -> 97000.01
+          taxBeforeCredits: 3439.1 -> 3449.1
+          tax: 3352.1 -> 3362.1
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74470 -> 74470.01
+  2026  investment-income  single-young-child      $149,140.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99570 -> 99570.01
+          subtractions: 74570 -> 74570.01
+          taxableIncome: 97100 -> 97100.01
+          taxBeforeCredits: 3452.8 -> 3462.8
+          tax: 3365.8 -> 3375.8
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74570 -> 74570.01
+  2026  investment-income  single-young-child      $149,340.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99670 -> 99670.01
+          subtractions: 74670 -> 74670.01
+          taxableIncome: 97200 -> 97200.01
+          taxBeforeCredits: 3466.5 -> 3476.5
+          tax: 3379.5 -> 3389.5
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74670 -> 74670.01
+  2026  investment-income  single-young-child      $149,540.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99770 -> 99770.01
+          subtractions: 74770 -> 74770.01
+          taxableIncome: 97300 -> 97300.01
+          taxBeforeCredits: 3480.2 -> 3490.2
+          tax: 3393.2 -> 3403.2
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74770 -> 74770.01
+  2026  investment-income  single-young-child      $149,740.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99870 -> 99870.01
+          subtractions: 74870 -> 74870.01
+          taxableIncome: 97400 -> 97400.01
+          taxBeforeCredits: 3493.9 -> 3503.9
+          tax: 3406.9 -> 3416.9
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74870 -> 74870.01
+  2026  investment-income  single-young-child      $149,940.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 99970 -> 99970.01
+          subtractions: 74970 -> 74970.01
+          taxableIncome: 97500 -> 97500.01
+          taxBeforeCredits: 3507.6 -> 3517.6
+          tax: 3420.6 -> 3430.6
+          subtraction:Arkansas net long-term capital gain exclusion (50%): 74970 -> 74970.01
   2026  municipal-interest childless-single         $72,270.00 -> +$10.00   [UNATTRIBUTED]
           stateAdjustedGrossIncome: 97270 -> 97270.01
           additions: 72270 -> 72270.01
@@ -8804,13 +10480,65 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 97600 -> 97600.01
           taxBeforeCredits: 3521.3 -> 3531.3
           tax: 3434.3 -> 3444.3
+  2026  wages              single-young-child       $21,800.00 -> +$9.00
+          stateAdjustedGrossIncome: 21800 -> 21800.01
+          taxableIncome: 19330 -> 19330.01
+          taxBeforeCredits: 152 -> 161
+          lowIncomeTableTax: 152 -> 161
+          tax: 5 -> 14
+  2026  wages              single-young-child       $97,270.00 -> +$10.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 97270 -> 97270.01
+          taxableIncome: 94800 -> 94800.01
+          taxBeforeCredits: 3137.7 -> 3147.7
+          tax: 3050.7 -> 3060.7
+  2026  wages              single-young-child      $100,070.00 -> +$10.00
+          stateAdjustedGrossIncome: 100070 -> 100070.01
+          taxableIncome: 97600 -> 97600.01
+          taxBeforeCredits: 3521.3 -> 3531.3
+          tax: 3434.3 -> 3444.3
 ```
 
-> Matched on `94,700`: ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70%, AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE. A.C.A. § 26-51-201 has TWO schedules selected by income: a filer whose net taxable income does not exceed $94,700 pays the graduated table, and a filer one dollar above it pays 2% on the first $4,700 plus the top rate on every dollar above that, applied to their WHOLE net income, less a bracket adjustment of $290 that falls by $10 for each further $100 of income. A $10 relief withdrawn per $100 earned is ten percentage points of marginal rate, so the band from $94,701 to $97,600 is taxed at 13.70% in 2026 and the 2025 band from $94,701 to $97,800 at 13.90% — against top statutory rates of 3.7% and 3.9%. Nothing in any published Arkansas bracket table contains either figure.
+> Matched on `29.00`: A MODEL BUILT FROM ARKANSAS'S PUBLISHED BRACKET TABLE ALONE IS TOO LOW BY A FLAT $287.30 FOR EVERY FILER ABOVE THE ADJUSTMENT BAND. Every account of this state prints the graduated schedule — 0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000 and $26,400 — and stops there. Above $97,600 the high-income table has taken over and the bracket adjustment has reached zero, so the two routes differ by the whole adjustment and the error does not depend on income: it is $287.30 at $100,000 and $287.30 at $10,000,000. The 2025 card needs TWO figures rather than one — $330.70 from $97,801 to $100,000 and $329.00 above $100,001 — because for $100,001 and over DFA prints "$3,809 plus 3.9% of the excess over $100,000", a reduction of $91.00 where the row beneath carries $89.30, so an Arkansan earning one dollar more than $100,000 pays $1.70 LESS. `tools/cross-package/arkansas-bracket-adjustment.mjs` asserts all three figures, the 13.70% slope and the direction on every push.
 
-### CA — 2 notch(es)
+### AZ — 2 notch(es)
 
 ```text
+  2025  filer-age          single-retiree               age 64 -> -$150.00
+          stateAdjustedGrossIncome: 30000 -> 24000
+          subtractions: 9600 -> 15600
+          taxableIncome: 14250 -> 8250
+          taxBeforeCredits: 356.25 -> 206.25
+          tax: 356.25 -> 206.25
+          subtraction:Federal senior deduction (A.R.S. § 43-1022(35)): null -> 6000
+  2026  filer-age          single-retiree               age 64 -> -$150.00
+          stateAdjustedGrossIncome: 30000 -> 24000
+          subtractions: 9600 -> 15600
+          taxableIncome: 13900 -> 7900
+          taxBeforeCredits: 347.5 -> 197.5
+          tax: 347.5 -> 197.5
+          subtraction:Federal senior deduction (A.R.S. § 43-1022(35)): null -> 6000
+```
+
+> Matched on `150`: ARIZONA'S STANDARD DEDUCTION IS ARIZONA'S OWN NUMBER, AND IT STOPPED BEING THE FEDERAL ONE ON 13 JUNE 2026. A.R.S. § 43-1041(A) defined it as equal to the federal standard deduction until Laws 2026 ch. 140 (HB 4168) §§ 16 and 35(A) wrote $15,750 single and separate, $23,625 head of household and $31,500 joint into the statute, retroactively for taxable years beginning after 31 December 2024. The figures this package ships are unchanged, because § 43-1041(H) indexes Arizona's amounts by the federal § 63 method and the 2025 bases were made equal, so 2026 comes out at the federal $16,100 / $24,150 / $32,200. THAT EQUALITY IS NOW A COINCIDENCE THE STATUTE CREATES RATHER THAN A CROSS-REFERENCE, which is to say Arizona's deduction and the federal one are two parameters that agree instead of one parameter read twice. `test/arizona-deduction.test.js` pins the agreement so it fails the day it ends. The One Big Beautiful Bill Act raised the federal figure by $750 single, $1,500 joint and $1,125 head of household for 2025, which is $18.75, $37.50 and $28.12 of Arizona tax. THE HEAD-OF-HOUSEHOLD FIGURE IS $28.12 AND NOT $28.13, AND THE REASON THIS NOTE GAVE FOR ONE DAY WAS WRONG. $1,125 x 2.5% is an exact half-cent, $28.125, and the note said the engine 'rounds a float, which lands below the midpoint here' — but rounding that product lands ABOVE: $28.13. The figure is not a rounded product at all. It is the exact difference of two answers that were each ALREADY rounded to the cent: at $70,000 of head-of-household AGI, $1,187.50 against $1,159.38, and $1,159.375 rounded UP to get there. ROUNDING THE SUBTRAHEND UP PUSHES THE DIFFERENCE DOWN, which is the whole mechanism, and which of the two answers carries the half-cent is what decides the direction. Idaho's $1,125 x 5.3% is $59.625 and reports $59.62 the same way; Missouri's $1,125 x 4.7% is $52.875 and reports $52.88, because there the half-cent lands in the figure being subtracted FROM. The engine already carries this rule for counterfactual notes — 'the difference of the answers as reported and not of the figures behind them' — and the prose explaining it had not been held to it.
+
+### CA — 16 notch(es)
+
+```text
+  2025  dependent-age      hoh-one-child                 age 5 -> +$1,189.00
+          tax: -1577.21 -> -388.21
+          credit:Young Child Tax Credit: 1189 -> 0
+  2025  dependent-age      hoh-one-child                age 18 -> +$270.20
+          tax: -388.21 -> -118.01
+          credit:California Earned Income Tax Credit (CalEITC): 388.21 -> 118.01
+  2025  dependent-age      single-two-children           age 5 -> +$1,189.00
+          tax: -1730.71 -> -541.71
+          credit:Young Child Tax Credit: 1189 -> 0
+  2025  dependent-age      single-two-children          age 18 -> +$153.50
+          tax: -541.71 -> -388.21
+          credit:California Earned Income Tax Credit (CalEITC): 541.71 -> 388.21
+  2025  filer-age          single-retiree               age 64 -> -$153.00
+          tax: 222.09 -> 69.09
+          credit:Personal and dependent exemption credits: 153 -> 306
   2025  investment-income  childless-single          $4,814.00 -> +$28.24
           stateAdjustedGrossIncome: 29814 -> 29814.01
           taxableIncome: 24108 -> 24108.01
@@ -8836,12 +10564,52 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 24108 -> 24108.01
           tax: -129.62 -> 0
           credit:California Earned Income Tax Credit (CalEITC): 129.62 -> 0
+  2025  investment-income  single-young-child        $4,814.00 -> +$1,281.89
+          stateAdjustedGrossIncome: 29814 -> 29814.01
+          taxableIncome: 18402 -> 18402.01
+          tax: -1281.89 -> 0
+          credit:California Earned Income Tax Credit (CalEITC): 92.89 -> 0
+          credit:Young Child Tax Credit: 1189 -> 0
   2025  municipal-interest childless-single          $4,814.00 -> +$72.27
           tax: 49.82 -> 122.09
           credit:California Earned Income Tax Credit (CalEITC): 72.27 -> 0
   2025  municipal-interest single-two-children       $4,814.00 -> +$331.76
           tax: -331.76 -> 0
           credit:California Earned Income Tax Credit (CalEITC): 331.76 -> 0
+  2025  wages              single-young-child            $0.00 -> -$1,189.00
+          stateAdjustedGrossIncome: 0 -> 0.01
+          tax: 0 -> -1189
+          credit:Young Child Tax Credit: 0 -> 1189
+  2025  wages              single-young-child       $27,425.00 -> +$21.71
+          stateAdjustedGrossIncome: 27425 -> 27425.01
+          taxableIncome: 16013 -> 16013.01
+          tax: -1353.78 -> -1332.07
+          credit:Young Child Tax Credit: 1189 -> 1167.29
+  2025  wages              single-young-child       $32,725.00 -> +$21.71
+          stateAdjustedGrossIncome: 32725 -> 32725.01
+          taxableIncome: 21313 -> 21313.01
+          tax: -43.67 -> -21.96
+          credit:Young Child Tax Credit: 38.37 -> 16.66
+  2025  wages              single-young-child       $32,825.00 -> +$16.66
+          stateAdjustedGrossIncome: 32825 -> 32825.01
+          taxableIncome: 21413 -> 21413.01
+          tax: -18.95 -> -2.29
+          credit:Young Child Tax Credit: 16.66 -> 0
+  2026  dependent-age      hoh-one-child                 age 5 -> +$1,189.00
+          tax: -1577.21 -> -388.21
+          credit:Young Child Tax Credit: 1189 -> 0
+  2026  dependent-age      hoh-one-child                age 18 -> +$270.20
+          tax: -388.21 -> -118.01
+          credit:California Earned Income Tax Credit (CalEITC): 388.21 -> 118.01
+  2026  dependent-age      single-two-children           age 5 -> +$1,189.00
+          tax: -1730.71 -> -541.71
+          credit:Young Child Tax Credit: 1189 -> 0
+  2026  dependent-age      single-two-children          age 18 -> +$153.50
+          tax: -541.71 -> -388.21
+          credit:California Earned Income Tax Credit (CalEITC): 541.71 -> 388.21
+  2026  filer-age          single-retiree               age 64 -> -$153.00
+          tax: 222.09 -> 69.09
+          credit:Personal and dependent exemption credits: 153 -> 306
   2026  investment-income  childless-single          $4,814.00 -> +$28.24
           stateAdjustedGrossIncome: 29814 -> 29814.01
           taxableIncome: 24108 -> 24108.01
@@ -8867,19 +10635,60 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 24108 -> 24108.01
           tax: -129.62 -> 0
           credit:California Earned Income Tax Credit (CalEITC): 129.62 -> 0
+  2026  investment-income  single-young-child        $4,814.00 -> +$1,281.89
+          stateAdjustedGrossIncome: 29814 -> 29814.01
+          taxableIncome: 18402 -> 18402.01
+          tax: -1281.89 -> 0
+          credit:California Earned Income Tax Credit (CalEITC): 92.89 -> 0
+          credit:Young Child Tax Credit: 1189 -> 0
   2026  municipal-interest childless-single          $4,814.00 -> +$72.27
           tax: 49.82 -> 122.09
           credit:California Earned Income Tax Credit (CalEITC): 72.27 -> 0
   2026  municipal-interest single-two-children       $4,814.00 -> +$331.76
           tax: -331.76 -> 0
           credit:California Earned Income Tax Credit (CalEITC): 331.76 -> 0
+  2026  wages              single-young-child            $0.00 -> -$1,189.00
+          stateAdjustedGrossIncome: 0 -> 0.01
+          tax: 0 -> -1189
+          credit:Young Child Tax Credit: 0 -> 1189
+  2026  wages              single-young-child       $27,425.00 -> +$21.71
+          stateAdjustedGrossIncome: 27425 -> 27425.01
+          taxableIncome: 16013 -> 16013.01
+          tax: -1353.78 -> -1332.07
+          credit:Young Child Tax Credit: 1189 -> 1167.29
+  2026  wages              single-young-child       $32,725.00 -> +$21.71
+          stateAdjustedGrossIncome: 32725 -> 32725.01
+          taxableIncome: 21313 -> 21313.01
+          tax: -43.67 -> -21.96
+          credit:Young Child Tax Credit: 38.37 -> 16.66
+  2026  wages              single-young-child       $32,825.00 -> +$16.66
+          stateAdjustedGrossIncome: 32825 -> 32825.01
+          taxableIncome: 21413 -> 21413.01
+          tax: -18.95 -> -2.29
+          credit:Young Child Tax Credit: 16.66 -> 0
 ```
 
-> Matched on `caleitc (phrase)`: CalEITC then stops falling and crawls. Once it reaches $251 (no children) or $635, the rest is spread in a straight line to zero at $32,901 of earned income — 4.2 cents on the dollar for a two-child filer across $15,000 of income, and 0.9 cents for a childless one across $27,000. The $32,901 is a cliff for federal AGI as well: a filer whose AGI is over it gets nothing however small their earnings.
+> Matched on `1,189`: The Young Child Tax Credit is one credit per return, not one per child: a family with one child under 6 and a family with three both get $1,189. It is gated on receiving CalEITC, so the CalEITC investment-income limit of $4,814 costs a young family $1,189 more than it appears to.
 
-### CO — 2 notch(es)
+### CO — 6 notch(es)
 
 ```text
+  2025  dependent-age      hoh-one-child                age 18 -> +$2,164.00
+          tax: -2164 -> 0
+          credit:Colorado earned income tax credit: 2164 -> 0
+  2025  dependent-age      single-two-children          age 18 -> +$1,412.00
+          tax: -3389 -> -1977
+          credit:Colorado earned income tax credit: 3576 -> 2164
+  2025  filer-age          joint-no-children            age 64 -> -$110.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 2500 -> 0
+          taxableIncome: 2500 -> 0
+          taxBeforeCredits: 110 -> 0
+          tax: 110 -> 0
+  2025  filer-age          single-retiree               age 64 -> -$352.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 23850 -> 15850
+          taxableIncome: 23850 -> 15850
+          taxBeforeCredits: 1049.4 -> 697.4
+          tax: 1049.4 -> 697.4
   2025  investment-income  hoh-one-child            $11,950.00 -> +$1,077.36
           stateAdjustedGrossIncome: 13325 -> 13325.01
           taxableIncome: 13325 -> 13325.01
@@ -8895,9 +10704,35 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 21200 -> 21200.01
           tax: -1211.12 -> 932.8
           credit:Colorado earned income tax credit: 2143.92 -> 0
+  2025  investment-income  single-young-child       $11,950.00 -> +$1,077.36
+          stateAdjustedGrossIncome: 13325 -> 13325.01
+          taxableIncome: 13325 -> 13325.01
+          tax: -491.06 -> 586.3
+          credit:Colorado earned income tax credit: 1077.36 -> 0
   2025  municipal-interest single-two-children      $11,950.00 -> +$3,402.25
           tax: -2995.25 -> 407
           credit:Colorado earned income tax credit: 3402.26 -> 0
+  2025  spouse-age         joint-no-children            age 64 -> -$110.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 2500 -> 0
+          taxableIncome: 2500 -> 0
+          taxBeforeCredits: 110 -> 0
+          tax: 110 -> 0
+  2026  dependent-age      hoh-one-child                age 18 -> +$1,106.75
+          tax: -1106.75 -> 0
+          credit:Colorado earned income tax credit: 1106.75 -> 0
+  2026  dependent-age      single-two-children          age 18 -> +$722.25
+          tax: -1657.4 -> -935.15
+          credit:Colorado earned income tax credit: 1829 -> 1106.75
+  2026  filer-age          joint-no-children            age 64 -> -$79.20   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 1800 -> 0
+          taxableIncome: 1800 -> 0
+          taxBeforeCredits: 79.2 -> 0
+          tax: 79.2 -> 0
+  2026  filer-age          single-retiree               age 64 -> -$354.20   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 23500 -> 15450
+          taxableIncome: 23500 -> 15450
+          taxBeforeCredits: 1034 -> 679.8
+          tax: 1034 -> 679.8
   2026  investment-income  hoh-one-child            $12,200.00 -> +$575.02
           stateAdjustedGrossIncome: 13050 -> 13050.01
           taxableIncome: 13050 -> 13050.01
@@ -8913,16 +10748,33 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 21100 -> 21100.01
           tax: -199.83 -> 928.4
           credit:Colorado earned income tax credit: 1128.23 -> 0
+  2026  investment-income  single-young-child       $12,200.00 -> +$575.02
+          stateAdjustedGrossIncome: 13050 -> 13050.01
+          taxableIncome: 13050 -> 13050.01
+          tax: -0.82 -> 574.2
+          credit:Colorado earned income tax credit: 575.02 -> 0
   2026  municipal-interest single-two-children      $12,200.00 -> +$1,770.56
           tax: -1378.96 -> 391.6
           credit:Colorado earned income tax credit: 1770.56 -> 0
+  2026  spouse-age         joint-no-children            age 64 -> -$79.20   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 1800 -> 0
+          taxableIncome: 1800 -> 0
+          taxBeforeCredits: 79.2 -> 0
+          tax: 79.2 -> 0
 ```
 
-> Matched on `1,077.36`: Colorado earned income tax credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $1,077.36 of Colorado credit lost on one cent of investment income. Colorado's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
+> Matched on `2,164.00`: Colorado earned income tax credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $2,164.00 of Colorado credit lost on one cent of investment income. Colorado's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
 
-### CT — 526 notch(es)
+### CT — 528 notch(es)
 
 ```text
+  2025  dependent-age      hoh-one-child                age 18 -> +$1,981.20
+          tax: -1976.2 -> 5
+          credit:Connecticut earned income tax credit: 1731.2 -> 0
+          credit:Connecticut earned income tax credit child bonus: 250 -> 0
+  2025  dependent-age      single-two-children          age 18 -> +$1,129.60
+          tax: -3070.8 -> -1941.2
+          credit:Connecticut earned income tax credit: 2860.8 -> 1731.2
   2025  investment-income  childless-single              $0.00 -> +$10.00
           stateAdjustedGrossIncome: 25000 -> 25000.01
           taxableIncome: 10000 -> 10000.01
@@ -10663,6 +12515,291 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 150000 -> 150000.01
           tax: 8225 -> 8250
           surtax:Tax recapture: 225 -> 250
+  2025  investment-income  single-young-child        $1,500.00 -> +$7.50
+          stateAdjustedGrossIncome: 26500 -> 26500.01
+          taxableIncome: 7500 -> 7500.01
+          tax: -1704.85 -> -1697.35
+          credit:Personal tax credit: 75 -> 67.5
+  2025  investment-income  single-young-child        $2,000.00 -> +$8.00
+          stateAdjustedGrossIncome: 27000 -> 27000.01
+          taxableIncome: 8000 -> 8000.01
+          tax: -1659.89 -> -1651.89
+          credit:Personal tax credit: 72 -> 64
+  2025  investment-income  single-young-child        $2,500.00 -> +$8.50
+          stateAdjustedGrossIncome: 27500 -> 27500.01
+          taxableIncome: 8500 -> 8500.01
+          tax: -1613.93 -> -1605.43
+          credit:Personal tax credit: 68 -> 59.5
+  2025  investment-income  single-young-child        $9,000.00 -> +$15.00
+          stateAdjustedGrossIncome: 34000 -> 34000.01
+          taxableIncome: 15000 -> 15000.01
+          tax: -1105.45 -> -1090.45
+          credit:Personal tax credit: 105 -> 90
+  2025  investment-income  single-young-child        $9,500.00 -> +$15.50
+          stateAdjustedGrossIncome: 34500 -> 34500.01
+          taxableIncome: 15500 -> 15500.01
+          tax: -1051.49 -> -1035.99
+          credit:Personal tax credit: 93 -> 77.5
+  2025  investment-income  single-young-child       $10,000.00 -> +$16.00
+          stateAdjustedGrossIncome: 35000 -> 35000.01
+          taxableIncome: 16000 -> 16000.01
+          tax: -996.53 -> -980.53
+          credit:Personal tax credit: 80 -> 64
+  2025  investment-income  single-young-child       $10,500.00 -> +$17.12
+          stateAdjustedGrossIncome: 35500 -> 35500.01
+          taxableIncome: 16500 -> 16500.01
+          tax: -930.57 -> -913.45
+          credit:Personal tax credit: 68.5 -> 51.38
+  2025  investment-income  single-young-child       $11,950.00 -> +$1,111.89
+          stateAdjustedGrossIncome: 36950 -> 36950.01
+          taxableIncome: 17950 -> 17950.01
+          tax: -765.3 -> 346.59
+          credit:Connecticut earned income tax credit: 861.89 -> 0
+          credit:Connecticut earned income tax credit child bonus: 250 -> 0
+  2025  investment-income  single-young-child       $13,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 38000 -> 38000.01
+          exemptions: 19000 -> 18000
+          taxableIncome: 19000 -> 20000.01
+          taxBeforeCredits: 455 -> 500
+          tax: 386.75 -> 425
+          credit:Personal tax credit: 68.25 -> 75
+  2025  investment-income  single-young-child       $14,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 39000 -> 39000.01
+          exemptions: 18000 -> 17000
+          taxableIncome: 21000 -> 22000.01
+          taxBeforeCredits: 545 -> 590
+          tax: 463.25 -> 501.5
+          credit:Personal tax credit: 81.75 -> 88.5
+  2025  investment-income  single-young-child       $15,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 40000 -> 40000.01
+          exemptions: 17000 -> 16000
+          taxableIncome: 23000 -> 24000.01
+          taxBeforeCredits: 635 -> 680
+          tax: 539.75 -> 578
+          credit:Personal tax credit: 95.25 -> 102
+  2025  investment-income  single-young-child       $16,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 41000 -> 41000.01
+          exemptions: 16000 -> 15000
+          taxableIncome: 25000 -> 26000.01
+          taxBeforeCredits: 725 -> 770
+          tax: 616.25 -> 654.5
+          credit:Personal tax credit: 108.75 -> 115.5
+  2025  investment-income  single-young-child       $17,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 42000 -> 42000.01
+          exemptions: 15000 -> 14000
+          taxableIncome: 27000 -> 28000.01
+          taxBeforeCredits: 815 -> 860
+          tax: 692.75 -> 731
+          credit:Personal tax credit: 122.25 -> 129
+  2025  investment-income  single-young-child       $18,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 43000 -> 43000.01
+          exemptions: 14000 -> 13000
+          taxableIncome: 29000 -> 30000.01
+          taxBeforeCredits: 905 -> 950
+          tax: 769.25 -> 807.5
+          credit:Personal tax credit: 135.75 -> 142.5
+  2025  investment-income  single-young-child       $19,000.00 -> +$48.65
+          stateAdjustedGrossIncome: 44000 -> 44000.01
+          exemptions: 13000 -> 12000
+          taxableIncome: 31000 -> 32000.01
+          taxBeforeCredits: 995 -> 1040
+          tax: 845.75 -> 894.4
+          credit:Personal tax credit: 149.25 -> 145.6
+  2025  investment-income  single-young-child       $19,500.00 -> +$10.63
+          stateAdjustedGrossIncome: 44500 -> 44500.01
+          taxableIncome: 32500 -> 32500.01
+          tax: 913.75 -> 924.38
+          credit:Personal tax credit: 148.75 -> 138.13
+  2025  investment-income  single-young-child       $20,000.00 -> +$50.45
+          stateAdjustedGrossIncome: 45000 -> 45000.01
+          exemptions: 12000 -> 11000
+          taxableIncome: 33000 -> 34000.01
+          taxBeforeCredits: 1085 -> 1130
+          tax: 943.95 -> 994.4
+          credit:Personal tax credit: 141.05 -> 135.6
+  2025  investment-income  single-young-child       $20,500.00 -> +$11.53
+          stateAdjustedGrossIncome: 45500 -> 45500.01
+          taxableIncome: 34500 -> 34500.01
+          tax: 1014.2 -> 1025.73
+          credit:Personal tax credit: 138.3 -> 126.78
+  2025  investment-income  single-young-child       $21,000.00 -> +$52.25
+          stateAdjustedGrossIncome: 46000 -> 46000.01
+          exemptions: 11000 -> 10000
+          taxableIncome: 35000 -> 36000.01
+          taxBeforeCredits: 1175 -> 1220
+          tax: 1045.75 -> 1098
+          credit:Personal tax credit: 129.25 -> 122
+  2025  investment-income  single-young-child       $22,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 47000 -> 47000.01
+          exemptions: 10000 -> 9000
+          taxableIncome: 37000 -> 38000.01
+          taxBeforeCredits: 1265 -> 1310
+          tax: 1138.5 -> 1179
+          credit:Personal tax credit: 126.5 -> 131
+  2025  investment-income  single-young-child       $23,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 48000 -> 48000.01
+          exemptions: 9000 -> 8000
+          taxableIncome: 39000 -> 40000.01
+          taxBeforeCredits: 1355 -> 1400
+          tax: 1219.5 -> 1260
+          credit:Personal tax credit: 135.5 -> 140
+  2025  investment-income  single-young-child       $24,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 49000 -> 49000.01
+          exemptions: 8000 -> 7000
+          taxableIncome: 41000 -> 42000.01
+          taxBeforeCredits: 1445 -> 1490
+          tax: 1300.5 -> 1341
+          credit:Personal tax credit: 144.5 -> 149
+  2025  investment-income  single-young-child       $25,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 50000 -> 50000.01
+          exemptions: 7000 -> 6000
+          taxableIncome: 43000 -> 44000.01
+          taxBeforeCredits: 1535 -> 1580
+          tax: 1381.5 -> 1422
+          credit:Personal tax credit: 153.5 -> 158
+  2025  investment-income  single-young-child       $26,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 51000 -> 51000.01
+          exemptions: 6000 -> 5000
+          taxableIncome: 45000 -> 46000.01
+          taxBeforeCredits: 1625 -> 1670
+          tax: 1462.5 -> 1503
+          credit:Personal tax credit: 162.5 -> 167
+  2025  investment-income  single-young-child       $27,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 52000 -> 52000.01
+          exemptions: 5000 -> 4000
+          taxableIncome: 47000 -> 48000.01
+          taxBeforeCredits: 1715 -> 1760
+          tax: 1543.5 -> 1584
+          credit:Personal tax credit: 171.5 -> 176
+  2025  investment-income  single-young-child       $28,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 53000 -> 53000.01
+          exemptions: 4000 -> 3000
+          taxableIncome: 49000 -> 50000.01
+          taxBeforeCredits: 1805 -> 1850
+          tax: 1624.5 -> 1665
+          credit:Personal tax credit: 180.5 -> 185
+  2025  investment-income  single-young-child       $29,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 54000 -> 54000.01
+          exemptions: 3000 -> 2000
+          taxableIncome: 51000 -> 52000.01
+          taxBeforeCredits: 1895 -> 1940
+          tax: 1705.5 -> 1746
+          credit:Personal tax credit: 189.5 -> 194
+  2025  investment-income  single-young-child       $30,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 55000 -> 55000.01
+          exemptions: 2000 -> 1000
+          taxableIncome: 53000 -> 54000.01
+          taxBeforeCredits: 1985 -> 2030
+          tax: 1786.5 -> 1827
+          credit:Personal tax credit: 198.5 -> 203
+  2025  investment-income  single-young-child       $31,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 56000 -> 56000.01
+          exemptions: 1000 -> 0
+          taxableIncome: 55000 -> 56000.01
+          taxBeforeCredits: 2075 -> 2120
+          tax: 1867.5 -> 1908
+          credit:Personal tax credit: 207.5 -> 212
+  2025  investment-income  single-young-child       $49,000.00 -> +$29.30
+          stateAdjustedGrossIncome: 74000 -> 74000.01
+          taxableIncome: 74000 -> 74000.01
+          tax: 2637 -> 2666.3
+          credit:Personal tax credit: 293 -> 263.7
+  2025  investment-income  single-young-child       $49,500.00 -> +$29.52
+          stateAdjustedGrossIncome: 74500 -> 74500.01
+          taxableIncome: 74500 -> 74500.01
+          tax: 2686.78 -> 2716.3
+          credit:Personal tax credit: 265.72 -> 236.2
+  2025  investment-income  single-young-child       $50,000.00 -> +$29.75
+          stateAdjustedGrossIncome: 75000 -> 75000.01
+          taxableIncome: 75000 -> 75000.01
+          tax: 2737 -> 2766.75
+          credit:Personal tax credit: 238 -> 208.25
+  2025  investment-income  single-young-child       $50,500.00 -> +$29.97
+          stateAdjustedGrossIncome: 75500 -> 75500.01
+          taxableIncome: 75500 -> 75500.01
+          tax: 2787.68 -> 2817.65
+          credit:Personal tax credit: 209.83 -> 179.85
+  2025  investment-income  single-young-child       $51,000.00 -> +$30.20
+          stateAdjustedGrossIncome: 76000 -> 76000.01
+          taxableIncome: 76000 -> 76000.01
+          tax: 2838.8 -> 2869
+          credit:Personal tax credit: 181.2 -> 151
+  2025  investment-income  single-young-child       $51,500.00 -> +$30.42
+          stateAdjustedGrossIncome: 76500 -> 76500.01
+          taxableIncome: 76500 -> 76500.01
+          tax: 2890.38 -> 2920.8
+          credit:Personal tax credit: 152.13 -> 121.7
+  2025  investment-income  single-young-child       $52,000.00 -> +$30.65
+          stateAdjustedGrossIncome: 77000 -> 77000.01
+          taxableIncome: 77000 -> 77000.01
+          tax: 2942.4 -> 2973.05
+          credit:Personal tax credit: 122.6 -> 91.95
+  2025  investment-income  single-young-child       $52,500.00 -> +$30.87
+          stateAdjustedGrossIncome: 77500 -> 77500.01
+          taxableIncome: 77500 -> 77500.01
+          tax: 2994.88 -> 3025.75
+          credit:Personal tax credit: 92.63 -> 61.75
+  2025  investment-income  single-young-child       $53,000.00 -> +$31.10
+          stateAdjustedGrossIncome: 78000 -> 78000.01
+          taxableIncome: 78000 -> 78000.01
+          tax: 3047.8 -> 3078.9
+          credit:Personal tax credit: 62.2 -> 31.1
+  2025  investment-income  single-young-child       $53,500.00 -> +$71.32
+          stateAdjustedGrossIncome: 78500 -> 78500.01
+          taxableIncome: 78500 -> 78500.01
+          tax: 3101.18 -> 3172.5
+          credit:Personal tax credit: 31.33 -> 0
+          surtax:Tax rate phase-out add-back: null -> 40
+  2025  investment-income  single-young-child       $57,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 82500 -> 82500.01
+          taxableIncome: 82500 -> 82500.01
+          tax: 3377.5 -> 3417.5
+          surtax:Tax rate phase-out add-back: 40 -> 80
+  2025  investment-income  single-young-child       $61,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 86500 -> 86500.01
+          taxableIncome: 86500 -> 86500.01
+          tax: 3637.5 -> 3677.5
+          surtax:Tax rate phase-out add-back: 80 -> 120
+  2025  investment-income  single-young-child       $65,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 90500 -> 90500.01
+          taxableIncome: 90500 -> 90500.01
+          tax: 3897.5 -> 3937.5
+          surtax:Tax rate phase-out add-back: 120 -> 160
+  2025  investment-income  single-young-child       $69,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 94500 -> 94500.01
+          taxableIncome: 94500 -> 94500.01
+          tax: 4157.5 -> 4197.5
+          surtax:Tax rate phase-out add-back: 160 -> 200
+  2025  investment-income  single-young-child       $73,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 98500 -> 98500.01
+          taxableIncome: 98500 -> 98500.01
+          tax: 4417.5 -> 4457.5
+          surtax:Tax rate phase-out add-back: 200 -> 240
+  2025  investment-income  single-young-child       $77,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 102500 -> 102500.01
+          taxableIncome: 102500 -> 102500.01
+          tax: 4677.5 -> 4717.5
+          surtax:Tax rate phase-out add-back: 240 -> 280
+  2025  investment-income  single-young-child       $81,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 106500 -> 106500.01
+          taxableIncome: 106500 -> 106500.01
+          tax: 4937.5 -> 4977.5
+          surtax:Tax rate phase-out add-back: 280 -> 320
+  2025  investment-income  single-young-child       $85,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 110500 -> 110500.01
+          taxableIncome: 110500 -> 110500.01
+          tax: 5197.5 -> 5237.5
+          surtax:Tax rate phase-out add-back: 320 -> 360
+  2025  investment-income  single-young-child       $89,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 114500 -> 114500.01
+          taxableIncome: 114500 -> 114500.01
+          tax: 5457.5 -> 5497.5
+          surtax:Tax rate phase-out add-back: 360 -> 400
+  2025  investment-income  single-young-child      $143,000.00 -> +$40.00
+          stateAdjustedGrossIncome: 168000 -> 168000.01
+          taxableIncome: 168000 -> 168000.01
+          tax: 8480 -> 8520
+          surtax:Tax recapture: null -> 40
   2025  municipal-interest single-two-children      $11,950.00 -> +$2,971.80
           tax: -2841.8 -> 130
           credit:Connecticut earned income tax credit: 2721.8 -> 0
@@ -12722,6 +14859,296 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 145000 -> 145000.01
           tax: 7900 -> 7925
           surtax:Tax recapture: 200 -> 225
+  2025  wages              single-young-child            $0.01 -> -$250.00
+          stateAdjustedGrossIncome: 0.01 -> 0.02
+          tax: 0 -> -250
+          credit:Connecticut earned income tax credit child bonus: 0 -> 250
+  2025  wages              single-young-child       $26,500.00 -> +$7.50
+          stateAdjustedGrossIncome: 26500 -> 26500.01
+          taxableIncome: 7500 -> 7500.01
+          tax: -1704.85 -> -1697.35
+          credit:Personal tax credit: 75 -> 67.5
+  2025  wages              single-young-child       $27,000.00 -> +$8.00
+          stateAdjustedGrossIncome: 27000 -> 27000.01
+          taxableIncome: 8000 -> 8000.01
+          tax: -1659.89 -> -1651.89
+          credit:Personal tax credit: 72 -> 64
+  2025  wages              single-young-child       $27,500.00 -> +$8.50
+          stateAdjustedGrossIncome: 27500 -> 27500.01
+          taxableIncome: 8500 -> 8500.01
+          tax: -1613.93 -> -1605.43
+          credit:Personal tax credit: 68 -> 59.5
+  2025  wages              single-young-child       $34,000.00 -> +$15.00
+          stateAdjustedGrossIncome: 34000 -> 34000.01
+          taxableIncome: 15000 -> 15000.01
+          tax: -1105.45 -> -1090.45
+          credit:Personal tax credit: 105 -> 90
+  2025  wages              single-young-child       $34,500.00 -> +$15.50
+          stateAdjustedGrossIncome: 34500 -> 34500.01
+          taxableIncome: 15500 -> 15500.01
+          tax: -1051.49 -> -1035.99
+          credit:Personal tax credit: 93 -> 77.5
+  2025  wages              single-young-child       $35,000.00 -> +$16.00
+          stateAdjustedGrossIncome: 35000 -> 35000.01
+          taxableIncome: 16000 -> 16000.01
+          tax: -996.53 -> -980.53
+          credit:Personal tax credit: 80 -> 64
+  2025  wages              single-young-child       $35,500.00 -> +$17.12
+          stateAdjustedGrossIncome: 35500 -> 35500.01
+          taxableIncome: 16500 -> 16500.01
+          tax: -930.57 -> -913.45
+          credit:Personal tax credit: 68.5 -> 51.38
+  2025  wages              single-young-child       $38,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 38000 -> 38000.01
+          exemptions: 19000 -> 18000
+          taxableIncome: 19000 -> 20000.01
+          taxBeforeCredits: 455 -> 500
+          tax: -658.02 -> -619.77
+          credit:Personal tax credit: 68.25 -> 75
+  2025  wages              single-young-child       $39,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 39000 -> 39000.01
+          exemptions: 18000 -> 17000
+          taxableIncome: 21000 -> 22000.01
+          taxBeforeCredits: 545 -> 590
+          tax: -517.6 -> -479.35
+          credit:Personal tax credit: 81.75 -> 88.5
+  2025  wages              single-young-child       $40,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 40000 -> 40000.01
+          exemptions: 17000 -> 16000
+          taxableIncome: 23000 -> 24000.01
+          taxBeforeCredits: 635 -> 680
+          tax: -377.18 -> -338.93
+          credit:Personal tax credit: 95.25 -> 102
+  2025  wages              single-young-child       $41,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 41000 -> 41000.01
+          exemptions: 16000 -> 15000
+          taxableIncome: 25000 -> 26000.01
+          taxBeforeCredits: 725 -> 770
+          tax: -236.76 -> -198.51
+          credit:Personal tax credit: 108.75 -> 115.5
+  2025  wages              single-young-child       $42,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 42000 -> 42000.01
+          exemptions: 15000 -> 14000
+          taxableIncome: 27000 -> 28000.01
+          taxBeforeCredits: 815 -> 860
+          tax: -96.34 -> -58.09
+          credit:Personal tax credit: 122.25 -> 129
+  2025  wages              single-young-child       $43,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 43000 -> 43000.01
+          exemptions: 14000 -> 13000
+          taxableIncome: 29000 -> 30000.01
+          taxBeforeCredits: 905 -> 950
+          tax: 44.08 -> 82.33
+          credit:Personal tax credit: 135.75 -> 142.5
+  2025  wages              single-young-child       $44,000.00 -> +$48.65
+          stateAdjustedGrossIncome: 44000 -> 44000.01
+          exemptions: 13000 -> 12000
+          taxableIncome: 31000 -> 32000.01
+          taxBeforeCredits: 995 -> 1040
+          tax: 184.5 -> 233.15
+          credit:Personal tax credit: 149.25 -> 145.6
+  2025  wages              single-young-child       $44,500.00 -> +$10.62
+          stateAdjustedGrossIncome: 44500 -> 44500.01
+          taxableIncome: 32500 -> 32500.01
+          tax: 284.46 -> 295.08
+          credit:Personal tax credit: 148.75 -> 138.13
+  2025  wages              single-young-child       $45,000.00 -> +$50.45
+          stateAdjustedGrossIncome: 45000 -> 45000.01
+          exemptions: 12000 -> 11000
+          taxableIncome: 33000 -> 34000.01
+          taxBeforeCredits: 1085 -> 1130
+          tax: 346.62 -> 397.07
+          credit:Personal tax credit: 141.05 -> 135.6
+  2025  wages              single-young-child       $45,500.00 -> +$11.52
+          stateAdjustedGrossIncome: 45500 -> 45500.01
+          taxableIncome: 34500 -> 34500.01
+          tax: 448.83 -> 460.35
+          credit:Personal tax credit: 138.3 -> 126.78
+  2025  wages              single-young-child       $46,000.00 -> +$52.25
+          stateAdjustedGrossIncome: 46000 -> 46000.01
+          exemptions: 11000 -> 10000
+          taxableIncome: 35000 -> 36000.01
+          taxBeforeCredits: 1175 -> 1220
+          tax: 512.34 -> 564.59
+          credit:Personal tax credit: 129.25 -> 122
+  2025  wages              single-young-child       $47,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 47000 -> 47000.01
+          exemptions: 10000 -> 9000
+          taxableIncome: 37000 -> 38000.01
+          taxBeforeCredits: 1265 -> 1310
+          tax: 669.01 -> 709.51
+          credit:Personal tax credit: 126.5 -> 131
+  2025  wages              single-young-child       $48,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 48000 -> 48000.01
+          exemptions: 9000 -> 8000
+          taxableIncome: 39000 -> 40000.01
+          taxBeforeCredits: 1355 -> 1400
+          tax: 813.93 -> 854.43
+          credit:Personal tax credit: 135.5 -> 140
+  2025  wages              single-young-child       $49,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 49000 -> 49000.01
+          exemptions: 8000 -> 7000
+          taxableIncome: 41000 -> 42000.01
+          taxBeforeCredits: 1445 -> 1490
+          tax: 958.85 -> 999.35
+          credit:Personal tax credit: 144.5 -> 149
+  2025  wages              single-young-child       $50,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 50000 -> 50000.01
+          exemptions: 7000 -> 6000
+          taxableIncome: 43000 -> 44000.01
+          taxBeforeCredits: 1535 -> 1580
+          tax: 1103.77 -> 1144.27
+          credit:Personal tax credit: 153.5 -> 158
+  2025  wages              single-young-child       $50,433.82 -> +$250.00
+          stateAdjustedGrossIncome: 50433.82 -> 50433.83
+          taxableIncome: 44433.82 -> 44433.83
+          tax: 1189.57 -> 1439.57
+          credit:Connecticut earned income tax credit child bonus: 250 -> 0
+  2025  wages              single-young-child       $51,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 51000 -> 51000.01
+          exemptions: 6000 -> 5000
+          taxableIncome: 45000 -> 46000.01
+          taxBeforeCredits: 1625 -> 1670
+          tax: 1462.5 -> 1503
+          credit:Personal tax credit: 162.5 -> 167
+  2025  wages              single-young-child       $52,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 52000 -> 52000.01
+          exemptions: 5000 -> 4000
+          taxableIncome: 47000 -> 48000.01
+          taxBeforeCredits: 1715 -> 1760
+          tax: 1543.5 -> 1584
+          credit:Personal tax credit: 171.5 -> 176
+  2025  wages              single-young-child       $53,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 53000 -> 53000.01
+          exemptions: 4000 -> 3000
+          taxableIncome: 49000 -> 50000.01
+          taxBeforeCredits: 1805 -> 1850
+          tax: 1624.5 -> 1665
+          credit:Personal tax credit: 180.5 -> 185
+  2025  wages              single-young-child       $54,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 54000 -> 54000.01
+          exemptions: 3000 -> 2000
+          taxableIncome: 51000 -> 52000.01
+          taxBeforeCredits: 1895 -> 1940
+          tax: 1705.5 -> 1746
+          credit:Personal tax credit: 189.5 -> 194
+  2025  wages              single-young-child       $55,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 55000 -> 55000.01
+          exemptions: 2000 -> 1000
+          taxableIncome: 53000 -> 54000.01
+          taxBeforeCredits: 1985 -> 2030
+          tax: 1786.5 -> 1827
+          credit:Personal tax credit: 198.5 -> 203
+  2025  wages              single-young-child       $56,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 56000 -> 56000.01
+          exemptions: 1000 -> 0
+          taxableIncome: 55000 -> 56000.01
+          taxBeforeCredits: 2075 -> 2120
+          tax: 1867.5 -> 1908
+          credit:Personal tax credit: 207.5 -> 212
+  2025  wages              single-young-child       $74,000.00 -> +$29.30
+          stateAdjustedGrossIncome: 74000 -> 74000.01
+          taxableIncome: 74000 -> 74000.01
+          tax: 2637 -> 2666.3
+          credit:Personal tax credit: 293 -> 263.7
+  2025  wages              single-young-child       $74,500.00 -> +$29.52
+          stateAdjustedGrossIncome: 74500 -> 74500.01
+          taxableIncome: 74500 -> 74500.01
+          tax: 2686.78 -> 2716.3
+          credit:Personal tax credit: 265.72 -> 236.2
+  2025  wages              single-young-child       $75,000.00 -> +$29.75
+          stateAdjustedGrossIncome: 75000 -> 75000.01
+          taxableIncome: 75000 -> 75000.01
+          tax: 2737 -> 2766.75
+          credit:Personal tax credit: 238 -> 208.25
+  2025  wages              single-young-child       $75,500.00 -> +$29.97
+          stateAdjustedGrossIncome: 75500 -> 75500.01
+          taxableIncome: 75500 -> 75500.01
+          tax: 2787.68 -> 2817.65
+          credit:Personal tax credit: 209.83 -> 179.85
+  2025  wages              single-young-child       $76,000.00 -> +$30.20
+          stateAdjustedGrossIncome: 76000 -> 76000.01
+          taxableIncome: 76000 -> 76000.01
+          tax: 2838.8 -> 2869
+          credit:Personal tax credit: 181.2 -> 151
+  2025  wages              single-young-child       $76,500.00 -> +$30.42
+          stateAdjustedGrossIncome: 76500 -> 76500.01
+          taxableIncome: 76500 -> 76500.01
+          tax: 2890.38 -> 2920.8
+          credit:Personal tax credit: 152.13 -> 121.7
+  2025  wages              single-young-child       $77,000.00 -> +$30.65
+          stateAdjustedGrossIncome: 77000 -> 77000.01
+          taxableIncome: 77000 -> 77000.01
+          tax: 2942.4 -> 2973.05
+          credit:Personal tax credit: 122.6 -> 91.95
+  2025  wages              single-young-child       $77,500.00 -> +$30.87
+          stateAdjustedGrossIncome: 77500 -> 77500.01
+          taxableIncome: 77500 -> 77500.01
+          tax: 2994.88 -> 3025.75
+          credit:Personal tax credit: 92.63 -> 61.75
+  2025  wages              single-young-child       $78,000.00 -> +$31.10
+          stateAdjustedGrossIncome: 78000 -> 78000.01
+          taxableIncome: 78000 -> 78000.01
+          tax: 3047.8 -> 3078.9
+          credit:Personal tax credit: 62.2 -> 31.1
+  2025  wages              single-young-child       $78,500.00 -> +$71.32
+          stateAdjustedGrossIncome: 78500 -> 78500.01
+          taxableIncome: 78500 -> 78500.01
+          tax: 3101.18 -> 3172.5
+          credit:Personal tax credit: 31.33 -> 0
+          surtax:Tax rate phase-out add-back: null -> 40
+  2025  wages              single-young-child       $82,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 82500 -> 82500.01
+          taxableIncome: 82500 -> 82500.01
+          tax: 3377.5 -> 3417.5
+          surtax:Tax rate phase-out add-back: 40 -> 80
+  2025  wages              single-young-child       $86,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 86500 -> 86500.01
+          taxableIncome: 86500 -> 86500.01
+          tax: 3637.5 -> 3677.5
+          surtax:Tax rate phase-out add-back: 80 -> 120
+  2025  wages              single-young-child       $90,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 90500 -> 90500.01
+          taxableIncome: 90500 -> 90500.01
+          tax: 3897.5 -> 3937.5
+          surtax:Tax rate phase-out add-back: 120 -> 160
+  2025  wages              single-young-child       $94,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 94500 -> 94500.01
+          taxableIncome: 94500 -> 94500.01
+          tax: 4157.5 -> 4197.5
+          surtax:Tax rate phase-out add-back: 160 -> 200
+  2025  wages              single-young-child       $98,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 98500 -> 98500.01
+          taxableIncome: 98500 -> 98500.01
+          tax: 4417.5 -> 4457.5
+          surtax:Tax rate phase-out add-back: 200 -> 240
+  2025  wages              single-young-child      $102,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 102500 -> 102500.01
+          taxableIncome: 102500 -> 102500.01
+          tax: 4677.5 -> 4717.5
+          surtax:Tax rate phase-out add-back: 240 -> 280
+  2025  wages              single-young-child      $106,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 106500 -> 106500.01
+          taxableIncome: 106500 -> 106500.01
+          tax: 4937.5 -> 4977.5
+          surtax:Tax rate phase-out add-back: 280 -> 320
+  2025  wages              single-young-child      $110,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 110500 -> 110500.01
+          taxableIncome: 110500 -> 110500.01
+          tax: 5197.5 -> 5237.5
+          surtax:Tax rate phase-out add-back: 320 -> 360
+  2025  wages              single-young-child      $114,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 114500 -> 114500.01
+          taxableIncome: 114500 -> 114500.01
+          tax: 5457.5 -> 5497.5
+          surtax:Tax rate phase-out add-back: 360 -> 400
+  2026  dependent-age      hoh-one-child                age 18 -> +$2,020.80
+          tax: -2015.8 -> 5
+          credit:Connecticut earned income tax credit: 1770.8 -> 0
+          credit:Connecticut earned income tax credit child bonus: 250 -> 0
+  2026  dependent-age      single-two-children          age 18 -> +$1,155.60
+          tax: -3136.4 -> -1980.8
+          credit:Connecticut earned income tax credit: 2926.4 -> 1770.8
   2026  investment-income  childless-single              $0.00 -> +$10.00
           stateAdjustedGrossIncome: 25000 -> 25000.01
           taxableIncome: 10000 -> 10000.01
@@ -14462,6 +16889,291 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 150000 -> 150000.01
           tax: 8225 -> 8250
           surtax:Tax recapture: 225 -> 250
+  2026  investment-income  single-young-child        $1,500.00 -> +$7.50
+          stateAdjustedGrossIncome: 26500 -> 26500.01
+          taxableIncome: 7500 -> 7500.01
+          tax: -1778.97 -> -1771.47
+          credit:Personal tax credit: 75 -> 67.5
+  2026  investment-income  single-young-child        $2,000.00 -> +$8.00
+          stateAdjustedGrossIncome: 27000 -> 27000.01
+          taxableIncome: 8000 -> 8000.01
+          tax: -1734.01 -> -1726.01
+          credit:Personal tax credit: 72 -> 64
+  2026  investment-income  single-young-child        $2,500.00 -> +$8.50
+          stateAdjustedGrossIncome: 27500 -> 27500.01
+          taxableIncome: 8500 -> 8500.01
+          tax: -1688.05 -> -1679.55
+          credit:Personal tax credit: 68 -> 59.5
+  2026  investment-income  single-young-child        $9,000.00 -> +$15.00
+          stateAdjustedGrossIncome: 34000 -> 34000.01
+          taxableIncome: 15000 -> 15000.01
+          tax: -1179.57 -> -1164.57
+          credit:Personal tax credit: 105 -> 90
+  2026  investment-income  single-young-child        $9,500.00 -> +$15.50
+          stateAdjustedGrossIncome: 34500 -> 34500.01
+          taxableIncome: 15500 -> 15500.01
+          tax: -1125.61 -> -1110.11
+          credit:Personal tax credit: 93 -> 77.5
+  2026  investment-income  single-young-child       $10,000.00 -> +$16.00
+          stateAdjustedGrossIncome: 35000 -> 35000.01
+          taxableIncome: 16000 -> 16000.01
+          tax: -1070.65 -> -1054.65
+          credit:Personal tax credit: 80 -> 64
+  2026  investment-income  single-young-child       $10,500.00 -> +$17.13
+          stateAdjustedGrossIncome: 35500 -> 35500.01
+          taxableIncome: 16500 -> 16500.01
+          tax: -1004.69 -> -987.56
+          credit:Personal tax credit: 68.5 -> 51.38
+  2026  investment-income  single-young-child       $12,200.00 -> +$1,170.02
+          stateAdjustedGrossIncome: 37200 -> 37200.01
+          taxableIncome: 18200 -> 18200.01
+          tax: -813.87 -> 356.15
+          credit:Connecticut earned income tax credit: 920.02 -> 0
+          credit:Connecticut earned income tax credit child bonus: 250 -> 0
+  2026  investment-income  single-young-child       $13,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 38000 -> 38000.01
+          exemptions: 19000 -> 18000
+          taxableIncome: 19000 -> 20000.01
+          taxBeforeCredits: 455 -> 500
+          tax: 386.75 -> 425
+          credit:Personal tax credit: 68.25 -> 75
+  2026  investment-income  single-young-child       $14,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 39000 -> 39000.01
+          exemptions: 18000 -> 17000
+          taxableIncome: 21000 -> 22000.01
+          taxBeforeCredits: 545 -> 590
+          tax: 463.25 -> 501.5
+          credit:Personal tax credit: 81.75 -> 88.5
+  2026  investment-income  single-young-child       $15,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 40000 -> 40000.01
+          exemptions: 17000 -> 16000
+          taxableIncome: 23000 -> 24000.01
+          taxBeforeCredits: 635 -> 680
+          tax: 539.75 -> 578
+          credit:Personal tax credit: 95.25 -> 102
+  2026  investment-income  single-young-child       $16,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 41000 -> 41000.01
+          exemptions: 16000 -> 15000
+          taxableIncome: 25000 -> 26000.01
+          taxBeforeCredits: 725 -> 770
+          tax: 616.25 -> 654.5
+          credit:Personal tax credit: 108.75 -> 115.5
+  2026  investment-income  single-young-child       $17,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 42000 -> 42000.01
+          exemptions: 15000 -> 14000
+          taxableIncome: 27000 -> 28000.01
+          taxBeforeCredits: 815 -> 860
+          tax: 692.75 -> 731
+          credit:Personal tax credit: 122.25 -> 129
+  2026  investment-income  single-young-child       $18,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 43000 -> 43000.01
+          exemptions: 14000 -> 13000
+          taxableIncome: 29000 -> 30000.01
+          taxBeforeCredits: 905 -> 950
+          tax: 769.25 -> 807.5
+          credit:Personal tax credit: 135.75 -> 142.5
+  2026  investment-income  single-young-child       $19,000.00 -> +$48.65
+          stateAdjustedGrossIncome: 44000 -> 44000.01
+          exemptions: 13000 -> 12000
+          taxableIncome: 31000 -> 32000.01
+          taxBeforeCredits: 995 -> 1040
+          tax: 845.75 -> 894.4
+          credit:Personal tax credit: 149.25 -> 145.6
+  2026  investment-income  single-young-child       $19,500.00 -> +$10.63
+          stateAdjustedGrossIncome: 44500 -> 44500.01
+          taxableIncome: 32500 -> 32500.01
+          tax: 913.75 -> 924.38
+          credit:Personal tax credit: 148.75 -> 138.13
+  2026  investment-income  single-young-child       $20,000.00 -> +$50.45
+          stateAdjustedGrossIncome: 45000 -> 45000.01
+          exemptions: 12000 -> 11000
+          taxableIncome: 33000 -> 34000.01
+          taxBeforeCredits: 1085 -> 1130
+          tax: 943.95 -> 994.4
+          credit:Personal tax credit: 141.05 -> 135.6
+  2026  investment-income  single-young-child       $20,500.00 -> +$11.53
+          stateAdjustedGrossIncome: 45500 -> 45500.01
+          taxableIncome: 34500 -> 34500.01
+          tax: 1014.2 -> 1025.73
+          credit:Personal tax credit: 138.3 -> 126.78
+  2026  investment-income  single-young-child       $21,000.00 -> +$52.25
+          stateAdjustedGrossIncome: 46000 -> 46000.01
+          exemptions: 11000 -> 10000
+          taxableIncome: 35000 -> 36000.01
+          taxBeforeCredits: 1175 -> 1220
+          tax: 1045.75 -> 1098
+          credit:Personal tax credit: 129.25 -> 122
+  2026  investment-income  single-young-child       $22,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 47000 -> 47000.01
+          exemptions: 10000 -> 9000
+          taxableIncome: 37000 -> 38000.01
+          taxBeforeCredits: 1265 -> 1310
+          tax: 1138.5 -> 1179
+          credit:Personal tax credit: 126.5 -> 131
+  2026  investment-income  single-young-child       $23,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 48000 -> 48000.01
+          exemptions: 9000 -> 8000
+          taxableIncome: 39000 -> 40000.01
+          taxBeforeCredits: 1355 -> 1400
+          tax: 1219.5 -> 1260
+          credit:Personal tax credit: 135.5 -> 140
+  2026  investment-income  single-young-child       $24,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 49000 -> 49000.01
+          exemptions: 8000 -> 7000
+          taxableIncome: 41000 -> 42000.01
+          taxBeforeCredits: 1445 -> 1490
+          tax: 1300.5 -> 1341
+          credit:Personal tax credit: 144.5 -> 149
+  2026  investment-income  single-young-child       $25,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 50000 -> 50000.01
+          exemptions: 7000 -> 6000
+          taxableIncome: 43000 -> 44000.01
+          taxBeforeCredits: 1535 -> 1580
+          tax: 1381.5 -> 1422
+          credit:Personal tax credit: 153.5 -> 158
+  2026  investment-income  single-young-child       $26,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 51000 -> 51000.01
+          exemptions: 6000 -> 5000
+          taxableIncome: 45000 -> 46000.01
+          taxBeforeCredits: 1625 -> 1670
+          tax: 1462.5 -> 1503
+          credit:Personal tax credit: 162.5 -> 167
+  2026  investment-income  single-young-child       $27,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 52000 -> 52000.01
+          exemptions: 5000 -> 4000
+          taxableIncome: 47000 -> 48000.01
+          taxBeforeCredits: 1715 -> 1760
+          tax: 1543.5 -> 1584
+          credit:Personal tax credit: 171.5 -> 176
+  2026  investment-income  single-young-child       $28,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 53000 -> 53000.01
+          exemptions: 4000 -> 3000
+          taxableIncome: 49000 -> 50000.01
+          taxBeforeCredits: 1805 -> 1850
+          tax: 1624.5 -> 1665
+          credit:Personal tax credit: 180.5 -> 185
+  2026  investment-income  single-young-child       $29,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 54000 -> 54000.01
+          exemptions: 3000 -> 2000
+          taxableIncome: 51000 -> 52000.01
+          taxBeforeCredits: 1895 -> 1940
+          tax: 1705.5 -> 1746
+          credit:Personal tax credit: 189.5 -> 194
+  2026  investment-income  single-young-child       $30,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 55000 -> 55000.01
+          exemptions: 2000 -> 1000
+          taxableIncome: 53000 -> 54000.01
+          taxBeforeCredits: 1985 -> 2030
+          tax: 1786.5 -> 1827
+          credit:Personal tax credit: 198.5 -> 203
+  2026  investment-income  single-young-child       $31,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 56000 -> 56000.01
+          exemptions: 1000 -> 0
+          taxableIncome: 55000 -> 56000.01
+          taxBeforeCredits: 2075 -> 2120
+          tax: 1867.5 -> 1908
+          credit:Personal tax credit: 207.5 -> 212
+  2026  investment-income  single-young-child       $49,000.00 -> +$29.30
+          stateAdjustedGrossIncome: 74000 -> 74000.01
+          taxableIncome: 74000 -> 74000.01
+          tax: 2637 -> 2666.3
+          credit:Personal tax credit: 293 -> 263.7
+  2026  investment-income  single-young-child       $49,500.00 -> +$29.52
+          stateAdjustedGrossIncome: 74500 -> 74500.01
+          taxableIncome: 74500 -> 74500.01
+          tax: 2686.78 -> 2716.3
+          credit:Personal tax credit: 265.72 -> 236.2
+  2026  investment-income  single-young-child       $50,000.00 -> +$29.75
+          stateAdjustedGrossIncome: 75000 -> 75000.01
+          taxableIncome: 75000 -> 75000.01
+          tax: 2737 -> 2766.75
+          credit:Personal tax credit: 238 -> 208.25
+  2026  investment-income  single-young-child       $50,500.00 -> +$29.97
+          stateAdjustedGrossIncome: 75500 -> 75500.01
+          taxableIncome: 75500 -> 75500.01
+          tax: 2787.68 -> 2817.65
+          credit:Personal tax credit: 209.83 -> 179.85
+  2026  investment-income  single-young-child       $51,000.00 -> +$30.20
+          stateAdjustedGrossIncome: 76000 -> 76000.01
+          taxableIncome: 76000 -> 76000.01
+          tax: 2838.8 -> 2869
+          credit:Personal tax credit: 181.2 -> 151
+  2026  investment-income  single-young-child       $51,500.00 -> +$30.42
+          stateAdjustedGrossIncome: 76500 -> 76500.01
+          taxableIncome: 76500 -> 76500.01
+          tax: 2890.38 -> 2920.8
+          credit:Personal tax credit: 152.13 -> 121.7
+  2026  investment-income  single-young-child       $52,000.00 -> +$30.65
+          stateAdjustedGrossIncome: 77000 -> 77000.01
+          taxableIncome: 77000 -> 77000.01
+          tax: 2942.4 -> 2973.05
+          credit:Personal tax credit: 122.6 -> 91.95
+  2026  investment-income  single-young-child       $52,500.00 -> +$30.87
+          stateAdjustedGrossIncome: 77500 -> 77500.01
+          taxableIncome: 77500 -> 77500.01
+          tax: 2994.88 -> 3025.75
+          credit:Personal tax credit: 92.63 -> 61.75
+  2026  investment-income  single-young-child       $53,000.00 -> +$31.10
+          stateAdjustedGrossIncome: 78000 -> 78000.01
+          taxableIncome: 78000 -> 78000.01
+          tax: 3047.8 -> 3078.9
+          credit:Personal tax credit: 62.2 -> 31.1
+  2026  investment-income  single-young-child       $53,500.00 -> +$71.32
+          stateAdjustedGrossIncome: 78500 -> 78500.01
+          taxableIncome: 78500 -> 78500.01
+          tax: 3101.18 -> 3172.5
+          credit:Personal tax credit: 31.33 -> 0
+          surtax:Tax rate phase-out add-back: null -> 40
+  2026  investment-income  single-young-child       $57,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 82500 -> 82500.01
+          taxableIncome: 82500 -> 82500.01
+          tax: 3377.5 -> 3417.5
+          surtax:Tax rate phase-out add-back: 40 -> 80
+  2026  investment-income  single-young-child       $61,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 86500 -> 86500.01
+          taxableIncome: 86500 -> 86500.01
+          tax: 3637.5 -> 3677.5
+          surtax:Tax rate phase-out add-back: 80 -> 120
+  2026  investment-income  single-young-child       $65,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 90500 -> 90500.01
+          taxableIncome: 90500 -> 90500.01
+          tax: 3897.5 -> 3937.5
+          surtax:Tax rate phase-out add-back: 120 -> 160
+  2026  investment-income  single-young-child       $69,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 94500 -> 94500.01
+          taxableIncome: 94500 -> 94500.01
+          tax: 4157.5 -> 4197.5
+          surtax:Tax rate phase-out add-back: 160 -> 200
+  2026  investment-income  single-young-child       $73,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 98500 -> 98500.01
+          taxableIncome: 98500 -> 98500.01
+          tax: 4417.5 -> 4457.5
+          surtax:Tax rate phase-out add-back: 200 -> 240
+  2026  investment-income  single-young-child       $77,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 102500 -> 102500.01
+          taxableIncome: 102500 -> 102500.01
+          tax: 4677.5 -> 4717.5
+          surtax:Tax rate phase-out add-back: 240 -> 280
+  2026  investment-income  single-young-child       $81,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 106500 -> 106500.01
+          taxableIncome: 106500 -> 106500.01
+          tax: 4937.5 -> 4977.5
+          surtax:Tax rate phase-out add-back: 280 -> 320
+  2026  investment-income  single-young-child       $85,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 110500 -> 110500.01
+          taxableIncome: 110500 -> 110500.01
+          tax: 5197.5 -> 5237.5
+          surtax:Tax rate phase-out add-back: 320 -> 360
+  2026  investment-income  single-young-child       $89,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 114500 -> 114500.01
+          taxableIncome: 114500 -> 114500.01
+          tax: 5457.5 -> 5497.5
+          surtax:Tax rate phase-out add-back: 360 -> 400
+  2026  investment-income  single-young-child      $143,000.00 -> +$40.00
+          stateAdjustedGrossIncome: 168000 -> 168000.01
+          taxableIncome: 168000 -> 168000.01
+          tax: 8480 -> 8520
+          surtax:Tax recapture: null -> 40
   2026  municipal-interest single-two-children      $12,200.00 -> +$3,082.89
           tax: -2952.89 -> 130
           credit:Connecticut earned income tax credit: 2832.89 -> 0
@@ -16521,13 +19233,337 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 145000 -> 145000.01
           tax: 7900 -> 7925
           surtax:Tax recapture: 200 -> 225
+  2026  wages              single-young-child            $0.01 -> -$250.00
+          stateAdjustedGrossIncome: 0.01 -> 0.02
+          tax: 0 -> -250
+          credit:Connecticut earned income tax credit child bonus: 0 -> 250
+  2026  wages              single-young-child       $26,500.00 -> +$7.50
+          stateAdjustedGrossIncome: 26500 -> 26500.01
+          taxableIncome: 7500 -> 7500.01
+          tax: -1778.97 -> -1771.47
+          credit:Personal tax credit: 75 -> 67.5
+  2026  wages              single-young-child       $27,000.00 -> +$8.00
+          stateAdjustedGrossIncome: 27000 -> 27000.01
+          taxableIncome: 8000 -> 8000.01
+          tax: -1734.01 -> -1726.01
+          credit:Personal tax credit: 72 -> 64
+  2026  wages              single-young-child       $27,500.00 -> +$8.50
+          stateAdjustedGrossIncome: 27500 -> 27500.01
+          taxableIncome: 8500 -> 8500.01
+          tax: -1688.05 -> -1679.55
+          credit:Personal tax credit: 68 -> 59.5
+  2026  wages              single-young-child       $34,000.00 -> +$15.00
+          stateAdjustedGrossIncome: 34000 -> 34000.01
+          taxableIncome: 15000 -> 15000.01
+          tax: -1179.57 -> -1164.57
+          credit:Personal tax credit: 105 -> 90
+  2026  wages              single-young-child       $34,500.00 -> +$15.50
+          stateAdjustedGrossIncome: 34500 -> 34500.01
+          taxableIncome: 15500 -> 15500.01
+          tax: -1125.61 -> -1110.11
+          credit:Personal tax credit: 93 -> 77.5
+  2026  wages              single-young-child       $35,000.00 -> +$16.00
+          stateAdjustedGrossIncome: 35000 -> 35000.01
+          taxableIncome: 16000 -> 16000.01
+          tax: -1070.65 -> -1054.65
+          credit:Personal tax credit: 80 -> 64
+  2026  wages              single-young-child       $35,500.00 -> +$17.13
+          stateAdjustedGrossIncome: 35500 -> 35500.01
+          taxableIncome: 16500 -> 16500.01
+          tax: -1004.69 -> -987.56
+          credit:Personal tax credit: 68.5 -> 51.38
+  2026  wages              single-young-child       $38,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 38000 -> 38000.01
+          exemptions: 19000 -> 18000
+          taxableIncome: 19000 -> 20000.01
+          taxBeforeCredits: 455 -> 500
+          tax: -732.14 -> -693.89
+          credit:Personal tax credit: 68.25 -> 75
+  2026  wages              single-young-child       $39,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 39000 -> 39000.01
+          exemptions: 18000 -> 17000
+          taxableIncome: 21000 -> 22000.01
+          taxBeforeCredits: 545 -> 590
+          tax: -591.72 -> -553.47
+          credit:Personal tax credit: 81.75 -> 88.5
+  2026  wages              single-young-child       $40,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 40000 -> 40000.01
+          exemptions: 17000 -> 16000
+          taxableIncome: 23000 -> 24000.01
+          taxBeforeCredits: 635 -> 680
+          tax: -451.3 -> -413.05
+          credit:Personal tax credit: 95.25 -> 102
+  2026  wages              single-young-child       $41,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 41000 -> 41000.01
+          exemptions: 16000 -> 15000
+          taxableIncome: 25000 -> 26000.01
+          taxBeforeCredits: 725 -> 770
+          tax: -310.88 -> -272.63
+          credit:Personal tax credit: 108.75 -> 115.5
+  2026  wages              single-young-child       $42,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 42000 -> 42000.01
+          exemptions: 15000 -> 14000
+          taxableIncome: 27000 -> 28000.01
+          taxBeforeCredits: 815 -> 860
+          tax: -170.46 -> -132.21
+          credit:Personal tax credit: 122.25 -> 129
+  2026  wages              single-young-child       $43,000.00 -> +$38.25
+          stateAdjustedGrossIncome: 43000 -> 43000.01
+          exemptions: 14000 -> 13000
+          taxableIncome: 29000 -> 30000.01
+          taxBeforeCredits: 905 -> 950
+          tax: -30.04 -> 8.21
+          credit:Personal tax credit: 135.75 -> 142.5
+  2026  wages              single-young-child       $44,000.00 -> +$48.65
+          stateAdjustedGrossIncome: 44000 -> 44000.01
+          exemptions: 13000 -> 12000
+          taxableIncome: 31000 -> 32000.01
+          taxBeforeCredits: 995 -> 1040
+          tax: 110.38 -> 159.03
+          credit:Personal tax credit: 149.25 -> 145.6
+  2026  wages              single-young-child       $44,500.00 -> +$10.63
+          stateAdjustedGrossIncome: 44500 -> 44500.01
+          taxableIncome: 32500 -> 32500.01
+          tax: 210.34 -> 220.97
+          credit:Personal tax credit: 148.75 -> 138.13
+  2026  wages              single-young-child       $45,000.00 -> +$50.45
+          stateAdjustedGrossIncome: 45000 -> 45000.01
+          exemptions: 12000 -> 11000
+          taxableIncome: 33000 -> 34000.01
+          taxBeforeCredits: 1085 -> 1130
+          tax: 272.5 -> 322.95
+          credit:Personal tax credit: 141.05 -> 135.6
+  2026  wages              single-young-child       $45,500.00 -> +$11.53
+          stateAdjustedGrossIncome: 45500 -> 45500.01
+          taxableIncome: 34500 -> 34500.01
+          tax: 374.71 -> 386.24
+          credit:Personal tax credit: 138.3 -> 126.78
+  2026  wages              single-young-child       $46,000.00 -> +$52.25
+          stateAdjustedGrossIncome: 46000 -> 46000.01
+          exemptions: 11000 -> 10000
+          taxableIncome: 35000 -> 36000.01
+          taxBeforeCredits: 1175 -> 1220
+          tax: 438.22 -> 490.47
+          credit:Personal tax credit: 129.25 -> 122
+  2026  wages              single-young-child       $47,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 47000 -> 47000.01
+          exemptions: 10000 -> 9000
+          taxableIncome: 37000 -> 38000.01
+          taxBeforeCredits: 1265 -> 1310
+          tax: 594.89 -> 635.39
+          credit:Personal tax credit: 126.5 -> 131
+  2026  wages              single-young-child       $48,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 48000 -> 48000.01
+          exemptions: 9000 -> 8000
+          taxableIncome: 39000 -> 40000.01
+          taxBeforeCredits: 1355 -> 1400
+          tax: 739.81 -> 780.31
+          credit:Personal tax credit: 135.5 -> 140
+  2026  wages              single-young-child       $49,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 49000 -> 49000.01
+          exemptions: 8000 -> 7000
+          taxableIncome: 41000 -> 42000.01
+          taxBeforeCredits: 1445 -> 1490
+          tax: 884.73 -> 925.23
+          credit:Personal tax credit: 144.5 -> 149
+  2026  wages              single-young-child       $50,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 50000 -> 50000.01
+          exemptions: 7000 -> 6000
+          taxableIncome: 43000 -> 44000.01
+          taxBeforeCredits: 1535 -> 1580
+          tax: 1029.65 -> 1070.15
+          credit:Personal tax credit: 153.5 -> 158
+  2026  wages              single-young-child       $51,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 51000 -> 51000.01
+          exemptions: 6000 -> 5000
+          taxableIncome: 45000 -> 46000.01
+          taxBeforeCredits: 1625 -> 1670
+          tax: 1174.57 -> 1215.07
+          credit:Personal tax credit: 162.5 -> 167
+  2026  wages              single-young-child       $51,593.34 -> +$250.00
+          stateAdjustedGrossIncome: 51593.34 -> 51593.35
+          taxableIncome: 46593.34 -> 46593.35
+          tax: 1277.03 -> 1527.03
+          credit:Connecticut earned income tax credit child bonus: 250 -> 0
+  2026  wages              single-young-child       $52,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 52000 -> 52000.01
+          exemptions: 5000 -> 4000
+          taxableIncome: 47000 -> 48000.01
+          taxBeforeCredits: 1715 -> 1760
+          tax: 1543.5 -> 1584
+          credit:Personal tax credit: 171.5 -> 176
+  2026  wages              single-young-child       $53,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 53000 -> 53000.01
+          exemptions: 4000 -> 3000
+          taxableIncome: 49000 -> 50000.01
+          taxBeforeCredits: 1805 -> 1850
+          tax: 1624.5 -> 1665
+          credit:Personal tax credit: 180.5 -> 185
+  2026  wages              single-young-child       $54,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 54000 -> 54000.01
+          exemptions: 3000 -> 2000
+          taxableIncome: 51000 -> 52000.01
+          taxBeforeCredits: 1895 -> 1940
+          tax: 1705.5 -> 1746
+          credit:Personal tax credit: 189.5 -> 194
+  2026  wages              single-young-child       $55,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 55000 -> 55000.01
+          exemptions: 2000 -> 1000
+          taxableIncome: 53000 -> 54000.01
+          taxBeforeCredits: 1985 -> 2030
+          tax: 1786.5 -> 1827
+          credit:Personal tax credit: 198.5 -> 203
+  2026  wages              single-young-child       $56,000.00 -> +$40.50
+          stateAdjustedGrossIncome: 56000 -> 56000.01
+          exemptions: 1000 -> 0
+          taxableIncome: 55000 -> 56000.01
+          taxBeforeCredits: 2075 -> 2120
+          tax: 1867.5 -> 1908
+          credit:Personal tax credit: 207.5 -> 212
+  2026  wages              single-young-child       $74,000.00 -> +$29.30
+          stateAdjustedGrossIncome: 74000 -> 74000.01
+          taxableIncome: 74000 -> 74000.01
+          tax: 2637 -> 2666.3
+          credit:Personal tax credit: 293 -> 263.7
+  2026  wages              single-young-child       $74,500.00 -> +$29.52
+          stateAdjustedGrossIncome: 74500 -> 74500.01
+          taxableIncome: 74500 -> 74500.01
+          tax: 2686.78 -> 2716.3
+          credit:Personal tax credit: 265.72 -> 236.2
+  2026  wages              single-young-child       $75,000.00 -> +$29.75
+          stateAdjustedGrossIncome: 75000 -> 75000.01
+          taxableIncome: 75000 -> 75000.01
+          tax: 2737 -> 2766.75
+          credit:Personal tax credit: 238 -> 208.25
+  2026  wages              single-young-child       $75,500.00 -> +$29.97
+          stateAdjustedGrossIncome: 75500 -> 75500.01
+          taxableIncome: 75500 -> 75500.01
+          tax: 2787.68 -> 2817.65
+          credit:Personal tax credit: 209.83 -> 179.85
+  2026  wages              single-young-child       $76,000.00 -> +$30.20
+          stateAdjustedGrossIncome: 76000 -> 76000.01
+          taxableIncome: 76000 -> 76000.01
+          tax: 2838.8 -> 2869
+          credit:Personal tax credit: 181.2 -> 151
+  2026  wages              single-young-child       $76,500.00 -> +$30.42
+          stateAdjustedGrossIncome: 76500 -> 76500.01
+          taxableIncome: 76500 -> 76500.01
+          tax: 2890.38 -> 2920.8
+          credit:Personal tax credit: 152.13 -> 121.7
+  2026  wages              single-young-child       $77,000.00 -> +$30.65
+          stateAdjustedGrossIncome: 77000 -> 77000.01
+          taxableIncome: 77000 -> 77000.01
+          tax: 2942.4 -> 2973.05
+          credit:Personal tax credit: 122.6 -> 91.95
+  2026  wages              single-young-child       $77,500.00 -> +$30.87
+          stateAdjustedGrossIncome: 77500 -> 77500.01
+          taxableIncome: 77500 -> 77500.01
+          tax: 2994.88 -> 3025.75
+          credit:Personal tax credit: 92.63 -> 61.75
+  2026  wages              single-young-child       $78,000.00 -> +$31.10
+          stateAdjustedGrossIncome: 78000 -> 78000.01
+          taxableIncome: 78000 -> 78000.01
+          tax: 3047.8 -> 3078.9
+          credit:Personal tax credit: 62.2 -> 31.1
+  2026  wages              single-young-child       $78,500.00 -> +$71.32
+          stateAdjustedGrossIncome: 78500 -> 78500.01
+          taxableIncome: 78500 -> 78500.01
+          tax: 3101.18 -> 3172.5
+          credit:Personal tax credit: 31.33 -> 0
+          surtax:Tax rate phase-out add-back: null -> 40
+  2026  wages              single-young-child       $82,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 82500 -> 82500.01
+          taxableIncome: 82500 -> 82500.01
+          tax: 3377.5 -> 3417.5
+          surtax:Tax rate phase-out add-back: 40 -> 80
+  2026  wages              single-young-child       $86,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 86500 -> 86500.01
+          taxableIncome: 86500 -> 86500.01
+          tax: 3637.5 -> 3677.5
+          surtax:Tax rate phase-out add-back: 80 -> 120
+  2026  wages              single-young-child       $90,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 90500 -> 90500.01
+          taxableIncome: 90500 -> 90500.01
+          tax: 3897.5 -> 3937.5
+          surtax:Tax rate phase-out add-back: 120 -> 160
+  2026  wages              single-young-child       $94,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 94500 -> 94500.01
+          taxableIncome: 94500 -> 94500.01
+          tax: 4157.5 -> 4197.5
+          surtax:Tax rate phase-out add-back: 160 -> 200
+  2026  wages              single-young-child       $98,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 98500 -> 98500.01
+          taxableIncome: 98500 -> 98500.01
+          tax: 4417.5 -> 4457.5
+          surtax:Tax rate phase-out add-back: 200 -> 240
+  2026  wages              single-young-child      $102,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 102500 -> 102500.01
+          taxableIncome: 102500 -> 102500.01
+          tax: 4677.5 -> 4717.5
+          surtax:Tax rate phase-out add-back: 240 -> 280
+  2026  wages              single-young-child      $106,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 106500 -> 106500.01
+          taxableIncome: 106500 -> 106500.01
+          tax: 4937.5 -> 4977.5
+          surtax:Tax rate phase-out add-back: 280 -> 320
+  2026  wages              single-young-child      $110,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 110500 -> 110500.01
+          taxableIncome: 110500 -> 110500.01
+          tax: 5197.5 -> 5237.5
+          surtax:Tax rate phase-out add-back: 320 -> 360
+  2026  wages              single-young-child      $114,500.00 -> +$40.00
+          stateAdjustedGrossIncome: 114500 -> 114500.01
+          taxableIncome: 114500 -> 114500.01
+          tax: 5457.5 -> 5497.5
+          surtax:Tax rate phase-out add-back: 360 -> 400
 ```
 
-> Matched on `140`: Connecticut's rate schedule scales exactly between filing statuses — single and separate are half the joint figures, head of household four fifths — and so does the tax recapture, except that a head of household's MIDDLE tier is $140 per $8,000 to a maximum of $4,200 where four fifths would be $144 and $4,320. The personal exemption, the add-back thresholds and the personal tax credit do not scale at all, and the single-filer figures a scaling model produces ($12,000 of exemption, a $50,250 add-back threshold) are real Connecticut numbers belonging to a SEPARATE filer. The error therefore survives a plausibility check.
+> Matched on `1,981.20`: Connecticut earned income tax credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $1,981.20 of Connecticut credit lost on one cent of investment income — the whole of every line above that this credit carries, bonus and refundable half included. Connecticut's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
 
-### IA — 4 notch(es)
+### GA — 2 notch(es)
 
 ```text
+  2025  filer-age          joint-no-children            age 61 -> -$311.40
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 4000 -> 34000
+          taxableIncome: 6000 -> 0
+          taxBeforeCredits: 311.4 -> 0
+          tax: 311.4 -> 0
+          subtraction:Georgia retirement income exclusion: null -> 30000
+  2025  filer-age          single-retiree               age 61 -> -$934.20
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 9600 -> 39600
+          taxableIncome: 18000 -> 0
+          taxBeforeCredits: 934.2 -> 0
+          tax: 934.2 -> 0
+          subtraction:Georgia retirement income exclusion: null -> 30000
+  2026  filer-age          single-retiree               age 61 -> -$748.50
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 9600 -> 39600
+          taxableIncome: 15000 -> 0
+          taxBeforeCredits: 748.5 -> 0
+          tax: 748.5 -> 0
+          subtraction:Georgia retirement income exclusion: null -> 30000
+```
+
+> Matched on `4,000`: At most $5,000 of one person's EARNED income may enter the exclusion, so Georgia's exclusion is a test on the type of a retiree's income and not on its amount. In 2026 a single 65-year-old with $65,000 of dividends excludes all of it and owes nothing, while one with $65,000 of wages excludes $5,000 and owes $2,245.50 — the whole bill, on identical income at an identical age. Georgia treats partnership and S corporation income as earned for this purpose, so an active owner's distributive share is inside the $5,000 cap and a passive investor's interest and dividends are not. The $5,000 figure has applied since 2024; most summaries still print the $4,000 that preceded it.
+
+### IA — 8 notch(es)
+
+```text
+  2025  dependent-age      hoh-one-child                age 18 -> +$649.20
+          tax: -649.2 -> 0
+          credit:Iowa earned income tax credit (§ 422.12B): 649.2 -> 0
+  2025  dependent-age      single-two-children          age 18 -> +$423.60
+          tax: -1031.3 -> -607.7
+          credit:Iowa earned income tax credit (§ 422.12B): 1072.8 -> 649.2
+  2025  filer-age          single-retiree               age 54 -> -$501.50
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 9600 -> 39600
+          taxableIncome: 14250 -> 0
+          taxBeforeCredits: 541.5 -> 0
+          tax: 501.5 -> 0
+          subtraction:Iowa retirement income exclusion (IA 1040 Schedule 1, line 7): null -> 30000
   2025  investment-income  hoh-one-child            $11,950.00 -> +$323.21
           stateAdjustedGrossIncome: 36950 -> 36950.01
           taxableIncome: 13325 -> 13325.01
@@ -16543,6 +19579,11 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 21200 -> 21200.01
           tax: 42.42 -> 685.6
           credit:Iowa earned income tax credit (§ 422.12B): 643.18 -> 0
+  2025  investment-income  single-young-child       $11,950.00 -> +$323.21
+          stateAdjustedGrossIncome: 36950 -> 36950.01
+          taxableIncome: 13325 -> 13325.01
+          tax: 63.14 -> 386.35
+          credit:Iowa earned income tax credit (§ 422.12B): 323.21 -> 0
   2025  municipal-interest single-two-children      $11,950.00 -> +$1,020.68
           tax: -789.18 -> 231.5
           credit:Iowa earned income tax credit (§ 422.12B): 1020.68 -> 0
@@ -16551,6 +19592,19 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 6250 -> 6250.01
           taxBeforeCredits: 0 -> 237.5
           tax: 0 -> 177.5
+  2026  dependent-age      hoh-one-child                age 18 -> +$664.05
+          tax: -664.05 -> 0
+          credit:Iowa earned income tax credit (§ 422.12B): 664.05 -> 0
+  2026  dependent-age      single-two-children          age 18 -> +$433.35
+          tax: -1069.2 -> -635.85
+          credit:Iowa earned income tax credit (§ 422.12B): 1097.4 -> 664.05
+  2026  filer-age          single-retiree               age 54 -> -$488.20
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 9600 -> 39600
+          taxableIncome: 13900 -> 0
+          taxBeforeCredits: 528.2 -> 0
+          tax: 488.2 -> 0
+          subtraction:Iowa retirement income exclusion (IA 1040 Schedule 1, line 7): null -> 30000
   2026  investment-income  hoh-one-child            $12,200.00 -> +$345.01
           stateAdjustedGrossIncome: 37200 -> 37200.01
           taxableIncome: 13050 -> 13050.01
@@ -16566,6 +19620,11 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 21100 -> 21100.01
           tax: 4.86 -> 681.8
           credit:Iowa earned income tax credit (§ 422.12B): 676.94 -> 0
+  2026  investment-income  single-young-child       $12,200.00 -> +$345.01
+          stateAdjustedGrossIncome: 37200 -> 37200.01
+          taxableIncome: 13050 -> 13050.01
+          tax: 30.89 -> 375.9
+          credit:Iowa earned income tax credit (§ 422.12B): 345.01 -> 0
   2026  municipal-interest single-two-children      $12,200.00 -> +$1,062.33
           tax: -844.13 -> 218.2
           credit:Iowa earned income tax credit (§ 422.12B): 1062.33 -> 0
@@ -16576,11 +19635,36 @@ the note quoted under each group rather than trusting the count.
           tax: 0 -> 162.3
 ```
 
-> Matched on `323.21`: Iowa earned income tax credit (§ 422.12B) is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $323.21 of Iowa credit lost on one cent of investment income. Iowa's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
+> Matched on `649.20`: Iowa earned income tax credit (§ 422.12B) is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $649.20 of Iowa credit lost on one cent of investment income. Iowa's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
 
-### IL — 14 notch(es)
+### ID — 2 notch(es)
 
 ```text
+  2025  filer-age          single-retiree               age 64 -> -$424.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 14250 -> 6250
+          taxableIncome: 14250 -> 6250
+          taxBeforeCredits: 500.27 -> 76.27
+          tax: 500.27 -> 76.27
+  2026  filer-age          single-retiree               age 64 -> -$426.65   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 13900 -> 5850
+          taxableIncome: 13900 -> 5850
+          taxBeforeCredits: 481.72 -> 55.07
+          tax: 481.72 -> 55.07
+```
+
+### IL — 18 notch(es)
+
+```text
+  2025  dependent-age      hoh-one-child                age 11 -> +$346.24
+          tax: -503.99 -> -157.75
+          credit:Illinois child tax credit: 346.24 -> 0
+  2025  dependent-age      hoh-one-child                age 18 -> +$865.60
+          tax: -157.75 -> 707.85
+          credit:Illinois earned income credit: 865.6 -> 0
+  2025  dependent-age      single-two-children          age 18 -> +$790.72
+          tax: -1435.79 -> -645.07
+          credit:Illinois earned income credit: 1430.4 -> 865.6
+          credit:Illinois child tax credit: 572.16 -> 346.24
   2025  investment-income  hoh-one-child            $11,950.00 -> +$603.33
           stateAdjustedGrossIncome: 36950 -> 36950.01
           taxableIncome: 31250 -> 31250.01
@@ -16629,6 +19713,18 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 241450 -> 250000.01
           taxBeforeCredits: 11951.78 -> 12375
           tax: 11951.78 -> 12375
+  2025  investment-income  single-young-child       $11,950.00 -> +$603.33
+          stateAdjustedGrossIncome: 36950 -> 36950.01
+          taxableIncome: 31250 -> 31250.01
+          tax: 943.55 -> 1546.88
+          credit:Illinois earned income credit: 430.94 -> 0
+          credit:Illinois child tax credit: 172.38 -> 0
+  2025  investment-income  single-young-child      $225,000.00 -> +$282.15
+          stateAdjustedGrossIncome: 250000 -> 250000.01
+          exemptions: 5700 -> 0
+          taxableIncome: 244300 -> 250000.01
+          taxBeforeCredits: 12092.85 -> 12375
+          tax: 12092.85 -> 12375
   2025  municipal-interest single-two-children      $11,950.00 -> +$1,905.26
           stateAdjustedGrossIncome: 36950 -> 36950.01
           additions: 11950 -> 11950.01
@@ -16667,6 +19763,22 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 241450 -> 250000.01
           taxBeforeCredits: 11951.78 -> 12375
           tax: 11951.78 -> 12375
+  2025  wages              single-young-child      $250,000.00 -> +$282.15
+          stateAdjustedGrossIncome: 250000 -> 250000.01
+          exemptions: 5700 -> 0
+          taxableIncome: 244300 -> 250000.01
+          taxBeforeCredits: 12092.85 -> 12375
+          tax: 12092.85 -> 12375
+  2026  dependent-age      hoh-one-child                age 11 -> +$354.16
+          tax: -539.14 -> -184.98
+          credit:Illinois child tax credit: 354.16 -> 0
+  2026  dependent-age      hoh-one-child                age 18 -> +$885.41
+          tax: -184.98 -> 700.43
+          credit:Illinois earned income credit: 885.4 -> 0
+  2026  dependent-age      single-two-children          age 18 -> +$808.92
+          tax: -1492.84 -> -683.92
+          credit:Illinois earned income credit: 1463.2 -> 885.4
+          credit:Illinois child tax credit: 585.28 -> 354.16
   2026  investment-income  hoh-one-child            $12,200.00 -> +$644.02
           stateAdjustedGrossIncome: 37200 -> 37200.01
           taxableIncome: 31350 -> 31350.01
@@ -16715,6 +19827,18 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 241225 -> 250000.01
           taxBeforeCredits: 11940.64 -> 12375
           tax: 11940.64 -> 12375
+  2026  investment-income  single-young-child       $12,200.00 -> +$644.02
+          stateAdjustedGrossIncome: 37200 -> 37200.01
+          taxableIncome: 31350 -> 31350.01
+          tax: 907.81 -> 1551.83
+          credit:Illinois earned income credit: 460.01 -> 0
+          credit:Illinois child tax credit: 184 -> 0
+  2026  investment-income  single-young-child      $225,000.00 -> +$289.57
+          stateAdjustedGrossIncome: 250000 -> 250000.01
+          exemptions: 5850 -> 0
+          taxableIncome: 244150 -> 250000.01
+          taxBeforeCredits: 12085.43 -> 12375
+          tax: 12085.43 -> 12375
   2026  municipal-interest single-two-children      $12,200.00 -> +$1,983.03
           stateAdjustedGrossIncome: 37200 -> 37200.01
           additions: 12200 -> 12200.01
@@ -16753,13 +19877,41 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 241225 -> 250000.01
           taxBeforeCredits: 11940.64 -> 12375
           tax: 11940.64 -> 12375
+  2026  wages              single-young-child      $250,000.00 -> +$289.57
+          stateAdjustedGrossIncome: 250000 -> 250000.01
+          exemptions: 5850 -> 0
+          taxableIncome: 244150 -> 250000.01
+          taxBeforeCredits: 12085.43 -> 12375
+          tax: 12085.43 -> 12375
 ```
 
-> Matched on `603`: Illinois earned income credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $603.32 of Illinois credit lost on one cent of investment income — the whole of every line above that this credit carries, bonus and refundable half included. Illinois's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
+> Matched on `illinois child tax credit (phrase)`: Because it is a percentage of a percentage, the Illinois child tax credit is withdrawn faster than any credit here that has a phase-out of its own: 40% of 20% of the federal § 32 taper of 21.06% is 1.68 cents per dollar, on top of the 4.21 cents the Illinois earned income credit already withdraws. A working Illinois parent of two in the § 32 phase-out band faces 10.85% — the 4.95% flat rate plus 5.90 points of withdrawal — in the state whose entire tax policy is that the rate is the same for everyone. With one child the federal taper is 15.98% rather than 21.06% and the Illinois rate is 9.42%, so how flat Illinois is depends on how many children a household has, in a state with no per-child anything.
 
-### IN — 14 notch(es)
+### IN — 18 notch(es)
 
 ```text
+  2025  dependent-age      hoh-one-child                age 18 -> +$477.80
+          exemptions: 3500 -> 2000
+          taxableIncome: 16500 -> 18000
+          taxBeforeCredits: 495 -> 540
+          tax: 62.2 -> 540
+          credit:Indiana earned income credit: 432.8 -> 0
+  2025  dependent-age      single-two-children          age 18 -> +$327.40
+          exemptions: 6000 -> 4500
+          taxableIncome: 14000 -> 15500
+          taxBeforeCredits: 420 -> 465
+          tax: -295.2 -> 32.2
+          credit:Indiana earned income credit: 715.2 -> 432.8
+  2025  filer-age          joint-no-children            age 64 -> -$45.00
+          exemptions: 2000 -> 3500
+          taxableIncome: 28000 -> 26500
+          taxBeforeCredits: 840 -> 795
+          tax: 840 -> 795
+  2025  filer-age          single-retiree               age 64 -> -$45.00
+          exemptions: 1000 -> 2500
+          taxableIncome: 29000 -> 27500
+          taxBeforeCredits: 870 -> 825
+          tax: 870 -> 825
   2025  investment-income  hoh-one-child            $11,950.00 -> +$215.47
           stateAdjustedGrossIncome: 36950 -> 36950.01
           taxableIncome: 33450 -> 33450.01
@@ -16775,6 +19927,11 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 30950 -> 30950.01
           tax: 499.72 -> 928.5
           credit:Indiana earned income credit: 428.78 -> 0
+  2025  investment-income  single-young-child       $11,950.00 -> +$215.47
+          stateAdjustedGrossIncome: 36950 -> 36950.01
+          taxableIncome: 33450 -> 33450.01
+          tax: 788.03 -> 1003.5
+          credit:Indiana earned income credit: 215.47 -> 0
   2025  municipal-interest single-two-children      $11,950.00 -> +$680.45
           stateAdjustedGrossIncome: 36950 -> 36950.01
           additions: 11950 -> 11950.01
@@ -16811,6 +19968,11 @@ the note quoted under each group rather than trusting the count.
           taxBeforeCredits: 465 -> 480
           tax: 465 -> 480
           subtraction:Social Security and Tier 1 railroad retirement benefits: 21999.99 -> 22000
+  2025  spouse-age         joint-no-children            age 64 -> -$45.00
+          exemptions: 2000 -> 3500
+          taxableIncome: 28000 -> 26500
+          taxBeforeCredits: 840 -> 795
+          tax: 840 -> 795
   2025  wages              single-retiree           $11,297.29 -> +$15.00
           stateAdjustedGrossIncome: 29297.29 -> 29297.3
           subtractions: 10702.7 -> 10702.71
@@ -16819,6 +19981,28 @@ the note quoted under each group rather than trusting the count.
           taxBeforeCredits: 803.92 -> 818.92
           tax: 803.92 -> 818.92
           subtraction:Social Security and Tier 1 railroad retirement benefits: 10702.7 -> 10702.71
+  2026  dependent-age      hoh-one-child                age 18 -> +$486.95
+          exemptions: 3500 -> 2000
+          taxableIncome: 16500 -> 18000
+          taxBeforeCredits: 486.75 -> 531
+          tax: 44.05 -> 531
+          credit:Indiana earned income credit: 442.7 -> 0
+  2026  dependent-age      single-two-children          age 18 -> +$333.15
+          exemptions: 6000 -> 4500
+          taxableIncome: 14000 -> 15500
+          taxBeforeCredits: 413 -> 457.25
+          tax: -318.6 -> 14.55
+          credit:Indiana earned income credit: 731.6 -> 442.7
+  2026  filer-age          joint-no-children            age 64 -> -$44.25
+          exemptions: 2000 -> 3500
+          taxableIncome: 28000 -> 26500
+          taxBeforeCredits: 826 -> 781.75
+          tax: 826 -> 781.75
+  2026  filer-age          single-retiree               age 64 -> -$44.25
+          exemptions: 1000 -> 2500
+          taxableIncome: 29000 -> 27500
+          taxBeforeCredits: 855.5 -> 811.25
+          tax: 855.5 -> 811.25
   2026  investment-income  hoh-one-child            $12,200.00 -> +$230.01
           stateAdjustedGrossIncome: 37200 -> 37200.01
           taxableIncome: 33700 -> 33700.01
@@ -16834,6 +20018,11 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 31200 -> 31200.01
           tax: 469.11 -> 920.4
           credit:Indiana earned income credit: 451.29 -> 0
+  2026  investment-income  single-young-child       $12,200.00 -> +$230.01
+          stateAdjustedGrossIncome: 37200 -> 37200.01
+          taxableIncome: 33700 -> 33700.01
+          tax: 764.14 -> 994.15
+          credit:Indiana earned income credit: 230.01 -> 0
   2026  municipal-interest single-two-children      $12,200.00 -> +$708.22
           stateAdjustedGrossIncome: 37200 -> 37200.01
           additions: 12200 -> 12200.01
@@ -16870,6 +20059,11 @@ the note quoted under each group rather than trusting the count.
           taxBeforeCredits: 457.25 -> 472
           tax: 457.25 -> 472
           subtraction:Social Security and Tier 1 railroad retirement benefits: 21999.99 -> 22000
+  2026  spouse-age         joint-no-children            age 64 -> -$44.25
+          exemptions: 2000 -> 3500
+          taxableIncome: 28000 -> 26500
+          taxBeforeCredits: 826 -> 781.75
+          tax: 826 -> 781.75
   2026  wages              single-retiree           $11,297.29 -> +$14.75
           stateAdjustedGrossIncome: 29297.29 -> 29297.3
           subtractions: 10702.7 -> 10702.71
@@ -16880,11 +20074,27 @@ the note quoted under each group rather than trusting the count.
           subtraction:Social Security and Tier 1 railroad retirement benefits: 10702.7 -> 10702.71
 ```
 
-> Matched on `215.47`: Indiana earned income credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $215.47 of Indiana credit lost on one cent of investment income. Indiana's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
+> Matched on `2,000`: Indiana earned income credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $432.80 of Indiana credit lost on one cent of investment income. Indiana's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
 
-### KS — 2 notch(es)
+### KS — 6 notch(es)
 
 ```text
+  2025  dependent-age      hoh-one-child                age 18 -> +$735.76
+          tax: -734.72 -> 1.04
+          credit:Kansas earned income credit (K.S.A. 79-32,205): 735.76 -> 0
+  2025  dependent-age      single-two-children          age 18 -> +$480.08
+          tax: -1080.9 -> -600.82
+          credit:Kansas earned income credit (K.S.A. 79-32,205): 1215.84 -> 735.76
+  2025  filer-age          joint-no-children            age 64 -> -$36.40
+          deduction: 8240 -> 8940
+          taxableIncome: 3440 -> 2740
+          taxBeforeCredits: 178.88 -> 142.48
+          tax: 178.88 -> 142.48
+  2025  filer-age          single-retiree               age 64 -> -$44.20
+          deduction: 3605 -> 4455
+          taxableIncome: 17235 -> 16385
+          taxBeforeCredits: 896.22 -> 852.02
+          tax: 896.22 -> 852.02
   2025  investment-income  hoh-one-child            $11,950.00 -> +$366.30
           stateAdjustedGrossIncome: 36950 -> 36950.01
           taxableIncome: 16970 -> 16970.01
@@ -16900,9 +20110,35 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 19545 -> 19545.01
           tax: 287.41 -> 1016.34
           credit:Kansas earned income credit (K.S.A. 79-32,205): 728.93 -> 0
+  2025  investment-income  single-young-child       $11,950.00 -> +$366.30
+          stateAdjustedGrossIncome: 36950 -> 36950.01
+          taxableIncome: 16970 -> 16970.01
+          tax: 516.14 -> 882.44
+          credit:Kansas earned income credit (K.S.A. 79-32,205): 366.3 -> 0
   2025  municipal-interest single-two-children      $11,950.00 -> +$1,156.77
           tax: -761.83 -> 394.94
           credit:Kansas earned income credit (K.S.A. 79-32,205): 1156.77 -> 0
+  2025  spouse-age         joint-no-children            age 64 -> -$36.40
+          deduction: 8240 -> 8940
+          taxableIncome: 3440 -> 2740
+          taxBeforeCredits: 178.88 -> 142.48
+          tax: 178.88 -> 142.48
+  2026  dependent-age      hoh-one-child                age 18 -> +$752.59
+          tax: -751.55 -> 1.04
+          credit:Kansas earned income credit (K.S.A. 79-32,205): 752.59 -> 0
+  2026  dependent-age      single-two-children          age 18 -> +$491.13
+          tax: -1108.78 -> -617.65
+          credit:Kansas earned income credit (K.S.A. 79-32,205): 1243.72 -> 752.59
+  2026  filer-age          joint-no-children            age 64 -> -$36.40
+          deduction: 8240 -> 8940
+          taxableIncome: 3440 -> 2740
+          taxBeforeCredits: 178.88 -> 142.48
+          tax: 178.88 -> 142.48
+  2026  filer-age          single-retiree               age 64 -> -$44.20
+          deduction: 3605 -> 4455
+          taxableIncome: 17235 -> 16385
+          taxBeforeCredits: 896.22 -> 852.02
+          tax: 896.22 -> 852.02
   2026  investment-income  hoh-one-child            $12,200.00 -> +$391.01
           stateAdjustedGrossIncome: 37200 -> 37200.01
           taxableIncome: 17220 -> 17220.01
@@ -16918,12 +20154,22 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 19795 -> 19795.01
           tax: 262.15 -> 1029.34
           credit:Kansas earned income credit (K.S.A. 79-32,205): 767.19 -> 0
+  2026  investment-income  single-young-child       $12,200.00 -> +$391.01
+          stateAdjustedGrossIncome: 37200 -> 37200.01
+          taxableIncome: 17220 -> 17220.01
+          tax: 504.43 -> 895.44
+          credit:Kansas earned income credit (K.S.A. 79-32,205): 391.01 -> 0
   2026  municipal-interest single-two-children      $12,200.00 -> +$1,203.98
           tax: -809.04 -> 394.94
           credit:Kansas earned income credit (K.S.A. 79-32,205): 1203.98 -> 0
+  2026  spouse-age         joint-no-children            age 64 -> -$36.40
+          deduction: 8240 -> 8940
+          taxableIncome: 3440 -> 2740
+          taxBeforeCredits: 178.88 -> 142.48
+          tax: 178.88 -> 142.48
 ```
 
-> Matched on `366.30`: Kansas earned income credit (K.S.A. 79-32,205) is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $366.30 of Kansas credit lost on one cent of investment income. Kansas's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
+> Matched on `735.76`: Kansas earned income credit (K.S.A. 79-32,205) is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $735.76 of Kansas credit lost on one cent of investment income. Kansas's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
 
 ### KY — 131 notch(es)
 
@@ -17081,6 +20327,32 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 32175 -> 32175.01
           tax: 1158.3 -> 1287
           credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 128.7 -> null
+          credit:Kentucky family size tax credit (Schedule ITC Section C): null -> 0
+  2025  investment-income  single-young-child          $380.00 -> +$88.44
+          stateAdjustedGrossIncome: 25380 -> 25380.01
+          taxableIncome: 22110 -> 22110.01
+          tax: 442.2 -> 530.64
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 442.2 -> 353.76
+  2025  investment-income  single-young-child        $1,226.00 -> +$91.83
+          stateAdjustedGrossIncome: 26226 -> 26226.01
+          taxableIncome: 22956 -> 22956.01
+          tax: 550.94 -> 642.77
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 367.3 -> 275.47
+  2025  investment-income  single-young-child        $1,861.00 -> +$94.36
+          stateAdjustedGrossIncome: 26861 -> 26861.01
+          taxableIncome: 23591 -> 23591.01
+          tax: 660.55 -> 754.91
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 283.09 -> 188.73
+  2025  investment-income  single-young-child        $2,495.00 -> +$96.90
+          stateAdjustedGrossIncome: 27495 -> 27495.01
+          taxableIncome: 24225 -> 24225.01
+          tax: 775.2 -> 872.1
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 193.8 -> 96.9
+  2025  investment-income  single-young-child        $3,130.00 -> +$99.44
+          stateAdjustedGrossIncome: 28130 -> 28130.01
+          taxableIncome: 24860 -> 24860.01
+          tax: 894.96 -> 994.4
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 99.44 -> null
           credit:Kentucky family size tax credit (Schedule ITC Section C): null -> 0
   2025  wages              childless-single         $15,650.00 -> +$49.52
           stateAdjustedGrossIncome: 15650 -> 15650.01
@@ -17337,6 +20609,57 @@ the note quoted under each group rather than trusting the count.
           tax: 1158.3 -> 1287
           credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 128.7 -> null
           credit:Kentucky family size tax credit (Schedule ITC Section C): null -> 0
+  2025  wages              single-young-child       $21,150.00 -> +$71.52
+          stateAdjustedGrossIncome: 21150 -> 21150.01
+          taxableIncome: 17880 -> 17880.01
+          tax: 0 -> 71.52
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 715.2 -> 643.68
+  2025  wages              single-young-child       $21,996.00 -> +$74.91
+          stateAdjustedGrossIncome: 21996 -> 21996.01
+          taxableIncome: 18726 -> 18726.01
+          tax: 74.9 -> 149.81
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 674.14 -> 599.23
+  2025  wages              single-young-child       $22,842.00 -> +$78.28
+          stateAdjustedGrossIncome: 22842 -> 22842.01
+          taxableIncome: 19572 -> 19572.01
+          tax: 156.58 -> 234.86
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 626.3 -> 548.02
+  2025  wages              single-young-child       $23,688.00 -> +$81.67
+          stateAdjustedGrossIncome: 23688 -> 23688.01
+          taxableIncome: 20418 -> 20418.01
+          tax: 245.02 -> 326.69
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 571.7 -> 490.03
+  2025  wages              single-young-child       $24,534.00 -> +$85.06
+          stateAdjustedGrossIncome: 24534 -> 24534.01
+          taxableIncome: 21264 -> 21264.01
+          tax: 340.22 -> 425.28
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 510.34 -> 425.28
+  2025  wages              single-young-child       $25,380.00 -> +$88.44
+          stateAdjustedGrossIncome: 25380 -> 25380.01
+          taxableIncome: 22110 -> 22110.01
+          tax: 442.2 -> 530.64
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 442.2 -> 353.76
+  2025  wages              single-young-child       $26,226.00 -> +$91.83
+          stateAdjustedGrossIncome: 26226 -> 26226.01
+          taxableIncome: 22956 -> 22956.01
+          tax: 550.94 -> 642.77
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 367.3 -> 275.47
+  2025  wages              single-young-child       $26,861.00 -> +$94.36
+          stateAdjustedGrossIncome: 26861 -> 26861.01
+          taxableIncome: 23591 -> 23591.01
+          tax: 660.55 -> 754.91
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 283.09 -> 188.73
+  2025  wages              single-young-child       $27,495.00 -> +$96.90
+          stateAdjustedGrossIncome: 27495 -> 27495.01
+          taxableIncome: 24225 -> 24225.01
+          tax: 775.2 -> 872.1
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 193.8 -> 96.9
+  2025  wages              single-young-child       $28,130.00 -> +$99.44
+          stateAdjustedGrossIncome: 28130 -> 28130.01
+          taxableIncome: 24860 -> 24860.01
+          tax: 894.96 -> 994.4
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 99.44 -> null
+          credit:Kentucky family size tax credit (Schedule ITC Section C): null -> 0
   2026  investment-income  hoh-one-child               $102.00 -> +$76.10
           stateAdjustedGrossIncome: 25102 -> 25102.01
           taxableIncome: 21742 -> 21742.01
@@ -17500,6 +20823,37 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 32976 -> 32976.01
           tax: 1038.74 -> 1154.16
           credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 115.42 -> null
+          credit:Kentucky family size tax credit (Schedule ITC Section C): null -> 0
+  2026  investment-income  single-young-child          $102.00 -> +$76.10
+          stateAdjustedGrossIncome: 25102 -> 25102.01
+          taxableIncome: 21742 -> 21742.01
+          tax: 304.39 -> 380.49
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 456.58 -> 380.49
+  2026  investment-income  single-young-child          $968.00 -> +$79.13
+          stateAdjustedGrossIncome: 25968 -> 25968.01
+          taxableIncome: 22608 -> 22608.01
+          tax: 395.64 -> 474.77
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 395.64 -> 316.51
+  2026  investment-income  single-young-child        $1,834.00 -> +$82.16
+          stateAdjustedGrossIncome: 26834 -> 26834.01
+          taxableIncome: 23474 -> 23474.01
+          tax: 492.95 -> 575.11
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 328.64 -> 246.48
+  2026  investment-income  single-young-child        $2,483.00 -> +$84.43
+          stateAdjustedGrossIncome: 27483 -> 27483.01
+          taxableIncome: 24123 -> 24123.01
+          tax: 591.01 -> 675.44
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 253.29 -> 168.86
+  2026  investment-income  single-young-child        $3,132.00 -> +$86.70
+          stateAdjustedGrossIncome: 28132 -> 28132.01
+          taxableIncome: 24772 -> 24772.01
+          tax: 693.62 -> 780.32
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 173.4 -> 86.7
+  2026  investment-income  single-young-child        $3,781.00 -> +$88.98
+          stateAdjustedGrossIncome: 28781 -> 28781.01
+          taxableIncome: 25421 -> 25421.01
+          tax: 800.76 -> 889.74
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 88.97 -> null
           credit:Kentucky family size tax credit (Schedule ITC Section C): null -> 0
   2026  wages              childless-single         $15,960.00 -> +$44.10
           stateAdjustedGrossIncome: 15960 -> 15960.01
@@ -17756,13 +21110,84 @@ the note quoted under each group rather than trusting the count.
           tax: 1038.74 -> 1154.16
           credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 115.42 -> null
           credit:Kentucky family size tax credit (Schedule ITC Section C): null -> 0
+  2026  wages              single-young-child       $21,640.00 -> +$63.98
+          stateAdjustedGrossIncome: 21640 -> 21640.01
+          taxableIncome: 18280 -> 18280.01
+          tax: 0 -> 63.98
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 639.8 -> 575.82
+  2026  wages              single-young-child       $22,506.00 -> +$67.01
+          stateAdjustedGrossIncome: 22506 -> 22506.01
+          taxableIncome: 19146 -> 19146.01
+          tax: 67.01 -> 134.02
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 603.1 -> 536.09
+  2026  wages              single-young-child       $23,371.00 -> +$70.04
+          stateAdjustedGrossIncome: 23371 -> 23371.01
+          taxableIncome: 20011 -> 20011.01
+          tax: 140.08 -> 210.12
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 560.31 -> 490.27
+  2026  wages              single-young-child       $24,237.00 -> +$73.07
+          stateAdjustedGrossIncome: 24237 -> 24237.01
+          taxableIncome: 20877 -> 20877.01
+          tax: 219.21 -> 292.28
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 511.49 -> 438.42
+  2026  wages              single-young-child       $25,102.00 -> +$76.10
+          stateAdjustedGrossIncome: 25102 -> 25102.01
+          taxableIncome: 21742 -> 21742.01
+          tax: 304.39 -> 380.49
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 456.58 -> 380.49
+  2026  wages              single-young-child       $25,968.00 -> +$79.13
+          stateAdjustedGrossIncome: 25968 -> 25968.01
+          taxableIncome: 22608 -> 22608.01
+          tax: 395.64 -> 474.77
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 395.64 -> 316.51
+  2026  wages              single-young-child       $26,834.00 -> +$82.16
+          stateAdjustedGrossIncome: 26834 -> 26834.01
+          taxableIncome: 23474 -> 23474.01
+          tax: 492.95 -> 575.11
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 328.64 -> 246.48
+  2026  wages              single-young-child       $27,483.00 -> +$84.43
+          stateAdjustedGrossIncome: 27483 -> 27483.01
+          taxableIncome: 24123 -> 24123.01
+          tax: 591.01 -> 675.44
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 253.29 -> 168.86
+  2026  wages              single-young-child       $28,132.00 -> +$86.70
+          stateAdjustedGrossIncome: 28132 -> 28132.01
+          taxableIncome: 24772 -> 24772.01
+          tax: 693.62 -> 780.32
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 173.4 -> 86.7
+  2026  wages              single-young-child       $28,781.00 -> +$88.98
+          stateAdjustedGrossIncome: 28781 -> 28781.01
+          taxableIncome: 25421 -> 25421.01
+          tax: 800.76 -> 889.74
+          credit:Kentucky family size tax credit (Schedule ITC Section C) (assumed: modified gross income is max(federal AGI, Kentucky AGI) — worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 lump sum, are NOT added, and a floor on the income is a CEILING on this credit; pass kentuckyModifiedGrossIncome for the worksheet's own figure): 88.97 -> null
+          credit:Kentucky family size tax credit (Schedule ITC Section C): null -> 0
 ```
 
 > Matched on `family size tax credit (phrase)`: THE FAMILY SIZE TAX CREDIT (KRS 141.066, Schedule ITC Section C) is computed here from v0.62.0 and not before, and it was the largest gap in any state this package ships because it is a percentage of the WHOLE TAX. At or below a threshold amount set at the federal poverty guideline for the family size — $15,650, $21,150, $26,650 and $32,150 for sizes one to four in 2025 — it forgives 100% of the Kentucky tax, and it steps down to nothing at 133% of that figure. Until v0.62.0 a single Kentucky filer at exactly $15,650 was charged $495.20, which was the entire bill, and one at $8,000 was charged $189.20. The maximum family size is four (KRS 141.066(1)(e)4), so a fifth person moves nothing, and the credit applies to the tax REMAINING AFTER the $40 personal credits rather than to the tax before them — taking the percentage first would produce a negative tax on a credit that is not refundable.
 
-### LA — 2 notch(es)
+### LA — 6 notch(es)
 
 ```text
+  2025  dependent-age      hoh-one-child                age 18 -> +$216.40
+          tax: -216.4 -> 0
+          credit:Louisiana earned income credit: 216.4 -> 0
+  2025  dependent-age      single-two-children          age 18 -> +$141.20
+          tax: -132.6 -> 8.6
+          credit:Louisiana earned income credit: 357.6 -> 216.4
+  2025  filer-age          joint-no-children            age 64 -> -$150.00
+          stateAdjustedGrossIncome: 30000 -> 18000
+          subtractions: 4000 -> 16000
+          taxableIncome: 5000 -> 0
+          taxBeforeCredits: 150 -> 0
+          tax: 150 -> 0
+          subtraction:Louisiana annual retirement income exemption: null -> 12000
+  2025  filer-age          single-retiree               age 64 -> -$360.00
+          stateAdjustedGrossIncome: 30000 -> 18000
+          subtractions: 9600 -> 21600
+          taxableIncome: 17500 -> 5500
+          taxBeforeCredits: 525 -> 165
+          tax: 525 -> 165
+          subtraction:Louisiana annual retirement income exemption: null -> 12000
   2025  investment-income  hoh-one-child            $11,950.00 -> +$107.74
           stateAdjustedGrossIncome: 36950 -> 36950.01
           taxableIncome: 11950 -> 11950.01
@@ -17778,9 +21203,34 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 24450 -> 24450.01
           tax: 519.11 -> 733.5
           credit:Louisiana earned income credit: 214.39 -> 0
+  2025  investment-income  single-young-child       $11,950.00 -> +$107.74
+          stateAdjustedGrossIncome: 36950 -> 36950.01
+          taxableIncome: 11950 -> 11950.01
+          tax: 250.76 -> 358.5
+          credit:Louisiana earned income credit: 107.74 -> 0
   2025  municipal-interest single-two-children      $11,950.00 -> +$340.23
           tax: 34.77 -> 375
           credit:Louisiana earned income credit: 340.23 -> 0
+  2026  dependent-age      hoh-one-child                age 18 -> +$221.35
+          tax: -221.35 -> 0
+          credit:Louisiana earned income credit: 221.35 -> 0
+  2026  dependent-age      single-two-children          age 18 -> +$144.45
+          tax: -150.94 -> -6.49
+          credit:Louisiana earned income credit: 365.8 -> 221.35
+  2026  filer-age          joint-no-children            age 64 -> -$129.72
+          stateAdjustedGrossIncome: 30000 -> 17676
+          subtractions: 4000 -> 16324
+          taxableIncome: 4324 -> 0
+          taxBeforeCredits: 129.72 -> 0
+          tax: 129.72 -> 0
+          subtraction:Louisiana annual retirement income exemption: null -> 12324
+  2026  filer-age          single-retiree               age 64 -> -$369.72
+          stateAdjustedGrossIncome: 30000 -> 17676
+          subtractions: 9600 -> 21924
+          taxableIncome: 17162 -> 4838
+          taxBeforeCredits: 514.86 -> 145.14
+          tax: 514.86 -> 145.14
+          subtraction:Louisiana annual retirement income exemption: null -> 12324
   2026  investment-income  hoh-one-child            $12,200.00 -> +$115.00
           stateAdjustedGrossIncome: 37200 -> 37200.01
           taxableIncome: 11524 -> 11524.01
@@ -17796,16 +21246,43 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 24362 -> 24362.01
           tax: 505.21 -> 730.86
           credit:Louisiana earned income credit: 225.65 -> 0
+  2026  investment-income  single-young-child       $12,200.00 -> +$115.00
+          stateAdjustedGrossIncome: 37200 -> 37200.01
+          taxableIncome: 11524 -> 11524.01
+          tax: 230.72 -> 345.72
+          credit:Louisiana earned income credit: 115 -> 0
   2026  municipal-interest single-two-children      $12,200.00 -> +$354.11
           tax: 10.75 -> 364.86
           credit:Louisiana earned income credit: 354.11 -> 0
 ```
 
-> Matched on `107.74`: Louisiana earned income credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $107.74 of Louisiana credit lost on one cent of investment income. Louisiana's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
+> Matched on `216.40`: Louisiana earned income credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $216.40 of Louisiana credit lost on one cent of investment income. Louisiana's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
 
-### MA — 2 notch(es)
+### MA — 8 notch(es)
 
 ```text
+  2025  dependent-age      hoh-one-child                age 12 -> +$440.00
+          tax: -1711.2 -> -1271.2
+          credit:Child and Family Tax Credit: 440 -> 0
+  2025  dependent-age      hoh-one-child                age 18 -> +$1,731.20
+          tax: -1271.2 -> 460
+          credit:Massachusetts earned income credit: 1731.2 -> 0
+  2025  dependent-age      single-two-children          age 12 -> +$440.00
+          tax: -3137.3 -> -2697.3
+          credit:Child and Family Tax Credit: 880 -> 440
+  2025  dependent-age      single-two-children          age 18 -> +$1,129.60
+          tax: -2697.3 -> -1567.7
+          credit:Massachusetts earned income credit: 2860.8 -> 1731.2
+  2025  filer-age          joint-no-children            age 64 -> -$35.00   [UNATTRIBUTED]
+          exemptions: 8800 -> 9500
+          taxableIncome: 21200 -> 20500
+          taxBeforeCredits: 1060 -> 1025
+          tax: 1060 -> 1025
+  2025  filer-age          single-retiree               age 64 -> -$35.00
+          exemptions: 4400 -> 5100
+          taxableIncome: 25600 -> 24900
+          taxBeforeCredits: 1280 -> 1245
+          tax: 1280 -> 1245
   2025  investment-income  hoh-one-child            $11,950.00 -> +$861.89
           stateAdjustedGrossIncome: 36950 -> 36950.01
           taxableIncome: 27237.5 -> 27237.51
@@ -17821,9 +21298,41 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 28637.5 -> 28637.51
           tax: -1163.26 -> 551.88
           credit:Massachusetts earned income credit: 1715.14 -> 0
+  2025  investment-income  single-young-child       $11,950.00 -> +$861.89
+          stateAdjustedGrossIncome: 36950 -> 36950.01
+          taxableIncome: 27237.5 -> 27237.51
+          tax: 59.99 -> 921.88
+          credit:Massachusetts earned income credit: 861.89 -> 0
   2025  municipal-interest single-two-children      $11,950.00 -> +$2,721.81
           tax: -2767.43 -> -45.62
           credit:Massachusetts earned income credit: 2721.8 -> 0
+  2025  spouse-age         joint-no-children            age 64 -> -$35.00   [UNATTRIBUTED]
+          exemptions: 8800 -> 9500
+          taxableIncome: 21200 -> 20500
+          taxBeforeCredits: 1060 -> 1025
+          tax: 1060 -> 1025
+  2026  dependent-age      hoh-one-child                age 12 -> +$440.00
+          tax: -1750.8 -> -1310.8
+          credit:Child and Family Tax Credit: 440 -> 0
+  2026  dependent-age      hoh-one-child                age 18 -> +$1,770.80
+          tax: -1310.8 -> 460
+          credit:Massachusetts earned income credit: 1770.8 -> 0
+  2026  dependent-age      single-two-children          age 12 -> +$440.00
+          tax: -3202.9 -> -2762.9
+          credit:Child and Family Tax Credit: 880 -> 440
+  2026  dependent-age      single-two-children          age 18 -> +$1,155.60
+          tax: -2762.9 -> -1607.3
+          credit:Massachusetts earned income credit: 2926.4 -> 1770.8
+  2026  filer-age          joint-no-children            age 64 -> -$35.00   [UNATTRIBUTED]
+          exemptions: 8800 -> 9500
+          taxableIncome: 21200 -> 20500
+          taxBeforeCredits: 1060 -> 1025
+          tax: 1060 -> 1025
+  2026  filer-age          single-retiree               age 64 -> -$35.00
+          exemptions: 4400 -> 5100
+          taxableIncome: 25600 -> 24900
+          taxBeforeCredits: 1280 -> 1245
+          tax: 1280 -> 1245
   2026  investment-income  hoh-one-child            $12,200.00 -> +$920.03
           stateAdjustedGrossIncome: 37200 -> 37200.01
           taxableIncome: 27487.5 -> 27487.51
@@ -17839,16 +21348,59 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 28887.5 -> 28887.51
           tax: -1240.79 -> 564.38
           credit:Massachusetts earned income credit: 1805.16 -> 0
+  2026  investment-income  single-young-child       $12,200.00 -> +$920.03
+          stateAdjustedGrossIncome: 37200 -> 37200.01
+          taxableIncome: 27487.5 -> 27487.51
+          tax: 14.35 -> 934.38
+          credit:Massachusetts earned income credit: 920.02 -> 0
   2026  municipal-interest single-two-children      $12,200.00 -> +$2,832.90
           tax: -2878.52 -> -45.62
           credit:Massachusetts earned income credit: 2832.89 -> 0
+  2026  spouse-age         joint-no-children            age 64 -> -$35.00   [UNATTRIBUTED]
+          exemptions: 8800 -> 9500
+          taxableIncome: 21200 -> 20500
+          taxBeforeCredits: 1060 -> 1025
+          tax: 1060 -> 1025
 ```
 
-> Matched on `861.89`: Massachusetts earned income credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $861.89 of Massachusetts credit lost on one cent of investment income. Massachusetts's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
+> Matched on `440`: The Child and Family Tax Credit is $440 per dependent with NO phase-out and NO cap on the number of dependents — worth the same to a household at $400,000 as at $40,000, which no other credit in this package is. It covers a dependent under 13 OR aged 65 or over, and also a dependent of any age who is permanently and totally disabled and a spouse unable to care for themselves; this package can see ages but not disability, so a return claiming a disabled dependent is too high by $440 per such dependent.
 
-### MD — 32 notch(es)
+### MD — 58 notch(es)
 
 ```text
+  2025  dependent-age      hoh-one-child                 age 5 -> +$250.00
+          tax: -1922.35 -> -1672.35
+          credit:Maryland child tax credit: 250 -> 0
+  2025  dependent-age      hoh-one-child                age 18 -> +$1,672.35
+          tax: -1672.35 -> 0
+          credit:Maryland earned income credit: 2164 -> 0
+          credit:Maryland earned income credit (refundable half): 1672.35 -> 0
+          credit:Maryland poverty level credit: 0 -> 275.25
+  2025  dependent-age      single-two-children           age 5 -> +$250.00
+          tax: -3186.02 -> -2936.02
+          credit:Maryland child tax credit: 250 -> 0
+  2025  dependent-age      single-two-children          age 18 -> +$1,270.80
+          tax: -2936.02 -> -1665.22
+          credit:Maryland earned income credit: 3576 -> 2164
+          credit:Maryland earned income credit (refundable half): 2936.03 -> 1665.23
+  2025  filer-age          joint-no-children            age 64 -> -$750.25
+          stateAdjustedGrossIncome: 30000 -> 8800
+          subtractions: 4000 -> 25200
+          exemptions: 6400 -> 7400
+          taxableIncome: 16900 -> 0
+          taxBeforeCredits: 750.25 -> 0
+          tax: 750.25 -> 0
+          credit:Senior tax credit: 0 -> 1000
+          subtraction:Pension exclusion (Worksheet 13A): null -> 21200
+  2025  filer-age          single-retiree               age 64 -> -$1,061.38
+          stateAdjustedGrossIncome: 30000 -> 8800
+          subtractions: 9600 -> 30800
+          exemptions: 3200 -> 4200
+          taxableIncome: 23450 -> 1250
+          taxBeforeCredits: 1061.38 -> 27.5
+          tax: 1061.38 -> 0
+          credit:Senior tax credit: 0 -> 1000
+          subtraction:Pension exclusion (Worksheet 13A): null -> 21200
   2025  investment-income  childless-single         $75,000.00 -> +$76.00
           stateAdjustedGrossIncome: 100000 -> 100000.01
           exemptions: 3200 -> 1600
@@ -17969,6 +21521,22 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 346650 -> 346650.01
           tax: 18317.38 -> 24817.38
           surtax:2% surtax on net capital gain (federal AGI over $350,000): null -> 6500
+  2025  investment-income  single-young-child       $11,950.00 -> +$1,077.36
+          stateAdjustedGrossIncome: 36950 -> 36950.01
+          taxableIncome: 23850 -> 23850.01
+          tax: 3.02 -> 1080.38
+          credit:Maryland earned income credit: 1077.36 -> 0
+  2025  investment-income  single-young-child      $125,000.00 -> +$152.00
+          stateAdjustedGrossIncome: 150000 -> 150000.01
+          exemptions: 6400 -> 3200
+          taxableIncome: 136900 -> 140100.01
+          taxBeforeCredits: 6450.25 -> 6602.25
+          tax: 6450.25 -> 6602.25
+  2025  investment-income  single-young-child      $325,000.00 -> +$6,500.00
+          stateAdjustedGrossIncome: 350000 -> 350000.01
+          taxableIncome: 343300 -> 343300.01
+          tax: 17562.25 -> 24062.25
+          surtax:2% surtax on net capital gain (federal AGI over $350,000): null -> 6500
   2025  municipal-interest single-two-children      $11,950.00 -> +$3,062.03
           stateAdjustedGrossIncome: 36950 -> 36950.01
           additions: 11950 -> 11950.01
@@ -18008,6 +21576,12 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 107250 -> 108050.01
           taxBeforeCredits: 5060 -> 5100
           tax: 5060 -> 5100
+  2025  spouse-age         joint-no-children            age 64 -> -$750.25
+          exemptions: 6400 -> 7400
+          taxableIncome: 16900 -> 15900
+          taxBeforeCredits: 750.25 -> 702.75
+          tax: 750.25 -> 0
+          credit:Senior tax credit: 0 -> 1000
   2025  wages              childless-single         $15,650.00 -> +$115.55
           stateAdjustedGrossIncome: 15650 -> 15650.01
           taxableIncome: 9100 -> 9100.01
@@ -18068,6 +21642,89 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 116850 -> 119250.01
           taxBeforeCredits: 5540 -> 5660
           tax: 5540 -> 5660
+  2025  wages              single-young-child       $15,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 15000 -> 15000.01
+          taxableIncome: 1900 -> 1900.01
+          tax: -2400.6 -> -2350.6
+          credit:Maryland child tax credit: 500 -> 450
+  2025  wages              single-young-child       $16,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 16000 -> 16000.01
+          taxableIncome: 2900 -> 2900.01
+          tax: -2311.6 -> -2261.6
+          credit:Maryland child tax credit: 450 -> 400
+  2025  wages              single-young-child       $17,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 17000 -> 17000.01
+          taxableIncome: 3900 -> 3900.01
+          tax: -2214.85 -> -2164.85
+          credit:Maryland child tax credit: 400 -> 350
+  2025  wages              single-young-child       $18,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 18000 -> 18000.01
+          taxableIncome: 4900 -> 4900.01
+          tax: -2117.35 -> -2067.35
+          credit:Maryland child tax credit: 350 -> 300
+  2025  wages              single-young-child       $19,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 19000 -> 19000.01
+          taxableIncome: 5900 -> 5900.01
+          tax: -2019.85 -> -1969.85
+          credit:Maryland child tax credit: 300 -> 250
+  2025  wages              single-young-child       $20,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 20000 -> 20000.01
+          taxableIncome: 6900 -> 6900.01
+          tax: -1922.35 -> -1872.35
+          credit:Maryland child tax credit: 250 -> 200
+  2025  wages              single-young-child       $21,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 21000 -> 21000.01
+          taxableIncome: 7900 -> 7900.01
+          tax: -1824.85 -> -1774.85
+          credit:Maryland child tax credit: 200 -> 150
+  2025  wages              single-young-child       $22,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 22000 -> 22000.01
+          taxableIncome: 8900 -> 8900.01
+          tax: -1727.35 -> -1677.35
+          credit:Maryland child tax credit: 150 -> 100
+  2025  wages              single-young-child       $23,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 23000 -> 23000.01
+          taxableIncome: 9900 -> 9900.01
+          tax: -1629.85 -> -1579.85
+          credit:Maryland child tax credit: 100 -> 50
+  2025  wages              single-young-child       $24,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 24000 -> 24000.01
+          taxableIncome: 10900 -> 10900.01
+          tax: -1485.61 -> -1435.61
+          credit:Maryland child tax credit: 50 -> 0
+  2026  dependent-age      hoh-one-child                 age 5 -> +$250.00
+          tax: -1966.9 -> -1716.9
+          credit:Maryland child tax credit: 250 -> 0
+  2026  dependent-age      hoh-one-child                age 18 -> +$1,716.90
+          tax: -1716.9 -> 0
+          credit:Maryland earned income credit: 2213.5 -> 0
+          credit:Maryland earned income credit (refundable half): 1716.9 -> 0
+          credit:Maryland poverty level credit: 0 -> 275.25
+  2026  dependent-age      single-two-children           age 5 -> +$250.00
+          tax: -3259.82 -> -3009.82
+          credit:Maryland child tax credit: 250 -> 0
+  2026  dependent-age      single-two-children          age 18 -> +$1,300.05
+          tax: -3009.82 -> -1709.77
+          credit:Maryland earned income credit: 3658 -> 2213.5
+          credit:Maryland earned income credit (refundable half): 3009.83 -> 1709.78
+  2026  filer-age          joint-no-children            age 64 -> -$750.25
+          stateAdjustedGrossIncome: 30000 -> 9400
+          subtractions: 4000 -> 24600
+          exemptions: 6400 -> 7400
+          taxableIncome: 16900 -> 0
+          taxBeforeCredits: 750.25 -> 0
+          tax: 750.25 -> 0
+          credit:Senior tax credit: 0 -> 1000
+          subtraction:Pension exclusion (Worksheet 13A): null -> 20600
+  2026  filer-age          single-retiree               age 64 -> -$1,061.38
+          stateAdjustedGrossIncome: 30000 -> 9400
+          subtractions: 9600 -> 30200
+          exemptions: 3200 -> 4200
+          taxableIncome: 23450 -> 1850
+          taxBeforeCredits: 1061.38 -> 45.5
+          tax: 1061.38 -> 0
+          credit:Senior tax credit: 0 -> 1000
+          subtraction:Pension exclusion (Worksheet 13A): null -> 20600
   2026  investment-income  childless-single         $75,000.00 -> +$76.00
           stateAdjustedGrossIncome: 100000 -> 100000.01
           exemptions: 3200 -> 1600
@@ -18188,6 +21845,22 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 346650 -> 346650.01
           tax: 18317.38 -> 24817.38
           surtax:2% surtax on net capital gain (federal AGI over $350,000): null -> 6500
+  2026  investment-income  single-young-child       $12,200.00 -> +$1,092.25
+          stateAdjustedGrossIncome: 37200 -> 37200.01
+          taxableIncome: 24100 -> 24100.01
+          tax: 0 -> 1092.25
+          credit:Maryland earned income credit: 1150.03 -> 0
+  2026  investment-income  single-young-child      $125,000.00 -> +$152.00
+          stateAdjustedGrossIncome: 150000 -> 150000.01
+          exemptions: 6400 -> 3200
+          taxableIncome: 136900 -> 140100.01
+          taxBeforeCredits: 6450.25 -> 6602.25
+          tax: 6450.25 -> 6602.25
+  2026  investment-income  single-young-child      $325,000.00 -> +$6,500.00
+          stateAdjustedGrossIncome: 350000 -> 350000.01
+          taxableIncome: 343300 -> 343300.01
+          tax: 17562.25 -> 24062.25
+          surtax:2% surtax on net capital gain (federal AGI over $350,000): null -> 6500
   2026  municipal-interest single-two-children      $12,200.00 -> +$3,187.01
           stateAdjustedGrossIncome: 37200 -> 37200.01
           additions: 12200 -> 12200.01
@@ -18227,6 +21900,12 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 107850 -> 108650.01
           taxBeforeCredits: 5090 -> 5130
           tax: 5090 -> 5130
+  2026  spouse-age         joint-no-children            age 64 -> -$750.25
+          exemptions: 6400 -> 7400
+          taxableIncome: 16900 -> 15900
+          taxBeforeCredits: 750.25 -> 702.75
+          tax: 750.25 -> 0
+          credit:Senior tax credit: 0 -> 1000
   2026  wages              childless-single         $15,960.00 -> +$120.63
           stateAdjustedGrossIncome: 15960 -> 15960.01
           taxableIncome: 9410 -> 9410.01
@@ -18286,13 +21965,83 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 116850 -> 119250.01
           taxBeforeCredits: 5540 -> 5660
           tax: 5540 -> 5660
+  2026  wages              single-young-child       $15,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 15000 -> 15000.01
+          taxableIncome: 1900 -> 1900.01
+          tax: -2445.15 -> -2395.15
+          credit:Maryland child tax credit: 500 -> 450
+  2026  wages              single-young-child       $16,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 16000 -> 16000.01
+          taxableIncome: 2900 -> 2900.01
+          tax: -2356.15 -> -2306.15
+          credit:Maryland child tax credit: 450 -> 400
+  2026  wages              single-young-child       $17,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 17000 -> 17000.01
+          taxableIncome: 3900 -> 3900.01
+          tax: -2259.4 -> -2209.4
+          credit:Maryland child tax credit: 400 -> 350
+  2026  wages              single-young-child       $18,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 18000 -> 18000.01
+          taxableIncome: 4900 -> 4900.01
+          tax: -2161.9 -> -2111.9
+          credit:Maryland child tax credit: 350 -> 300
+  2026  wages              single-young-child       $19,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 19000 -> 19000.01
+          taxableIncome: 5900 -> 5900.01
+          tax: -2064.4 -> -2014.4
+          credit:Maryland child tax credit: 300 -> 250
+  2026  wages              single-young-child       $20,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 20000 -> 20000.01
+          taxableIncome: 6900 -> 6900.01
+          tax: -1966.9 -> -1916.9
+          credit:Maryland child tax credit: 250 -> 200
+  2026  wages              single-young-child       $21,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 21000 -> 21000.01
+          taxableIncome: 7900 -> 7900.01
+          tax: -1869.4 -> -1819.4
+          credit:Maryland child tax credit: 200 -> 150
+  2026  wages              single-young-child       $22,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 22000 -> 22000.01
+          taxableIncome: 8900 -> 8900.01
+          tax: -1771.9 -> -1721.9
+          credit:Maryland child tax credit: 150 -> 100
+  2026  wages              single-young-child       $23,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 23000 -> 23000.01
+          taxableIncome: 9900 -> 9900.01
+          tax: -1674.4 -> -1624.4
+          credit:Maryland child tax credit: 100 -> 50
+  2026  wages              single-young-child       $24,000.00 -> +$50.00
+          stateAdjustedGrossIncome: 24000 -> 24000.01
+          taxableIncome: 10900 -> 10900.01
+          tax: -1568.99 -> -1518.99
+          credit:Maryland child tax credit: 50 -> 0
 ```
 
-> Matched on `100,000`: Maryland itemized deductions are the federal Schedule A total LESS the state and local income taxes in it, and they are available only to a filer who itemized federally (§ 10-218(b)) — so the OBBBA's larger federal standard deduction removed the Maryland itemized deduction from filers whose Maryland deductions never changed. From 2025 they are then reduced by 7.5% of federal AGI over $200,000 ($100,000 married filing separately, and NOT doubled for a joint return), which adds about 0.67 points to the marginal rate of every Maryland itemizer above the threshold until the deduction is exhausted. Pass stateItemizedDeductions; this package cannot derive it from federal.deduction, which still contains the state income tax.
+> Matched on `250.00`: THE CHILD TAX CREDIT HAS TWO CLIFFS AND THE SENTENCE BELOW DESCRIBES ONE. The under-6 test is asked at the end of the year and is all or nothing: the same return keeps the credit for a 5-year-old and loses it entirely for a 6-year-old, which at $20,000 of federal AGI — where the $50-per-$1,000 withdrawal has already taken half of the $500 — is a $250.00 step in Maryland tax on a birthday. The withdrawal itself is the second cliff and is a STAIRCASE rather than a taper, because $50 is taken for each $1,000 of AGI over $15,000 "or any fraction of $1,000": one cent over a thousand-dollar line costs the whole $50. A model that tapers either test is wrong about both.
 
-### MI — 2 notch(es)
+### MI — 5 notch(es)
 
 ```text
+  2025  dependent-age      hoh-one-child                age 18 -> +$1,298.40
+          tax: -941.4 -> 357
+          credit:Michigan earned income tax credit for working families: 1298.4 -> 0
+  2025  dependent-age      single-two-children          age 18 -> +$847.20
+          tax: -2035.1 -> -1187.9
+          credit:Michigan earned income tax credit for working families: 2145.6 -> 1298.4
+  2025  filer-age          joint-no-children            age 58 -> -$782.00
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 4000 -> 34000
+          taxableIncome: 18400 -> 0
+          taxBeforeCredits: 782 -> 0
+          tax: 782 -> 0
+          subtraction:Michigan retirement and pension benefits deduction (phased in, 75% for 2025): null -> 30000
+  2025  filer-age          single-retiree               age 58 -> -$1,028.50
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 9600 -> 39600
+          taxableIncome: 24200 -> 0
+          taxBeforeCredits: 1028.5 -> 0
+          tax: 1028.5 -> 0
+          subtraction:Michigan retirement and pension benefits deduction (phased in, 75% for 2025): null -> 30000
   2025  investment-income  hoh-one-child            $11,950.00 -> +$646.42
           stateAdjustedGrossIncome: 36950 -> 36950.01
           taxableIncome: 25350 -> 25350.01
@@ -18308,9 +22057,27 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 19550 -> 19550.01
           tax: -455.48 -> 830.88
           credit:Michigan earned income tax credit for working families: 1286.35 -> 0
+  2025  investment-income  single-young-child       $11,950.00 -> +$646.42
+          stateAdjustedGrossIncome: 36950 -> 36950.01
+          taxableIncome: 25350 -> 25350.01
+          tax: 430.96 -> 1077.38
+          credit:Michigan earned income tax credit for working families: 646.42 -> 0
   2025  municipal-interest single-two-children      $11,950.00 -> +$2,041.35
           tax: -1718.35 -> 323
           credit:Michigan earned income tax credit for working families: 2041.35 -> 0
+  2025  spouse-age         joint-no-children            age 58 -> -$782.00
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 4000 -> 34000
+          taxableIncome: 18400 -> 0
+          taxBeforeCredits: 782 -> 0
+          tax: 782 -> 0
+          subtraction:Michigan retirement and pension benefits deduction (phased in, 75% for 2025): null -> 30000
+  2026  dependent-age      hoh-one-child                age 18 -> +$1,328.10
+          tax: -979.6 -> 348.5
+          credit:Michigan earned income tax credit for working families: 1328.1 -> 0
+  2026  dependent-age      single-two-children          age 18 -> +$866.70
+          tax: -2097.05 -> -1230.35
+          credit:Michigan earned income tax credit for working families: 2194.8 -> 1328.1
   2026  investment-income  hoh-one-child            $12,200.00 -> +$690.02
           stateAdjustedGrossIncome: 37200 -> 37200.01
           taxableIncome: 25400 -> 25400.01
@@ -18326,16 +22093,31 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 19500 -> 19500.01
           tax: -525.12 -> 828.75
           credit:Michigan earned income tax credit for working families: 1353.87 -> 0
+  2026  investment-income  single-young-child       $12,200.00 -> +$690.02
+          stateAdjustedGrossIncome: 37200 -> 37200.01
+          taxableIncome: 25400 -> 25400.01
+          tax: 389.48 -> 1079.5
+          credit:Michigan earned income tax credit for working families: 690.02 -> 0
   2026  municipal-interest single-two-children      $12,200.00 -> +$2,124.67
           tax: -1814.42 -> 310.25
           credit:Michigan earned income tax credit for working families: 2124.67 -> 0
 ```
 
-> Matched on `646.42`: Michigan earned income tax credit for working families is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $646.42 of Michigan credit lost on one cent of investment income. Michigan's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
+> Matched on `1,298.40`: Michigan earned income tax credit for working families is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $1,298.40 of Michigan credit lost on one cent of investment income. Michigan's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
 
-### MN — 60 notch(es)
+### MN — 62 notch(es)
 
 ```text
+  2025  filer-age          joint-no-children            age 64 -> -$5.35
+          deduction: 29900 -> 31450
+          taxableIncome: 100 -> 0
+          taxBeforeCredits: 5.35 -> 0
+          tax: 5.35 -> 0
+  2025  filer-age          single-retiree               age 64 -> -$107.00
+          deduction: 14950 -> 16950
+          taxableIncome: 15050 -> 13050
+          taxBeforeCredits: 805.18 -> 698.18
+          tax: 805.18 -> 698.18
   2025  investment-income  single-retiree           $21,090.00 -> +$138.72
           stateAdjustedGrossIncome: 64090 -> 66130.01
           subtractions: 20400 -> 18360
@@ -18476,6 +22258,11 @@ the note quoted under each group rather than trusting the count.
           taxBeforeCredits: 6429.74 -> 6568.46
           tax: 6429.74 -> 6568.46
           subtraction:Minnesota Social Security benefit subtraction: 2040 -> null
+  2025  spouse-age         joint-no-children            age 64 -> -$5.35
+          deduction: 29900 -> 31450
+          taxableIncome: 100 -> 0
+          taxBeforeCredits: 5.35 -> 0
+          tax: 5.35 -> 0
   2025  wages              single-retiree           $46,090.00 -> +$138.72
           stateAdjustedGrossIncome: 64090 -> 66130.01
           subtractions: 20400 -> 18360
@@ -18546,6 +22333,11 @@ the note quoted under each group rather than trusting the count.
           taxBeforeCredits: 6429.74 -> 6568.46
           tax: 6429.74 -> 6568.46
           subtraction:Minnesota Social Security benefit subtraction: 2040 -> null
+  2026  filer-age          single-retiree               age 64 -> -$107.00
+          deduction: 15300 -> 17300
+          taxableIncome: 14700 -> 12700
+          taxBeforeCredits: 786.45 -> 679.45
+          tax: 786.45 -> 679.45
   2026  investment-income  single-retiree           $23,010.00 -> +$138.72
           stateAdjustedGrossIncome: 66010 -> 68050.01
           subtractions: 20400 -> 18360
@@ -18758,11 +22550,21 @@ the note quoted under each group rather than trusting the count.
           subtraction:Minnesota Social Security benefit subtraction: 2040 -> null
 ```
 
-> Matched on `minnesota social security benefit subtraction (words)`: Minnesota is one of the few states that taxes Social Security benefits at all. Since 2023 it subtracts the WHOLE federally taxable benefit below a threshold on federal AGI and withdraws the subtraction 10% for each $4,000 above it or fraction thereof — so it is gone once federal AGI exceeds the threshold by $36,000 ($18,000 on a separate return) and not by the $40,000 that ten steps of $4,000 suggests, for the same reason as the exemption staircase. This package models that simplified subtraction, § 290.0132, subd. 26(c).
+> Matched on `100`: NOT MODELLED, AND IT IS THE LARGEST GAP IN THIS STATE FOR A HIGH EARNER: the Minnesota alternative minimum tax, § 290.091 — 6.75% of alternative minimum taxable income less an exemption of $95,390 joint and surviving spouse / $71,540 single and head of household / $47,700 separate for 2025, and $97,470 / $73,100 / $48,740 for 2026, payable only to the extent it exceeds the ordinary tax. THE PHASE-OUT RATE IS A FEDERAL FIGURE: subd. 3 states no rate of its own and makes the exemption "subject to the phase out under section 55(d)(2) of the Internal Revenue Code" with Minnesota AMTI substituted, and the One Big Beautiful Bill Act raised that rate from 25% to 50% for tax years beginning after 31 December 2025. At 50% the AMT reaches a Minnesota filer WITH NO DEPENDENTS AT ALL: a 2026 head of household is caught from $202,224 to $315,533 of wages, a joint return or a surviving spouse from $290,580 to $380,947, a separate return from $145,307 to $190,473, and a single filer from $222,680 once there are two dependents. It binds on a BAND and not a half-line, because the exemption it withdraws is itself phased out and the 9.85% top rate eventually overtakes 6.75%. The largest shortfall measured is $4,735.905, for a 2026 head of household with eight dependents and a filer over 65 at $258,750. `test/minnesota-amt.test.js` measures all of it, and measured TWO earlier versions of this note wrong. WHETHER MINNESOTA CONFORMS TO THE AMENDED § 55(d)(2) FOR 2026 TURNS ON ITS IRC REFERENCE DATE IN § 290.01, subd. 19, WHICH THIS PACKAGE HAS NOT READ — at the pre-OBBBA 25% nothing with two dependents or fewer is caught in either year. PolicyEngine-US takes the conforming reading and charges the grid's surviving spouse with one child at $300,000 $598.63 of Minnesota AMT. A filer with the preference items the AMT exists for (incentive stock options, depletion, intangible drilling costs, accelerated depreciation) can owe much more again, and this package takes none of them as inputs.
 
-### MO — 20 notch(es)
+### MO — 24 notch(es)
 
 ```text
+  2025  filer-age          single-retiree               age 61 -> -$451.20
+          deduction: 17405.88 -> 27005.88
+          taxableIncome: 22194.13 -> 12594.13
+          taxBeforeCredits: 867.18 -> 415.98
+          tax: 867.18 -> 415.98
+  2025  filer-age          single-retiree               age 64 -> -$82.72
+          deduction: 27005.88 -> 28765.88
+          taxableIncome: 12594.13 -> 10834.13
+          taxBeforeCredits: 415.98 -> 333.26
+          tax: 415.98 -> 333.26
   2025  investment-income  single-two-children       $4,400.00 -> +$258.81
           subtractions: 4400 -> 4400.01
           tax: 0 -> 258.81
@@ -18897,6 +22699,28 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 108516.65 -> 109250.01
           taxBeforeCredits: 4924.34 -> 4958.81
           tax: 4924.34 -> 4958.81
+  2025  wages              single-young-child      $100,000.00 -> +$36.56
+          stateAdjustedGrossIncome: 100000 -> 100000.01
+          deduction: 24791.63 -> 24013.88
+          taxableIncome: 73808.38 -> 74586.13
+          taxBeforeCredits: 3293.05 -> 3329.61
+          tax: 3293.05 -> 3329.61
+  2025  wages              single-young-child      $125,000.00 -> +$31.20
+          stateAdjustedGrossIncome: 125000 -> 125000.01
+          deduction: 24288.88 -> 23625
+          taxableIncome: 99311.13 -> 99975.01
+          taxBeforeCredits: 4491.68 -> 4522.88
+          tax: 4491.68 -> 4522.88
+  2026  filer-age          single-retiree               age 61 -> -$451.20
+          deduction: 17743 -> 27343
+          taxableIncome: 21857 -> 12257
+          taxBeforeCredits: 846.65 -> 395.45
+          tax: 846.65 -> 395.45
+  2026  filer-age          single-retiree               age 64 -> -$85.00
+          deduction: 27343 -> 29151.5
+          taxableIncome: 12257 -> 10448.5
+          taxBeforeCredits: 395.45 -> 310.45
+          tax: 395.45 -> 310.45
   2026  investment-income  single-two-children       $4,400.00 -> +$238.74
           subtractions: 4400 -> 4400.01
           tax: 0 -> 238.74
@@ -19031,13 +22855,96 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 108183.3 -> 108900.01
           taxBeforeCredits: 4903.98 -> 4937.67
           tax: 4903.98 -> 4937.67
+  2026  wages              single-young-child      $100,000.00 -> +$34.73
+          stateAdjustedGrossIncome: 100000 -> 100000.01
+          deduction: 25258.2 -> 24519.4
+          taxableIncome: 73341.8 -> 74080.61
+          taxBeforeCredits: 3266.43 -> 3301.16
+          tax: 3266.43 -> 3301.16
+  2026  wages              single-young-child      $125,000.00 -> +$30.29
+          stateAdjustedGrossIncome: 125000 -> 125000.01
+          deduction: 24794.4 -> 24150
+          taxableIncome: 98805.6 -> 99450.01
+          taxBeforeCredits: 4463.23 -> 4493.52
+          tax: 4463.23 -> 4493.52
 ```
 
-> Matched on `1,175.57`: Working family tax credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $1,175.57 of Missouri credit lost on one cent of investment income. Missouri's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
+> Matched on `deduction (phrase)`: MISSOURI DEDUCTS A SHARE OF THE FEDERAL BILL AND THE CHART IS A CLIFF. § 143.171.2 gives 35% of the federal income tax at $25,000 or less of MISSOURI adjusted gross income, 25% to $50,000, 15% to $100,000, 5% to $125,000 and nothing above — one percentage for the whole bill, chosen by one number. So one dollar of income at a boundary moves the entire deduction down a step: at $100,000 the deduction falls by 10% of a federal bill of about $13,000, which is $61.94 OF MISSOURI TAX ON ONE DOLLAR. Pass `federal.incomeTaxBeforeRefundableCredits` — Form 1040 line 22 plus the Form 8960 net investment income tax. Omitting it makes the Missouri answer too HIGH by the whole deduction.
 
-### NJ — 14 notch(es)
+### MS — 4 notch(es)
 
 ```text
+  2025  filer-age          joint-no-children            age 59 -> -$149.60
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 4000 -> 34000
+          taxableIncome: 13400 -> 0
+          taxBeforeCredits: 149.6 -> 0
+          tax: 149.6 -> 0
+          subtraction:Mississippi retirement income exemption: null -> 30000
+  2025  filer-age          single-retiree               age 59 -> -$514.80
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 9600 -> 39600
+          taxableIncome: 21700 -> 0
+          taxBeforeCredits: 514.8 -> 0
+          tax: 514.8 -> 0
+          subtraction:Mississippi retirement income exemption: null -> 30000
+  2025  spouse-age         joint-no-children            age 64 -> -$66.00
+          exemptions: 12000 -> 13500
+          taxableIncome: 13400 -> 11900
+          taxBeforeCredits: 149.6 -> 83.6
+          tax: 149.6 -> 83.6
+  2026  filer-age          joint-no-children            age 59 -> -$136.00
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 4000 -> 34000
+          taxableIncome: 13400 -> 0
+          taxBeforeCredits: 136 -> 0
+          tax: 136 -> 0
+          subtraction:Mississippi retirement income exemption: null -> 30000
+  2026  filer-age          single-retiree               age 59 -> -$468.00
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 9600 -> 39600
+          taxableIncome: 21700 -> 0
+          taxBeforeCredits: 468 -> 0
+          tax: 468 -> 0
+          subtraction:Mississippi retirement income exemption: null -> 30000
+  2026  spouse-age         joint-no-children            age 64 -> -$60.00
+          exemptions: 12000 -> 13500
+          taxableIncome: 13400 -> 11900
+          taxBeforeCredits: 136 -> 76
+          tax: 136 -> 76
+```
+
+> Matched on `30,000`: AND THAT AGE TEST IS A CLIFF, which the sentence below describes as a condition and never as a shape. The exemption is uncapped, so everything it covers is exempt the day it applies and taxable the day before: on a single filer with $30,000 of pension and $20,000 of Social Security the whole Mississippi bill steps from $514.80 to $0.00 between 59 and 60, and from $468.00 to $0.00 for 2026 at the lower rate. There is no taper and no proration for the year of retirement — a model that phases the exemption in across a band of ages is wrong by the entire bill.
+
+### NJ — 40 notch(es)
+
+```text
+  2025  dependent-age      hoh-one-child                 age 5 -> +$1,000.00
+          tax: -2731.2 -> -1731.2
+          credit:New Jersey child tax credit: 1000 -> 0
+  2025  dependent-age      hoh-one-child                age 18 -> +$1,731.20
+          tax: -1731.2 -> 0
+          credit:New Jersey earned income tax credit: 1731.2 -> 0
+  2025  dependent-age      single-two-children           age 5 -> +$1,000.00
+          tax: -3636.8 -> -2636.8
+          credit:New Jersey child tax credit: 1000 -> 0
+  2025  dependent-age      single-two-children          age 18 -> +$1,129.60
+          tax: -2636.8 -> -1507.2
+          credit:New Jersey earned income tax credit: 2860.8 -> 1731.2
+  2025  filer-age          joint-no-children            age 61 -> -$420.00
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 0 -> 30000
+          taxableIncome: 28000 -> 0
+          taxBeforeCredits: 420 -> 0
+          tax: 420 -> 0
+          subtraction:Pension and retirement income exclusion: 0 -> 30000
+  2025  filer-age          single-retiree               age 61 -> -$437.50
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 0 -> 30000
+          taxableIncome: 29000 -> 0
+          taxBeforeCredits: 437.5 -> 0
+          tax: 437.5 -> 0
+          subtraction:Pension and retirement income exclusion: 0 -> 30000
   2025  investment-income  hoh-one-child            $11,950.00 -> +$861.89
           stateAdjustedGrossIncome: 36950 -> 36950.01
           taxableIncome: 34450 -> 34450.01
@@ -19053,6 +22960,36 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 32950 -> 32950.01
           tax: -1208.51 -> 506.63
           credit:New Jersey earned income tax credit: 1715.14 -> 0
+  2025  investment-income  single-young-child        $7,500.00 -> +$200.00
+          stateAdjustedGrossIncome: 32500 -> 32500.01
+          taxableIncome: 30000 -> 30000.01
+          tax: -1691.33 -> -1491.33
+          credit:New Jersey child tax credit: 1000 -> 800
+  2025  investment-income  single-young-child       $11,950.00 -> +$861.89
+          stateAdjustedGrossIncome: 36950 -> 36950.01
+          taxableIncome: 34450 -> 34450.01
+          tax: -1129.01 -> -267.12
+          credit:New Jersey earned income tax credit: 861.89 -> 0
+  2025  investment-income  single-young-child       $17,500.00 -> +$200.00
+          stateAdjustedGrossIncome: 42500 -> 42500.01
+          taxableIncome: 40000 -> 40000.01
+          tax: -170 -> 30
+          credit:New Jersey child tax credit: 800 -> 600
+  2025  investment-income  single-young-child       $27,500.00 -> +$200.00
+          stateAdjustedGrossIncome: 52500 -> 52500.01
+          taxableIncome: 50000 -> 50000.01
+          tax: 205 -> 405
+          credit:New Jersey child tax credit: 600 -> 400
+  2025  investment-income  single-young-child       $37,500.00 -> +$200.00
+          stateAdjustedGrossIncome: 62500 -> 62500.01
+          taxableIncome: 60000 -> 60000.01
+          tax: 650 -> 850
+          credit:New Jersey child tax credit: 400 -> 200
+  2025  investment-income  single-young-child       $57,500.00 -> +$200.00
+          stateAdjustedGrossIncome: 82500 -> 82500.01
+          taxableIncome: 80000 -> 80000.01
+          tax: 1445 -> 1645
+          credit:New Jersey child tax credit: 200 -> 0
   2025  municipal-interest single-two-children      $11,950.00 -> +$2,721.80
           tax: -2424.3 -> 297.5
           credit:New Jersey earned income tax credit: 2721.8 -> 0
@@ -19080,6 +23017,13 @@ the note quoted under each group rather than trusting the count.
           taxBeforeCredits: 2722.91 -> 4215.88
           tax: 2722.91 -> 4215.88
           subtraction:Pension and retirement income exclusion: 46875 -> 23437.5
+  2025  spouse-age         joint-no-children            age 61 -> -$420.00
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 0 -> 30000
+          taxableIncome: 28000 -> 0
+          taxBeforeCredits: 420 -> 0
+          tax: 420 -> 0
+          subtraction:Pension and retirement income exclusion: 0 -> 30000
   2025  wages              childless-single         $10,000.00 -> +$126.00
           stateAdjustedGrossIncome: 10000 -> 10000.01
           taxableIncome: 9000 -> 9000.01
@@ -19112,6 +23056,62 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 6000 -> 6000.01
           taxBeforeCredits: 0 -> 84
           tax: -1600 -> -1516
+  2025  wages              single-young-child       $20,000.00 -> +$245.00
+          stateAdjustedGrossIncome: 20000 -> 20000.01
+          taxableIncome: 17500 -> 17500.01
+          taxBeforeCredits: 0 -> 245
+          tax: -2731.2 -> -2486.2
+  2025  wages              single-young-child       $32,500.00 -> +$200.00
+          stateAdjustedGrossIncome: 32500 -> 32500.01
+          taxableIncome: 30000 -> 30000.01
+          tax: -1691.33 -> -1491.33
+          credit:New Jersey child tax credit: 1000 -> 800
+  2025  wages              single-young-child       $42,500.00 -> +$200.00
+          stateAdjustedGrossIncome: 42500 -> 42500.01
+          taxableIncome: 40000 -> 40000.01
+          tax: -677.13 -> -477.13
+          credit:New Jersey child tax credit: 800 -> 600
+  2025  wages              single-young-child       $52,500.00 -> +$200.00
+          stateAdjustedGrossIncome: 52500 -> 52500.01
+          taxableIncome: 50000 -> 50000.01
+          tax: 205 -> 405
+          credit:New Jersey child tax credit: 600 -> 400
+  2025  wages              single-young-child       $62,500.00 -> +$200.00
+          stateAdjustedGrossIncome: 62500 -> 62500.01
+          taxableIncome: 60000 -> 60000.01
+          tax: 650 -> 850
+          credit:New Jersey child tax credit: 400 -> 200
+  2025  wages              single-young-child       $82,500.00 -> +$200.00
+          stateAdjustedGrossIncome: 82500 -> 82500.01
+          taxableIncome: 80000 -> 80000.01
+          tax: 1445 -> 1645
+          credit:New Jersey child tax credit: 200 -> 0
+  2026  dependent-age      hoh-one-child                 age 5 -> +$1,250.00
+          tax: -3020.8 -> -1770.8
+          credit:New Jersey child tax credit: 1250 -> 0
+  2026  dependent-age      hoh-one-child                age 18 -> +$1,770.80
+          tax: -1770.8 -> 0
+          credit:New Jersey earned income tax credit: 1770.8 -> 0
+  2026  dependent-age      single-two-children           age 5 -> +$1,250.00
+          tax: -3952.4 -> -2702.4
+          credit:New Jersey child tax credit: 1250 -> 0
+  2026  dependent-age      single-two-children          age 18 -> +$1,155.60
+          tax: -2702.4 -> -1546.8
+          credit:New Jersey earned income tax credit: 2926.4 -> 1770.8
+  2026  filer-age          joint-no-children            age 61 -> -$420.00
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 0 -> 30000
+          taxableIncome: 28000 -> 0
+          taxBeforeCredits: 420 -> 0
+          tax: 420 -> 0
+          subtraction:Pension and retirement income exclusion: 0 -> 30000
+  2026  filer-age          single-retiree               age 61 -> -$437.50
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 0 -> 30000
+          taxableIncome: 29000 -> 0
+          taxBeforeCredits: 437.5 -> 0
+          tax: 437.5 -> 0
+          subtraction:Pension and retirement income exclusion: 0 -> 30000
   2026  investment-income  hoh-one-child            $12,200.00 -> +$920.02
           stateAdjustedGrossIncome: 37200 -> 37200.01
           taxableIncome: 34700 -> 34700.01
@@ -19127,6 +23127,36 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 33200 -> 33200.01
           tax: -1294.16 -> 511
           credit:New Jersey earned income tax credit: 1805.16 -> 0
+  2026  investment-income  single-young-child        $7,500.00 -> +$250.00
+          stateAdjustedGrossIncome: 32500 -> 32500.01
+          taxableIncome: 30000 -> 30000.01
+          tax: -2015.45 -> -1765.45
+          credit:New Jersey child tax credit: 1250 -> 1000
+  2026  investment-income  single-young-child       $12,200.00 -> +$920.02
+          stateAdjustedGrossIncome: 37200 -> 37200.01
+          taxableIncome: 34700 -> 34700.01
+          tax: -1382.77 -> -462.75
+          credit:New Jersey earned income tax credit: 920.02 -> 0
+  2026  investment-income  single-young-child       $17,500.00 -> +$250.00
+          stateAdjustedGrossIncome: 42500 -> 42500.01
+          taxableIncome: 40000 -> 40000.01
+          tax: -370 -> -120
+          credit:New Jersey child tax credit: 1000 -> 750
+  2026  investment-income  single-young-child       $27,500.00 -> +$250.00
+          stateAdjustedGrossIncome: 52500 -> 52500.01
+          taxableIncome: 50000 -> 50000.01
+          tax: 55 -> 305
+          credit:New Jersey child tax credit: 750 -> 500
+  2026  investment-income  single-young-child       $37,500.00 -> +$250.00
+          stateAdjustedGrossIncome: 62500 -> 62500.01
+          taxableIncome: 60000 -> 60000.01
+          tax: 550 -> 800
+          credit:New Jersey child tax credit: 500 -> 250
+  2026  investment-income  single-young-child       $57,500.00 -> +$250.00
+          stateAdjustedGrossIncome: 82500 -> 82500.01
+          taxableIncome: 80000 -> 80000.01
+          tax: 1395 -> 1645
+          credit:New Jersey child tax credit: 250 -> 0
   2026  municipal-interest single-two-children      $12,200.00 -> +$2,832.89
           tax: -2535.39 -> 297.5
           credit:New Jersey earned income tax credit: 2832.89 -> 0
@@ -19154,6 +23184,13 @@ the note quoted under each group rather than trusting the count.
           taxBeforeCredits: 2722.91 -> 4215.88
           tax: 2722.91 -> 4215.88
           subtraction:Pension and retirement income exclusion: 46875 -> 23437.5
+  2026  spouse-age         joint-no-children            age 61 -> -$420.00
+          stateAdjustedGrossIncome: 30000 -> 0
+          subtractions: 0 -> 30000
+          taxableIncome: 28000 -> 0
+          taxBeforeCredits: 420 -> 0
+          tax: 420 -> 0
+          subtraction:Pension and retirement income exclusion: 0 -> 30000
   2026  wages              childless-single         $10,000.00 -> +$126.00
           stateAdjustedGrossIncome: 10000 -> 10000.01
           taxableIncome: 9000 -> 9000.01
@@ -19186,13 +23223,56 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 6000 -> 6000.01
           taxBeforeCredits: 0 -> 84
           tax: -1600 -> -1516
+  2026  wages              single-young-child       $20,000.00 -> +$245.00
+          stateAdjustedGrossIncome: 20000 -> 20000.01
+          taxableIncome: 17500 -> 17500.01
+          taxBeforeCredits: 0 -> 245
+          tax: -3020.8 -> -2775.8
+  2026  wages              single-young-child       $32,500.00 -> +$250.00
+          stateAdjustedGrossIncome: 32500 -> 32500.01
+          taxableIncome: 30000 -> 30000.01
+          tax: -2015.45 -> -1765.45
+          credit:New Jersey child tax credit: 1250 -> 1000
+  2026  wages              single-young-child       $42,500.00 -> +$250.00
+          stateAdjustedGrossIncome: 42500 -> 42500.01
+          taxableIncome: 40000 -> 40000.01
+          tax: -951.25 -> -701.25
+          credit:New Jersey child tax credit: 1000 -> 750
+  2026  wages              single-young-child       $52,500.00 -> +$250.00
+          stateAdjustedGrossIncome: 52500 -> 52500.01
+          taxableIncome: 50000 -> 50000.01
+          tax: 55 -> 305
+          credit:New Jersey child tax credit: 750 -> 500
+  2026  wages              single-young-child       $62,500.00 -> +$250.00
+          stateAdjustedGrossIncome: 62500 -> 62500.01
+          taxableIncome: 60000 -> 60000.01
+          tax: 550 -> 800
+          credit:New Jersey child tax credit: 500 -> 250
+  2026  wages              single-young-child       $82,500.00 -> +$250.00
+          stateAdjustedGrossIncome: 82500 -> 82500.01
+          taxableIncome: 80000 -> 80000.01
+          tax: 1395 -> 1645
+          credit:New Jersey child tax credit: 250 -> 0
 ```
 
-> Matched on `861.89`: New Jersey earned income tax credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $861.89 of New Jersey credit lost on one cent of investment income. New Jersey's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
+> Matched on `1,731.20`: New Jersey earned income tax credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $1,731.20 of New Jersey credit lost on one cent of investment income. New Jersey's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
 
-### NM — 88 notch(es)
+### NM — 92 notch(es)
 
 ```text
+  2025  dependent-age      hoh-one-child                age 18 -> +$1,719.00
+          tax: -1839 -> -120
+          credit:New Mexico working families tax credit (§ 7-2-18.15): 1082 -> 0
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 637 -> 0
+  2025  dependent-age      single-two-children          age 18 -> +$1,343.00
+          tax: -3222 -> -1879
+          credit:New Mexico working families tax credit (§ 7-2-18.15): 1788 -> 1082
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 1274 -> 637
+  2025  filer-age          single-retiree               age 64 -> -$64.00
+          deduction: 15750 -> 17750
+          taxableIncome: 14250 -> 12250
+          taxBeforeCredits: 362.5 -> 298.5
+          tax: 362.5 -> 298.5
   2025  investment-income  childless-single          $1,000.00 -> +$11.00
           subtractions: 1000 -> 1000.01
           tax: 77.3 -> 88.3
@@ -19399,6 +23479,51 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 81750 -> 81750.01
           tax: 3251.75 -> 3305.75
           credit:New Mexico child income tax credit (§ 7-2-18.34): 212 -> 158
+  2025  investment-income  single-young-child            $0.00 -> +$213.00
+          subtractions: 0 -> 0.01
+          tax: -1756.08 -> -1543.08
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 637 -> 424
+          subtraction:New Mexico net capital gains deduction (§ 7-2-34): null -> 0.01
+  2025  investment-income  single-young-child        $1,000.00 -> +$12.00
+          subtractions: 1000 -> 1000.01
+          tax: -1503.13 -> -1491.13
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 103 -> 91
+          subtraction:New Mexico net capital gains deduction (§ 7-2-34): 1000 -> 1000.01
+  2025  investment-income  single-young-child        $4,500.00 -> +$23.00
+          stateAdjustedGrossIncome: 27000 -> 27000.01
+          tax: -1346.31 -> -1323.31
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 86 -> 63
+  2025  investment-income  single-young-child        $7,500.00 -> +$12.00
+          stateAdjustedGrossIncome: 30000 -> 30000.01
+          taxableIncome: 1875 -> 1875.01
+          tax: -1169.33 -> -1157.33
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 57 -> 45
+  2025  investment-income  single-young-child       $11,000.00 -> +$40.00
+          stateAdjustedGrossIncome: 33500 -> 33500.01
+          taxableIncome: 6075 -> 6075.01
+          tax: -949.51 -> -909.51
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 40 -> null
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14): null -> 0
+  2025  investment-income  single-young-child       $11,950.00 -> +$538.68
+          stateAdjustedGrossIncome: 34450 -> 34450.01
+          taxableIncome: 7215 -> 7215.01
+          tax: -854.45 -> -315.77
+          credit:New Mexico working families tax credit (§ 7-2-18.15): 538.68 -> 0
+  2025  investment-income  single-young-child       $25,000.00 -> +$212.00
+          stateAdjustedGrossIncome: 47500 -> 47500.01
+          taxableIncome: 22875 -> 22875.01
+          tax: 172 -> 384
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 424 -> 212
+  2025  investment-income  single-young-child       $50,000.00 -> +$106.00
+          stateAdjustedGrossIncome: 72500 -> 72500.01
+          taxableIncome: 48875 -> 48875.01
+          tax: 1478.63 -> 1584.63
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 212 -> 106
+  2025  investment-income  single-young-child       $75,000.00 -> +$27.00
+          stateAdjustedGrossIncome: 97500 -> 97500.01
+          taxableIncome: 73875 -> 73875.01
+          tax: 2755.13 -> 2782.13
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 106 -> 79
   2025  municipal-interest childless-single          $1,000.00 -> +$11.00
           tax: 72.5 -> 83.5
           credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 74 -> 63
@@ -20015,6 +24140,102 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 84250 -> 84250.01
           tax: 3374.25 -> 3428.25
           credit:New Mexico child income tax credit (§ 7-2-18.34): 212 -> 158
+  2025  wages              single-young-child        $1,000.00 -> -$64.00
+          stateAdjustedGrossIncome: 1000 -> 1000.01
+          tax: -1020 -> -1084
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 298 -> 362
+  2025  wages              single-young-child        $8,000.00 -> +$29.00
+          stateAdjustedGrossIncome: 8000 -> 8000.01
+          tax: -1673 -> -1644
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 356 -> 327
+  2025  wages              single-young-child        $9,000.00 -> +$40.00
+          stateAdjustedGrossIncome: 9000 -> 9000.01
+          tax: -1729 -> -1689
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 327 -> 287
+  2025  wages              single-young-child       $10,000.00 -> +$46.00
+          stateAdjustedGrossIncome: 10000 -> 10000.01
+          tax: -1774 -> -1728
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 287 -> 241
+  2025  wages              single-young-child       $11,500.00 -> +$29.00
+          stateAdjustedGrossIncome: 11500 -> 11500.01
+          tax: -1855.5 -> -1826.5
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 241 -> 212
+  2025  wages              single-young-child       $13,000.00 -> +$17.00
+          stateAdjustedGrossIncome: 13000 -> 13000.01
+          tax: -1931 -> -1914
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 212 -> 195
+  2025  wages              single-young-child       $14,500.00 -> +$17.00
+          stateAdjustedGrossIncome: 14500 -> 14500.01
+          tax: -1914 -> -1897
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 195 -> 178
+  2025  wages              single-young-child       $16,500.00 -> +$29.00
+          stateAdjustedGrossIncome: 16500 -> 16500.01
+          tax: -1897 -> -1868
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 178 -> 149
+  2025  wages              single-young-child       $18,000.00 -> +$17.00
+          stateAdjustedGrossIncome: 18000 -> 18000.01
+          tax: -1868 -> -1851
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 149 -> 132
+  2025  wages              single-young-child       $19,500.00 -> +$12.00
+          stateAdjustedGrossIncome: 19500 -> 19500.01
+          tax: -1851 -> -1839
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 132 -> 120
+  2025  wages              single-young-child       $24,500.00 -> +$11.00
+          stateAdjustedGrossIncome: 24500 -> 24500.01
+          tax: -1787.06 -> -1776.06
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 114 -> 103
+  2025  wages              single-young-child       $25,000.00 -> +$213.00
+          stateAdjustedGrossIncome: 25000 -> 25000.01
+          tax: -1756.08 -> -1543.08
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 637 -> 424
+  2025  wages              single-young-child       $26,000.00 -> +$12.00
+          stateAdjustedGrossIncome: 26000 -> 26000.01
+          tax: -1503.13 -> -1491.13
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 103 -> 91
+  2025  wages              single-young-child       $29,500.00 -> +$23.00
+          stateAdjustedGrossIncome: 29500 -> 29500.01
+          taxableIncome: 875 -> 875.01
+          tax: -1333.18 -> -1310.18
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 86 -> 63
+  2025  wages              single-young-child       $32,500.00 -> +$12.00
+          stateAdjustedGrossIncome: 32500 -> 32500.01
+          taxableIncome: 4375 -> 4375.01
+          tax: -1131.83 -> -1119.83
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 57 -> 45
+  2025  wages              single-young-child       $36,000.00 -> +$40.00
+          stateAdjustedGrossIncome: 36000 -> 36000.01
+          taxableIncome: 8575 -> 8575.01
+          tax: -902.23 -> -862.23
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 40 -> null
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14): null -> 0
+  2025  wages              single-young-child       $50,000.00 -> +$212.00
+          stateAdjustedGrossIncome: 50000 -> 50000.01
+          taxableIncome: 25375 -> 25375.01
+          tax: 238.79 -> 450.79
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 424 -> 212
+  2025  wages              single-young-child       $75,000.00 -> +$106.00
+          stateAdjustedGrossIncome: 75000 -> 75000.01
+          taxableIncome: 51375 -> 51375.01
+          tax: 1591.63 -> 1697.63
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 212 -> 106
+  2025  wages              single-young-child      $100,000.00 -> +$27.00
+          stateAdjustedGrossIncome: 100000 -> 100000.01
+          taxableIncome: 76375 -> 76375.01
+          tax: 2872.63 -> 2899.63
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 106 -> 79
+  2026  dependent-age      hoh-one-child                age 18 -> +$1,743.75
+          tax: -1863.75 -> -120
+          credit:New Mexico working families tax credit (§ 7-2-18.15): 1106.75 -> 0
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 637 -> 0
+  2026  dependent-age      single-two-children          age 18 -> +$1,359.25
+          tax: -3263 -> -1903.75
+          credit:New Mexico working families tax credit (§ 7-2-18.15): 1829 -> 1106.75
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 1274 -> 637
+  2026  filer-age          single-retiree               age 64 -> -$65.60
+          deduction: 16100 -> 18150
+          taxableIncome: 13900 -> 11850
+          taxBeforeCredits: 351.3 -> 285.7
+          tax: 351.3 -> 285.7
   2026  investment-income  childless-single          $1,000.00 -> +$11.00
           subtractions: 1000 -> 1000.01
           tax: 66.1 -> 77.1
@@ -20223,6 +24444,51 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 81400 -> 81400.01
           tax: 3234.6 -> 3288.6
           credit:New Mexico child income tax credit (§ 7-2-18.34): 212 -> 158
+  2026  investment-income  single-young-child            $0.00 -> +$213.00
+          subtractions: 0 -> 0.01
+          tax: -1802.4 -> -1589.4
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 637 -> 424
+          subtraction:New Mexico net capital gains deduction (§ 7-2-34): null -> 0.01
+  2026  investment-income  single-young-child        $1,000.00 -> +$12.00
+          subtractions: 1000 -> 1000.01
+          tax: -1549.45 -> -1537.45
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 103 -> 91
+          subtraction:New Mexico net capital gains deduction (§ 7-2-34): 1000 -> 1000.01
+  2026  investment-income  single-young-child        $4,500.00 -> +$23.00
+          stateAdjustedGrossIncome: 27000 -> 27000.01
+          tax: -1392.63 -> -1369.63
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 86 -> 63
+  2026  investment-income  single-young-child        $7,500.00 -> +$12.00
+          stateAdjustedGrossIncome: 30000 -> 30000.01
+          taxableIncome: 1350 -> 1350.01
+          tax: -1223.53 -> -1211.53
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 57 -> 45
+  2026  investment-income  single-young-child       $11,000.00 -> +$40.00
+          stateAdjustedGrossIncome: 33500 -> 33500.01
+          taxableIncome: 5550 -> 5550.01
+          tax: -1003.7 -> -963.7
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 40 -> null
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14): null -> 0
+  2026  investment-income  single-young-child       $12,200.00 -> +$575.01
+          stateAdjustedGrossIncome: 34700 -> 34700.01
+          taxableIncome: 6990 -> 6990.01
+          tax: -894.16 -> -319.15
+          credit:New Mexico working families tax credit (§ 7-2-18.15): 575.02 -> 0
+  2026  investment-income  single-young-child       $25,000.00 -> +$212.00
+          stateAdjustedGrossIncome: 47500 -> 47500.01
+          taxableIncome: 22350 -> 22350.01
+          tax: 155.2 -> 367.2
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 424 -> 212
+  2026  investment-income  single-young-child       $50,000.00 -> +$106.00
+          stateAdjustedGrossIncome: 72500 -> 72500.01
+          taxableIncome: 48350 -> 48350.01
+          tax: 1456.05 -> 1562.05
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 212 -> 106
+  2026  investment-income  single-young-child       $75,000.00 -> +$27.00
+          stateAdjustedGrossIncome: 97500 -> 97500.01
+          taxableIncome: 73350 -> 73350.01
+          tax: 2730.45 -> 2757.45
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 106 -> 79
   2026  municipal-interest childless-single          $1,000.00 -> +$11.00
           tax: 61.3 -> 72.3
           credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 74 -> 63
@@ -20841,13 +25107,128 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 83900 -> 83900.01
           tax: 3357.1 -> 3411.1
           credit:New Mexico child income tax credit (§ 7-2-18.34): 212 -> 158
+  2026  wages              single-young-child        $1,000.00 -> -$64.00
+          stateAdjustedGrossIncome: 1000 -> 1000.01
+          tax: -1020 -> -1084
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 298 -> 362
+  2026  wages              single-young-child        $8,000.00 -> +$29.00
+          stateAdjustedGrossIncome: 8000 -> 8000.01
+          tax: -1673 -> -1644
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 356 -> 327
+  2026  wages              single-young-child        $9,000.00 -> +$40.00
+          stateAdjustedGrossIncome: 9000 -> 9000.01
+          tax: -1729 -> -1689
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 327 -> 287
+  2026  wages              single-young-child       $10,000.00 -> +$46.00
+          stateAdjustedGrossIncome: 10000 -> 10000.01
+          tax: -1774 -> -1728
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 287 -> 241
+  2026  wages              single-young-child       $11,500.00 -> +$29.00
+          stateAdjustedGrossIncome: 11500 -> 11500.01
+          tax: -1855.5 -> -1826.5
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 241 -> 212
+  2026  wages              single-young-child       $13,000.00 -> +$17.00
+          stateAdjustedGrossIncome: 13000 -> 13000.01
+          tax: -1954 -> -1937
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 212 -> 195
+  2026  wages              single-young-child       $14,500.00 -> +$17.00
+          stateAdjustedGrossIncome: 14500 -> 14500.01
+          tax: -1938.75 -> -1921.75
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 195 -> 178
+  2026  wages              single-young-child       $16,500.00 -> +$29.00
+          stateAdjustedGrossIncome: 16500 -> 16500.01
+          tax: -1921.75 -> -1892.75
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 178 -> 149
+  2026  wages              single-young-child       $18,000.00 -> +$17.00
+          stateAdjustedGrossIncome: 18000 -> 18000.01
+          tax: -1892.75 -> -1875.75
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 149 -> 132
+  2026  wages              single-young-child       $19,500.00 -> +$12.00
+          stateAdjustedGrossIncome: 19500 -> 19500.01
+          tax: -1875.75 -> -1863.75
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 132 -> 120
+  2026  wages              single-young-child       $24,500.00 -> +$11.00
+          stateAdjustedGrossIncome: 24500 -> 24500.01
+          tax: -1833.38 -> -1822.38
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 114 -> 103
+  2026  wages              single-young-child       $25,000.00 -> +$213.00
+          stateAdjustedGrossIncome: 25000 -> 25000.01
+          tax: -1802.4 -> -1589.4
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 637 -> 424
+  2026  wages              single-young-child       $26,000.00 -> +$12.00
+          stateAdjustedGrossIncome: 26000 -> 26000.01
+          tax: -1549.45 -> -1537.45
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 103 -> 91
+  2026  wages              single-young-child       $29,500.00 -> +$23.00
+          stateAdjustedGrossIncome: 29500 -> 29500.01
+          taxableIncome: 350 -> 350.01
+          tax: -1387.38 -> -1364.38
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 86 -> 63
+  2026  wages              single-young-child       $32,500.00 -> +$12.00
+          stateAdjustedGrossIncome: 32500 -> 32500.01
+          taxableIncome: 3850 -> 3850.01
+          tax: -1186.03 -> -1174.03
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 57 -> 45
+  2026  wages              single-young-child       $36,000.00 -> +$40.00
+          stateAdjustedGrossIncome: 36000 -> 36000.01
+          taxableIncome: 8050 -> 8050.01
+          tax: -965.35 -> -925.35
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12): 40 -> null
+          credit:New Mexico low income comprehensive tax rebate (§ 7-2-14): null -> 0
+  2026  wages              single-young-child       $50,000.00 -> +$212.00
+          stateAdjustedGrossIncome: 50000 -> 50000.01
+          taxableIncome: 24850 -> 24850.01
+          tax: 171.55 -> 383.55
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 424 -> 212
+  2026  wages              single-young-child       $75,000.00 -> +$106.00
+          stateAdjustedGrossIncome: 75000 -> 75000.01
+          taxableIncome: 50850 -> 50850.01
+          tax: 1566.95 -> 1672.95
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 212 -> 106
+  2026  wages              single-young-child      $100,000.00 -> +$27.00
+          stateAdjustedGrossIncome: 100000 -> 100000.01
+          taxableIncome: 75850 -> 75850.01
+          tax: 2847.95 -> 2874.95
+          credit:New Mexico child income tax credit (§ 7-2-18.34): 106 -> 79
 ```
 
-> Matched on `1,000`: THE AGED-OR-BLIND EXEMPTION HAS NOT BEEN INDEXED SINCE 1987 AND IT IS NINE CLIFFS, NOT A TAPER. § 7-2-5.2 gives up to $8,000 to each person 65 or over or blind, falling in whole $1,000 steps: single $8,000 to $18,000 of AGI then a step every $1,500 and nothing from $28,500; joint and head of household $8,000 to $30,000 then every $3,000 and nothing from $51,000; separate $8,000 to $15,000 then every $1,500 and nothing from $25,500. One dollar of AGI at a boundary costs the whole $1,000 of allowance AND MOST OF THE STEPS ARE STILL FREE: measured for 2026, four of the eight single boundaries cost nothing and the other four cost $14.27, $15.01, $30.34 and $32.04, because the exemption expires at $28,500 of AGI and a single New Mexican there has $8,125 of taxable income — inside the 3.2% band, so nobody who reaches 4.3% still holds the exemption. The largest step in the state is $64.04, at the joint $51,000 boundary, where both people's exemptions fall on the same dollar. Pricing these steps at the state's top rates is the mistake the first draft of this module made, and the measurement is what caught it. The thresholds are the 1987 figures on the reference model's parameter files, which carry every one of them from 1987-01-01 with no later value; the separate table is NOT half the joint one, unlike the rate schedule.
+> Matched on `1,082.00`: New Mexico working families tax credit (§ 7-2-18.15) is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $1,082.00 of New Mexico credit lost on one cent of investment income. New Mexico's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
 
-### NY — 214 notch(es)
+### NY — 222 notch(es)
 
 ```text
+  2025  dependent-age      hoh-one-child                 age 3 -> +$670.00
+          tax: -1986.4 -> -1316.4
+          credit:Empire State child credit: 1000 -> 330
+  2025  dependent-age      hoh-one-child                age 16 -> +$330.00
+          tax: -1316.4 -> -986.4
+          credit:Empire State child credit: 330 -> 0
+  2025  dependent-age      hoh-one-child                age 18 -> +$1,223.40
+          tax: -986.4 -> 237
+          credit:New York earned income credit: 1223.4 -> 0
+  2025  dependent-age      single-two-children           age 3 -> +$670.00
+          tax: -3068.1 -> -2398.1
+          credit:Empire State child credit: 1330 -> 660
+  2025  dependent-age      single-two-children          age 16 -> +$330.00
+          tax: -2398.1 -> -2068.1
+          credit:Empire State child credit: 660 -> 330
+  2025  dependent-age      single-two-children          age 18 -> +$847.20
+          tax: -2068.1 -> -1220.9
+          credit:New York earned income credit: 2100.6 -> 1253.4
+  2025  filer-age          joint-no-children            age 59 -> -$558.00
+          stateAdjustedGrossIncome: 30000 -> 10000
+          subtractions: 4000 -> 24000
+          taxableIncome: 13950 -> 0
+          taxBeforeCredits: 558 -> 0
+          tax: 558 -> 0
+          subtraction:New York pension and annuity exclusion: null -> 20000
+  2025  filer-age          single-retiree               age 59 -> -$965.00
+          stateAdjustedGrossIncome: 30000 -> 10000
+          subtractions: 9600 -> 29600
+          taxableIncome: 22000 -> 2000
+          taxBeforeCredits: 1045 -> 80
+          tax: 1045 -> 80
+          subtraction:New York pension and annuity exclusion: null -> 20000
   2025  investment-income  childless-single              $0.00 -> +$20.00
           stateAdjustedGrossIncome: 25000 -> 25000.01
           taxableIncome: 17000 -> 17000.01
@@ -21388,6 +25769,316 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 104000 -> 104000.01
           tax: 5727.42 -> 5743.92
           credit:Empire State child credit: 16.5 -> 0
+  2025  investment-income  single-young-child       $11,950.00 -> +$646.42
+          stateAdjustedGrossIncome: 36950 -> 36950.01
+          taxableIncome: 24750 -> 24750.01
+          tax: -533.79 -> 112.63
+          credit:New York earned income credit: 646.42 -> 0
+  2025  investment-income  single-young-child       $50,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 75000 -> 75000.01
+          taxableIncome: 62800 -> 62800.01
+          tax: 2205.38 -> 2221.88
+          credit:Empire State child credit: 1000 -> 983.5
+  2025  investment-income  single-young-child       $51,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 76000 -> 76000.01
+          taxableIncome: 63800 -> 63800.01
+          tax: 2276.88 -> 2293.38
+          credit:Empire State child credit: 983.5 -> 967
+  2025  investment-income  single-young-child       $52,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 77000 -> 77000.01
+          taxableIncome: 64800 -> 64800.01
+          tax: 2348.38 -> 2364.88
+          credit:Empire State child credit: 967 -> 950.5
+  2025  investment-income  single-young-child       $53,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 78000 -> 78000.01
+          taxableIncome: 65800 -> 65800.01
+          tax: 2419.88 -> 2436.38
+          credit:Empire State child credit: 950.5 -> 934
+  2025  investment-income  single-young-child       $54,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 79000 -> 79000.01
+          taxableIncome: 66800 -> 66800.01
+          tax: 2491.38 -> 2507.88
+          credit:Empire State child credit: 934 -> 917.5
+  2025  investment-income  single-young-child       $55,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 80000 -> 80000.01
+          taxableIncome: 67800 -> 67800.01
+          tax: 2562.88 -> 2579.38
+          credit:Empire State child credit: 917.5 -> 901
+  2025  investment-income  single-young-child       $56,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 81000 -> 81000.01
+          taxableIncome: 68800 -> 68800.01
+          tax: 2634.38 -> 2650.88
+          credit:Empire State child credit: 901 -> 884.5
+  2025  investment-income  single-young-child       $57,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 82000 -> 82000.01
+          taxableIncome: 69800 -> 69800.01
+          tax: 2705.88 -> 2722.38
+          credit:Empire State child credit: 884.5 -> 868
+  2025  investment-income  single-young-child       $58,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 83000 -> 83000.01
+          taxableIncome: 70800 -> 70800.01
+          tax: 2777.38 -> 2793.88
+          credit:Empire State child credit: 868 -> 851.5
+  2025  investment-income  single-young-child       $59,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 84000 -> 84000.01
+          taxableIncome: 71800 -> 71800.01
+          tax: 2848.88 -> 2865.38
+          credit:Empire State child credit: 851.5 -> 835
+  2025  investment-income  single-young-child       $60,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 85000 -> 85000.01
+          taxableIncome: 72800 -> 72800.01
+          tax: 2920.38 -> 2936.88
+          credit:Empire State child credit: 835 -> 818.5
+  2025  investment-income  single-young-child       $61,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 86000 -> 86000.01
+          taxableIncome: 73800 -> 73800.01
+          tax: 2991.88 -> 3008.38
+          credit:Empire State child credit: 818.5 -> 802
+  2025  investment-income  single-young-child       $62,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 87000 -> 87000.01
+          taxableIncome: 74800 -> 74800.01
+          tax: 3063.38 -> 3079.88
+          credit:Empire State child credit: 802 -> 785.5
+  2025  investment-income  single-young-child       $63,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 88000 -> 88000.01
+          taxableIncome: 75800 -> 75800.01
+          tax: 3134.88 -> 3151.38
+          credit:Empire State child credit: 785.5 -> 769
+  2025  investment-income  single-young-child       $64,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 89000 -> 89000.01
+          taxableIncome: 76800 -> 76800.01
+          tax: 3206.38 -> 3222.88
+          credit:Empire State child credit: 769 -> 752.5
+  2025  investment-income  single-young-child       $65,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 90000 -> 90000.01
+          taxableIncome: 77800 -> 77800.01
+          tax: 3277.88 -> 3294.38
+          credit:Empire State child credit: 752.5 -> 736
+  2025  investment-income  single-young-child       $66,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 91000 -> 91000.01
+          taxableIncome: 78800 -> 78800.01
+          tax: 3349.38 -> 3365.88
+          credit:Empire State child credit: 736 -> 719.5
+  2025  investment-income  single-young-child       $67,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 92000 -> 92000.01
+          taxableIncome: 79800 -> 79800.01
+          tax: 3420.88 -> 3437.38
+          credit:Empire State child credit: 719.5 -> 703
+  2025  investment-income  single-young-child       $68,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 93000 -> 93000.01
+          taxableIncome: 80800 -> 80800.01
+          tax: 3492.38 -> 3508.88
+          credit:Empire State child credit: 703 -> 686.5
+  2025  investment-income  single-young-child       $69,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 94000 -> 94000.01
+          taxableIncome: 81800 -> 81800.01
+          tax: 3563.88 -> 3580.38
+          credit:Empire State child credit: 686.5 -> 670
+  2025  investment-income  single-young-child       $70,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 95000 -> 95000.01
+          taxableIncome: 82800 -> 82800.01
+          tax: 3635.38 -> 3651.88
+          credit:Empire State child credit: 670 -> 653.5
+  2025  investment-income  single-young-child       $71,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 96000 -> 96000.01
+          taxableIncome: 83800 -> 83800.01
+          tax: 3706.88 -> 3723.38
+          credit:Empire State child credit: 653.5 -> 637
+  2025  investment-income  single-young-child       $72,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 97000 -> 97000.01
+          taxableIncome: 84800 -> 84800.01
+          tax: 3778.38 -> 3794.88
+          credit:Empire State child credit: 637 -> 620.5
+  2025  investment-income  single-young-child       $73,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 98000 -> 98000.01
+          taxableIncome: 85800 -> 85800.01
+          tax: 3849.88 -> 3866.38
+          credit:Empire State child credit: 620.5 -> 604
+  2025  investment-income  single-young-child       $74,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 99000 -> 99000.01
+          taxableIncome: 86800 -> 86800.01
+          tax: 3921.38 -> 3937.88
+          credit:Empire State child credit: 604 -> 587.5
+  2025  investment-income  single-young-child       $75,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 100000 -> 100000.01
+          taxableIncome: 87800 -> 87800.01
+          tax: 3992.88 -> 4009.38
+          credit:Empire State child credit: 587.5 -> 571
+  2025  investment-income  single-young-child       $76,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 101000 -> 101000.01
+          taxableIncome: 88800 -> 88800.01
+          tax: 4064.38 -> 4080.88
+          credit:Empire State child credit: 571 -> 554.5
+  2025  investment-income  single-young-child       $77,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 102000 -> 102000.01
+          taxableIncome: 89800 -> 89800.01
+          tax: 4135.88 -> 4152.38
+          credit:Empire State child credit: 554.5 -> 538
+  2025  investment-income  single-young-child       $78,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 103000 -> 103000.01
+          taxableIncome: 90800 -> 90800.01
+          tax: 4207.38 -> 4223.88
+          credit:Empire State child credit: 538 -> 521.5
+  2025  investment-income  single-young-child       $79,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 104000 -> 104000.01
+          taxableIncome: 91800 -> 91800.01
+          tax: 4278.88 -> 4295.38
+          credit:Empire State child credit: 521.5 -> 505
+  2025  investment-income  single-young-child       $80,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 105000 -> 105000.01
+          taxableIncome: 92800 -> 92800.01
+          tax: 4350.38 -> 4366.88
+          credit:Empire State child credit: 505 -> 488.5
+  2025  investment-income  single-young-child       $81,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 106000 -> 106000.01
+          taxableIncome: 93800 -> 93800.01
+          tax: 4421.88 -> 4438.38
+          credit:Empire State child credit: 488.5 -> 472
+  2025  investment-income  single-young-child       $82,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 107000 -> 107000.01
+          taxableIncome: 94800 -> 94800.01
+          tax: 4493.38 -> 4509.88
+          credit:Empire State child credit: 472 -> 455.5
+  2025  investment-income  single-young-child       $83,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 108000 -> 108000.01
+          taxableIncome: 95800 -> 95800.01
+          tax: 4570.38 -> 4586.88
+          credit:Empire State child credit: 455.5 -> 439
+  2025  investment-income  single-young-child       $84,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 109000 -> 109000.01
+          taxableIncome: 96800 -> 96800.01
+          tax: 4657.62 -> 4674.12
+          credit:Empire State child credit: 439 -> 422.5
+  2025  investment-income  single-young-child       $85,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 110000 -> 110000.01
+          taxableIncome: 97800 -> 97800.01
+          tax: 4744.86 -> 4761.36
+          credit:Empire State child credit: 422.5 -> 406
+  2025  investment-income  single-young-child       $86,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 111000 -> 111000.01
+          taxableIncome: 98800 -> 98800.01
+          tax: 4832.1 -> 4848.6
+          credit:Empire State child credit: 406 -> 389.5
+  2025  investment-income  single-young-child       $87,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 112000 -> 112000.01
+          taxableIncome: 99800 -> 99800.01
+          tax: 4919.33 -> 4935.83
+          credit:Empire State child credit: 389.5 -> 373
+  2025  investment-income  single-young-child       $88,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 113000 -> 113000.01
+          taxableIncome: 100800 -> 100800.01
+          tax: 5006.57 -> 5023.07
+          credit:Empire State child credit: 373 -> 356.5
+  2025  investment-income  single-young-child       $89,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 114000 -> 114000.01
+          taxableIncome: 101800 -> 101800.01
+          tax: 5093.81 -> 5110.31
+          credit:Empire State child credit: 356.5 -> 340
+  2025  investment-income  single-young-child       $90,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 115000 -> 115000.01
+          taxableIncome: 102800 -> 102800.01
+          tax: 5181.05 -> 5197.55
+          credit:Empire State child credit: 340 -> 323.5
+  2025  investment-income  single-young-child       $91,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 116000 -> 116000.01
+          taxableIncome: 103800 -> 103800.01
+          tax: 5268.28 -> 5284.78
+          credit:Empire State child credit: 323.5 -> 307
+  2025  investment-income  single-young-child       $92,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 117000 -> 117000.01
+          taxableIncome: 104800 -> 104800.01
+          tax: 5355.52 -> 5372.02
+          credit:Empire State child credit: 307 -> 290.5
+  2025  investment-income  single-young-child       $93,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 118000 -> 118000.01
+          taxableIncome: 105800 -> 105800.01
+          tax: 5442.76 -> 5459.26
+          credit:Empire State child credit: 290.5 -> 274
+  2025  investment-income  single-young-child       $94,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 119000 -> 119000.01
+          taxableIncome: 106800 -> 106800.01
+          tax: 5530 -> 5546.5
+          credit:Empire State child credit: 274 -> 257.5
+  2025  investment-income  single-young-child       $95,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 120000 -> 120000.01
+          taxableIncome: 107800 -> 107800.01
+          tax: 5617.98 -> 5634.48
+          credit:Empire State child credit: 257.5 -> 241
+  2025  investment-income  single-young-child       $96,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 121000 -> 121000.01
+          taxableIncome: 108800 -> 108800.01
+          tax: 5710.22 -> 5726.72
+          credit:Empire State child credit: 241 -> 224.5
+  2025  investment-income  single-young-child       $97,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 122000 -> 122000.01
+          taxableIncome: 109800 -> 109800.01
+          tax: 5802.46 -> 5818.96
+          credit:Empire State child credit: 224.5 -> 208
+  2025  investment-income  single-young-child       $98,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 123000 -> 123000.01
+          taxableIncome: 110800 -> 110800.01
+          tax: 5894.7 -> 5911.2
+          credit:Empire State child credit: 208 -> 191.5
+  2025  investment-income  single-young-child       $99,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 124000 -> 124000.01
+          taxableIncome: 111800 -> 111800.01
+          tax: 5986.93 -> 6003.43
+          credit:Empire State child credit: 191.5 -> 175
+  2025  investment-income  single-young-child      $100,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 125000 -> 125000.01
+          taxableIncome: 112800 -> 112800.01
+          tax: 6079.17 -> 6095.67
+          credit:Empire State child credit: 175 -> 158.5
+  2025  investment-income  single-young-child      $101,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 126000 -> 126000.01
+          taxableIncome: 113800 -> 113800.01
+          tax: 6171.41 -> 6187.91
+          credit:Empire State child credit: 158.5 -> 142
+  2025  investment-income  single-young-child      $102,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 127000 -> 127000.01
+          taxableIncome: 114800 -> 114800.01
+          tax: 6263.65 -> 6280.15
+          credit:Empire State child credit: 142 -> 125.5
+  2025  investment-income  single-young-child      $103,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 128000 -> 128000.01
+          taxableIncome: 115800 -> 115800.01
+          tax: 6355.88 -> 6372.38
+          credit:Empire State child credit: 125.5 -> 109
+  2025  investment-income  single-young-child      $104,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 129000 -> 129000.01
+          taxableIncome: 116800 -> 116800.01
+          tax: 6448.12 -> 6464.62
+          credit:Empire State child credit: 109 -> 92.5
+  2025  investment-income  single-young-child      $105,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 130000 -> 130000.01
+          taxableIncome: 117800 -> 117800.01
+          tax: 6540.36 -> 6556.86
+          credit:Empire State child credit: 92.5 -> 76
+  2025  investment-income  single-young-child      $106,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 131000 -> 131000.01
+          taxableIncome: 118800 -> 118800.01
+          tax: 6632.6 -> 6649.1
+          credit:Empire State child credit: 76 -> 59.5
+  2025  investment-income  single-young-child      $107,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 132000 -> 132000.01
+          taxableIncome: 119800 -> 119800.01
+          tax: 6724.83 -> 6741.33
+          credit:Empire State child credit: 59.5 -> 43
+  2025  investment-income  single-young-child      $108,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 133000 -> 133000.01
+          taxableIncome: 120800 -> 120800.01
+          tax: 6817.07 -> 6833.57
+          credit:Empire State child credit: 43 -> 26.5
+  2025  investment-income  single-young-child      $109,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 134000 -> 134000.01
+          taxableIncome: 121800 -> 121800.01
+          tax: 6909.31 -> 6925.81
+          credit:Empire State child credit: 26.5 -> 10
+  2025  investment-income  single-young-child      $110,000.00 -> +$10.00
+          stateAdjustedGrossIncome: 135000 -> 135000.01
+          taxableIncome: 122800 -> 122800.01
+          tax: 7001.55 -> 7011.55
+          credit:Empire State child credit: 10 -> 0
   2025  municipal-interest single-two-children      $11,950.00 -> +$2,001.35
           tax: -2041.35 -> -40
           credit:New York earned income credit: 2001.35 -> 0
@@ -21926,6 +26617,343 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 104000 -> 104000.01
           tax: 5727.42 -> 5743.92
           credit:Empire State child credit: 16.5 -> 0
+  2025  wages              single-young-child       $75,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 75000 -> 75000.01
+          taxableIncome: 62800 -> 62800.01
+          tax: 2205.38 -> 2221.88
+          credit:Empire State child credit: 1000 -> 983.5
+  2025  wages              single-young-child       $76,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 76000 -> 76000.01
+          taxableIncome: 63800 -> 63800.01
+          tax: 2276.88 -> 2293.38
+          credit:Empire State child credit: 983.5 -> 967
+  2025  wages              single-young-child       $77,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 77000 -> 77000.01
+          taxableIncome: 64800 -> 64800.01
+          tax: 2348.38 -> 2364.88
+          credit:Empire State child credit: 967 -> 950.5
+  2025  wages              single-young-child       $78,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 78000 -> 78000.01
+          taxableIncome: 65800 -> 65800.01
+          tax: 2419.88 -> 2436.38
+          credit:Empire State child credit: 950.5 -> 934
+  2025  wages              single-young-child       $79,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 79000 -> 79000.01
+          taxableIncome: 66800 -> 66800.01
+          tax: 2491.38 -> 2507.88
+          credit:Empire State child credit: 934 -> 917.5
+  2025  wages              single-young-child       $80,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 80000 -> 80000.01
+          taxableIncome: 67800 -> 67800.01
+          tax: 2562.88 -> 2579.38
+          credit:Empire State child credit: 917.5 -> 901
+  2025  wages              single-young-child       $81,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 81000 -> 81000.01
+          taxableIncome: 68800 -> 68800.01
+          tax: 2634.38 -> 2650.88
+          credit:Empire State child credit: 901 -> 884.5
+  2025  wages              single-young-child       $82,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 82000 -> 82000.01
+          taxableIncome: 69800 -> 69800.01
+          tax: 2705.88 -> 2722.38
+          credit:Empire State child credit: 884.5 -> 868
+  2025  wages              single-young-child       $83,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 83000 -> 83000.01
+          taxableIncome: 70800 -> 70800.01
+          tax: 2777.38 -> 2793.88
+          credit:Empire State child credit: 868 -> 851.5
+  2025  wages              single-young-child       $84,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 84000 -> 84000.01
+          taxableIncome: 71800 -> 71800.01
+          tax: 2848.88 -> 2865.38
+          credit:Empire State child credit: 851.5 -> 835
+  2025  wages              single-young-child       $85,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 85000 -> 85000.01
+          taxableIncome: 72800 -> 72800.01
+          tax: 2920.38 -> 2936.88
+          credit:Empire State child credit: 835 -> 818.5
+  2025  wages              single-young-child       $86,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 86000 -> 86000.01
+          taxableIncome: 73800 -> 73800.01
+          tax: 2991.88 -> 3008.38
+          credit:Empire State child credit: 818.5 -> 802
+  2025  wages              single-young-child       $87,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 87000 -> 87000.01
+          taxableIncome: 74800 -> 74800.01
+          tax: 3063.38 -> 3079.88
+          credit:Empire State child credit: 802 -> 785.5
+  2025  wages              single-young-child       $88,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 88000 -> 88000.01
+          taxableIncome: 75800 -> 75800.01
+          tax: 3134.88 -> 3151.38
+          credit:Empire State child credit: 785.5 -> 769
+  2025  wages              single-young-child       $89,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 89000 -> 89000.01
+          taxableIncome: 76800 -> 76800.01
+          tax: 3206.38 -> 3222.88
+          credit:Empire State child credit: 769 -> 752.5
+  2025  wages              single-young-child       $90,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 90000 -> 90000.01
+          taxableIncome: 77800 -> 77800.01
+          tax: 3277.88 -> 3294.38
+          credit:Empire State child credit: 752.5 -> 736
+  2025  wages              single-young-child       $91,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 91000 -> 91000.01
+          taxableIncome: 78800 -> 78800.01
+          tax: 3349.38 -> 3365.88
+          credit:Empire State child credit: 736 -> 719.5
+  2025  wages              single-young-child       $92,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 92000 -> 92000.01
+          taxableIncome: 79800 -> 79800.01
+          tax: 3420.88 -> 3437.38
+          credit:Empire State child credit: 719.5 -> 703
+  2025  wages              single-young-child       $93,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 93000 -> 93000.01
+          taxableIncome: 80800 -> 80800.01
+          tax: 3492.38 -> 3508.88
+          credit:Empire State child credit: 703 -> 686.5
+  2025  wages              single-young-child       $94,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 94000 -> 94000.01
+          taxableIncome: 81800 -> 81800.01
+          tax: 3563.88 -> 3580.38
+          credit:Empire State child credit: 686.5 -> 670
+  2025  wages              single-young-child       $95,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 95000 -> 95000.01
+          taxableIncome: 82800 -> 82800.01
+          tax: 3635.38 -> 3651.88
+          credit:Empire State child credit: 670 -> 653.5
+  2025  wages              single-young-child       $96,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 96000 -> 96000.01
+          taxableIncome: 83800 -> 83800.01
+          tax: 3706.88 -> 3723.38
+          credit:Empire State child credit: 653.5 -> 637
+  2025  wages              single-young-child       $97,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 97000 -> 97000.01
+          taxableIncome: 84800 -> 84800.01
+          tax: 3778.38 -> 3794.88
+          credit:Empire State child credit: 637 -> 620.5
+  2025  wages              single-young-child       $98,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 98000 -> 98000.01
+          taxableIncome: 85800 -> 85800.01
+          tax: 3849.88 -> 3866.38
+          credit:Empire State child credit: 620.5 -> 604
+  2025  wages              single-young-child       $99,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 99000 -> 99000.01
+          taxableIncome: 86800 -> 86800.01
+          tax: 3921.38 -> 3937.88
+          credit:Empire State child credit: 604 -> 587.5
+  2025  wages              single-young-child      $100,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 100000 -> 100000.01
+          taxableIncome: 87800 -> 87800.01
+          tax: 3992.88 -> 4009.38
+          credit:Empire State child credit: 587.5 -> 571
+  2025  wages              single-young-child      $101,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 101000 -> 101000.01
+          taxableIncome: 88800 -> 88800.01
+          tax: 4064.38 -> 4080.88
+          credit:Empire State child credit: 571 -> 554.5
+  2025  wages              single-young-child      $102,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 102000 -> 102000.01
+          taxableIncome: 89800 -> 89800.01
+          tax: 4135.88 -> 4152.38
+          credit:Empire State child credit: 554.5 -> 538
+  2025  wages              single-young-child      $103,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 103000 -> 103000.01
+          taxableIncome: 90800 -> 90800.01
+          tax: 4207.38 -> 4223.88
+          credit:Empire State child credit: 538 -> 521.5
+  2025  wages              single-young-child      $104,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 104000 -> 104000.01
+          taxableIncome: 91800 -> 91800.01
+          tax: 4278.88 -> 4295.38
+          credit:Empire State child credit: 521.5 -> 505
+  2025  wages              single-young-child      $105,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 105000 -> 105000.01
+          taxableIncome: 92800 -> 92800.01
+          tax: 4350.38 -> 4366.88
+          credit:Empire State child credit: 505 -> 488.5
+  2025  wages              single-young-child      $106,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 106000 -> 106000.01
+          taxableIncome: 93800 -> 93800.01
+          tax: 4421.88 -> 4438.38
+          credit:Empire State child credit: 488.5 -> 472
+  2025  wages              single-young-child      $107,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 107000 -> 107000.01
+          taxableIncome: 94800 -> 94800.01
+          tax: 4493.38 -> 4509.88
+          credit:Empire State child credit: 472 -> 455.5
+  2025  wages              single-young-child      $108,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 108000 -> 108000.01
+          taxableIncome: 95800 -> 95800.01
+          tax: 4570.38 -> 4586.88
+          credit:Empire State child credit: 455.5 -> 439
+  2025  wages              single-young-child      $109,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 109000 -> 109000.01
+          taxableIncome: 96800 -> 96800.01
+          tax: 4657.62 -> 4674.12
+          credit:Empire State child credit: 439 -> 422.5
+  2025  wages              single-young-child      $110,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 110000 -> 110000.01
+          taxableIncome: 97800 -> 97800.01
+          tax: 4744.86 -> 4761.36
+          credit:Empire State child credit: 422.5 -> 406
+  2025  wages              single-young-child      $111,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 111000 -> 111000.01
+          taxableIncome: 98800 -> 98800.01
+          tax: 4832.1 -> 4848.6
+          credit:Empire State child credit: 406 -> 389.5
+  2025  wages              single-young-child      $112,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 112000 -> 112000.01
+          taxableIncome: 99800 -> 99800.01
+          tax: 4919.33 -> 4935.83
+          credit:Empire State child credit: 389.5 -> 373
+  2025  wages              single-young-child      $113,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 113000 -> 113000.01
+          taxableIncome: 100800 -> 100800.01
+          tax: 5006.57 -> 5023.07
+          credit:Empire State child credit: 373 -> 356.5
+  2025  wages              single-young-child      $114,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 114000 -> 114000.01
+          taxableIncome: 101800 -> 101800.01
+          tax: 5093.81 -> 5110.31
+          credit:Empire State child credit: 356.5 -> 340
+  2025  wages              single-young-child      $115,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 115000 -> 115000.01
+          taxableIncome: 102800 -> 102800.01
+          tax: 5181.05 -> 5197.55
+          credit:Empire State child credit: 340 -> 323.5
+  2025  wages              single-young-child      $116,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 116000 -> 116000.01
+          taxableIncome: 103800 -> 103800.01
+          tax: 5268.28 -> 5284.78
+          credit:Empire State child credit: 323.5 -> 307
+  2025  wages              single-young-child      $117,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 117000 -> 117000.01
+          taxableIncome: 104800 -> 104800.01
+          tax: 5355.52 -> 5372.02
+          credit:Empire State child credit: 307 -> 290.5
+  2025  wages              single-young-child      $118,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 118000 -> 118000.01
+          taxableIncome: 105800 -> 105800.01
+          tax: 5442.76 -> 5459.26
+          credit:Empire State child credit: 290.5 -> 274
+  2025  wages              single-young-child      $119,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 119000 -> 119000.01
+          taxableIncome: 106800 -> 106800.01
+          tax: 5530 -> 5546.5
+          credit:Empire State child credit: 274 -> 257.5
+  2025  wages              single-young-child      $120,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 120000 -> 120000.01
+          taxableIncome: 107800 -> 107800.01
+          tax: 5617.98 -> 5634.48
+          credit:Empire State child credit: 257.5 -> 241
+  2025  wages              single-young-child      $121,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 121000 -> 121000.01
+          taxableIncome: 108800 -> 108800.01
+          tax: 5710.22 -> 5726.72
+          credit:Empire State child credit: 241 -> 224.5
+  2025  wages              single-young-child      $122,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 122000 -> 122000.01
+          taxableIncome: 109800 -> 109800.01
+          tax: 5802.46 -> 5818.96
+          credit:Empire State child credit: 224.5 -> 208
+  2025  wages              single-young-child      $123,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 123000 -> 123000.01
+          taxableIncome: 110800 -> 110800.01
+          tax: 5894.7 -> 5911.2
+          credit:Empire State child credit: 208 -> 191.5
+  2025  wages              single-young-child      $124,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 124000 -> 124000.01
+          taxableIncome: 111800 -> 111800.01
+          tax: 5986.93 -> 6003.43
+          credit:Empire State child credit: 191.5 -> 175
+  2025  wages              single-young-child      $125,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 125000 -> 125000.01
+          taxableIncome: 112800 -> 112800.01
+          tax: 6079.17 -> 6095.67
+          credit:Empire State child credit: 175 -> 158.5
+  2025  wages              single-young-child      $126,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 126000 -> 126000.01
+          taxableIncome: 113800 -> 113800.01
+          tax: 6171.41 -> 6187.91
+          credit:Empire State child credit: 158.5 -> 142
+  2025  wages              single-young-child      $127,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 127000 -> 127000.01
+          taxableIncome: 114800 -> 114800.01
+          tax: 6263.65 -> 6280.15
+          credit:Empire State child credit: 142 -> 125.5
+  2025  wages              single-young-child      $128,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 128000 -> 128000.01
+          taxableIncome: 115800 -> 115800.01
+          tax: 6355.88 -> 6372.38
+          credit:Empire State child credit: 125.5 -> 109
+  2025  wages              single-young-child      $129,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 129000 -> 129000.01
+          taxableIncome: 116800 -> 116800.01
+          tax: 6448.12 -> 6464.62
+          credit:Empire State child credit: 109 -> 92.5
+  2025  wages              single-young-child      $130,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 130000 -> 130000.01
+          taxableIncome: 117800 -> 117800.01
+          tax: 6540.36 -> 6556.86
+          credit:Empire State child credit: 92.5 -> 76
+  2025  wages              single-young-child      $131,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 131000 -> 131000.01
+          taxableIncome: 118800 -> 118800.01
+          tax: 6632.6 -> 6649.1
+          credit:Empire State child credit: 76 -> 59.5
+  2025  wages              single-young-child      $132,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 132000 -> 132000.01
+          taxableIncome: 119800 -> 119800.01
+          tax: 6724.83 -> 6741.33
+          credit:Empire State child credit: 59.5 -> 43
+  2025  wages              single-young-child      $133,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 133000 -> 133000.01
+          taxableIncome: 120800 -> 120800.01
+          tax: 6817.07 -> 6833.57
+          credit:Empire State child credit: 43 -> 26.5
+  2025  wages              single-young-child      $134,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 134000 -> 134000.01
+          taxableIncome: 121800 -> 121800.01
+          tax: 6909.31 -> 6925.81
+          credit:Empire State child credit: 26.5 -> 10
+  2025  wages              single-young-child      $135,000.00 -> +$10.00
+          stateAdjustedGrossIncome: 135000 -> 135000.01
+          taxableIncome: 122800 -> 122800.01
+          tax: 7001.55 -> 7011.55
+          credit:Empire State child credit: 10 -> 0
+  2026  dependent-age      hoh-one-child                 age 3 -> +$500.00
+          tax: -2023.9 -> -1523.9
+          credit:Empire State child credit: 1000 -> 500
+  2026  dependent-age      hoh-one-child                age 16 -> +$500.00
+          tax: -1523.9 -> -1023.9
+          credit:Empire State child credit: 500 -> 0
+  2026  dependent-age      hoh-one-child                age 18 -> +$1,253.10
+          tax: -1023.9 -> 229.2
+          credit:New York earned income credit: 1253.1 -> 0
+  2026  dependent-age      single-two-children           age 3 -> +$500.00
+          tax: -3297.3 -> -2797.3
+          credit:Empire State child credit: 1500 -> 1000
+  2026  dependent-age      single-two-children          age 16 -> +$500.00
+          tax: -2797.3 -> -2297.3
+          credit:Empire State child credit: 1000 -> 500
+  2026  dependent-age      single-two-children          age 18 -> +$866.70
+          tax: -2297.3 -> -1430.6
+          credit:New York earned income credit: 2149.8 -> 1283.1
+  2026  filer-age          joint-no-children            age 59 -> -$544.05
+          stateAdjustedGrossIncome: 30000 -> 10000
+          subtractions: 4000 -> 24000
+          taxableIncome: 13950 -> 0
+          taxBeforeCredits: 544.05 -> 0
+          tax: 544.05 -> 0
+          subtraction:New York pension and annuity exclusion: null -> 20000
+  2026  filer-age          single-retiree               age 59 -> -$945.00
+          stateAdjustedGrossIncome: 30000 -> 10000
+          subtractions: 9600 -> 29600
+          taxableIncome: 22000 -> 2000
+          taxBeforeCredits: 1023 -> 78
+          tax: 1023 -> 78
+          subtraction:New York pension and annuity exclusion: null -> 20000
   2026  investment-income  childless-single              $0.00 -> +$20.00
           stateAdjustedGrossIncome: 25000 -> 25000.01
           taxableIncome: 17000 -> 17000.01
@@ -22726,6 +27754,316 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 125000 -> 125000.01
           tax: 7107.58 -> 7117.58
           credit:Empire State child credit: 10 -> 0
+  2026  investment-income  single-young-child       $12,200.00 -> +$690.02
+          stateAdjustedGrossIncome: 37200 -> 37200.01
+          taxableIncome: 25000 -> 25000.01
+          tax: -588.64 -> 101.38
+          credit:New York earned income credit: 690.02 -> 0
+  2026  investment-income  single-young-child       $50,000.00 -> +$16.51
+          stateAdjustedGrossIncome: 75000 -> 75000.01
+          taxableIncome: 62800 -> 62800.01
+          tax: 2142.57 -> 2159.08
+          credit:Empire State child credit: 1000 -> 983.5
+  2026  investment-income  single-young-child       $51,000.00 -> +$16.51
+          stateAdjustedGrossIncome: 76000 -> 76000.01
+          taxableIncome: 63800 -> 63800.01
+          tax: 2213.07 -> 2229.58
+          credit:Empire State child credit: 983.5 -> 967
+  2026  investment-income  single-young-child       $52,000.00 -> +$16.51
+          stateAdjustedGrossIncome: 77000 -> 77000.01
+          taxableIncome: 64800 -> 64800.01
+          tax: 2283.57 -> 2300.08
+          credit:Empire State child credit: 967 -> 950.5
+  2026  investment-income  single-young-child       $53,000.00 -> +$16.51
+          stateAdjustedGrossIncome: 78000 -> 78000.01
+          taxableIncome: 65800 -> 65800.01
+          tax: 2354.07 -> 2370.58
+          credit:Empire State child credit: 950.5 -> 934
+  2026  investment-income  single-young-child       $54,000.00 -> +$16.51
+          stateAdjustedGrossIncome: 79000 -> 79000.01
+          taxableIncome: 66800 -> 66800.01
+          tax: 2424.57 -> 2441.08
+          credit:Empire State child credit: 934 -> 917.5
+  2026  investment-income  single-young-child       $55,000.00 -> +$16.51
+          stateAdjustedGrossIncome: 80000 -> 80000.01
+          taxableIncome: 67800 -> 67800.01
+          tax: 2495.07 -> 2511.58
+          credit:Empire State child credit: 917.5 -> 901
+  2026  investment-income  single-young-child       $56,000.00 -> +$16.51
+          stateAdjustedGrossIncome: 81000 -> 81000.01
+          taxableIncome: 68800 -> 68800.01
+          tax: 2565.57 -> 2582.08
+          credit:Empire State child credit: 901 -> 884.5
+  2026  investment-income  single-young-child       $57,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 82000 -> 82000.01
+          taxableIncome: 69800 -> 69800.01
+          tax: 2636.08 -> 2652.58
+          credit:Empire State child credit: 884.5 -> 868
+  2026  investment-income  single-young-child       $58,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 83000 -> 83000.01
+          taxableIncome: 70800 -> 70800.01
+          tax: 2706.58 -> 2723.08
+          credit:Empire State child credit: 868 -> 851.5
+  2026  investment-income  single-young-child       $59,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 84000 -> 84000.01
+          taxableIncome: 71800 -> 71800.01
+          tax: 2777.08 -> 2793.58
+          credit:Empire State child credit: 851.5 -> 835
+  2026  investment-income  single-young-child       $60,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 85000 -> 85000.01
+          taxableIncome: 72800 -> 72800.01
+          tax: 2847.58 -> 2864.08
+          credit:Empire State child credit: 835 -> 818.5
+  2026  investment-income  single-young-child       $61,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 86000 -> 86000.01
+          taxableIncome: 73800 -> 73800.01
+          tax: 2918.08 -> 2934.58
+          credit:Empire State child credit: 818.5 -> 802
+  2026  investment-income  single-young-child       $62,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 87000 -> 87000.01
+          taxableIncome: 74800 -> 74800.01
+          tax: 2988.58 -> 3005.08
+          credit:Empire State child credit: 802 -> 785.5
+  2026  investment-income  single-young-child       $63,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 88000 -> 88000.01
+          taxableIncome: 75800 -> 75800.01
+          tax: 3059.08 -> 3075.58
+          credit:Empire State child credit: 785.5 -> 769
+  2026  investment-income  single-young-child       $64,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 89000 -> 89000.01
+          taxableIncome: 76800 -> 76800.01
+          tax: 3129.58 -> 3146.08
+          credit:Empire State child credit: 769 -> 752.5
+  2026  investment-income  single-young-child       $65,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 90000 -> 90000.01
+          taxableIncome: 77800 -> 77800.01
+          tax: 3200.08 -> 3216.58
+          credit:Empire State child credit: 752.5 -> 736
+  2026  investment-income  single-young-child       $66,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 91000 -> 91000.01
+          taxableIncome: 78800 -> 78800.01
+          tax: 3270.58 -> 3287.08
+          credit:Empire State child credit: 736 -> 719.5
+  2026  investment-income  single-young-child       $67,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 92000 -> 92000.01
+          taxableIncome: 79800 -> 79800.01
+          tax: 3341.08 -> 3357.58
+          credit:Empire State child credit: 719.5 -> 703
+  2026  investment-income  single-young-child       $68,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 93000 -> 93000.01
+          taxableIncome: 80800 -> 80800.01
+          tax: 3411.58 -> 3428.08
+          credit:Empire State child credit: 703 -> 686.5
+  2026  investment-income  single-young-child       $69,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 94000 -> 94000.01
+          taxableIncome: 81800 -> 81800.01
+          tax: 3482.08 -> 3498.58
+          credit:Empire State child credit: 686.5 -> 670
+  2026  investment-income  single-young-child       $70,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 95000 -> 95000.01
+          taxableIncome: 82800 -> 82800.01
+          tax: 3552.58 -> 3569.08
+          credit:Empire State child credit: 670 -> 653.5
+  2026  investment-income  single-young-child       $71,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 96000 -> 96000.01
+          taxableIncome: 83800 -> 83800.01
+          tax: 3623.08 -> 3639.58
+          credit:Empire State child credit: 653.5 -> 637
+  2026  investment-income  single-young-child       $72,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 97000 -> 97000.01
+          taxableIncome: 84800 -> 84800.01
+          tax: 3693.58 -> 3710.08
+          credit:Empire State child credit: 637 -> 620.5
+  2026  investment-income  single-young-child       $73,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 98000 -> 98000.01
+          taxableIncome: 85800 -> 85800.01
+          tax: 3764.08 -> 3780.58
+          credit:Empire State child credit: 620.5 -> 604
+  2026  investment-income  single-young-child       $74,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 99000 -> 99000.01
+          taxableIncome: 86800 -> 86800.01
+          tax: 3834.58 -> 3851.08
+          credit:Empire State child credit: 604 -> 587.5
+  2026  investment-income  single-young-child       $75,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 100000 -> 100000.01
+          taxableIncome: 87800 -> 87800.01
+          tax: 3905.08 -> 3921.58
+          credit:Empire State child credit: 587.5 -> 571
+  2026  investment-income  single-young-child       $76,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 101000 -> 101000.01
+          taxableIncome: 88800 -> 88800.01
+          tax: 3975.58 -> 3992.08
+          credit:Empire State child credit: 571 -> 554.5
+  2026  investment-income  single-young-child       $77,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 102000 -> 102000.01
+          taxableIncome: 89800 -> 89800.01
+          tax: 4046.08 -> 4062.58
+          credit:Empire State child credit: 554.5 -> 538
+  2026  investment-income  single-young-child       $78,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 103000 -> 103000.01
+          taxableIncome: 90800 -> 90800.01
+          tax: 4116.58 -> 4133.08
+          credit:Empire State child credit: 538 -> 521.5
+  2026  investment-income  single-young-child       $79,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 104000 -> 104000.01
+          taxableIncome: 91800 -> 91800.01
+          tax: 4187.08 -> 4203.58
+          credit:Empire State child credit: 521.5 -> 505
+  2026  investment-income  single-young-child       $80,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 105000 -> 105000.01
+          taxableIncome: 92800 -> 92800.01
+          tax: 4257.58 -> 4274.08
+          credit:Empire State child credit: 505 -> 488.5
+  2026  investment-income  single-young-child       $81,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 106000 -> 106000.01
+          taxableIncome: 93800 -> 93800.01
+          tax: 4328.08 -> 4344.58
+          credit:Empire State child credit: 488.5 -> 472
+  2026  investment-income  single-young-child       $82,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 107000 -> 107000.01
+          taxableIncome: 94800 -> 94800.01
+          tax: 4398.58 -> 4415.08
+          credit:Empire State child credit: 472 -> 455.5
+  2026  investment-income  single-young-child       $83,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 108000 -> 108000.01
+          taxableIncome: 95800 -> 95800.01
+          tax: 4474.58 -> 4491.08
+          credit:Empire State child credit: 455.5 -> 439
+  2026  investment-income  single-young-child       $84,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 109000 -> 109000.01
+          taxableIncome: 96800 -> 96800.01
+          tax: 4560.82 -> 4577.32
+          credit:Empire State child credit: 439 -> 422.5
+  2026  investment-income  single-young-child       $85,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 110000 -> 110000.01
+          taxableIncome: 97800 -> 97800.01
+          tax: 4647.06 -> 4663.56
+          credit:Empire State child credit: 422.5 -> 406
+  2026  investment-income  single-young-child       $86,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 111000 -> 111000.01
+          taxableIncome: 98800 -> 98800.01
+          tax: 4733.3 -> 4749.8
+          credit:Empire State child credit: 406 -> 389.5
+  2026  investment-income  single-young-child       $87,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 112000 -> 112000.01
+          taxableIncome: 99800 -> 99800.01
+          tax: 4819.53 -> 4836.03
+          credit:Empire State child credit: 389.5 -> 373
+  2026  investment-income  single-young-child       $88,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 113000 -> 113000.01
+          taxableIncome: 100800 -> 100800.01
+          tax: 4905.77 -> 4922.27
+          credit:Empire State child credit: 373 -> 356.5
+  2026  investment-income  single-young-child       $89,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 114000 -> 114000.01
+          taxableIncome: 101800 -> 101800.01
+          tax: 4992.01 -> 5008.51
+          credit:Empire State child credit: 356.5 -> 340
+  2026  investment-income  single-young-child       $90,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 115000 -> 115000.01
+          taxableIncome: 102800 -> 102800.01
+          tax: 5078.25 -> 5094.75
+          credit:Empire State child credit: 340 -> 323.5
+  2026  investment-income  single-young-child       $91,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 116000 -> 116000.01
+          taxableIncome: 103800 -> 103800.01
+          tax: 5164.48 -> 5180.98
+          credit:Empire State child credit: 323.5 -> 307
+  2026  investment-income  single-young-child       $92,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 117000 -> 117000.01
+          taxableIncome: 104800 -> 104800.01
+          tax: 5250.72 -> 5267.22
+          credit:Empire State child credit: 307 -> 290.5
+  2026  investment-income  single-young-child       $93,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 118000 -> 118000.01
+          taxableIncome: 105800 -> 105800.01
+          tax: 5336.96 -> 5353.46
+          credit:Empire State child credit: 290.5 -> 274
+  2026  investment-income  single-young-child       $94,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 119000 -> 119000.01
+          taxableIncome: 106800 -> 106800.01
+          tax: 5423.2 -> 5439.7
+          credit:Empire State child credit: 274 -> 257.5
+  2026  investment-income  single-young-child       $95,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 120000 -> 120000.01
+          taxableIncome: 107800 -> 107800.01
+          tax: 5510.18 -> 5526.68
+          credit:Empire State child credit: 257.5 -> 241
+  2026  investment-income  single-young-child       $96,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 121000 -> 121000.01
+          taxableIncome: 108800 -> 108800.01
+          tax: 5601.42 -> 5617.92
+          credit:Empire State child credit: 241 -> 224.5
+  2026  investment-income  single-young-child       $97,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 122000 -> 122000.01
+          taxableIncome: 109800 -> 109800.01
+          tax: 5692.66 -> 5709.16
+          credit:Empire State child credit: 224.5 -> 208
+  2026  investment-income  single-young-child       $98,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 123000 -> 123000.01
+          taxableIncome: 110800 -> 110800.01
+          tax: 5783.9 -> 5800.4
+          credit:Empire State child credit: 208 -> 191.5
+  2026  investment-income  single-young-child       $99,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 124000 -> 124000.01
+          taxableIncome: 111800 -> 111800.01
+          tax: 5875.13 -> 5891.63
+          credit:Empire State child credit: 191.5 -> 175
+  2026  investment-income  single-young-child      $100,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 125000 -> 125000.01
+          taxableIncome: 112800 -> 112800.01
+          tax: 5966.37 -> 5982.87
+          credit:Empire State child credit: 175 -> 158.5
+  2026  investment-income  single-young-child      $101,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 126000 -> 126000.01
+          taxableIncome: 113800 -> 113800.01
+          tax: 6057.61 -> 6074.11
+          credit:Empire State child credit: 158.5 -> 142
+  2026  investment-income  single-young-child      $102,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 127000 -> 127000.01
+          taxableIncome: 114800 -> 114800.01
+          tax: 6148.85 -> 6165.35
+          credit:Empire State child credit: 142 -> 125.5
+  2026  investment-income  single-young-child      $103,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 128000 -> 128000.01
+          taxableIncome: 115800 -> 115800.01
+          tax: 6240.08 -> 6256.58
+          credit:Empire State child credit: 125.5 -> 109
+  2026  investment-income  single-young-child      $104,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 129000 -> 129000.01
+          taxableIncome: 116800 -> 116800.01
+          tax: 6331.32 -> 6347.82
+          credit:Empire State child credit: 109 -> 92.5
+  2026  investment-income  single-young-child      $105,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 130000 -> 130000.01
+          taxableIncome: 117800 -> 117800.01
+          tax: 6422.56 -> 6439.06
+          credit:Empire State child credit: 92.5 -> 76
+  2026  investment-income  single-young-child      $106,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 131000 -> 131000.01
+          taxableIncome: 118800 -> 118800.01
+          tax: 6513.8 -> 6530.3
+          credit:Empire State child credit: 76 -> 59.5
+  2026  investment-income  single-young-child      $107,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 132000 -> 132000.01
+          taxableIncome: 119800 -> 119800.01
+          tax: 6605.03 -> 6621.53
+          credit:Empire State child credit: 59.5 -> 43
+  2026  investment-income  single-young-child      $108,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 133000 -> 133000.01
+          taxableIncome: 120800 -> 120800.01
+          tax: 6696.27 -> 6712.77
+          credit:Empire State child credit: 43 -> 26.5
+  2026  investment-income  single-young-child      $109,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 134000 -> 134000.01
+          taxableIncome: 121800 -> 121800.01
+          tax: 6787.51 -> 6804.01
+          credit:Empire State child credit: 26.5 -> 10
+  2026  investment-income  single-young-child      $110,000.00 -> +$10.00
+          stateAdjustedGrossIncome: 135000 -> 135000.01
+          taxableIncome: 122800 -> 122800.01
+          tax: 6878.75 -> 6888.75
+          credit:Empire State child credit: 10 -> 0
   2026  municipal-interest single-two-children      $12,200.00 -> +$2,084.67
           tax: -2479.67 -> -395
           credit:New York earned income credit: 2084.67 -> 0
@@ -23419,13 +28757,321 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 125000 -> 125000.01
           tax: 7107.58 -> 7117.58
           credit:Empire State child credit: 10 -> 0
+  2026  wages              single-young-child       $75,000.00 -> +$16.51
+          stateAdjustedGrossIncome: 75000 -> 75000.01
+          taxableIncome: 62800 -> 62800.01
+          tax: 2142.57 -> 2159.08
+          credit:Empire State child credit: 1000 -> 983.5
+  2026  wages              single-young-child       $76,000.00 -> +$16.51
+          stateAdjustedGrossIncome: 76000 -> 76000.01
+          taxableIncome: 63800 -> 63800.01
+          tax: 2213.07 -> 2229.58
+          credit:Empire State child credit: 983.5 -> 967
+  2026  wages              single-young-child       $77,000.00 -> +$16.51
+          stateAdjustedGrossIncome: 77000 -> 77000.01
+          taxableIncome: 64800 -> 64800.01
+          tax: 2283.57 -> 2300.08
+          credit:Empire State child credit: 967 -> 950.5
+  2026  wages              single-young-child       $78,000.00 -> +$16.51
+          stateAdjustedGrossIncome: 78000 -> 78000.01
+          taxableIncome: 65800 -> 65800.01
+          tax: 2354.07 -> 2370.58
+          credit:Empire State child credit: 950.5 -> 934
+  2026  wages              single-young-child       $79,000.00 -> +$16.51
+          stateAdjustedGrossIncome: 79000 -> 79000.01
+          taxableIncome: 66800 -> 66800.01
+          tax: 2424.57 -> 2441.08
+          credit:Empire State child credit: 934 -> 917.5
+  2026  wages              single-young-child       $80,000.00 -> +$16.51
+          stateAdjustedGrossIncome: 80000 -> 80000.01
+          taxableIncome: 67800 -> 67800.01
+          tax: 2495.07 -> 2511.58
+          credit:Empire State child credit: 917.5 -> 901
+  2026  wages              single-young-child       $81,000.00 -> +$16.51
+          stateAdjustedGrossIncome: 81000 -> 81000.01
+          taxableIncome: 68800 -> 68800.01
+          tax: 2565.57 -> 2582.08
+          credit:Empire State child credit: 901 -> 884.5
+  2026  wages              single-young-child       $82,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 82000 -> 82000.01
+          taxableIncome: 69800 -> 69800.01
+          tax: 2636.08 -> 2652.58
+          credit:Empire State child credit: 884.5 -> 868
+  2026  wages              single-young-child       $83,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 83000 -> 83000.01
+          taxableIncome: 70800 -> 70800.01
+          tax: 2706.58 -> 2723.08
+          credit:Empire State child credit: 868 -> 851.5
+  2026  wages              single-young-child       $84,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 84000 -> 84000.01
+          taxableIncome: 71800 -> 71800.01
+          tax: 2777.08 -> 2793.58
+          credit:Empire State child credit: 851.5 -> 835
+  2026  wages              single-young-child       $85,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 85000 -> 85000.01
+          taxableIncome: 72800 -> 72800.01
+          tax: 2847.58 -> 2864.08
+          credit:Empire State child credit: 835 -> 818.5
+  2026  wages              single-young-child       $86,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 86000 -> 86000.01
+          taxableIncome: 73800 -> 73800.01
+          tax: 2918.08 -> 2934.58
+          credit:Empire State child credit: 818.5 -> 802
+  2026  wages              single-young-child       $87,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 87000 -> 87000.01
+          taxableIncome: 74800 -> 74800.01
+          tax: 2988.58 -> 3005.08
+          credit:Empire State child credit: 802 -> 785.5
+  2026  wages              single-young-child       $88,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 88000 -> 88000.01
+          taxableIncome: 75800 -> 75800.01
+          tax: 3059.08 -> 3075.58
+          credit:Empire State child credit: 785.5 -> 769
+  2026  wages              single-young-child       $89,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 89000 -> 89000.01
+          taxableIncome: 76800 -> 76800.01
+          tax: 3129.58 -> 3146.08
+          credit:Empire State child credit: 769 -> 752.5
+  2026  wages              single-young-child       $90,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 90000 -> 90000.01
+          taxableIncome: 77800 -> 77800.01
+          tax: 3200.08 -> 3216.58
+          credit:Empire State child credit: 752.5 -> 736
+  2026  wages              single-young-child       $91,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 91000 -> 91000.01
+          taxableIncome: 78800 -> 78800.01
+          tax: 3270.58 -> 3287.08
+          credit:Empire State child credit: 736 -> 719.5
+  2026  wages              single-young-child       $92,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 92000 -> 92000.01
+          taxableIncome: 79800 -> 79800.01
+          tax: 3341.08 -> 3357.58
+          credit:Empire State child credit: 719.5 -> 703
+  2026  wages              single-young-child       $93,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 93000 -> 93000.01
+          taxableIncome: 80800 -> 80800.01
+          tax: 3411.58 -> 3428.08
+          credit:Empire State child credit: 703 -> 686.5
+  2026  wages              single-young-child       $94,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 94000 -> 94000.01
+          taxableIncome: 81800 -> 81800.01
+          tax: 3482.08 -> 3498.58
+          credit:Empire State child credit: 686.5 -> 670
+  2026  wages              single-young-child       $95,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 95000 -> 95000.01
+          taxableIncome: 82800 -> 82800.01
+          tax: 3552.58 -> 3569.08
+          credit:Empire State child credit: 670 -> 653.5
+  2026  wages              single-young-child       $96,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 96000 -> 96000.01
+          taxableIncome: 83800 -> 83800.01
+          tax: 3623.08 -> 3639.58
+          credit:Empire State child credit: 653.5 -> 637
+  2026  wages              single-young-child       $97,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 97000 -> 97000.01
+          taxableIncome: 84800 -> 84800.01
+          tax: 3693.58 -> 3710.08
+          credit:Empire State child credit: 637 -> 620.5
+  2026  wages              single-young-child       $98,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 98000 -> 98000.01
+          taxableIncome: 85800 -> 85800.01
+          tax: 3764.08 -> 3780.58
+          credit:Empire State child credit: 620.5 -> 604
+  2026  wages              single-young-child       $99,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 99000 -> 99000.01
+          taxableIncome: 86800 -> 86800.01
+          tax: 3834.58 -> 3851.08
+          credit:Empire State child credit: 604 -> 587.5
+  2026  wages              single-young-child      $100,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 100000 -> 100000.01
+          taxableIncome: 87800 -> 87800.01
+          tax: 3905.08 -> 3921.58
+          credit:Empire State child credit: 587.5 -> 571
+  2026  wages              single-young-child      $101,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 101000 -> 101000.01
+          taxableIncome: 88800 -> 88800.01
+          tax: 3975.58 -> 3992.08
+          credit:Empire State child credit: 571 -> 554.5
+  2026  wages              single-young-child      $102,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 102000 -> 102000.01
+          taxableIncome: 89800 -> 89800.01
+          tax: 4046.08 -> 4062.58
+          credit:Empire State child credit: 554.5 -> 538
+  2026  wages              single-young-child      $103,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 103000 -> 103000.01
+          taxableIncome: 90800 -> 90800.01
+          tax: 4116.58 -> 4133.08
+          credit:Empire State child credit: 538 -> 521.5
+  2026  wages              single-young-child      $104,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 104000 -> 104000.01
+          taxableIncome: 91800 -> 91800.01
+          tax: 4187.08 -> 4203.58
+          credit:Empire State child credit: 521.5 -> 505
+  2026  wages              single-young-child      $105,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 105000 -> 105000.01
+          taxableIncome: 92800 -> 92800.01
+          tax: 4257.58 -> 4274.08
+          credit:Empire State child credit: 505 -> 488.5
+  2026  wages              single-young-child      $106,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 106000 -> 106000.01
+          taxableIncome: 93800 -> 93800.01
+          tax: 4328.08 -> 4344.58
+          credit:Empire State child credit: 488.5 -> 472
+  2026  wages              single-young-child      $107,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 107000 -> 107000.01
+          taxableIncome: 94800 -> 94800.01
+          tax: 4398.58 -> 4415.08
+          credit:Empire State child credit: 472 -> 455.5
+  2026  wages              single-young-child      $108,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 108000 -> 108000.01
+          taxableIncome: 95800 -> 95800.01
+          tax: 4474.58 -> 4491.08
+          credit:Empire State child credit: 455.5 -> 439
+  2026  wages              single-young-child      $109,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 109000 -> 109000.01
+          taxableIncome: 96800 -> 96800.01
+          tax: 4560.82 -> 4577.32
+          credit:Empire State child credit: 439 -> 422.5
+  2026  wages              single-young-child      $110,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 110000 -> 110000.01
+          taxableIncome: 97800 -> 97800.01
+          tax: 4647.06 -> 4663.56
+          credit:Empire State child credit: 422.5 -> 406
+  2026  wages              single-young-child      $111,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 111000 -> 111000.01
+          taxableIncome: 98800 -> 98800.01
+          tax: 4733.3 -> 4749.8
+          credit:Empire State child credit: 406 -> 389.5
+  2026  wages              single-young-child      $112,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 112000 -> 112000.01
+          taxableIncome: 99800 -> 99800.01
+          tax: 4819.53 -> 4836.03
+          credit:Empire State child credit: 389.5 -> 373
+  2026  wages              single-young-child      $113,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 113000 -> 113000.01
+          taxableIncome: 100800 -> 100800.01
+          tax: 4905.77 -> 4922.27
+          credit:Empire State child credit: 373 -> 356.5
+  2026  wages              single-young-child      $114,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 114000 -> 114000.01
+          taxableIncome: 101800 -> 101800.01
+          tax: 4992.01 -> 5008.51
+          credit:Empire State child credit: 356.5 -> 340
+  2026  wages              single-young-child      $115,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 115000 -> 115000.01
+          taxableIncome: 102800 -> 102800.01
+          tax: 5078.25 -> 5094.75
+          credit:Empire State child credit: 340 -> 323.5
+  2026  wages              single-young-child      $116,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 116000 -> 116000.01
+          taxableIncome: 103800 -> 103800.01
+          tax: 5164.48 -> 5180.98
+          credit:Empire State child credit: 323.5 -> 307
+  2026  wages              single-young-child      $117,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 117000 -> 117000.01
+          taxableIncome: 104800 -> 104800.01
+          tax: 5250.72 -> 5267.22
+          credit:Empire State child credit: 307 -> 290.5
+  2026  wages              single-young-child      $118,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 118000 -> 118000.01
+          taxableIncome: 105800 -> 105800.01
+          tax: 5336.96 -> 5353.46
+          credit:Empire State child credit: 290.5 -> 274
+  2026  wages              single-young-child      $119,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 119000 -> 119000.01
+          taxableIncome: 106800 -> 106800.01
+          tax: 5423.2 -> 5439.7
+          credit:Empire State child credit: 274 -> 257.5
+  2026  wages              single-young-child      $120,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 120000 -> 120000.01
+          taxableIncome: 107800 -> 107800.01
+          tax: 5510.18 -> 5526.68
+          credit:Empire State child credit: 257.5 -> 241
+  2026  wages              single-young-child      $121,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 121000 -> 121000.01
+          taxableIncome: 108800 -> 108800.01
+          tax: 5601.42 -> 5617.92
+          credit:Empire State child credit: 241 -> 224.5
+  2026  wages              single-young-child      $122,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 122000 -> 122000.01
+          taxableIncome: 109800 -> 109800.01
+          tax: 5692.66 -> 5709.16
+          credit:Empire State child credit: 224.5 -> 208
+  2026  wages              single-young-child      $123,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 123000 -> 123000.01
+          taxableIncome: 110800 -> 110800.01
+          tax: 5783.9 -> 5800.4
+          credit:Empire State child credit: 208 -> 191.5
+  2026  wages              single-young-child      $124,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 124000 -> 124000.01
+          taxableIncome: 111800 -> 111800.01
+          tax: 5875.13 -> 5891.63
+          credit:Empire State child credit: 191.5 -> 175
+  2026  wages              single-young-child      $125,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 125000 -> 125000.01
+          taxableIncome: 112800 -> 112800.01
+          tax: 5966.37 -> 5982.87
+          credit:Empire State child credit: 175 -> 158.5
+  2026  wages              single-young-child      $126,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 126000 -> 126000.01
+          taxableIncome: 113800 -> 113800.01
+          tax: 6057.61 -> 6074.11
+          credit:Empire State child credit: 158.5 -> 142
+  2026  wages              single-young-child      $127,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 127000 -> 127000.01
+          taxableIncome: 114800 -> 114800.01
+          tax: 6148.85 -> 6165.35
+          credit:Empire State child credit: 142 -> 125.5
+  2026  wages              single-young-child      $128,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 128000 -> 128000.01
+          taxableIncome: 115800 -> 115800.01
+          tax: 6240.08 -> 6256.58
+          credit:Empire State child credit: 125.5 -> 109
+  2026  wages              single-young-child      $129,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 129000 -> 129000.01
+          taxableIncome: 116800 -> 116800.01
+          tax: 6331.32 -> 6347.82
+          credit:Empire State child credit: 109 -> 92.5
+  2026  wages              single-young-child      $130,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 130000 -> 130000.01
+          taxableIncome: 117800 -> 117800.01
+          tax: 6422.56 -> 6439.06
+          credit:Empire State child credit: 92.5 -> 76
+  2026  wages              single-young-child      $131,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 131000 -> 131000.01
+          taxableIncome: 118800 -> 118800.01
+          tax: 6513.8 -> 6530.3
+          credit:Empire State child credit: 76 -> 59.5
+  2026  wages              single-young-child      $132,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 132000 -> 132000.01
+          taxableIncome: 119800 -> 119800.01
+          tax: 6605.03 -> 6621.53
+          credit:Empire State child credit: 59.5 -> 43
+  2026  wages              single-young-child      $133,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 133000 -> 133000.01
+          taxableIncome: 120800 -> 120800.01
+          tax: 6696.27 -> 6712.77
+          credit:Empire State child credit: 43 -> 26.5
+  2026  wages              single-young-child      $134,000.00 -> +$16.50
+          stateAdjustedGrossIncome: 134000 -> 134000.01
+          taxableIncome: 121800 -> 121800.01
+          tax: 6787.51 -> 6804.01
+          credit:Empire State child credit: 26.5 -> 10
+  2026  wages              single-young-child      $135,000.00 -> +$10.00
+          stateAdjustedGrossIncome: 135000 -> 135000.01
+          taxableIncome: 122800 -> 122800.01
+          tax: 6878.75 -> 6888.75
+          credit:Empire State child credit: 10 -> 0
 ```
 
-> Matched on `25,000`: THE HOUSEHOLD CREDIT IS A STEP CHART AND NOT A TAPER. Tax Law § 606(b) gives a flat amount per income ROW of New York adjusted gross income, so the credit does not slide — the dollar that crosses a row boundary costs the whole difference between the two rows at once. A single filer goes $75 / $60 / $50 / $45 / $40 / $20 / nothing, stepping at $5,000, $6,000, $7,000, $20,000, $25,000 and $28,000. Every other filing status starts from $90 / $75 / $65 / $60 / $50 / $40 / $20 / nothing, stepping at $5,000, $6,000, $7,000, $22,000, $25,000, $28,000 and $32,000, and adds for each household member after the first an amount that steps on its own: $15 / $10 / $5 / nothing at $20,000, $25,000 and $32,000. So the steps run $5 to $25 for a one- or two-person household and grow with household size. It is the same shape as the Empire State child credit's $16.50 staircase and it is written into the same section, but no table prints it as a percentage of anything, so a caller who reads the credit as a phase-out of the $90 will be wrong at every boundary.
+> Matched on `1,000`: The Empire State child credit is computed from dependentAges: $1,000 for each child under 4 and $330 (2025) or $500 (2026) for each child aged 4 to 16, refundable. Supply an age for every dependent — a count cannot tell a toddler from a nineteen-year-old, and the two are worth $1,000 and nothing.
 
-### OH — 48 notch(es)
+### OH — 50 notch(es)
 
 ```text
+  2025  filer-age          single-retiree               age 64 -> -$50.00
+          tax: 184.63 -> 134.63
+          credit:Senior citizen credit: 0 -> 50
   2025  investment-income  childless-single          $3,450.00 -> +$322.00
           stateAdjustedGrossIncome: 28450 -> 28450.01
           taxableIncome: 26050 -> 26050.01
@@ -23539,6 +29185,28 @@ the note quoted under each group rather than trusting the count.
           tax: 1648.25 -> 1668.88
   2025  investment-income  single-two-children      $80,700.00 -> +$18.69
           stateAdjustedGrossIncome: 105700 -> 105700.01
+          taxableIncome: 100000 -> 100000.01
+          taxBeforeCredits: 2375.63 -> 2394.32
+          tax: 2375.63 -> 2394.32
+  2025  investment-income  single-young-child       $11,950.00 -> +$509.75
+          stateAdjustedGrossIncome: 36950 -> 36950.01
+          taxableIncome: 32150 -> 32150.01
+          tax: 0 -> 509.75
+          credit:Ohio earned income credit: 646.42 -> 0
+  2025  investment-income  single-young-child       $15,000.00 -> +$13.75
+          stateAdjustedGrossIncome: 40000 -> 40000.01
+          exemptions: 4800 -> 4300
+          taxableIncome: 35200 -> 35700.01
+          taxBeforeCredits: 593.63 -> 607.38
+          tax: 593.63 -> 607.38
+  2025  investment-income  single-young-child       $55,000.00 -> +$13.75
+          stateAdjustedGrossIncome: 80000 -> 80000.01
+          exemptions: 4300 -> 3800
+          taxableIncome: 75700 -> 76200.01
+          taxBeforeCredits: 1707.38 -> 1721.13
+          tax: 1707.38 -> 1721.13
+  2025  investment-income  single-young-child       $78,800.00 -> +$18.69
+          stateAdjustedGrossIncome: 103800 -> 103800.01
           taxableIncome: 100000 -> 100000.01
           taxBeforeCredits: 2375.63 -> 2394.32
           tax: 2375.63 -> 2394.32
@@ -23769,6 +29437,26 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 100000 -> 100000.01
           taxBeforeCredits: 2375.63 -> 2394.32
           tax: 2375.63 -> 2394.32
+  2025  wages              single-young-child       $40,000.00 -> +$13.75
+          stateAdjustedGrossIncome: 40000 -> 40000.01
+          exemptions: 4800 -> 4300
+          taxableIncome: 35200 -> 35700.01
+          taxBeforeCredits: 593.63 -> 607.38
+          tax: 93.43 -> 107.18
+  2025  wages              single-young-child       $80,000.00 -> +$13.75
+          stateAdjustedGrossIncome: 80000 -> 80000.01
+          exemptions: 4300 -> 3800
+          taxableIncome: 75700 -> 76200.01
+          taxBeforeCredits: 1707.38 -> 1721.13
+          tax: 1707.38 -> 1721.13
+  2025  wages              single-young-child      $103,800.00 -> +$18.69
+          stateAdjustedGrossIncome: 103800 -> 103800.01
+          taxableIncome: 100000 -> 100000.01
+          taxBeforeCredits: 2375.63 -> 2394.32
+          tax: 2375.63 -> 2394.32
+  2026  filer-age          single-retiree               age 64 -> -$50.00
+          tax: 174.63 -> 124.63
+          credit:Senior citizen credit: 0 -> 50
   2026  investment-income  childless-single          $3,450.00 -> +$312.00
           stateAdjustedGrossIncome: 28450 -> 28450.01
           taxableIncome: 26050 -> 26050.01
@@ -23865,6 +29553,23 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 73550 -> 74300.01
           taxBeforeCredits: 1638.25 -> 1658.88
           tax: 1638.25 -> 1658.88
+  2026  investment-income  single-young-child       $12,200.00 -> +$506.63
+          stateAdjustedGrossIncome: 37200 -> 37200.01
+          taxableIncome: 32400 -> 32400.01
+          tax: 0 -> 506.63
+          credit:Ohio earned income credit: 690.02 -> 0
+  2026  investment-income  single-young-child       $15,000.00 -> +$13.75
+          stateAdjustedGrossIncome: 40000 -> 40000.01
+          exemptions: 4800 -> 4300
+          taxableIncome: 35200 -> 35700.01
+          taxBeforeCredits: 583.63 -> 597.38
+          tax: 583.63 -> 597.38
+  2026  investment-income  single-young-child       $55,000.00 -> +$13.75
+          stateAdjustedGrossIncome: 80000 -> 80000.01
+          exemptions: 4300 -> 3800
+          taxableIncome: 75700 -> 76200.01
+          taxBeforeCredits: 1697.38 -> 1711.13
+          tax: 1697.38 -> 1711.13
   2026  municipal-interest childless-single          $3,450.00 -> +$312.00
           stateAdjustedGrossIncome: 28450 -> 28450.01
           additions: 3450 -> 3450.01
@@ -24045,13 +29750,57 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 73550 -> 74300.01
           taxBeforeCredits: 1638.25 -> 1658.88
           tax: 1638.25 -> 1658.88
+  2026  wages              single-young-child       $40,000.00 -> +$13.75
+          stateAdjustedGrossIncome: 40000 -> 40000.01
+          exemptions: 4800 -> 4300
+          taxableIncome: 35200 -> 35700.01
+          taxBeforeCredits: 583.63 -> 597.38
+          tax: 27.84 -> 41.59
+  2026  wages              single-young-child       $80,000.00 -> +$13.75
+          stateAdjustedGrossIncome: 80000 -> 80000.01
+          exemptions: 4300 -> 3800
+          taxableIncome: 75700 -> 76200.01
+          taxBeforeCredits: 1697.38 -> 1711.13
+          tax: 1697.38 -> 1711.13
 ```
 
-> Matched on `0.01`: Ohio's rate schedule is DISCONTINUOUS and this is not a rounding artifact. O.R.C. § 5747.02(A)(3) charges a flat constant the moment Ohio taxable nonbusiness income clears $26,050 — $342.00 for 2025, $332.00 from 2026 — on top of 2.75% of the excess. A filer at $26,050 owes $0 and a filer at $26,050.01 owes $342.00. Reading the printed table as ordinary marginal brackets, which is what "Ohio: 0% / 2.75% / 3.125%" invites, understates every Ohio filer above the threshold by the whole constant.
+> Matched on `184.63`: THE SENIOR CITIZEN CREDIT IS A FLAT $50 THAT ARRIVES WHOLE ON A BIRTHDAY. § 5747.05(C) allows $50 a return — one $50 however many filers are 65, not indexed, and not prorated for the year a filer turns 65 — so this is a STEP and not a phase-in: an Ohio retiree with $30,000 of pension and $20,000 of Social Security pays $184.63 at 64 and $134.63 at 65. The $100,000 income limit it sits under is a cliff of its own, on modified adjusted gross income less exemptions. A model that tapers either test is wrong about both, and a caller who sees only a `minimumAge` and an `incomeLimit` in the result object has been told the parameters and not the shape.
 
-### OR — 66 notch(es)
+### OR — 74 notch(es)
 
 ```text
+  2025  dependent-age      hoh-one-child                 age 2 -> +$129.84
+          tax: -1215.16 -> -1085.32
+          credit:Oregon earned income credit: 519.36 -> 389.52
+  2025  dependent-age      hoh-one-child                 age 5 -> +$1,050.00
+          tax: -1085.32 -> -35.32
+          credit:Oregon Kids Credit: 1050 -> 0
+  2025  dependent-age      hoh-one-child                age 18 -> +$389.52
+          tax: -35.32 -> 354.2
+          credit:Oregon earned income credit: 389.52 -> 0
+  2025  dependent-age      single-two-children           age 2 -> +$214.56
+          tax: -1484.3 -> -1269.74
+          credit:Oregon earned income credit: 858.24 -> 643.68
+  2025  dependent-age      single-two-children           age 5 -> +$1,050.00
+          tax: -1269.74 -> -219.74
+          credit:Oregon Kids Credit: 1050 -> 0
+  2025  dependent-age      single-two-children          age 18 -> +$254.16
+          tax: -219.74 -> 34.42
+          credit:Oregon earned income credit: 643.68 -> 389.52
+  2025  filer-age          joint-no-children            age 64 -> -$65.62
+          stateAdjustedGrossIncome: 29750 -> 30000
+          subtractions: 4250 -> 4000
+          deduction: 5670 -> 6670
+          taxableIncome: 24080 -> 23330
+          taxBeforeCredits: 1487 -> 1421.38
+          tax: 975 -> 909.38
+  2025  filer-age          single-retiree               age 64 -> -$21.00
+          stateAdjustedGrossIncome: 27376.5 -> 28336.5
+          subtractions: 12223.5 -> 11263.5
+          deduction: 2835 -> 4035
+          taxableIncome: 24541.5 -> 24301.5
+          taxBeforeCredits: 1837.38 -> 1816.38
+          tax: 1581.38 -> 1560.38
   2025  investment-income  childless-single         $75,000.00 -> +$256.00
           stateAdjustedGrossIncome: 93690 -> 93690.01
           taxableIncome: 90855 -> 90855.01
@@ -24181,6 +29930,16 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 140464.99 -> 142165
           taxBeforeCredits: 12158.53 -> 12326.84
           tax: 12158.53 -> 12326.84
+  2025  investment-income  single-young-child       $11,950.00 -> +$193.93
+          stateAdjustedGrossIncome: 36950 -> 36950.01
+          taxableIncome: 32390 -> 32390.01
+          tax: 1508.2 -> 1702.13
+          credit:Oregon earned income credit: 193.92 -> 0
+  2025  investment-income  single-young-child      $175,000.00 -> +$512.00
+          stateAdjustedGrossIncome: 191500 -> 191500.01
+          taxableIncome: 186940 -> 186940.01
+          tax: 15225.25 -> 15737.25
+          credit:Oregon exemption credit: 512 -> 0
   2025  municipal-interest single-two-children      $11,950.00 -> +$612.41
           tax: 249.03 -> 861.44
           credit:Oregon earned income credit: 612.41 -> 0
@@ -24254,6 +30013,13 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 118864.99 -> 120565
           taxBeforeCredits: 10090.69 -> 10239.44
           tax: 10090.69 -> 10239.44
+  2025  spouse-age         joint-no-children            age 64 -> -$65.62
+          stateAdjustedGrossIncome: 29750 -> 30000
+          subtractions: 4250 -> 4000
+          deduction: 5670 -> 6670
+          taxableIncome: 24080 -> 23330
+          taxBeforeCredits: 1487 -> 1421.38
+          tax: 975 -> 909.38
   2025  wages              childless-single        $100,000.00 -> +$256.00
           stateAdjustedGrossIncome: 91500 -> 91500.01
           taxableIncome: 88665 -> 88665.01
@@ -24374,6 +30140,43 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 140464.99 -> 142165
           taxBeforeCredits: 12158.53 -> 12326.84
           tax: 12158.53 -> 12326.84
+  2025  wages              single-young-child      $200,000.00 -> +$512.00
+          stateAdjustedGrossIncome: 191500 -> 191500.01
+          taxableIncome: 186940 -> 186940.01
+          tax: 15225.25 -> 15737.25
+          credit:Oregon exemption credit: 512 -> 0
+  2026  dependent-age      hoh-one-child                 age 2 -> +$132.81
+          tax: -1476.83 -> -1344.02
+          credit:Oregon earned income credit: 752.59 -> 619.78
+  2026  dependent-age      hoh-one-child                 age 5 -> +$1,050.00
+          tax: -1344.02 -> -294.02
+          credit:Oregon Kids Credit: 1050 -> 0
+  2026  dependent-age      hoh-one-child                age 18 -> +$619.78
+          tax: -294.02 -> 325.76
+          credit:Oregon earned income credit: 619.78 -> 0
+  2026  dependent-age      single-two-children           age 2 -> +$219.49
+          tax: -1906.35 -> -1686.86
+          credit:Oregon earned income credit: 1243.72 -> 1024.24
+  2026  dependent-age      single-two-children           age 5 -> +$1,050.00
+          tax: -1686.86 -> -636.86
+          credit:Oregon Kids Credit: 1050 -> 0
+  2026  dependent-age      single-two-children          age 18 -> +$404.45
+          tax: -636.86 -> -232.41
+          credit:Oregon earned income credit: 1024.24 -> 619.78
+  2026  filer-age          joint-no-children            age 64 -> -$71.75
+          stateAdjustedGrossIncome: 29820 -> 30000
+          subtractions: 4180 -> 4000
+          deduction: 5820 -> 6820
+          taxableIncome: 24000 -> 23180
+          taxBeforeCredits: 1462 -> 1390.25
+          tax: 936 -> 864.25
+  2026  filer-age          single-retiree               age 64 -> -$20.47
+          stateAdjustedGrossIncome: 27428 -> 28394
+          subtractions: 12172 -> 11206
+          deduction: 2910 -> 4110
+          taxableIncome: 24518 -> 24284
+          taxBeforeCredits: 1826.32 -> 1805.85
+          tax: 1563.32 -> 1542.85
   2026  investment-income  childless-single         $75,000.00 -> +$263.00
           stateAdjustedGrossIncome: 93942.5 -> 93942.51
           taxableIncome: 91032.5 -> 91032.51
@@ -24503,6 +30306,16 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 140339.99 -> 142090
           taxBeforeCredits: 12137.16 -> 12310.41
           tax: 12137.16 -> 12310.41
+  2026  investment-income  single-young-child       $12,200.00 -> +$322.01
+          stateAdjustedGrossIncome: 37200 -> 37200.01
+          taxableIncome: 32515 -> 32515.01
+          tax: 1359.05 -> 1681.06
+          credit:Oregon earned income credit: 322.01 -> 0
+  2026  investment-income  single-young-child      $175,000.00 -> +$526.00
+          stateAdjustedGrossIncome: 191250 -> 191250.01
+          taxableIncome: 186565 -> 186565.01
+          tax: 15160.44 -> 15686.44
+          credit:Oregon exemption credit: 526 -> 0
   2026  municipal-interest single-two-children      $12,200.00 -> +$991.52
           tax: -166.64 -> 824.88
           credit:Oregon earned income credit: 991.51 -> 0
@@ -24576,6 +30389,13 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 118739.99 -> 120490
           taxBeforeCredits: 10070.75 -> 10223.88
           tax: 10070.75 -> 10223.88
+  2026  spouse-age         joint-no-children            age 64 -> -$71.75
+          stateAdjustedGrossIncome: 29820 -> 30000
+          subtractions: 4180 -> 4000
+          deduction: 5820 -> 6820
+          taxableIncome: 24000 -> 23180
+          taxBeforeCredits: 1462 -> 1390.25
+          tax: 936 -> 864.25
   2026  wages              childless-single        $100,000.00 -> +$263.00
           stateAdjustedGrossIncome: 91250 -> 91250.01
           taxableIncome: 88340 -> 88340.01
@@ -24696,13 +30516,28 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 140339.99 -> 142090
           taxBeforeCredits: 12137.16 -> 12310.41
           tax: 12137.16 -> 12310.41
+  2026  wages              single-young-child      $200,000.00 -> +$526.00
+          stateAdjustedGrossIncome: 191250 -> 191250.01
+          taxableIncome: 186565 -> 186565.01
+          tax: 15160.44 -> 15686.44
+          credit:Oregon exemption credit: 526 -> 0
 ```
 
-> Matched on `7,639.81`: Oregon's Oregon surplus credit ("kicker") IS REFUNDABLE AND WAS COMPUTED AS ZERO, because its base is not on this return: it is 9.863% of the filer's OWN prior-year Oregon tax before credits. Or. Const. Art. IX § 14(4) and the Department of Revenue's 2025 kicker guidance: 9.863% of the 2024 Oregon tax liability, certified by the Office of Economic Analysis off a $1.41 billion surplus for the 2023-25 biennium. The base is Oregon income tax "before any credits, withholding, or payments, other than a credit for income taxes paid to another state on mutually taxed income" — line 24 of the 2024 Form OR-40 less that one credit. Eligibility also requires a 2024 Oregon return WITH a liability and a 2025 Oregon return, even from a filer with no filing requirement. Pass `oregonPriorYearTaxBeforeCredits` — line 24 of the prior year's Form OR-40, less any credit claimed there for tax paid to another state. An omitted base is read as NO KICKER rather than as an unknown one, because the credit requires a prior-year return that showed a liability and a filer who had none is owed nothing. For scale only, and not as an estimate of this filer's credit: were the prior year's liability equal to this return's own tax before credits of $7,639.81, the credit would be $753.51.
+> Matched on `519.36`: Oregon earned income credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $519.36 of Oregon credit lost on one cent of investment income. Oregon's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
 
-### PA — 124 notch(es)
+### PA — 126 notch(es)
 
 ```text
+  2025  filer-age          joint-no-children            age 59 -> -$921.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 30000 -> 0
+          taxableIncome: 30000 -> 0
+          taxBeforeCredits: 921 -> 0
+          tax: 921 -> 0
+  2025  filer-age          single-retiree               age 59 -> -$921.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 30000 -> 0
+          taxableIncome: 30000 -> 0
+          taxBeforeCredits: 921 -> 0
+          tax: 921 -> 0
   2025  investment-income  joint-two-children        $7,000.00 -> +$98.24
           stateAdjustedGrossIncome: 32000 -> 32000.01
           taxableIncome: 32000 -> 32000.01
@@ -25153,6 +30988,66 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 27750 -> 27750.01
           tax: 766.73 -> 851.93
           credit:Special Tax Forgiveness: 85.19 -> 0
+  2025  wages              single-young-child       $16,000.00 -> +$49.12
+          stateAdjustedGrossIncome: 16000 -> 16000.01
+          taxableIncome: 16000 -> 16000.01
+          tax: 0 -> 49.12
+          credit:Special Tax Forgiveness: 491.2 -> 442.08
+  2025  wages              single-young-child       $16,250.00 -> +$49.89
+          stateAdjustedGrossIncome: 16250 -> 16250.01
+          taxableIncome: 16250 -> 16250.01
+          tax: 49.89 -> 99.78
+          credit:Special Tax Forgiveness: 448.99 -> 399.1
+  2025  wages              single-young-child       $16,500.00 -> +$50.66
+          stateAdjustedGrossIncome: 16500 -> 16500.01
+          taxableIncome: 16500 -> 16500.01
+          tax: 101.31 -> 151.97
+          credit:Special Tax Forgiveness: 405.24 -> 354.59
+  2025  wages              single-young-child       $16,750.00 -> +$51.42
+          stateAdjustedGrossIncome: 16750 -> 16750.01
+          taxableIncome: 16750 -> 16750.01
+          tax: 154.27 -> 205.69
+          credit:Special Tax Forgiveness: 359.96 -> 308.54
+  2025  wages              single-young-child       $17,000.00 -> +$52.19
+          stateAdjustedGrossIncome: 17000 -> 17000.01
+          taxableIncome: 17000 -> 17000.01
+          tax: 208.76 -> 260.95
+          credit:Special Tax Forgiveness: 313.14 -> 260.95
+  2025  wages              single-young-child       $17,250.00 -> +$52.96
+          stateAdjustedGrossIncome: 17250 -> 17250.01
+          taxableIncome: 17250 -> 17250.01
+          tax: 264.79 -> 317.75
+          credit:Special Tax Forgiveness: 264.79 -> 211.83
+  2025  wages              single-young-child       $17,500.00 -> +$53.73
+          stateAdjustedGrossIncome: 17500 -> 17500.01
+          taxableIncome: 17500 -> 17500.01
+          tax: 322.35 -> 376.08
+          credit:Special Tax Forgiveness: 214.9 -> 161.18
+  2025  wages              single-young-child       $17,750.00 -> +$54.49
+          stateAdjustedGrossIncome: 17750 -> 17750.01
+          taxableIncome: 17750 -> 17750.01
+          tax: 381.45 -> 435.94
+          credit:Special Tax Forgiveness: 163.48 -> 108.99
+  2025  wages              single-young-child       $18,000.00 -> +$55.26
+          stateAdjustedGrossIncome: 18000 -> 18000.01
+          taxableIncome: 18000 -> 18000.01
+          tax: 442.08 -> 497.34
+          credit:Special Tax Forgiveness: 110.52 -> 55.26
+  2025  wages              single-young-child       $18,250.00 -> +$56.03
+          stateAdjustedGrossIncome: 18250 -> 18250.01
+          taxableIncome: 18250 -> 18250.01
+          tax: 504.25 -> 560.28
+          credit:Special Tax Forgiveness: 56.03 -> 0
+  2026  filer-age          joint-no-children            age 59 -> -$921.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 30000 -> 0
+          taxableIncome: 30000 -> 0
+          taxBeforeCredits: 921 -> 0
+          tax: 921 -> 0
+  2026  filer-age          single-retiree               age 59 -> -$921.00   [UNATTRIBUTED]
+          stateAdjustedGrossIncome: 30000 -> 0
+          taxableIncome: 30000 -> 0
+          taxBeforeCredits: 921 -> 0
+          tax: 921 -> 0
   2026  investment-income  joint-two-children        $7,000.00 -> +$98.24
           stateAdjustedGrossIncome: 32000 -> 32000.01
           taxableIncome: 32000 -> 32000.01
@@ -25603,13 +31498,73 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 27750 -> 27750.01
           tax: 766.73 -> 851.93
           credit:Special Tax Forgiveness: 85.19 -> 0
+  2026  wages              single-young-child       $16,000.00 -> +$49.12
+          stateAdjustedGrossIncome: 16000 -> 16000.01
+          taxableIncome: 16000 -> 16000.01
+          tax: 0 -> 49.12
+          credit:Special Tax Forgiveness: 491.2 -> 442.08
+  2026  wages              single-young-child       $16,250.00 -> +$49.89
+          stateAdjustedGrossIncome: 16250 -> 16250.01
+          taxableIncome: 16250 -> 16250.01
+          tax: 49.89 -> 99.78
+          credit:Special Tax Forgiveness: 448.99 -> 399.1
+  2026  wages              single-young-child       $16,500.00 -> +$50.66
+          stateAdjustedGrossIncome: 16500 -> 16500.01
+          taxableIncome: 16500 -> 16500.01
+          tax: 101.31 -> 151.97
+          credit:Special Tax Forgiveness: 405.24 -> 354.59
+  2026  wages              single-young-child       $16,750.00 -> +$51.42
+          stateAdjustedGrossIncome: 16750 -> 16750.01
+          taxableIncome: 16750 -> 16750.01
+          tax: 154.27 -> 205.69
+          credit:Special Tax Forgiveness: 359.96 -> 308.54
+  2026  wages              single-young-child       $17,000.00 -> +$52.19
+          stateAdjustedGrossIncome: 17000 -> 17000.01
+          taxableIncome: 17000 -> 17000.01
+          tax: 208.76 -> 260.95
+          credit:Special Tax Forgiveness: 313.14 -> 260.95
+  2026  wages              single-young-child       $17,250.00 -> +$52.96
+          stateAdjustedGrossIncome: 17250 -> 17250.01
+          taxableIncome: 17250 -> 17250.01
+          tax: 264.79 -> 317.75
+          credit:Special Tax Forgiveness: 264.79 -> 211.83
+  2026  wages              single-young-child       $17,500.00 -> +$53.73
+          stateAdjustedGrossIncome: 17500 -> 17500.01
+          taxableIncome: 17500 -> 17500.01
+          tax: 322.35 -> 376.08
+          credit:Special Tax Forgiveness: 214.9 -> 161.18
+  2026  wages              single-young-child       $17,750.00 -> +$54.49
+          stateAdjustedGrossIncome: 17750 -> 17750.01
+          taxableIncome: 17750 -> 17750.01
+          tax: 381.45 -> 435.94
+          credit:Special Tax Forgiveness: 163.48 -> 108.99
+  2026  wages              single-young-child       $18,000.00 -> +$55.26
+          stateAdjustedGrossIncome: 18000 -> 18000.01
+          taxableIncome: 18000 -> 18000.01
+          tax: 442.08 -> 497.34
+          credit:Special Tax Forgiveness: 110.52 -> 55.26
+  2026  wages              single-young-child       $18,250.00 -> +$56.03
+          stateAdjustedGrossIncome: 18250 -> 18250.01
+          taxableIncome: 18250 -> 18250.01
+          tax: 504.25 -> 560.28
+          credit:Special Tax Forgiveness: 56.03 -> 0
 ```
 
-> Matched on `special tax forgiveness (phrase)`: Special Tax Forgiveness is a staircase, not a phase-out: full forgiveness up to the allowance, then ten percentage points less for each $250 of eligibility income above it, reaching zero $2,500 later. Because each step forgives ten points less of the WHOLE tax, the cost of a step grows with the household. Across the band a single filer faces about 11% and a single parent of two about 34%, against a statutory 3.07%.
+> Matched on `(state notes on notches)`: Special Tax Forgiveness is a staircase, not a phase-out: full forgiveness up to the allowance, then ten percentage points less for each $250 of eligibility income above it, reaching zero $2,500 later. Because each step forgives ten points less of the WHOLE tax, the cost of a step grows with the household. Across the band a single filer faces about 11% and a single parent of two about 34%, against a statutory 3.07%.
 
-### SC — 2 notch(es)
+### SC — 4 notch(es)
 
 ```text
+  2025  filer-age          single-retiree               age 64 -> -$253.20
+          stateAdjustedGrossIncome: 12000 -> 0
+          additions: 750 -> 6750
+          subtractions: 12600 -> 24600
+          taxableIncome: 12000 -> 0
+          taxBeforeCredits: 253.2 -> 0
+          tax: 253.2 -> 0
+          subtraction:Retirement deduction: 3000 -> 10000
+          subtraction:Senior deduction (age 65): null -> 5000
+          addition:Additional senior deduction add-back: null -> 6000
   2025  investment-income  hoh-one-child            $11,950.00 -> +$21.06
           stateAdjustedGrossIncome: 9192 -> 9192.01
           taxableIncome: 4262 -> 4262.01
@@ -25620,6 +31575,14 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 6832 -> 6832.01
           tax: 0 -> 98.16
           credit:South Carolina earned income credit: 5359.8 -> 0
+  2026  filer-age          single-retiree               age 64 -> -$238.80
+          stateAdjustedGrossIncome: 27000 -> 15000
+          subtractions: 12600 -> 24600
+          taxableIncome: 12000 -> 0
+          taxBeforeCredits: 238.8 -> 0
+          tax: 238.8 -> 0
+          subtraction:Retirement deduction: 3000 -> 10000
+          subtraction:Senior deduction (age 65): null -> 5000
   2026  investment-income  hoh-one-child            $12,200.00 -> +$87.60
           stateAdjustedGrossIncome: 31832 -> 31832.01
           taxableIncome: 4402 -> 4402.01
@@ -25632,11 +31595,14 @@ the note quoted under each group rather than trusting the count.
           credit:South Carolina earned income credit: 200 -> 0
 ```
 
-> Matched on `2,693.40`: South Carolina earned income credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $2,693.40 of South Carolina credit lost on one cent of investment income. South Carolina's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
+> Matched on `12,000`: THE $15,000 SENIOR DEDUCTION IS AN AGE PROVISION AND NOT A RETIREMENT ONE, and every guide files it under retirement income. § 12-6-1170(B) allows a filer of 65 to deduct $15,000 of ANY income, reduced by whatever that person deducted under subsection (A) — so the pair is a FLOOR of $15,000 rather than $15,000 on top of the retirement deduction. A single South Carolina filer of 66 with $60,000 pays $1,038.30 whether that $60,000 is pension or wages, and the same person at 50 with the same pension pays $1,878.30, because the retirement deduction alone is $3,000 under 65. The $840.00 difference is deduction and not income, and it is $14,000 of it at 6%: $12,000 from the $15,000 floor against the $3,000 cap, and $2,000 that is not a South Carolina provision at all — IRC § 63(f)’s additional standard deduction for a filer who has attained 65, which the frozen Code allows in full and which the standard deduction add-back must not reach. Through v0.46.0 it did, and every South Carolina filer of 65 or over was taxed on that $2,000: $120 of tax, in the direction nobody complains about.
 
-### UT — 2 notch(es)
+### UT — 4 notch(es)
 
 ```text
+  2025  filer-age          single-retiree               age 64 -> -$120.00
+          tax: 683.03 -> 563.03
+          credit:Taxpayer Tax Credit: 666.97 -> 786.97
   2025  investment-income  hoh-one-child            $11,950.00 -> +$243.78
           stateAdjustedGrossIncome: 36950 -> 36950.01
           taxableIncome: 36950 -> 36950.01
@@ -25650,6 +31616,9 @@ the note quoted under each group rather than trusting the count.
   2025  municipal-interest single-two-children      $11,950.00 -> +$14.91
           tax: 0 -> 14.91
           credit:Utah earned income tax credit: 1360.9 -> 0
+  2026  filer-age          single-retiree               age 64 -> -$123.00
+          tax: 647.03 -> 524.03
+          credit:Taxpayer Tax Credit: 687.97 -> 810.97
   2026  investment-income  hoh-one-child            $12,200.00 -> +$208.18
           stateAdjustedGrossIncome: 37200 -> 37200.01
           taxableIncome: 37200 -> 37200.01
@@ -25662,11 +31631,34 @@ the note quoted under each group rather than trusting the count.
           credit:Utah earned income tax credit: 902.58 -> 0
 ```
 
-> Matched on `430.94`: Utah earned income tax credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $430.94 of Utah credit lost on one cent of investment income. Utah's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
+> Matched on `taxpayer tax credit (phrase)`: Utah's statutory rate is not its marginal rate for most working filers. The Taxpayer Tax Credit is 6% of the federal standard or itemized deduction plus $2,111 per dependent, reduced by 1.3 cents for each dollar of Utah taxable income above $18,213 ($36,426 joint). Inside that band the true marginal rate is the statutory rate plus 1.3 points — 5.75% in 2026 against a headline 4.45%.
 
-### VA — 11 notch(es)
+### VA — 15 notch(es)
 
 ```text
+  2025  dependent-age      hoh-one-child                age 18 -> +$526.10
+          tax: -526.1 -> 0
+          credit:Virginia earned income tax credit (refundable, 20% of the federal credit): 865.6 -> null
+          credit:Credit for Low Income Individuals: null -> 600
+  2025  dependent-age      single-two-children          age 18 -> +$564.80
+          tax: -1137.4 -> -572.6
+          credit:Virginia earned income tax credit (refundable, 20% of the federal credit): 1430.4 -> 865.6
+  2025  filer-age          joint-no-children            age 64 -> -$402.00
+          stateAdjustedGrossIncome: 30000 -> 18000
+          subtractions: 4000 -> 16000
+          exemptions: 1860 -> 2660
+          taxableIncome: 10640 -> 0
+          taxBeforeCredits: 402 -> 0
+          tax: 402 -> 0
+          subtraction:Age deduction: null -> 12000
+  2025  filer-age          single-retiree               age 64 -> -$664.90
+          stateAdjustedGrossIncome: 30000 -> 18000
+          subtractions: 9600 -> 21600
+          exemptions: 930 -> 1730
+          taxableIncome: 20320 -> 7520
+          taxBeforeCredits: 910.9 -> 246
+          tax: 910.9 -> 246
+          subtraction:Age deduction: null -> 12000
   2025  investment-income  hoh-one-child            $11,950.00 -> +$430.94
           stateAdjustedGrossIncome: 36950 -> 36950.01
           taxableIncome: 26340 -> 26340.01
@@ -25682,6 +31674,11 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 25410 -> 25410.01
           tax: 346.01 -> 1203.58
           credit:Virginia earned income tax credit (refundable, 20% of the federal credit): 857.57 -> 0
+  2025  investment-income  single-young-child       $11,950.00 -> +$430.94
+          stateAdjustedGrossIncome: 36950 -> 36950.01
+          taxableIncome: 26340 -> 26340.01
+          tax: 826.11 -> 1257.05
+          credit:Virginia earned income tax credit (refundable, 20% of the federal credit): 430.94 -> 0
   2025  municipal-interest single-two-children      $11,950.00 -> +$1,360.91
           stateAdjustedGrossIncome: 36950 -> 36950.01
           additions: 11950 -> 11950.01
@@ -25702,6 +31699,14 @@ the note quoted under each group rather than trusting the count.
           taxBeforeCredits: 0 -> 29.4
           tax: 0 -> 29.4
           subtraction:Social Security and Tier 1 railroad retirement benefits: 6157.5 -> 6157.51
+  2025  spouse-age         joint-no-children            age 64 -> -$402.00
+          stateAdjustedGrossIncome: 30000 -> 18000
+          subtractions: 4000 -> 16000
+          exemptions: 1860 -> 2660
+          taxableIncome: 10640 -> 0
+          taxBeforeCredits: 402 -> 0
+          tax: 402 -> 0
+          subtraction:Age deduction: null -> 12000
   2025  wages              childless-single         $11,950.00 -> +$45.40
           stateAdjustedGrossIncome: 11950 -> 11950.01
           taxableIncome: 2270 -> 2270.01
@@ -25735,6 +31740,34 @@ the note quoted under each group rather than trusting the count.
           taxBeforeCredits: 0 -> 29.4
           tax: 0 -> 29.4
           subtraction:Social Security and Tier 1 railroad retirement benefits: 6157.5 -> 6157.51
+  2025  wages              single-young-child       $11,950.00 -> +$26.80
+          stateAdjustedGrossIncome: 11950 -> 11950.01
+          taxableIncome: 1340 -> 1340.01
+          taxBeforeCredits: 0 -> 26.8
+          tax: -812.6 -> -785.8
+  2026  dependent-age      hoh-one-child                age 18 -> +$545.90
+          tax: -545.9 -> 0
+          credit:Virginia earned income tax credit (refundable, 20% of the federal credit): 885.4 -> null
+          credit:Credit for Low Income Individuals: null -> 600
+  2026  dependent-age      single-two-children          age 18 -> +$577.80
+          tax: -1170.2 -> -592.4
+          credit:Virginia earned income tax credit (refundable, 20% of the federal credit): 1463.2 -> 885.4
+  2026  filer-age          joint-no-children            age 64 -> -$402.00
+          stateAdjustedGrossIncome: 30000 -> 18000
+          subtractions: 4000 -> 16000
+          exemptions: 1860 -> 2660
+          taxableIncome: 10640 -> 0
+          taxBeforeCredits: 402 -> 0
+          tax: 402 -> 0
+          subtraction:Age deduction: null -> 12000
+  2026  filer-age          single-retiree               age 64 -> -$664.90
+          stateAdjustedGrossIncome: 30000 -> 18000
+          subtractions: 9600 -> 21600
+          exemptions: 930 -> 1730
+          taxableIncome: 20320 -> 7520
+          taxBeforeCredits: 910.9 -> 246
+          tax: 910.9 -> 246
+          subtraction:Age deduction: null -> 12000
   2026  investment-income  hoh-one-child            $12,200.00 -> +$460.02
           stateAdjustedGrossIncome: 37200 -> 37200.01
           taxableIncome: 26590 -> 26590.01
@@ -25750,6 +31783,11 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 25660 -> 25660.01
           tax: 315.37 -> 1217.95
           credit:Virginia earned income tax credit (refundable, 20% of the federal credit): 902.58 -> 0
+  2026  investment-income  single-young-child       $12,200.00 -> +$460.02
+          stateAdjustedGrossIncome: 37200 -> 37200.01
+          taxableIncome: 26590 -> 26590.01
+          tax: 811.41 -> 1271.43
+          credit:Virginia earned income tax credit (refundable, 20% of the federal credit): 460.01 -> 0
   2026  municipal-interest single-two-children      $12,200.00 -> +$1,416.45
           stateAdjustedGrossIncome: 37200 -> 37200.01
           additions: 12200 -> 12200.01
@@ -25770,6 +31808,14 @@ the note quoted under each group rather than trusting the count.
           taxBeforeCredits: 0 -> 29.4
           tax: 0 -> 29.4
           subtraction:Social Security and Tier 1 railroad retirement benefits: 6157.5 -> 6157.51
+  2026  spouse-age         joint-no-children            age 64 -> -$402.00
+          stateAdjustedGrossIncome: 30000 -> 18000
+          subtractions: 4000 -> 16000
+          exemptions: 1860 -> 2660
+          taxableIncome: 10640 -> 0
+          taxBeforeCredits: 402 -> 0
+          tax: 402 -> 0
+          subtraction:Age deduction: null -> 12000
   2026  wages              childless-single         $11,950.00 -> +$45.40
           stateAdjustedGrossIncome: 11950 -> 11950.01
           taxableIncome: 2270 -> 2270.01
@@ -25803,13 +31849,64 @@ the note quoted under each group rather than trusting the count.
           taxBeforeCredits: 0 -> 29.4
           tax: 0 -> 29.4
           subtraction:Social Security and Tier 1 railroad retirement benefits: 6157.5 -> 6157.51
+  2026  wages              single-young-child       $11,950.00 -> +$26.80
+          stateAdjustedGrossIncome: 11950 -> 11950.01
+          taxableIncome: 1340 -> 1340.01
+          taxBeforeCredits: 0 -> 26.8
+          tax: -812.6 -> -785.8
 ```
 
-> Matched on `430.94`: Virginia earned income tax credit (refundable, 20% of the federal credit) is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $430.94 of Virginia credit lost on one cent of investment income. Virginia's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
+> Matched on `865.60`: Virginia earned income tax credit (refundable, 20% of the federal credit) is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $865.60 of Virginia credit lost on one cent of investment income. Virginia's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
 
-### WI — 2 notch(es)
+### WI — 8 notch(es)
 
 ```text
+  2025  dependent-age      hoh-one-child                age 18 -> +$173.12
+          tax: -131.77 -> 41.35
+          credit:Wisconsin earned income credit: 173.12 -> 0
+  2025  dependent-age      single-two-children          age 18 -> +$310.64
+          tax: -632.93 -> -322.29
+          credit:Wisconsin earned income credit: 786.72 -> 476.08
+  2025  filer-age          joint-no-children            age 64 -> -$8.75   [UNATTRIBUTED]
+          exemptions: 1400 -> 1650
+          taxableIncome: 3844.03 -> 3594.03
+          taxBeforeCredits: 134.54 -> 125.79
+          tax: 134.54 -> 125.79
+  2025  filer-age          joint-no-children            age 66 -> -$125.79
+          stateAdjustedGrossIncome: 30000 -> 6000
+          subtractions: 4000 -> 28000
+          deduction: 24755.97 -> 25110
+          taxableIncome: 3594.03 -> 0
+          taxBeforeCredits: 125.79 -> 0
+          tax: 125.79 -> 0
+          credit:Wisconsin earned income credit: 0 -> null
+          credit:Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes): 0 -> null
+          credit:School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid): 0 -> null
+          credit:Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480): 0 -> null
+          credit:Wisconsin earned income credit — forfeited by the retirement income subtraction: null -> 0
+          credit:Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes) — forfeited by the retirement income subtraction: null -> 0
+          credit:School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid) — forfeited by the retirement income subtraction: null -> 0
+          credit:Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480) — forfeited by the retirement income subtraction: null -> 0
+          subtraction:Retirement income subtraction (claimed: every credit listed under Wis. Stat. § 71.07 is forfeited for the year, including any carryover): null -> 24000
+  2025  filer-age          single-retiree               age 64 -> -$11.00
+          exemptions: 700 -> 950
+          taxableIncome: 16994 -> 16744
+          taxBeforeCredits: 615.62 -> 604.62
+          tax: 615.62 -> 604.62
+  2025  filer-age          single-retiree               age 66 -> -$604.62
+          stateAdjustedGrossIncome: 30000 -> 6000
+          subtractions: 9600 -> 33600
+          deduction: 12306 -> 13560
+          taxableIncome: 16744 -> 0
+          taxBeforeCredits: 604.62 -> 0
+          tax: 604.62 -> 0
+          credit:Wisconsin earned income credit: 0 -> null
+          credit:Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes): 0 -> null
+          credit:School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid): 0 -> null
+          credit:Wisconsin earned income credit — forfeited by the retirement income subtraction: null -> 0
+          credit:Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes) — forfeited by the retirement income subtraction: null -> 0
+          credit:School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid) — forfeited by the retirement income subtraction: null -> 0
+          subtraction:Retirement income subtraction (claimed: every credit listed under Wis. Stat. § 71.07 is forfeited for the year, including any carryover): null -> 24000
   2025  investment-income  hoh-one-child            $11,950.00 -> +$86.19
           stateAdjustedGrossIncome: 33365 -> 33365.01
           taxableIncome: 17555.45 -> 17555.46
@@ -25824,6 +31921,11 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 19362.8 -> 19362.81
           tax: 248.18 -> 719.84
           credit:Wisconsin earned income credit: 471.66 -> 0
+  2025  investment-income  single-young-child       $11,950.00 -> +$86.19
+          stateAdjustedGrossIncome: 33365 -> 33365.01
+          taxableIncome: 17555.45 -> 17555.46
+          tax: 554.13 -> 640.32
+          credit:Wisconsin earned income credit: 86.19 -> 0
   2025  municipal-interest single-two-children      $11,950.00 -> +$748.49
           stateAdjustedGrossIncome: 36950 -> 36950.01
           additions: 11950 -> 11950.01
@@ -25831,6 +31933,57 @@ the note quoted under each group rather than trusting the count.
           tax: 148.02 -> 896.51
           credit:Wisconsin earned income credit: 748.5 -> 0
           addition:Wisconsin addition for other states' municipal interest: 11950 -> 11950.01
+  2025  spouse-age         joint-no-children            age 64 -> -$8.75   [UNATTRIBUTED]
+          exemptions: 1400 -> 1650
+          taxableIncome: 3844.03 -> 3594.03
+          taxBeforeCredits: 134.54 -> 125.79
+          tax: 134.54 -> 125.79
+  2026  dependent-age      hoh-one-child                age 18 -> +$177.08
+          tax: -157.13 -> 19.95
+          credit:Wisconsin earned income credit: 177.08 -> 0
+  2026  dependent-age      single-two-children          age 18 -> +$317.79
+          tax: -666.86 -> -349.07
+          credit:Wisconsin earned income credit: 804.76 -> 486.97
+  2026  filer-age          joint-no-children            age 64 -> -$8.75   [UNATTRIBUTED]
+          exemptions: 1400 -> 1650
+          taxableIncome: 2949.87 -> 2699.87
+          taxBeforeCredits: 103.25 -> 94.5
+          tax: 103.25 -> 94.5
+  2026  filer-age          joint-no-children            age 66 -> -$94.50
+          stateAdjustedGrossIncome: 30000 -> 6000
+          subtractions: 4000 -> 28000
+          deduction: 25650.13 -> 25840
+          taxableIncome: 2699.87 -> 0
+          taxBeforeCredits: 94.5 -> 0
+          tax: 94.5 -> 0
+          credit:Wisconsin earned income credit: 0 -> null
+          credit:Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes): 0 -> null
+          credit:School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid): 0 -> null
+          credit:Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480): 0 -> null
+          credit:Wisconsin earned income credit — forfeited by the retirement income subtraction: null -> 0
+          credit:Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes) — forfeited by the retirement income subtraction: null -> 0
+          credit:School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid) — forfeited by the retirement income subtraction: null -> 0
+          credit:Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480) — forfeited by the retirement income subtraction: null -> 0
+          subtraction:Retirement income subtraction (claimed: every credit listed under Wis. Stat. § 71.07 is forfeited for the year, including any carryover): null -> 24000
+  2026  filer-age          single-retiree               age 64 -> -$11.00
+          exemptions: 700 -> 950
+          taxableIncome: 16525.6 -> 16275.6
+          taxBeforeCredits: 591.14 -> 580.14
+          tax: 591.14 -> 580.14
+  2026  filer-age          single-retiree               age 66 -> -$580.14
+          stateAdjustedGrossIncome: 30000 -> 6000
+          subtractions: 9600 -> 33600
+          deduction: 12774.4 -> 13960
+          taxableIncome: 16275.6 -> 0
+          taxBeforeCredits: 580.14 -> 0
+          tax: 580.14 -> 0
+          credit:Wisconsin earned income credit: 0 -> null
+          credit:Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes): 0 -> null
+          credit:School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid): 0 -> null
+          credit:Wisconsin earned income credit — forfeited by the retirement income subtraction: null -> 0
+          credit:Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes) — forfeited by the retirement income subtraction: null -> 0
+          credit:School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid) — forfeited by the retirement income subtraction: null -> 0
+          subtraction:Retirement income subtraction (claimed: every credit listed under Wis. Stat. § 71.07 is forfeited for the year, including any carryover): null -> 24000
   2026  investment-income  hoh-one-child            $12,200.00 -> +$92.01
           stateAdjustedGrossIncome: 33540 -> 33540.01
           taxableIncome: 17131.51 -> 17131.52
@@ -25846,6 +31999,11 @@ the note quoted under each group rather than trusting the count.
           taxableIncome: 19090.4 -> 19090.41
           tax: 207.57 -> 703.99
           credit:Wisconsin earned income credit: 496.42 -> 0
+  2026  investment-income  single-young-child       $12,200.00 -> +$92.01
+          stateAdjustedGrossIncome: 33540 -> 33540.01
+          taxableIncome: 17131.51 -> 17131.52
+          tax: 525.79 -> 617.8
+          credit:Wisconsin earned income credit: 92 -> 0
   2026  municipal-interest single-two-children      $12,200.00 -> +$779.04
           stateAdjustedGrossIncome: 37200 -> 37200.01
           additions: 12200 -> 12200.01
@@ -25853,7 +32011,12 @@ the note quoted under each group rather than trusting the count.
           tax: 105.31 -> 884.35
           credit:Wisconsin earned income credit: 779.05 -> 0
           addition:Wisconsin addition for other states' municipal interest: 12200 -> 12200.01
+  2026  spouse-age         joint-no-children            age 64 -> -$8.75   [UNATTRIBUTED]
+          exemptions: 1400 -> 1650
+          taxableIncome: 2949.87 -> 2699.87
+          taxBeforeCredits: 103.25 -> 94.5
+          tax: 103.25 -> 94.5
 ```
 
-> Matched on `86.19`: Wisconsin earned income credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $86.19 of Wisconsin credit lost on one cent of investment income. Wisconsin's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
+> Matched on `173.12`: Wisconsin earned income credit is a percentage of a federal credit that is barred OUTRIGHT, not tapered, above a ceiling on investment income — § 32(i), tested on taxable and tax-exempt interest, dividends, net capital gain, net rent and royalty income, and net passive income, at a limit near $12,000 that is low enough to bind on an ordinary household that sells one asset. It is a CLIFF: one cent over it and the federal credit is nothing, so this credit is nothing. On the federal credit supplied here that is $173.12 of Wisconsin credit lost on one cent of investment income. Wisconsin's own statute does not mention the limit, because the condition is federal and is inherited through the figure you pass. Nothing about this credit tapers in investment income; it stops.
 

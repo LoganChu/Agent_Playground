@@ -30,7 +30,7 @@
 
 import assert from 'node:assert/strict';
 import { locate, sweepOne, evaluator } from './sweep.mjs';
-import { SHAPES, AXES, MIN_JUMP } from './shapes.mjs';
+import { SHAPES, AXES, DISCRETE_AXES, ALL_AXES, MIN_JUMP, formatAt, isDiscrete, shapesFor } from './shapes.mjs';
 import { classify, provisionLabels, nameMatch } from './classify.mjs';
 
 let passed = 0;
@@ -440,8 +440,8 @@ check('a state that taxes no income has no notches, on any axis', () => {
   // within living memory, and the investment-income axis is the one that would
   // find a leftover interest-and-dividends rule.
   for (const state of ['AK', 'FL', 'NH', 'NV', 'SD', 'TN', 'TX', 'WA', 'WY']) {
-    for (const axis of AXES) {
-      const shapes = axis.shapes ? SHAPES.filter((x) => axis.shapes.includes(x.id)) : SHAPES;
+    for (const axis of ALL_AXES) {
+      const shapes = shapesFor(axis);
       for (const shape of shapes) {
         const { cliffs } = sweepOne(shape, state, 2025, axis);
         assert.equal(
@@ -453,6 +453,107 @@ check('a state that taxes no income has no notches, on any axis', () => {
       }
     }
   }
+});
+
+/* ------------------------------------------------------------------ */
+/* 5. The discrete axes, whose detector is a different detector         */
+/* ------------------------------------------------------------------ */
+
+check('a discrete axis reports the two integers either side of the step, and not a value between them', () => {
+  // The whole reason `enumerateOne` exists rather than `sweepOne` with a step
+  // of 1. `locate` would binary-search between 64 and 65 and return something
+  // like 64.5, which is an age nobody has on the last day of a tax year.
+  const axis = DISCRETE_AXES.find((a) => a.id === 'filer-age');
+  const shape = SHAPES.find((x) => x.id === 'single-retiree');
+  const { cliffs } = sweepOne(shape, 'MD', 2025, axis);
+  assert.ok(cliffs.length > 0, 'Maryland has a pension exclusion at 65 and it was not found');
+  for (const c of cliffs) {
+    assert.ok(Number.isInteger(c.at) && Number.isInteger(c.next), `${c.at} -> ${c.next} is not a pair of integers`);
+    assert.equal(c.next, c.at + 1, `${c.at} -> ${c.next} skips a value the axis walks`);
+  }
+});
+
+check("Maryland's pension exclusion is a $1,061.38 notch on one birthday", () => {
+  // Read off the engine before the axis was built, and the largest single-
+  // birthday step the instrument found anywhere: a single filer with $30,000
+  // of pension and $20,000 of Social Security, whose whole Maryland bill goes
+  // to zero between 64 and 65.
+  const axis = DISCRETE_AXES.find((a) => a.id === 'filer-age');
+  const shape = SHAPES.find((x) => x.id === 'single-retiree');
+  const { cliffs } = sweepOne(shape, 'MD', 2025, axis);
+  const at64 = cliffs.find((c) => c.at === 64);
+  assert.ok(at64, `no notch at 64: ${JSON.stringify(cliffs.map((c) => [c.at, c.jump]))}`);
+  assert.equal(at64.jump.toFixed(2), '-1061.38');
+  assert.ok(
+    at64.moved.some((m) => m.field === 'subtractions'),
+    `the subtraction did not move: ${JSON.stringify(at64.moved)}`,
+  );
+});
+
+check("Wisconsin's Act 15 subtraction is at 67 and not at 65", () => {
+  // The threshold a reader guesses wrong. Wis. Stat. s. 71.05(6)(b)54m, created
+  // by 2025 Wisconsin Act 15, subtracts up to $24,000 of retirement income at
+  // SIXTY-SEVEN. The $11 step at 65 is the separate s. 71.05(23) addition, and
+  // finding both is how this axis shows that a state can have two.
+  const axis = DISCRETE_AXES.find((a) => a.id === 'filer-age');
+  const shape = SHAPES.find((x) => x.id === 'single-retiree');
+  const { cliffs } = sweepOne(shape, 'WI', 2025, axis);
+  const ages = cliffs.map((c) => c.at);
+  assert.deepEqual(ages, [64, 66], `expected steps at 64->65 and 66->67, got ${JSON.stringify(ages)}`);
+  assert.equal(cliffs.find((c) => c.at === 66).jump.toFixed(2), '-604.62');
+});
+
+check("California's Young Child Tax Credit is on the dependent-age axis and no shape could hold it before", () => {
+  // The finding that added `single-young-child` to SHAPES. Every child in the
+  // list before it was 6, 7, 8, 10 or 11, so a $1,189 credit for a child under
+  // six was worth exactly zero in every case this instrument had evaluated.
+  const axis = DISCRETE_AXES.find((a) => a.id === 'dependent-age');
+  const shape = SHAPES.find((x) => x.id === 'hoh-one-child');
+  const { cliffs } = sweepOne(shape, 'CA', 2025, axis);
+  const under6 = cliffs.find((c) => c.at === 5);
+  assert.ok(under6, `no step at 5 -> 6: ${JSON.stringify(cliffs.map((c) => [c.at, c.jump]))}`);
+  assert.equal(under6.jump.toFixed(2), '1189.00');
+  assert.ok(
+    under6.moved.some((m) => /Young Child/i.test(m.field)),
+    `the credit was not named in the result object: ${JSON.stringify(under6.moved)}`,
+  );
+  // And the shape that now exists to meet it on the income axes.
+  const young = SHAPES.find((x) => x.id === 'single-young-child');
+  assert.ok(young, 'single-young-child is gone from SHAPES');
+  assert.ok(young.childAges.every((a) => a < 6), `${JSON.stringify(young.childAges)} is not under six`);
+});
+
+check("the filer's and the spouse's age amounts are the same size, which is a check on a transcription", () => {
+  // A per-person amount transcribed once and applied twice is the commonest
+  // shape of error in this class, and it is invisible to every income axis.
+  // Where a state steps for the filer on a joint return it must step by the
+  // same amount for the spouse, because the household is otherwise identical.
+  const filer = DISCRETE_AXES.find((a) => a.id === 'filer-age');
+  const spouse = DISCRETE_AXES.find((a) => a.id === 'spouse-age');
+  const shape = SHAPES.find((x) => x.id === 'joint-no-children');
+  for (const state of ['MD', 'WI']) {
+    const f = sweepOne(shape, state, 2025, filer).cliffs.find((c) => c.at === 64);
+    const sp = sweepOne(shape, state, 2025, spouse).cliffs.find((c) => c.at === 64);
+    assert.ok(f && sp, `${state}: one side of the pair is missing`);
+    assert.equal(
+      f.jump.toFixed(2),
+      sp.jump.toFixed(2),
+      `${state} gives the filer ${f.jump} at 65 and the spouse ${sp.jump}`,
+    );
+  }
+});
+
+check('an age is never formatted as money', () => {
+  // The single most misleading line this instrument could print. Every other
+  // number in the report is dollars, so `$64.00` for a sixty-four-year-old
+  // would read as an income and send a reader to the wrong statute.
+  for (const axis of DISCRETE_AXES) {
+    const written = formatAt(axis, axis.values[0]);
+    assert.ok(!written.includes('$'), `${axis.id} wrote ${written}`);
+  }
+  assert.equal(formatAt(AXES[0], 100_000), '$100,000.00');
+  assert.ok(DISCRETE_AXES.every(isDiscrete), 'a discrete axis did not declare itself discrete');
+  assert.ok(!AXES.some(isDiscrete), 'an income axis declared itself discrete');
 });
 
 /* ------------------------------------------------------------------ */

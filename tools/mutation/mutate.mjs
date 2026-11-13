@@ -885,6 +885,10 @@ let fullReRuns = 0;
  * that a better selection would have avoided.
  */
 const phaseCost = { step: [], full: { runs: 0, kills: 0, ms: 0 }, whole: { runs: 0, kills: 0, ms: 0 } };
+// Set when the pool starts, read by the progress line above it. `let` rather
+// than `const` because the worker that reads it is defined first and the pool
+// it times is started last.
+let poolStart = Date.now();
 function account(bucket, r) {
   bucket.runs++;
   bucket.ms += r.ms;
@@ -952,12 +956,46 @@ async function worker(dir, list) {
     done++;
     // Counted against the WHOLE run and not this process's share of it, so a
     // resumed run's progress line means the same thing as a fresh one's.
-    if (done % 50 === 0) console.error(`[mutate] ${resumed + done}/${resumed + selected.length}`);
+    //
+    // AND THE PHASE SPLIT SO FAR, which is the line Day 79 added and the reason
+    // is a whole day of not knowing. Day 78 watched this counter crawl - 50
+    // mutants in seven minutes, 7.1 a minute against the previous day's 60.0 -
+    // and stopped the run, because a six-hour projection with a plausible story
+    // that it is wrong is not a thing to spend six hours on. The story was that
+    // the enumeration BEGINS in `engine.ts`, which names no state and therefore
+    // cannot be narrowed, so the whole prefix pays the whole-suite price and the
+    // rate would climb sharply once the state modules arrived. The measurement
+    // that settles it is the phase table - and the phase table only exists at
+    // the END of a complete run, which is the one thing a run you are deciding
+    // whether to abandon has not got.
+    //
+    // So the table is printed every fifty mutants instead. `whole` dominating
+    // the early lines and then shrinking is the unnarrowable prefix; `whole`
+    // dominating at mutant 1,500 is a regression in the selection, and those are
+    // different problems with different fixes. Three fields and no new state:
+    // every bucket below is already being accumulated for the final table.
+    if (done % 50 === 0) {
+      const ran = phaseCost.step.reduce((n, b) => n + (b?.runs ?? 0), 0);
+      console.error(
+        `[mutate] ${resumed + done}/${resumed + selected.length}` +
+          `   narrowed ${ran}  miss ${phaseCost.full.runs}  whole ${phaseCost.whole.runs}` +
+          // THIS PROCESS'S OWN RATE, and the numerator is `done` and not
+          // `resumed + done`. The count beside it is deliberately the whole
+          // run's, so that a resumed run's progress means what a fresh one's
+          // means - but a RESUMED verdict cost this process no time at all, so
+          // dividing the whole count by this process's clock reports a rate
+          // nobody ran at. The first line this counter ever printed said
+          // `29.7/min` for a process doing 10.4, because 92 of its 142 were
+          // read from a file. A rate over a denominator that excludes part of
+          // its numerator is the same error `--limit` refuses to make.
+          `   ${((done / ((Date.now() - poolStart) / 60_000)) || 0).toFixed(1)}/min this process`,
+      );
+    }
   }
 }
 const chunks = Array.from({ length: WORKERS }, () => []);
 selected.forEach((mu, i) => chunks[i % WORKERS].push(mu));
-const poolStart = Date.now();
+poolStart = Date.now();
 await Promise.all(chunks.map((c, i) => worker(workerDirs[i], c)));
 const poolSeconds = (Date.now() - poolStart) / 1000;
 rmSync(root, { recursive: true, force: true });

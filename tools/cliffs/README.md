@@ -35,7 +35,7 @@ pointed at this engine first.
 1. **Sweep.** For each household shape × 42 states × 2 years × **axis**, walk
    that axis's variable over its committed bands — wages from `$0` to
    `$150,000` in `$100` steps and on to `$1,050,000` in `$2,500` steps, and
-   four more variables over their own. 1,512 sweeps, about 2.3 million
+   four more variables over their own. 2,100 sweeps, about 2.7 million
    evaluations, about eight minutes on four cores.
 
    An **axis** is the one variable that moves while the rest of the household
@@ -47,6 +47,19 @@ pointed at this engine first.
    and no wage in any band reaches it. The cost of an axis is linear, not
    multiplicative — four axes is four sweeps, not four dimensions — and
    `shapes.mjs` holds the list with the argument for each entry.
+
+   **Three of the eight axes are DISCRETE**, added on Day 79: the filer's age,
+   the spouse's age and the first dependent's age. They are integers, so steps 2
+   and 3 below do not apply to them at all — a tax function of an age is
+   constant between thresholds and steps at them, so there is no kink to tell
+   from a jump and nothing between 64 and 65 to binary-search for. The detector
+   is subtraction over consecutive values, and the notch is already located
+   exactly. They cost about 9,000 evaluations against the wage axis's 940,000,
+   and what they found on the first run was **a Maryland filer whose whole state
+   bill goes from `$1,061.38` to `$0` on a sixty-fifth birthday**, a Michigan
+   one whose `$1,028.50` goes on a fifty-ninth, and a `$1,189` California credit
+   for a child under six that no household shape in this repository was young
+   enough to hold.
 2. **Flag.** A piecewise-linear function has a second difference of zero where
    it is linear and `|dr| × h` at a kink, so at `h = $100` a one-point bracket
    change contributes about `$1` and a notch contributes its whole size. A
@@ -93,9 +106,18 @@ and finds no sentence will build a taper.
   income credit covers the whole bill there — which is why `shapes.mjs` carries
   a childless shape whose only job is to have no credit to hide behind.
 - **A notch on an axis that is not here.** Itemised deductions, property tax,
-  rent, and the number and ages of dependents are held fixed. Investment income,
-  pension income, Social Security benefits and municipal interest were on this
-  list until Day 78 and are now four of the five axes.
+  rent and the NUMBER of dependents are held fixed. Investment income, pension
+  income, Social Security benefits and municipal interest were on this list
+  until Day 78, and the filer's age, the spouse's age and a dependent's age
+  until Day 79; they are now seven of the eight axes.
+- **A cap on the number of dependents.** A count was built as a ninth axis and
+  deleted the same day, and the argument is in `shapes.mjs`: the detector that
+  makes the three age axes exact assumes the bill is constant between values of
+  the variable, and a per-head exemption makes it a straight line instead. A
+  first difference then reports every household and a second difference reports
+  a per-head amount meeting a bracket. Finding "this credit stops at the third
+  child" needs a detector that looks for the marginal value going FLAT, which is
+  a real instrument and is not this one.
 - **A notch that needs two variables to move at once.** Every axis holds the
   rest of the household still, so a threshold written on a ratio, or a combined
   limit with a separate cap on each component, is only partly reached. A second

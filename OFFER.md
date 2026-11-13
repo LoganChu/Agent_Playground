@@ -67,19 +67,35 @@ finding that needs two households a cent apart, which neither this repository's
 2,904-household grid nor any reference model's own test suite contains, because
 all of them sample incomes in round thousands.
 
-`tools/cliffs/find-cliffs.mjs` walks the **function** instead. It sweeps 6
-household shapes across 42 states, 2 tax years and **5 axes of income**,
-2,347,800 income points, flags every neighbourhood where the second difference
-says the curve jumped, and narrows each flag to **two incomes one cent apart** —
-then diffs the engine's own result objects to name the figure that moved.
+`tools/cliffs/find-cliffs.mjs` walks the **function** instead. It sweeps 7
+household shapes across 42 states, 2 tax years and **8 axes** — 5 of income and
+3 of age — over 2,656,248 points, flags every neighbourhood where the second
+difference says the curve jumped, and narrows each flag to **two incomes one
+cent apart** — then diffs the engine's own result objects to name the figure
+that moved.
 
 ```text
-  3,814   discontinuities in this engine, over 2,347,800 income points
-  3,567     declared as a step in the package's own notes
+  4,758   discontinuities in this engine, over 2,656,248 points
+  4,434     declared as a step in the package's own notes
       0     named in a note that never says they step
       0     not named at all
-    247     inside a rate schedule, where nothing moved far enough to name
+    324     inside a rate schedule, where nothing moved far enough to name
+
+  4,548     on an income axis
+    210     on an AGE axis, which is the one a reader guesses wrong
 ```
+
+**THE LARGEST SINGLE-POINT NOTCH THIS ENGINE HAS IS NOT ON AN INCOME AXIS AT
+ALL.** It is a birthday. A Maryland filer with `$30,000` of pension and
+`$20,000` of Social Security owes `$1,061.38` at 64 and `$0.00` at 65; a
+Michigan one owes `$1,028.50` at 58 and nothing at 59; and nine of the
+thresholds are not at 65 — Iowa's is 55, Michigan's 59, New York's,
+Pennsylvania's and Mississippi's 60, Georgia's, Missouri's and New Jersey's 62,
+Wisconsin's 67. A `$1,189` California credit and a `$1,050` Oregon one turn on
+whether a child is five or six. **Twenty of those were named in this package's
+notes without being called steps, or not named at all, on the day the age axes
+were built; all twenty are disclosed in the shipped notes now**, which is the
+whole point of pointing the instrument at the product.
 
 **An AXIS is the one variable the sweep moves while the rest of the household
 stands still, and until Day 78 there was one of them.** That is the single
@@ -146,10 +162,15 @@ paying for:
 > in its own header and prints the matching note under every group.
 
 **AND THE EMPTY COLUMN IS STILL NARROWER THAN IT SOUNDS, WHICH MATTERS MORE TO A
-BUYER THAN THE ZERO DOES.** Five axes is not every axis. Itemised deductions,
-property tax, rent, age and dependent count are still held fixed, so a notch in
-a provision tested on one of those is not in the 3,814 and not in the zero
-either — Michigan's and New Jersey's property tax credits are on that list. So
+BUYER THAN THE ZERO DOES.** Eight axes is not every axis. Itemised deductions,
+property tax, rent and the NUMBER of dependents are still held fixed, so a notch
+in a provision tested on one of those is not in the 4,758 and not in the zero
+either — Michigan's and New Jersey's property tax credits are on that list. A
+count of dependents was built as a ninth axis and deleted the same day, because
+the detector that makes the three age axes exact assumes the bill is constant
+between values of the variable and a per-head exemption makes it a line; the
+argument is in `tools/cliffs/shapes.mjs` and names the detector that would work.
+So
 is any threshold written on **two** components at once, because every axis holds
 the rest of the household still and a second *simultaneously* swept variable
 costs the product of the bands rather than the sum. `CLIFFS.md` enumerates the
