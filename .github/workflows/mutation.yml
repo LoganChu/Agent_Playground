@@ -17,15 +17,31 @@
 # package that still has one.
 #
 # So `us-federal-tax` runs at 0. `us-state-tax` ran without a limit until Day 35,
-# when the last survivor that was a missing test was closed: the six that remain are
-# four windows on a tax year outside the two supported, an epsilon used as notation,
-# and one row of Ohio arithmetic no return can reach, each with a written reason in
-# `STATE-SURVIVORS.md`. That list is the argument 6 needs and 0 does not, so the job
-# now gates at 6 — it fails on a regression and passes on the known set.
+# when the last survivor that was a missing test was closed: the ones that remain are
+# windows on a tax year outside the two supported, an epsilon used as notation, one
+# row of Ohio arithmetic no return can reach, and two New Mexico figures no shipped
+# answer reads — each with a written reason in `STATE-SURVIVORS.md`. That list is the
+# argument a non-zero limit needs and 0 does not, so the job gates at the size of the
+# list: it fails on a regression and passes on the known set.
 #
-# Four of the six become reachable the day this package gains a third tax year, and
-# on that day the gate drops with them. Raising either number is a deliberate edit to
-# this file, which is the point: it cannot drift, only be changed on purpose.
+# Several become reachable the day this package gains a third tax year, and on that
+# day the gate drops with them. Raising either number is a deliberate edit to this
+# file, which is the point: it cannot drift, only be changed on purpose.
+#
+# ## DAY 80 — AND "IT CANNOT DRIFT" WAS WRONG IN THE DIRECTION THAT MATTERS
+#
+# It cannot drift SILENTLY UPWARD, which is what the sentence above was about. It
+# can go stale downward, and it did: this paragraph said "the six that remain" and
+# gated at 6 from Day 35, the count became EIGHT on Day 70 when New Mexico arrived
+# with two declared-unreachable figures, and the limit, the job name and these very
+# sentences all still said six. The job therefore failed on every completed run from
+# then until Day 80 — and nothing here read it, because `tools/last-ci-run.mjs`
+# watched only the workflow named `CI` and this one is a weekly schedule.
+#
+# A number with an argument behind it needs the argument to be re-read when the
+# number moves. Three places said six and the list said eight; the list was right.
+# `last-ci-run.mjs` now checks every active workflow, which is what would have
+# caught it in a day rather than in five.
 name: Mutation audit
 
 on:
