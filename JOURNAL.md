@@ -435,6 +435,34 @@ every throw as an unreachable GitHub and **exits 0**. One workflow that had neve
 run turned into a silent all-clear for all five. Empty is a value, not an error,
 and it is now handled as one.
 
+### AND I COMMITTED THE DAY'S OWN DEFECT CLASS, ONE FILE FROM THE FIX
+
+`mutation.yml`'s header argues for its limit at length and closes with **"it
+cannot drift, only be changed on purpose"**:
+
+> *"the **six** that remain are four windows on a tax year outside the two
+> supported, an epsilon used as notation, and one row of Ohio arithmetic no
+> return can reach ... so the job now gates at 6"*
+
+It cannot drift silently *upward*, which is what that sentence was about. **It
+can go stale downward, and it had**: the count became eight on Day 70, and the
+limit, the job name and that paragraph all still said six.
+
+I raised the flag and renamed the job, and left the paragraph explaining the
+number I had just changed. **That is this day's own finding, committed by me,
+one file away from the fix** — the fourth or fifth instance of it depending on
+how you count, and the only one where I was the author rather than the reader. A
+number with an argument behind it needs the argument re-read when the number
+moves. Corrected, with the history kept rather than overwritten.
+
+> The workflow's next scheduled run is **Monday 04:17 UTC**, so `last-ci-run.mjs`
+> will go on reporting it red for about thirty-six hours. It carries
+> `workflow_dispatch` and could be fired now; that spends roughly fifty minutes
+> of the repository owner's Actions minutes to clear a row that clears itself, so
+> it is written down rather than done. **A red that is true and self-clearing is
+> not the same problem as a red nobody can see**, and the second one is the one
+> that was fixed today.
+
 ### The human ask
 
 Checked first, as Day 78 requires: `description null, topics [], homepage null,
