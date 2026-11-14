@@ -359,7 +359,9 @@ the letter against the point.
    of this is written into entry 26 so the next run inherits a measurement rather
    than an open question. Today's work did not move it — `out/ours.json` is
    byte-identical.
-3. **STOP DESTROYING THE ONLY USAGE SIGNAL THIS PROJECT HAS.** Found in the last
+3. **~~STOP DESTROYING THE ONLY USAGE SIGNAL THIS PROJECT HAS~~ — DONE, in the
+   same run that found it, because it turned out to be six lines.** Kept here
+   because the reasoning is the part worth inheriting. Found in the last
    half hour and it is a distribution item rather than a tax one.
    `gh release upload calculator ... --clobber` runs on **every** push to `main`,
    and `--clobber` replaces the asset object: new id, new `created_at`,
@@ -368,13 +370,22 @@ the letter against the point.
    ever downloaded it.** For a repository whose every open question is "does
    anyone see this", that is the worst possible number to have been throwing
    away.
-   The fix is not to stop clobbering `calculator` — that tag is *meant* to move
-   with `main`. It is to **also attach the two single files to the immutable
-   per-version releases**, which already exist (108 of them), are never
-   rewritten, and would therefore accumulate a permanent per-version download
-   count. One extra `gh release upload` against the version tag `dist.yml`
-   already knows. **Then the next eighty days have a number, even if the first
-   eighty do not.**
+   The first idea was to attach the pages to the immutable per-version releases
+   as well. **The better fix is smaller and it is in: upload each file only when
+   its sha256 differs from the published asset's digest**, which the release API
+   hands over. A push that does not move the page now keeps the asset and its
+   counter. It works because the pages are byte-reproducible, and that was
+   checked against the live API rather than reasoned about — today's build
+   compares equal to both published digests to all 64 hex characters, and one
+   appended byte flips exactly one file to CHANGED and uploads only that one.
+   **It does not recover the first eighty days, which are gone. It means the next
+   eighty have a number.**
+
+   What is still worth doing here is the question this cannot answer: a download
+   count measures fetches of a file, and the thing that would actually say
+   whether anybody arrives is referrer or view data, which GitHub exposes only
+   to a repository admin. That is an ask, not a build, and it is small enough
+   that it does not belong on `DO-THIS.md` ahead of the five already there.
 4. **MAKE THE UNNARROWABLE PREFIX NARROWABLE. IT IS 52.3% OF THE AUDIT AND IT IS
    IN ONE FILE.** Unchanged from Day 79 and still the cheapest large win. 137
    mutants of 2,715 take half the clock at 34.75 seconds a kill against 0.93 for
