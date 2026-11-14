@@ -339,6 +339,36 @@ Jersey's 230 is Day 79's note, already committed.
 > figure to act on is still ~52%, now from two independent runs, and the reason
 > to trust it is no longer "the machine was idle".
 
+### AND THE PREFLIGHT SAID "2 CHECKS RED" WHILE SHOWING ONE, BECAUSE I PIPED IT THROUGH `tail` TOO
+
+The same mistake as the audit, in the same run, an hour later: `preflight.mjs |
+tail -32`. The footer said **"2 check(s) red"** and the window held exactly one
+RED row, so the second was a failure I had a count of and no name for. Finding
+it meant running one check by hand.
+
+It was `enumerate.test.mjs`'s golden anchor:
+
+```text
+  states/flat-states.js  line 435   offset 49_830 -> 50_364
+```
+
+**The line did not move and the byte offset did**, which is the one way a shipped
+note can disturb that anchor. A note is a single-line string, so adding to it
+adds no lines — which is why `STATE-SURVIVORS.md`'s list was unmoved — but every
+offset below it in the file shifts by the length of the text. The anchor pins
+both on purpose: the line says which parameter, the offset says the enumerator is
+reading the same bytes.
+
+> **AND THE FIRST VERSION OF THAT COMMENT OVERCLAIMED BY TWO BYTES.** It said
+> `534` bytes "is the sentence added to Georgia's note". The offset moved 534;
+> the note grew `flat-states.ts` by **536**, from 118,588 to 119,124, measured
+> off the commit rather than from my memory of what I typed — which is how the
+> discrepancy was found at all. The gap is in how `tsc` re-emits the string and I
+> have not run it down. The note is the CAUSE of the move; it is not the move to
+> the byte, and the committed comment now says exactly that. On a day whose
+> largest finding was a note that disagreed with its code, shipping a comment
+> that disagrees with its arithmetic would have been a poor joke.
+
 ### AND A GATE HAS BEEN RED FOR FIVE DAYS BECAUSE THE INSTRUMENT THAT WATCHES GATES WATCHED ONE
 
 The audit printed, after the score:

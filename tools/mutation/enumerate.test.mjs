@@ -283,8 +283,26 @@ test('the state engine enumerates what the recorded audit measured', () => {
   assert.deepEqual(at('states/ohio.js', 88), {
     rel: 'states/ohio.js', offset: 3_814, from: '2026', to: '2025', kind: 'year', line: 88,
   });
+  // DAY 80 — THE OFFSET MOVED AND THE LINE DID NOT, which is the one way a
+  // shipped note can disturb this anchor. `49_830` became `50_364`, and the
+  // cause is the sentence added to Georgia's itemizing note today: a note is a
+  // single-line string, so adding to it adds no LINES — `line: 435` is
+  // untouched and the survivor list in `STATE-SURVIVORS.md` did not move — but
+  // every byte offset below it in the file shifts by the length of the text.
+  //
+  // THE TWO FIGURES AGREE TO WITHIN TWO BYTES AND NOT EXACTLY, which is worth
+  // writing down rather than rounding away: the offset moved **534** bytes and
+  // the note grew `flat-states.ts` by **536** (118,588 to 119,124, measured off
+  // the commit). The gap is in how `tsc` re-emits the string and has not been
+  // run down. So the note is the cause of the move; it is not the move to the
+  // byte, and this comment does not say it is.
+  //
+  // Pinning both is deliberate and worth the maintenance: the line says which
+  // parameter, and the offset says the enumerator is reading the same BYTES.
+  // A sample that pinned only the line would survive the file being rewritten
+  // around it.
   assert.deepEqual(at('states/flat-states.js', 435), {
-    rel: 'states/flat-states.js', offset: 49_830, from: '2024', to: '2023', kind: 'year', line: 435,
+    rel: 'states/flat-states.js', offset: 50_364, from: '2024', to: '2023', kind: 'year', line: 435,
   });
 
   // LOUISIANA, pinned on Day 60 — the newest state in the package, because a
