@@ -308,4 +308,80 @@ test('the release notes DERIVE the row count rather than spelling it', () => {
       `the release notes hard-code "${word} households" again`,
     );
   }
+
+  // DAY 80 — AND THE NOTES NOW CARRY THE FINDINGS THEMSELVES, DERIVED.
+  //
+  // With Pages off, nothing on a registry and no description on the repository,
+  // the Release body is the ONLY public, search-indexed prose this project
+  // controls without a human touching anything. It described two files. Nobody
+  // searches for a file; they search for the question they are stuck on.
+  assert.ok(
+    workflow.includes('node tools/release-highlights.mjs'),
+    'the release notes no longer carry the findings',
+  );
+  // And not one figure in them is typed. The last transcribed one was the Kansas
+  // widow's $527.48, removed the day the deriving tool was written: a figure in
+  // a workflow is a figure no test in `site/` can see, which is exactly how
+  // "seven households" survived.
+  const block = workflow.slice(workflow.indexOf('notes-calculator.md') - 2200);
+  const typed = [...block.matchAll(/echo "[^"]*\\\$[0-9][0-9,]*\.[0-9]{2}/g)];
+  assert.equal(
+    typed.length,
+    0,
+    `the release notes transcribe ${typed.length} dollar figure(s) again: ` +
+      typed.map((m) => m[0].slice(-12)).join(', '),
+  );
+});
+
+// DAY 80 — THE ONE PLACE ON THIS PAGE WHERE A FIGURE WAS NOT COMPUTED BY THE ROW
+// THAT PRINTS IT.
+//
+// The page's lede says "Both sides are computed in this page, by the same
+// engine, from the same household — so nothing here is a figure somebody typed
+// in". That was true of every figure except the ones inside a HEADLINE, which is
+// prose and was never checked. `nm-social-security-cliff` read "One dollar of
+// income costs a New Mexico couple $2,855.65 of tax" directly above a table
+// reading "Apart by $2,920.05": a $64.40 contradiction in a row heading, on the
+// page whose entire purpose is to show that other people's numbers are wrong.
+//
+// Neither figure was a typo. $2,855.65 is the measurement in `new-mexico.ts`'s
+// own note, on a couple taking a federal standard deduction; this page's
+// `federal` helper sets `deduction: 0`. The headline had been borrowed from the
+// engine and placed over a row computing a different household.
+//
+// The rule, which is narrow on purpose: **a dollar figure with CENTS in a
+// headline must be one the row computes.** A round figure is a statutory one —
+// New Mexico's "$4,000 dependent deduction" is the statute's own amount and has
+// nothing to do with the row's arithmetic — so requiring those to match would
+// force the page to stop naming provisions. Cents mean somebody's engine
+// produced it, and then it must be THIS row's engine.
+test('a headline that quotes cents quotes its own row', () => {
+  const rows = runChecks();
+  const cents = (value) => Math.round(Math.abs(value) * 100);
+  let checked = 0;
+
+  for (const row of rows) {
+    const quoted = [...row.headline.matchAll(/\$([0-9][0-9,]*\.[0-9]{2})/g)].map((m) =>
+      Math.round(Number(m[1].replaceAll(',', '')) * 100),
+    );
+    for (const amount of quoted) {
+      checked += 1;
+      const computed = [cents(row.ours), cents(row.theirs), cents(row.difference)];
+      const dollars = (c) => '$' + (c / 100).toFixed(2);
+      assert.ok(
+        computed.includes(amount),
+        row.id +
+          ': the headline quotes ' +
+          dollars(amount) +
+          ", which is none of the row's own figures (" +
+          computed.map(dollars).join(', ') +
+          '). A headline is the one piece of prose on this page; make it a function of the row.',
+      );
+    }
+  }
+
+  // A loop over what it happens to find passes when it finds nothing, which is
+  // the failure mode this repository keeps writing down. There is exactly one
+  // such figure today and it is the New Mexico cliff.
+  assert.ok(checked >= 1, 'no headline quotes a figure with cents — this test checked nothing');
 });

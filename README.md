@@ -23,7 +23,7 @@ reason the figure is now right is the only thing here worth paying attention to:
 | **Checked by deliberate sabotage** | 100% mutation score on the federal engine, 99.7% on the state rule parameters, both re-derived in CI rather than transcribed |
 
 Every one of those regenerates on every push. [`site/checks.html`](site/checks.html)
-is seven households where tax software is wrong, each computed twice by the
+is ten households where tax software is wrong, each computed twice by the
 engine so no figure on the page can go stale while the engine is right.
 
 **The code is free and always will be.** What is sold is next year's parameters

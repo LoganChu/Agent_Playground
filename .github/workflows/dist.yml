@@ -186,9 +186,12 @@ jobs:
             echo
             echo "**\`state-tax-checks.html\`** is $checks households where tax software is wrong,"
             echo "each computed twice — the answer the statute gives and the answer you get by"
-            echo "reading the obvious thing instead — with the statute beside it. A Kansas widow"
-            echo "read against the married-couple column is \$527.48 too low. Run them against"
-            echo "your own calculator."
+            echo "reading the obvious thing instead — with the statute beside it. Run them"
+            echo "against your own calculator."
+            echo
+            echo "### Three of the findings, computed by the engine at build time"
+            echo
+            node tools/release-highlights.mjs
             echo
             echo "This tag moves with \`main\`. Not tax advice."
           } > "$RUNNER_TEMP/notes-calculator.md"

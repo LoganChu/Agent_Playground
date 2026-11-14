@@ -53,6 +53,9 @@ async function engine(rel, pkg) {
 
 const state = await engine('packages/us-state-tax/dist/esm/index.js', 'us-state-tax');
 const mcp = await engine('packages/us-tax-mcp/dist/index.js', 'us-tax-mcp');
+// DAY 80. The findings page's row count, which the front page states in prose
+// and which was THREE OUT. See the claim at the bottom of this file.
+const checks = await engine('site/dist/src/checks.js', '../site');
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
 const json = (p) => JSON.parse(read(p));
 
@@ -299,6 +302,30 @@ for (const name of ['us-federal-tax', 'us-state-tax', 'us-tax-mcp']) {
   });
 }
 
+// DAY 80 — THE SIXTH PLACE THE FINDINGS PAGE'S ROW COUNT IS WRITTEN, AND THE
+// ONE A VISITOR READS FIRST.
+//
+// The front page said "seven households where tax software is wrong" about a
+// page whose own title says Ten. Day 79 found the count three out in the page's
+// meta description and in the link on `site/index.html`, fixed both, and wrote
+// the rule: **a count in prose needs a gate wherever it is WRITTEN, not
+// wherever it is most prominent.** It then gated the four sites inside `site/`
+// — and the two copies OUTSIDE it, this README and the release notes in
+// `dist.yml`, were both still wrong, because the gate it added lives in
+// `site/test/` and cannot see either.
+//
+// Six sites, four gated, two stale, and the two stale ones were the repository's
+// front page and the text on its Releases page: the only two a stranger reads.
+// This is the fourth consecutive day a claim in this repository was wrong in
+// exactly the place nothing was looking.
+CLAIMS.push({
+  label: 'findings page rows, stated on the front page',
+  want: WORDS[checks.CHECKS.length].toLowerCase(),
+  find: () =>
+    [...text.matchAll(/is ([a-z]+) households where tax software is wrong/g)].map((m) => m[1]),
+  eq: (a, b) => a === b,
+});
+
 const problems = [];
 const checked = [];
 for (const c of CLAIMS) {
@@ -331,3 +358,4 @@ if (CHECK) {
   }
   console.log(`\nok — ${checked.length} claims in the root README all match the code`);
 }
+

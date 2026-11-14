@@ -183,7 +183,10 @@ const CHECKS = [
     kind: 'comparison',
     state: 'NM',
     year: 2026,
-    headline: 'One dollar of income costs a New Mexico couple $2,855.65 of tax',
+    // Derived, not typed — see the note in `runChecks` below. The engine's own
+    // $2,855.65 is a different household: `federal` here supplies no deduction.
+    headline: ({ difference }) =>
+      `One dollar of income costs a New Mexico couple ${headlineMoney(Math.abs(difference))} of tax`,
     household:
       'A married couple both 70 with $60,000 of federally taxable Social Security benefit',
     wrongLabel: 'At $150,001 — one dollar more',
@@ -483,16 +486,41 @@ const CHECKS = [
 ];
 
 /** Every check, with both sides evaluated and the gap named. */
+/** `$2,920.05`, for a headline that quotes its own row. */
+const headlineMoney = (value) =>
+  value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+
 export function runChecks() {
   return CHECKS.map((check) => {
     const ours = check.ours();
     const theirs = check.theirs();
+    const difference = theirs - ours;
     return {
       ...check,
       stateName: stateName(check.state),
       ours,
       theirs,
-      difference: theirs - ours,
+      difference,
+      // DAY 80 — A HEADLINE MAY BE A FUNCTION OF ITS OWN ROW'S FIGURES, AND ONE
+      // OF THEM HAD TO BECOME ONE.
+      //
+      // `nm-social-security-cliff` was headed "One dollar of income costs a New
+      // Mexico couple $2,855.65 of tax" above a table reading "Apart by
+      // $2,920.05". Both figures are right and they are right about DIFFERENT
+      // HOUSEHOLDS: $2,855.65 is the measurement in `new-mexico.ts`'s own note,
+      // on a couple with a federal standard deduction, and this page's `federal`
+      // helper deliberately sets `deduction: 0` and `taxableIncome ===
+      // adjustedGrossIncome`. So the headline had been borrowed from the engine's
+      // note and placed over a row computing something else, and a reader who
+      // subtracted the two figures printed underneath it got a third number.
+      //
+      // Every other figure on this page is computed by the row that displays it;
+      // that is the page's one design rule and the sentence in its own lede. A
+      // headline is prose, so it was the one place the rule was not enforced.
+      headline:
+        typeof check.headline === 'function'
+          ? check.headline({ ours, theirs, difference })
+          : check.headline,
     };
   });
 }
