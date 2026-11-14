@@ -162,10 +162,18 @@ jobs:
           set -euo pipefail
           (cd site && npm test)
           calculator=site/dist/retirement-tax-calculator.html
-          checks=site/dist/state-tax-checks.html
+          checks_page=site/dist/state-tax-checks.html
           test -s "$calculator"
-          test -s "$checks"
+          test -s "$checks_page"
           states=$(node -e "import('./packages/us-state-tax/dist/esm/index.js').then(m => console.log(m.SUPPORTED_STATES.length))")
+          # DAY 80: and the row count, for the same reason and from the same
+          # kind of source. This line said "seven households" while the page it
+          # describes said "Ten" — the FIFTH place that count is written, after
+          # the title, the lede, the section heading, the meta description and
+          # the link on the front page. Day 79 gated the four in `site/`; this
+          # one is in a workflow, so no test in `site/` could see it, and it is
+          # the copy a reader meets FIRST on the Release page.
+          checks=$(node -e "import('./site/dist/src/checks.js').then(m => console.log(m.CHECKS.length))")
           {
             echo "Two single files, built and tested from \`${{ github.sha }}\`. Download either"
             echo "and open it: no server, no install, no network — the whole computation runs"
@@ -176,7 +184,7 @@ jobs:
             echo "every Maryland and Indiana county, and tells a couple what filing their"
             echo "retirement income in one name rather than both would cost them."
             echo
-            echo "**\`state-tax-checks.html\`** is seven households where tax software is wrong,"
+            echo "**\`state-tax-checks.html\`** is $checks households where tax software is wrong,"
             echo "each computed twice — the answer the statute gives and the answer you get by"
             echo "reading the obvious thing instead — with the statute beside it. A Kansas widow"
             echo "read against the married-couple column is \$527.48 too low. Run them against"
@@ -185,12 +193,12 @@ jobs:
             echo "This tag moves with \`main\`. Not tax advice."
           } > "$RUNNER_TEMP/notes-calculator.md"
           if gh release view calculator >/dev/null 2>&1; then
-            gh release upload calculator "$calculator" "$checks" --clobber
+            gh release upload calculator "$calculator" "$checks_page" --clobber
             gh release edit calculator --notes-file "$RUNNER_TEMP/notes-calculator.md" \
               --title "Retirement tax calculator and state tax checks (one file each)"
             echo "refreshed the calculator release"
           else
-            gh release create calculator "$calculator" "$checks" \
+            gh release create calculator "$calculator" "$checks_page" \
               --title "Retirement tax calculator and state tax checks (one file each)" \
               --notes-file "$RUNNER_TEMP/notes-calculator.md"
             echo "created the calculator release"

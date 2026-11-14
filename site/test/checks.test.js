@@ -252,3 +252,60 @@ test('the single-file findings page carries its modules and opens from file://',
   const calculator = readFileSync(join(root, 'dist', 'retirement-tax-calculator.html'), 'utf8');
   assert.ok(calculator.includes("import(urlFor(\"app.js\"))"), 'the calculator lost its entry');
 });
+
+// DAY 80 — THE TWO DEFECTS IN THE ONLY THING THIS PROJECT SHIPS WITHOUT A HUMAN.
+//
+// `dist.yml` attaches both single-file pages to a Release on every push to
+// `main`. That Release is the whole of this project's reach: Pages is off, the
+// packages are not on a registry, and a Release asset is the one artefact a
+// stranger can get. Both of the following were wrong in it, and neither was
+// reachable by any test that existed, because both live OUTSIDE `site/` or only
+// in the built output.
+test('each single-file page links to the OTHER single file, not to its multi-file name', () => {
+  // The cross-link is the third kind of sibling reference, after the entry
+  // script and the stylesheet. `build.mjs`'s guard has always been *named*
+  // "still references a file beside it" and only ever checked the other two, so
+  // `retirement-tax-calculator.html` shipped a link to `checks.html` — a file
+  // the Release does not upload. It tested clean because `dist/` happens to
+  // hold `checks.html` as well: the only broken copy was the one a reader got.
+  const dist = join(root, 'dist');
+  for (const [page, sibling, absent] of [
+    ['retirement-tax-calculator.html', 'state-tax-checks.html', 'checks.html'],
+    ['state-tax-checks.html', 'retirement-tax-calculator.html', 'index.html'],
+  ]) {
+    const html = readFileSync(join(dist, page), 'utf8');
+    assert.ok(
+      html.includes(`href="${sibling}"`),
+      `${page} does not link to ${sibling}, so the pair does not work as a pair`,
+    );
+    assert.ok(
+      !html.includes(`href="${absent}"`),
+      `${page} still links to ${absent}, which the Release does not ship`,
+    );
+  }
+});
+
+test('the release notes DERIVE the row count rather than spelling it', () => {
+  // The fifth place this count is written, and the first one a reader meets on
+  // the Release page. It said "seven households" while the page said "Ten" —
+  // the same three-row error Day 79 found in the meta description and the front
+  // page link, in a file no test in `site/` can see. Day 79's rule was "a count
+  // in prose needs a gate wherever it is WRITTEN"; the stronger move available
+  // here is the one the state count beside it already used since Day 8 — read
+  // the figure from the engine at build time, so there is no prose to gate.
+  const workflow = readFileSync(join(root, '..', '.github', 'workflows', 'dist.yml'), 'utf8');
+  assert.ok(
+    workflow.includes('$checks households where tax software is wrong'),
+    'the release notes no longer interpolate the row count',
+  );
+  assert.ok(
+    workflow.includes("m.CHECKS.length"),
+    'the release notes no longer read the row count from the module',
+  );
+  for (const word of ['five', 'six', 'seven', 'eight', 'nine', 'ten']) {
+    assert.ok(
+      !workflow.includes(`${word} households where tax software is wrong`),
+      `the release notes hard-code "${word} households" again`,
+    );
+  }
+});

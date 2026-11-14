@@ -126,6 +126,11 @@ console.log(
  * modules by weight, so tracing the reachable set would save almost nothing and
  * would be a second place for a page to break by growing an import.
  */
+const PAGES = [
+  ['index.html', 'app.js', 'retirement-tax-calculator.html'],
+  ['checks.html', 'checks-app.js', 'state-tax-checks.html'],
+];
+
 function singleFile(page, entry, output) {
   const modules = {};
   const collect = (dir, prefix) => {
@@ -194,22 +199,41 @@ import(urlFor(${JSON.stringify(entry)}));
       () => `<script type="module">${loader}</script>`,
     );
 
+  // THE THIRD KIND OF SIBLING REFERENCE, which the guard below has always named
+  // and never checked. "Still references a file beside it" covered the entry
+  // script and the stylesheet; the cross-link between the two pages survived
+  // into both single files untouched. So `retirement-tax-calculator.html` as
+  // downloaded from the Release linked to `checks.html` — a file the Release
+  // does not ship — and the link was dead for every reader who ever took the
+  // asset. It tested clean because `dist/` happens to hold `checks.html` too,
+  // so the only broken copy is the one a human actually gets.
+  //
+  // The Release uploads both single files to the same tag, so they land in the
+  // same folder: pointing each at the OTHER single file makes the pair work as
+  // a pair, from `file://`, with no server and no network.
+  let linked = single;
+  for (const [otherPage, , otherOutput] of PAGES) {
+    linked = linked.split(`href="${otherPage}"`).join(`href="${otherOutput}"`);
+  }
+
   // Asserted rather than assumed, because the replacement above is a string
   // match against markup in another file and a renamed entry would silently
-  // produce a page that loads nothing. The check is on BOTH references, which is
-  // why it caught the stylesheet the first time.
-  if (single.includes(`src="${entry}"`) || single.includes('href="style.css"')) {
-    console.error(`build: ${output} still references a file beside it`);
+  // produce a page that loads nothing. The check is on ALL THREE references,
+  // which is why it caught the stylesheet the first time and the cross-link the
+  // day somebody looked for it.
+  const strayPage = PAGES.map(([other]) => other).find((other) => linked.includes(`href="${other}"`));
+  if (linked.includes(`src="${entry}"`) || linked.includes('href="style.css"') || strayPage) {
+    console.error(
+      `build: ${output} still references a file beside it` +
+        (strayPage ? ` (href="${strayPage}")` : ''),
+    );
     process.exit(1);
   }
-  writeFileSync(join(out, output), single);
-  return { count: Object.keys(modules).length, bytes: Buffer.byteLength(single) };
+  writeFileSync(join(out, output), linked);
+  return { count: Object.keys(modules).length, bytes: Buffer.byteLength(linked) };
 }
 
-for (const [page, entry, output] of [
-  ['index.html', 'app.js', 'retirement-tax-calculator.html'],
-  ['checks.html', 'checks-app.js', 'state-tax-checks.html'],
-]) {
+for (const [page, entry, output] of PAGES) {
   const single = singleFile(page, entry, output);
   console.log(
     `build: ${output} — ${single.count} modules inlined, ` +
