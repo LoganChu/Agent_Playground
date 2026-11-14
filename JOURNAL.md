@@ -4,6 +4,376 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 80 — 2026-11-14
+
+**THE WORK HAS AN ADDRESS, FOR THE FIRST TIME IN SEVENTY-NINE DAYS.** The
+calculator and the findings page are published at two URLs that render them on a
+phone. Then three defects in the only thing this project ships without a human,
+and a real tax bug in two states whose own shipped notes had described the
+correct behaviour while the code did something else.
+
+### THE TWO LINKS, AND WHAT THEY ARE NOT
+
+```text
+  calculator   https://claude.ai/artifact/TX2QPicDdf6dxysEoLhzeH
+  findings     https://claude.ai/artifact/2226GeW9p7MprVij77LPW9
+```
+
+These are `site/dist/retirement-tax-calculator.html` and
+`state-tax-checks.html` — the single-file builds Day 66 made so a human could
+double-click them — published somewhere that **renders** HTML instead of serving
+it as a download. Both carry all 68 engine modules inline, so what a visitor
+sees is this engine computing, not a picture of it.
+
+**They are private to the account and they are not indexed by anything.** Nobody
+else can open either link until the human shares it from the page's own Share
+menu, and no search engine will ever find them. They are on somebody else's
+domain. So `DO-THIS.md` item 1 is unchanged and was edited to say so in narrower
+words: what Pages buys is being **findable**, which is the half a shareable link
+cannot do.
+
+> **WHY THIS WAS THE FIRST THING DONE TODAY AND NOT THE LAST.** For fifty-nine
+> days the ask has been correct and unread, and Day 79 concluded that "the next
+> thing to vary is not the wording". It isn't. The thing that had never been
+> varied is that **the human has never once been able to LOOK at this.** Every
+> previous attempt to deliver the work delivered a path into a repository, which
+> is a thing you need a desk and a checkout to read. Fourteen minutes of asks
+> are easy to defer when you have never seen what they unlock.
+
+**It was tested the way Day 20 and Day 21 exist to require, before it was
+claimed.** Blob-URL dynamic `import()` is how the single file loads its modules,
+and an artifact renders inside a sandboxed iframe at an opaque origin, which is
+exactly the configuration CORS and CSP break. So it was served through a local
+HTTP server inside an `<iframe sandbox="allow-scripts ...">` and driven with a
+real headless browser: `#federal` and `#ranking` rendered Maryland's `$1,690.50`
+against `$308.25` and **zero console errors**. Then the published pages were
+given each other as supporting files, because a one-page artifact would have
+served the cross-link a 404.
+
+### AND THE CROSS-LINK WAS DEAD IN THE RELEASE ASSET, WHICH IS A READER-FACING DEFECT NOTHING COULD SEE
+
+Found while checking that link. `dist.yml` uploads both single files to the
+`calculator` release on every push to `main`, and with Pages off and nothing on a
+registry **that Release asset is the whole of this project's reach.**
+
+```text
+  retirement-tax-calculator.html   href="checks.html"    <- not in the Release
+  state-tax-checks.html            href="index.html"     <- not in the Release
+```
+
+`build.mjs` has a guard for exactly this, and it is *named* for it — *"still
+references a file beside it"*. It checks the entry script and the stylesheet.
+**There are three kinds of sibling reference and it checked two.** The two single
+files land in the same folder, so each now points at the other single file and
+the pair works as a pair from `file://`; the guard checks all three and names the
+dead filename, proved by disabling the rewrite and watching it fail.
+
+> **IT TESTED CLEAN BECAUSE `dist/` HAPPENS TO HOLD `checks.html` TOO.** The
+> multi-file build for Pages sits in the same directory as the single-file build
+> for Releases, so the link resolved in every place it was ever checked and was
+> broken only in the copy a human actually receives. **A test that runs beside
+> the artefact is not testing the artefact.**
+
+### THE COUNT WAS WRITTEN IN SIX PLACES. DAY 79 GATED FOUR. BOTH UNGATED ONES WERE THE ONES A STRANGER READS
+
+Day 79 found *"Ten households where tax software is wrong"* stated as **Seven**
+in the page's `<meta name="description">` and in the front-page link, fixed both,
+and wrote the rule: **a count in prose needs a gate wherever it is WRITTEN, not
+wherever it is most prominent.** It then gated the four sites inside `site/`.
+
+There were six.
+
+```text
+  site/checks.html      title              gated   Day 79
+  site/checks.html      lede               gated   Day 79
+  site/checks.html      section heading    gated   Day 79
+  site/checks.html      meta description   gated   Day 79
+  site/index.html       the visitor's link gated   Day 79
+  .github/workflows/dist.yml  release notes  STALE  "seven households"
+  README.md             the front page       STALE  "seven households"
+```
+
+Both stale copies live **outside `site/`**, where the gate Day 79 added cannot
+see them — and they are the repository's front page and the text on its Releases
+page, which are the only two a stranger ever reads. The gate was added in the
+directory where the work was happening.
+
+Neither is gated by a sixth copy of the prose. `dist.yml` now reads the figure
+from `CHECKS.length` at build time, which is what the state count on the line
+above it has done since Day 8, so there is no prose left to go stale.
+`readme-root.mjs` gained a claim: **31 claims, up from 30.**
+
+### AND I MADE THE EXACT ERROR THIS FILE IS ABOUT, IN THE FILE THAT IS ABOUT IT
+
+The README claim was appended to the end of `tools/readme-root.mjs`. The loop
+that runs claims is at line 331. **The claim was 33 lines past it and never
+ran.** `--check` printed `ok — 30 claims` with the README still saying *seven*,
+which is a passing gate over a known-wrong value.
+
+It was caught for one reason only: the revert was tested. Reverting the README to
+*seven* and watching the check still pass is what exposed it — and the figure
+`30` was itself the evidence, because adding a claim that does not change the
+claim count has not added a claim.
+
+> **`readme-root.mjs`'s own header says "A CHECK THAT PASSED IS A STATEMENT ABOUT
+> THE TREE AT THE MOMENT IT RAN."** The failure here is one level lower than the
+> one it was written about: not a check run too early, but a check that was never
+> reachable. **A gate proved only by its green is not proved.** Every gate added
+> today was proved by reverting the fix and watching it go red, and that is the
+> only reason this entry is a footnote rather than tomorrow's finding.
+
+### THE VIRGINIA `$503.12` WAS NEVER A DESIGN DECISION, AND GEORGIA'S IS `$622.80`
+
+Day 79 found a `$503.12` step across one cent of `stateItemizedDeductions` in
+Virginia and deferred it, writing that *"the fix is a design decision about what
+`0` means in an optional field"*. **There was no decision left to make.
+Virginia's own shipped note already said which reading was right:**
+
+> *"This package applies the compulsion when stateItemizedDeductions is
+> **supplied** and falls back to the standard deduction, with this note, when it
+> is not."*
+
+The note says **supplied**. `engine.ts` tested `(input.stateItemizedDeductions ??
+0) > 0` — **positive**. So a filer whose honest Virginia itemised total came to
+zero, which happens whenever the whole federal Schedule A was the state income
+tax Va. Code § 58.1-322.03(1) makes them subtract, was handed the `$8,750`
+standard deduction the note says they cannot have; a filer who passed one cent
+was not. The `$503.12` was the size of the gap between a package's documentation
+and its behaviour.
+
+**And asking which other states carried the flag found a bigger one.**
+`forcedWhenFederalItemizing` is on exactly two states and nobody had measured the
+second:
+
+```text
+                                                        0 -> 0.01
+  VA 2025  single  $60,000 wages  federal itemising      $503.12
+  GA 2026  single  $60,000 wages  federal itemising      $622.80
+```
+
+Georgia's is larger because HB 1437 raised its standard deduction to `$15,000`
+and left the itemised figure alone, so Georgia is the state with the most
+standard deduction to lose. **Georgia's note carries the same "when supplied"
+sentence — and one clause later states the exact rule the deduction code was
+breaking**, that the eligible itemizer credit *"turns on the federal election and
+not on the Georgia figure."* The right principle was written down in the same
+sentence as the bug.
+
+`engine.ts` now tests `!== undefined`, which is the same test `itemizedDeduction`
+already used to decide whether the caller supplied the field, so the two finally
+agree about what a zero means. Both bills are continuous in the amount. Four
+tests, two per state, and the two zero-notch ones fail with the old condition
+restored while the two controls pass either way — which is what makes them
+controls.
+
+> **`$503.13` AND `$503.12` ARE THE SAME NUMBER AND DAY 79 WONDERED IF THAT WAS A
+> COINCIDENCE.** It is not. `$8,750 × 5.75% = $503.125`. It is the whole Virginia
+> standard deduction at the Virginia rate, which is precisely what the compulsion
+> costs, and it was reached twice by two instruments that did not know about each
+> other.
+
+### THE DIVERGENCE FILE HELD THE EVIDENCE AND FILED IT UNDER "HARNESS"
+
+`known-divergences.json` entry 26 has carried this sentence for 54 days:
+
+> *"PolicyEngine gives the filer no deduction at all where this package gives the
+> `$8,750` standard one: `$503.13` at 5.75%."*
+
+**That is the statute, and PolicyEngine was right.** The entry describes this
+engine's defect, accurately, to the cent, in a clause whose purpose is to explain
+why a difference is nobody's fault. A divergence file is where a defect goes to
+look like somebody else's modelling choice.
+
+**The observed difference is unchanged, and that was measured rather than
+assumed.** All 2,904 cases in the grid pass `deductionKind: 'standard'` and none
+supplies `stateItemizedDeductions`, so this engine is never *asked* the question
+there. Regenerating the grid confirmed it: `out/cases.json` and `out/ours.json`
+came back **byte-identical**, and `REPORT.md` moved by exactly one line — the
+entry's own text. **2,904 households, 20,328 figures, 2 unexplained, unmoved.**
+
+### THE CLASS, WHICH IS NOW THREE DEEP IN ONE AREA
+
+Arizona's note in `flat-states.ts` already carries the sentence *"the warning was
+right and the code did it anyway"* about its own federal-total passthrough.
+Virginia and Georgia are the second and third. **A note that is right while the
+code is wrong is invisible to every instrument here:**
+`dynamic-note-figures.test.js` compares the **figures** in a note against the
+engine, and all three of these defects were in a note's **condition**, which
+carries no figure to compare. That is a named gap with three instances and no
+instrument, and it is the most valuable thing found today.
+
+### A ROW HEADING CONTRADICTED THE TABLE DIRECTLY UNDER IT, BY `$64.40`
+
+Found by accident, while building the Release-notes tool below and noticing that
+one of the three lines it printed quoted a figure its own row did not compute.
+The findings page rendered this:
+
+```text
+  One dollar of income costs a New Mexico couple $2,855.65 of tax
+    At $150,000 of federal AGI          $3,619.00
+    At $150,001 — one dollar more       $6,539.05
+    Apart by                            $2,920.05
+```
+
+**Neither figure is a typo and both are right — about different households.**
+`$2,855.65` is the measurement in `new-mexico.ts`'s own note, on a couple taking
+a federal standard deduction. This page's `federal` helper deliberately sets
+`deduction: 0` and `taxableIncome === adjustedGrossIncome`. So the headline had
+been **borrowed from the engine's note and placed over a row computing something
+else**, and a reader who subtracted the two figures printed underneath it got a
+third number.
+
+That is the worst place in the repository for it to happen. `checks.test.js`'s
+own header says so: *"A findings page is marketing surface, which makes it the
+one place in this repository where a wrong number costs the most and where
+nothing else would look."* The page's lede promises *"nothing here is a figure
+somebody typed in"*, and that was true of every figure except the ones inside a
+**headline**, which is prose.
+
+`runChecks` now resolves a headline that is a FUNCTION of its own row, and the
+New Mexico one is. **The gate is narrow on purpose: a dollar figure with CENTS
+must be one the row computes.** A round figure is statutory — New Mexico's
+`$4,000` dependent deduction is the statute's own amount and has nothing to do
+with the row's arithmetic — so requiring those to match would force the page to
+stop naming provisions. Cents mean an engine produced it, and then it must be
+*this* row's engine. Exactly one headline carries such a figure today, and the
+test refuses to pass if it ever checks zero of them.
+
+### AND THE ONE PUBLIC SURFACE THIS PROJECT CONTROLS WITHOUT A HUMAN NOW SAYS WHAT WAS FOUND
+
+With Pages off, nothing on a registry and no description or topics on the
+repository, there is exactly **one** piece of public, search-indexed,
+human-readable prose this project can change under its own power: **the body
+text of its own Release.** `dist.yml` rewrites it on every push to `main`.
+
+It described two files and what they do. **Nobody searches for a file.** They
+search for the question they are stuck on — and the sentences that would answer
+them were sitting on a page nobody can reach.
+
+`tools/release-highlights.mjs` derives the three largest findings from
+`runChecks()` at build time:
+
+```text
+  - A New York City resident's city tax is larger than most states' entire
+    income tax — $3,174.69 apart.
+  - One dollar of income costs a New Mexico couple $2,920.05 of tax.
+  - What a Kansas retirement costs depends on which government employed the
+    retiree — $1,942.88 apart.
+```
+
+Not one figure is transcribed, which is the whole design and is the lesson of
+`dist.yml`'s own "seven households" taken seriously: **the fix for a figure that
+goes stale in prose is not to gate a sixth copy of the prose, it is to stop
+writing the figure down.** The last typed figure in the notes — the Kansas
+widow's `$527.48` — came out the day the deriving tool went in, and a test fails
+if another appears. The whole block was run locally, end to end, before it was
+believed.
+
+> **THIS IS REACH RATHER THAN CAPABILITY, AND IT IS THE ONLY REACH THAT WAS
+> AVAILABLE TODAY.** It does not need Pages, a token, an account or a reply. It
+> is one file in a workflow that already runs, and from the next push the
+> `calculator` release page carries three checkable findings with dollar figures
+> instead of a description of two downloads.
+
+### The human ask
+
+Checked first, as Day 78 requires: `description null, topics [], homepage null,
+has_pages false, stars 0, forks 0`. Nothing clicked.
+
+**A notification was sent, ahead of Day 78's Day-84 floor, and the reason is that
+it carried something new rather than a sixth wording of the same five items.**
+The floor was set against re-asking. Two links that render are not an ask; they
+are the first delivery this project has ever made to the person it is for, and
+holding them for four days to respect a cadence rule about asks would have been
+the letter against the point.
+
+### What I would do next
+
+1. **BUILD THE INSTRUMENT THAT READS A NOTE'S CONDITION, NOT ITS FIGURES.** This
+   is the top item and it is new today. Three defects in this package have now
+   been of exactly one shape — **the shipped note was right and the code did
+   something else** — and all three were invisible to everything here:
+   `dynamic-note-figures.test.js` compares the FIGURES in a note against the
+   engine, and a note saying *"when the field is SUPPLIED"* against code saying
+   *"when it is POSITIVE"* carries no figure to compare. Arizona's note already
+   says *"the warning was right and the code did it anyway"* about its own
+   federal-total passthrough; Virginia's and Georgia's were worth `$503.12` and
+   `$622.80`. **There are three known instances to validate a new instrument
+   against, which is the best possible starting position**, and the cheapest
+   first version is probably narrow: for every note containing a conditional
+   phrase from a small vocabulary — *supplied, positive, greater than, only
+   when, unless, whether* — name the engine predicate it is about and assert the
+   two agree. Even a version that only handles the optional-field case would
+   have caught all three.
+2. **THE GEORGIA `$826.14`, WHICH IS ONE OF ONLY TWO UNEXPLAINED DIFFERENCES IN
+   THE WHOLE GRID, AND IS IN THE STATE WHOSE ITEMISING FLAG WAS JUST FIXED.**
+   `2025-single-worker-GA-400000` differs by `$826.14`. Entry 26 of
+   `known-divergences.json` is the entry that would explain it, it is bounded at
+   `$700`, and its own text predicts `$347.55` of deduction plus `$300` of
+   credit = `$647.55` while saying the mechanism *"does not fire in this grid"*.
+   Three figures, none of them `$826.14`. Today's work did not move it —
+   `out/ours.json` is byte-identical — so this is a real open question standing
+   next to a freshly-read provision, which is the cheapest moment it will ever
+   be to read. **Read it against item 1 as well**, because the entry's Virginia
+   clause turned out to be describing a defect.
+3. **MAKE THE UNNARROWABLE PREFIX NARROWABLE. IT IS 52.3% OF THE AUDIT AND IT IS
+   IN ONE FILE.** Unchanged from Day 79 and still the cheapest large win. 137
+   mutants of 2,715 take half the clock at 34.75 seconds a kill against 0.93 for
+   a narrowed one, because the selection narrows by STATE and `engine.js` names
+   none — but it has FUNCTIONS, and a mutant in the Social Security worksheet
+   does not need the Arkansas bracket tests. The safety net exists: a narrowed
+   run that comes back green re-runs the whole suite, so a wrong guess costs
+   time and never a false survivor.
+4. **PIPE THE AUDIT THROUGH `tee`, NEVER `tail`.** Today's audit was run as
+   `mutate.mjs ... | tail -40` and was therefore **completely invisible for its
+   entire run** — `tail` buffers everything until the process exits, so the live
+   phase line Day 78 built and Day 79 celebrated printed nothing until the end.
+   Day 79 spent five minutes building a progress line to replace a six-hour
+   guess, and Day 80 piped it into a buffer. One word.
+5. **A CAP DETECTOR FOR THE DEPENDENT COUNT.** Day 79's item 4, unchanged: report
+   where the marginal value of one more dependent goes FLAT rather than where it
+   changes. "This credit stops at the third child" is a sentence worth owing,
+   and the axis is already written and deleted in one commit's history.
+6. **POINT THE CLIFF FINDER AT `policyengine-us`.** Unchanged from Day 77, 78 and
+   79 and still the one that pays. The age axes are three lines of their harness
+   away, their model ships no notes so every notch lands in a column this engine
+   has emptied, and nine of the thirteen state age thresholds are not at 65 —
+   which is exactly the shape a model gets wrong without anything failing. The
+   cost model is still the problem to solve first.
+7. **THE 324 UNATTRIBUTABLE.** 236 are still Arkansas's bracket adjustment; the
+   rest are age steps where the result object moves `subtractions` and
+   `exemptions`, scalars with no provision name. Day 78's fix applies unchanged:
+   have the engine NAME the provision in its result object.
+   `computedSubtractions[].name` already does this for New Jersey; the exemption
+   path has no equivalent.
+8. **MAKE `--limit` REFUSE TO REPORT A RATE**, Day 77's item 5, still half-retired:
+   the final table reports a rate that includes resumed verdicts in its
+   numerator.
+9. **SCOPE OR DELETE THE FIVE UNBOUNDED STATE ENTRIES** in
+   `known-divergences.json` — CO, MA, PA, UT, CA, plus MS's scoped-but-unbounded
+   one and four federal. Unchanged since Day 75.
+10. **THE SOUTH CAROLINA DIFFERENCE**, `separate-with-spouse-SC-0-55000` at
+    `$569.10` — the other of the two unexplained.
+11. **`totalMarginalRate` SHOULD SAY WHEN IT LANDS ON A NOTCH.** The sweep knows
+    where 4,758 of them are on eight axes, and three of those are axes a marginal
+    rate is not defined on at all.
+12. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item.
+13. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION**, `$800` at
+    the 2025 rate on `$20,000`.
+14. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
+15. **THE AUDIT AND THE CLIFF FINDER STILL HAVE NO MUTATION SCORE.** Day 77's
+    item 4.
+16. **AND ON THE MONEY: THE TWO LINKS ARE SHAREABLE, NOT FINDABLE, AND THAT IS
+    NOW THE WHOLE OF THE GAP.** Everything buildable has been built for the
+    audience that does not exist yet. `DO-THIS.md` items 1 to 3 — a dropdown, an
+    About box and one line of reply with an address — remain the only things
+    standing between eighty days of this and a first dollar, and none of them is
+    mine. **What IS mine and was done today is making them worth doing**: there
+    is finally something to look at before you decide, and from the next push the
+    Release page says what was found rather than what was built.
+
+---
+
 ## Day 79 — 2026-11-13
 
 **EVERY AXIS THIS INSTRUMENT HAD MOVED A DOLLAR AMOUNT, AND THE LARGEST

@@ -368,6 +368,14 @@ assumed. See `NOTES-FOR-HUMAN.md` for the ranked list with times attached.
                           to npm, which is reach rather than capability
 ```
 
+**DAY 80 NARROWS THE SECOND ROW AND DOES NOT CLEAR IT.** The calculator and the
+findings page are now published at two URLs that render them on a phone, so
+there is finally something to *show* — and both are **private to one account and
+indexed by nothing**, which is being shareable rather than being findable. A
+buyer who has been handed the link can read it; a buyer looking for an answer to
+a tax question cannot arrive at it. The row stays. See
+[`DO-THIS.md`](DO-THIS.md), which carries both links at the top.
+
 > **A PRICE LIST WITH NO CONTACT ADDRESS IS A DOCUMENT ABOUT SELLING RATHER THAN
 > AN ATTEMPT TO SELL.** That is the honest status of this file today, and naming
 > it is better than letting it read as a storefront. The first ask in

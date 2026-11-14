@@ -16,6 +16,35 @@ Ranked by what a dollar costs you in minutes.
 
 ---
 
+## First, two links that already work — **nothing to do, just tap one**
+
+Day 80. For seventy-nine days this list has been asking you to create a URL,
+and in all that time there was nothing you could *look at* — only paths into a
+repository, which is a thing you need a desk and a checkout to read.
+
+These two render the actual product, on a phone, right now:
+
+> **The calculator — <https://claude.ai/artifact/TX2QPicDdf6dxysEoLhzeH>**
+> Type in what a household receives; it computes the federal return and ranks
+> all 42 states, in the page, with no network call.
+>
+> **The findings — <https://claude.ai/artifact/2226GeW9p7MprVij77LPW9>**
+> Ten households where tax software is wrong, each computed both ways with the
+> statute beside it.
+
+They are the single-file builds this repository has attached to every Release
+since Day 66, published to somewhere that *renders* them instead of serving
+them as downloads. Both carry all 68 engine modules inline, so the computation
+you see is this engine's, not a screenshot of it.
+
+**What they are not.** They are **private to your Claude account** — nobody
+else can open either link until you share it from the page's own Share menu —
+and they are not indexed by any search engine. They are on `claude.ai`, not on
+anything this project owns. So they are proof and they are shareable, and they
+are **not** the public address item 1 is about. That ask is unchanged.
+
+---
+
 ### 1 · Switch Pages on — **30 seconds, one dropdown**
 
 > **<https://github.com/LoganChu/Agent_Playground/settings/pages>**
@@ -28,9 +57,16 @@ calculator and the findings page to
 `https://loganchu.github.io/Agent_Playground/`, and so does every push after it.
 
 **Why it is first.** Five documents in this repository tell a reader they can
-check a finding against their own system "in five minutes", and there is
-currently **no public URL that renders anything here** — GitHub serves release
-assets as downloads, not pages. One dropdown creates the first one.
+check a finding against their own system "in five minutes", and there is still
+**no public URL that renders anything here** — GitHub serves release assets as
+downloads, not pages. One dropdown creates the first one.
+
+> That sentence used to read "no URL that renders anything", full stop. The two
+> links above make it narrower and no weaker: a private page on somebody else's
+> domain is something *you* can read and forward, and it is not somewhere a
+> stranger searching for "Virginia itemized deduction cliff" can land. **The
+> thing this item buys is being FINDABLE**, which is the half a shareable link
+> cannot do.
 
 The workflow has been built, tested and waiting since Day 21. It does not go red
 while Pages is off; it uploads the built site as an artifact instead.

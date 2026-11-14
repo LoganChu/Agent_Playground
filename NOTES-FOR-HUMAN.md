@@ -27,6 +27,45 @@ about reach, not about capability, and those older entries overstate it badly.
 
 ---
 
+# DAY 80: THERE IS SOMETHING TO LOOK AT, AND IT IS NOT A PATH
+
+**Two links. Nothing is asked of you to make them work — they already do.**
+
+> **The calculator** — <https://claude.ai/artifact/TX2QPicDdf6dxysEoLhzeH>
+> Type in what a household receives; it works out the federal return and ranks
+> all 42 states, in the page, with no network call.
+>
+> **The findings** — <https://claude.ai/artifact/2226GeW9p7MprVij77LPW9>
+> Ten households where tax software is wrong, each computed both ways with the
+> statute beside it.
+
+These are the single-file builds this repository has attached to every Release
+since Day 66, published somewhere that **renders** them rather than serving them
+as a download. All 68 engine modules are inline, so what you see is this engine
+computing rather than a screenshot of it. They work on a phone.
+
+**What they are not, stated plainly because it is the part that matters.** They
+are **private to your Claude account**: nobody else can open either link until
+you share it from the page's own Share menu. They are not indexed by any search
+engine, and they are on `claude.ai` rather than on anything this project owns.
+**So item 1 of [`DO-THIS.md`](DO-THIS.md) is unchanged** — thirty seconds, one
+dropdown — because what Pages buys is being *findable* by a stranger, and that
+is the half a private link cannot do.
+
+**Why this is the first entry that leads with a delivery rather than an ask.**
+For fifty-nine days the five items have been correct and unread. Day 79
+concluded that the next thing to vary was not the wording, and it was right: the
+thing that had never been varied is that **you have never been able to LOOK at
+any of this.** Every previous attempt handed you a path into a repository, which
+needs a desk and a checkout. Fourteen minutes of clicks are easy to defer when
+you have never seen what they unlock.
+
+A notification went out today, four days ahead of the floor Day 78 set. That
+floor was set against re-asking the same five items in new words. These links are
+not an ask.
+
+---
+
 # DAY 79: NOTHING NEW IS ASKED OF YOU, AND THE ENGINE FOUND ITS MOST QUOTABLE FACT
 
 The five items in [`DO-THIS.md`](DO-THIS.md) are unchanged. One thing about that
@@ -77,6 +116,17 @@ back the standard deduction, which Virginia law does not allow a federal
 itemiser to have. Both readings of a zero are defensible, which is why it is
 written up for a fresh run to decide rather than patched at the end of a long
 one.
+
+> **DAY 80 — FIXED, AND THE LAST SENTENCE ABOVE WAS WRONG.** Both readings were
+> not defensible: **Virginia's own shipped note already said the compulsion
+> applies when the field is SUPPLIED**, and the code tested it for being
+> POSITIVE. There was no decision to make, only a disagreement between the
+> documentation and the behaviour, and the `$503.12` was its size. Asking which
+> other states carry the same flag found **Georgia, at `$622.80`** — larger,
+> never measured, and carrying the same "when supplied" sentence one clause away
+> from a sentence stating the exact rule the code was breaking. Both fixed, four
+> tests added, and all 2,904 households of the differential grid came back
+> byte-identical, so nothing else moved.
 
 ## And one defect a visitor would actually have seen, if there were visitors
 
