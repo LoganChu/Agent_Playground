@@ -477,10 +477,28 @@ function stateDeduction(
   // Virginia does not offer the larger of the two. Itemizing federally compels
   // itemizing here, so the max() that is right everywhere else would hand a
   // Virginia filer a deduction the statute forbids them.
+  //
+  // DAY 80 — AND THE THIRD CONDITION USED TO BE `> 0`, WHICH PUT A $503.12 STEP
+  // IN THE INPUT SCHEMA. The compulsion in § 58.1-322.03(1)(a) is a fact about
+  // the FEDERAL election and nothing else: a filer who itemized federally
+  // itemizes here, whatever their Virginia figure comes to. Testing the figure
+  // for being POSITIVE instead meant a caller who computed the Virginia total
+  // honestly and got zero — which happens whenever the whole federal Schedule A
+  // was state income tax, the one line Virginia makes them subtract — was
+  // handed the standard deduction the statute forbids, while a caller who
+  // passed one cent was not. Virginia moved $503.12 across that cent and
+  // GEORGIA, which carries the same flag, moved $622.80.
+  //
+  // `!== undefined` is the same test `itemizedDeduction` above already uses to
+  // decide whether the caller supplied the field, so the two now agree about
+  // what a zero means: SUPPLIED, and worth nothing. Not supplying the field at
+  // all still falls back to the standard deduction, which is the documented
+  // approximation in both states' notes — neither state's itemized figure is
+  // derivable from a federal total this package is given.
   const forced =
     def.itemizedDeduction?.forcedWhenFederalItemizing === true &&
     input.federal.deductionKind === 'itemized' &&
-    (input.stateItemizedDeductions ?? 0) > 0;
+    input.stateItemizedDeductions !== undefined;
   let total = forced ? itemized : Math.max(standardDeduction(def, input, stateAgi), itemized);
 
   // Alabama's federal income tax deduction is NOT part of that max(). Form 40

@@ -108,9 +108,51 @@
  *
  * It is the only notch found anywhere in this probe that is a property of the
  * INPUT SCHEMA rather than of a statute, every other point is a kink, and above
- * `$1,000` Virginia is smooth. It is written down rather than fixed because the
- * fix is a design decision about what `0` means in an optional field, and that
- * is worth a run's attention rather than the last twenty minutes of one.
+ * `$1,000` Virginia is smooth.
+ *
+ * ### DAY 80 — FIXED, AND IT WAS NEVER A DESIGN DECISION
+ *
+ * The paragraph above used to end "written down rather than fixed because the
+ * fix is a design decision about what `0` means in an optional field". There was
+ * no decision left to make: **Virginia's own shipped note already said the
+ * compulsion applies when the field is SUPPLIED**, and the engine tested it for
+ * being POSITIVE. The note was right and the code disagreed with it, so the
+ * `$503.12` was the size of the gap between a package's documentation and its
+ * behaviour rather than an open question about semantics.
+ *
+ * `engine.ts` now tests `!== undefined`, which is the same test
+ * `itemizedDeduction` already used to decide whether the caller supplied the
+ * field, so the two agree about what a zero means. Virginia is continuous in
+ * the amount: `0` and `0.01` are a cent apart in tax.
+ *
+ * **And asking which other states carried the flag found a bigger one.**
+ * `forcedWhenFederalItemizing` is on exactly two states, and nobody had ever
+ * measured the second:
+ *
+ * ```text
+ *   VA 2025, single, $60,000 wages, federal itemising   0 -> 0.01   $503.12
+ *   GA 2026, single, $60,000 wages, federal itemising   0 -> 0.01   $622.80
+ * ```
+ *
+ * Georgia's is larger because HB 1437 raised its standard deduction to
+ * `$15,000` and left the itemised figure alone, so Georgia is the state with the
+ * most standard deduction to lose. **Georgia's note carried the same "when
+ * supplied" sentence, and one clause later states the exact rule the deduction
+ * code was breaking** — that the itemizer credit "turns on the federal election
+ * and not on the Georgia figure".
+ *
+ * Both are gated now, in `test/virginia.test.js` and
+ * `test/georgia-itemizer-credit.test.js`, by asserting the SHAPE — that the bill
+ * is continuous in the amount — rather than by pinning the two figures, plus a
+ * control on a standard-deduction return where the field must move nothing.
+ *
+ * > **THE THIRD TIME THIS EXACT FAILURE HAS BEEN RECORDED IN THIS PACKAGE, AND
+ * > THE SECOND IN ONE FILE.** Arizona's note in `flat-states.ts` carries the
+ * > sentence "the warning was right and the code did it anyway" about its own
+ * > federal-total passthrough. A note that is right while the code is wrong is
+ * > invisible to every instrument here: `dynamic-note-figures.test.js` compares
+ * > the FIGURES in a note against the engine, and all three of these defects
+ * > were in a note's CONDITION, which carries no figure to compare.
  *
  * Investment income, pension income, Social Security benefits and municipal
  * interest WERE in this paragraph until Day 78, when they became the four axes

@@ -279,6 +279,50 @@ test('itemizing federally compels itemizing in Virginia, even when it costs mone
   money(fallback.deduction, 8_750);
 });
 
+// DAY 80. THE TEST ABOVE PINNED $8,000 AND THE OMITTED FIELD AND NEVER ASKED
+// ABOUT ZERO, WHICH IS WHERE THE $503.12 WAS.
+//
+// The compulsion in § 58.1-322.03(1)(a) is a fact about the FEDERAL election.
+// The engine used to additionally require the Virginia figure to be POSITIVE,
+// so a filer whose honest Virginia total came to zero — which happens whenever
+// the whole federal Schedule A was the state income tax Virginia makes them
+// subtract — was handed the $8,750 standard deduction the statute forbids,
+// while a filer who passed one cent was not. The two answers were $503.12
+// apart across a cent of a field nobody sweeps.
+//
+// So this asserts the SHAPE rather than one figure: the bill must be continuous
+// in the amount claimed, and the decision must turn on the federal election.
+test('a Virginia itemized total of ZERO is a total, not an unanswered question', () => {
+  const itemizing = { fed: { deductionKind: 'itemized', deduction: 14_000 } };
+  const zero = va(60_000, { ...itemizing, stateItemizedDeductions: 0 });
+  const cent = va(60_000, { ...itemizing, stateItemizedDeductions: 0.01 });
+
+  // Zero means zero: the standard deduction is forbidden, not restored.
+  money(zero.deduction, 0);
+  assert.notEqual(zero.deduction, 8_750);
+
+  // And the bill is continuous across the cent that used to cost $503.12.
+  const moved = Math.abs(zero.tax - cent.tax);
+  assert.ok(
+    moved < 0.02,
+    'one cent of itemized deductions moved the Virginia bill by ' +
+      moved.toFixed(2) +
+      ' — it was 503.12 before Day 80',
+  );
+});
+
+test('a Virginia filer who did NOT itemize federally is untouched by the figure', () => {
+  // The control that makes the test above a statement about the compulsion
+  // rather than about the arithmetic. Virginia reads the field only when the
+  // federal return itemized, so on a standard-deduction return every value of
+  // it — absent, zero, or large — must produce the same bill.
+  const bills = [undefined, 0, 0.01, 10_000].map((amount) =>
+    va(60_000, amount === undefined ? {} : { stateItemizedDeductions: amount }).tax,
+  );
+  for (const bill of bills) money(bill, bills[0], 'a standard-deduction return moved');
+  money(bills[0], 2_635.9);
+});
+
 test('2026 carries the same parameters, and says so rather than guessing', () => {
   const d25 = getStateDefinition('VA', 2025);
   const d26 = getStateDefinition('VA', 2026);

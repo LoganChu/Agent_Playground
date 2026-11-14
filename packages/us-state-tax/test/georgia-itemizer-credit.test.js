@@ -185,3 +185,46 @@ test('a joint return absorbs twice the shortfall, because it claims twice the cr
   const past = gaItemizing(200_000, STANDARD_2026.joint - 12_100, 'marriedFilingJointly').tax;
   assert.ok(past > standard, `$12,100 short should cost: ${past}`);
 });
+
+// DAY 80 — THE SAME HOLE AS VIRGINIA'S, AND $622.80 WIDE RATHER THAN $503.12.
+//
+// Georgia carries `forcedWhenFederalItemizing` for the same reason Virginia
+// does: § 48-7-27(a)(1) compels a federal itemizer to itemize here too. The
+// engine used to additionally require the Georgia figure to be POSITIVE, so a
+// filer who passed a genuine zero got the standard deduction the statute
+// forbids and a filer who passed one cent did not. Virginia's version of this
+// was found by a sweep over the amount; Georgia's was found by asking which
+// other states carried the flag, and it had never been measured.
+//
+// Georgia's is the larger because HB 1437's standard deduction is larger, which
+// is the same arithmetic the file above is about: the credit exists to pay for a
+// deduction the filer is forced to lose, and at a zero figure the filer loses
+// all of it.
+test('a Georgia itemized total of ZERO is a total, not an unanswered question', () => {
+  const zero = gaItemizing(60_000, 0);
+  const cent = gaItemizing(60_000, 0.01);
+
+  // Zero means zero: the standard deduction is forbidden, not restored.
+  money(zero.deduction, 0);
+  assert.notEqual(zero.deduction, STANDARD_2026.single);
+
+  const moved = Math.abs(zero.tax - cent.tax);
+  assert.ok(
+    moved < 0.02,
+    'one cent of itemized deductions moved the Georgia bill by ' +
+      moved.toFixed(2) +
+      ' — it was 622.80 before Day 80',
+  );
+
+  // The itemizer credit is still paid, because it turns on the ELECTION and not
+  // on the figure. A filer forced to zero deduction keeps the $300 that exists
+  // to compensate them for exactly that.
+  money(itemizerCredit(zero), 300, 'the eligible itemizer credit at a zero figure');
+});
+
+test('a Georgia filer who did NOT itemize federally is untouched by the figure', () => {
+  const bills = [undefined, 0, 0.01, 10_000].map((amount) =>
+    ga(60_000, amount === undefined ? {} : { stateItemizedDeductions: amount }).tax,
+  );
+  for (const bill of bills) money(bill, bills[0], 'a standard-deduction return moved');
+});
