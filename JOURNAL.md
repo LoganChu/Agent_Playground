@@ -305,17 +305,33 @@ the letter against the point.
    when, unless, whether* — name the engine predicate it is about and assert the
    two agree. Even a version that only handles the optional-field case would
    have caught all three.
-2. **THE GEORGIA `$826.14`, WHICH IS ONE OF ONLY TWO UNEXPLAINED DIFFERENCES IN
-   THE WHOLE GRID, AND IS IN THE STATE WHOSE ITEMISING FLAG WAS JUST FIXED.**
-   `2025-single-worker-GA-400000` differs by `$826.14`. Entry 26 of
-   `known-divergences.json` is the entry that would explain it, it is bounded at
-   `$700`, and its own text predicts `$347.55` of deduction plus `$300` of
-   credit = `$647.55` while saying the mechanism *"does not fire in this grid"*.
-   Three figures, none of them `$826.14`. Today's work did not move it —
-   `out/ours.json` is byte-identical — so this is a real open question standing
-   next to a freshly-read provision, which is the cheapest moment it will ever
-   be to read. **Read it against item 1 as well**, because the entry's Virginia
-   clause turned out to be describing a defect.
+2. **THE GEORGIA `$826.14` — MEASURED TODAY, AND THE ENTRY MEANT TO EXPLAIN IT IS
+   ARITHMETIC FOR THE WRONG YEAR.** `2025-single-worker-GA-400000` is one of only
+   two unexplained differences in the whole grid, and reconciling it took ten
+   minutes once the Georgia code was already open:
+
+   ```text
+     ours    $20,137.20   = 5.19% of $388,000   ($400,000 less the $12,000 standard deduction)
+     theirs  $19,311.06   implies taxable $372,082.08, so a deduction of $27,917.92
+     gap     $15,917.92 of deduction x 5.19% = $826.14, to the cent
+   ```
+
+   **Entry 26 predicts none of those numbers.** Its *"`$21,965` of itemised
+   deductions against this package's `$15,000` standard one"* and its `$347.55`
+   are `($21,965 - $15,000) × 4.99%` — and `$15,000` and `4.99%` are the Georgia
+   **2026** standard deduction and rate, while the difference it fails to explain
+   is a **2025** one at `$12,000` and `5.19%`. The `$700` bound was sized to
+   cover 2026's `$647.55`, so the 2025 household runs past it, and 2026 has no
+   unexplained Georgia difference for exactly that reason. **A bound derived from
+   one year's parameters and applied to both** — the same shape as the Minnesota
+   and Wisconsin mis-scopings already recorded in that entry.
+
+   What is still open is narrow and now stated: **what IS `$27,917.92` of
+   deduction on their side?** It is not their own Georgia tax (`$19,311.06`), not
+   the fixed point of the circularity (`$19,735.72`), and not a round number. All
+   of this is written into entry 26 so the next run inherits a measurement rather
+   than an open question. Today's work did not move it — `out/ours.json` is
+   byte-identical.
 3. **MAKE THE UNNARROWABLE PREFIX NARROWABLE. IT IS 52.3% OF THE AUDIT AND IT IS
    IN ONE FILE.** Unchanged from Day 79 and still the cheapest large win. 137
    mutants of 2,715 take half the clock at 34.75 seconds a kill against 0.93 for
