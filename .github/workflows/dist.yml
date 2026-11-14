@@ -196,7 +196,41 @@ jobs:
             echo "This tag moves with \`main\`. Not tax advice."
           } > "$RUNNER_TEMP/notes-calculator.md"
           if gh release view calculator >/dev/null 2>&1; then
-            gh release upload calculator "$calculator" "$checks_page" --clobber
+            # DAY 80 — UPLOAD ONLY WHAT ACTUALLY CHANGED, BECAUSE `--clobber`
+            # RESETS THE ONLY USAGE SIGNAL THIS PROJECT HAS.
+            #
+            # `--clobber` does not overwrite an asset in place, it REPLACES the
+            # asset object: new id, new `created_at`, `download_count` back to
+            # zero. This job runs on every push to `main`, so the counter had
+            # been reset 141 times by Day 80 and the real total is gone — GitHub
+            # keeps no history for a replaced asset. Reading `download_count: 0`
+            # off this release and concluding nobody had ever downloaded it was
+            # a measurement of the two minutes since the previous push.
+            #
+            # For a repository whose every open question is "does anyone see
+            # this", that is the worst possible number to have been discarding.
+            # So each file is uploaded only when its sha256 differs from the
+            # published asset's, which keeps the counter across every push that
+            # does not move the page — and the pages are byte-reproducible, so
+            # an unchanged build really does compare equal.
+            changed=()
+            for file in "$calculator" "$checks_page"; do
+              name=$(basename "$file")
+              mine="sha256:$(sha256sum "$file" | cut -d' ' -f1)"
+              theirs=$(gh api "repos/${{ github.repository }}/releases/tags/calculator" \
+                --jq ".assets[] | select(.name == \"$name\") | .digest" 2>/dev/null || true)
+              if [ -n "$theirs" ] && [ "$mine" = "$theirs" ]; then
+                echo "unchanged, keeping its download count: $name"
+              else
+                changed+=("$file")
+              fi
+            done
+            if [ "${#changed[@]}" -gt 0 ]; then
+              gh release upload calculator "${changed[@]}" --clobber
+              echo "uploaded ${#changed[@]} changed asset(s)"
+            else
+              echo "both assets unchanged; nothing uploaded and no counter reset"
+            fi
             gh release edit calculator --notes-file "$RUNNER_TEMP/notes-calculator.md" \
               --title "Retirement tax calculator and state tax checks (one file each)"
             echo "refreshed the calculator release"
