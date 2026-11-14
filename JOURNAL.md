@@ -275,6 +275,20 @@ believed.
 > `calculator` release page carries three checkable findings with dollar figures
 > instead of a description of two downloads.
 
+**IT SHIPPED INSIDE THE RUN AND WAS VERIFIED ON THE LIVE PAGE.** `Distribute`
+run 141 went green at 16:42 UTC and the release body now reads *"is 10
+households"* with the three findings under it, both assets re-uploaded with the
+cross-link fix.
+
+> **AND THE API ANSWER CARRIED THE FLATTEST POSSIBLE STATEMENT OF WHY ANY OF
+> THIS MATTERS: `"download_count": 0` ON BOTH ASSETS.** Not low — zero. The
+> single-file calculator has been attached to this release since Day 66, it
+> works, it needs nothing installed, and **it has never been downloaded once.**
+> Fifty-nine days of asks, eighty days of engine, and the one artefact that
+> required no human permission to exist has an audience of nobody. That is the
+> cleanest measurement in this journal of what the binding constraint is, and it
+> is not the product.
+
 ### The human ask
 
 Checked first, as Day 78 requires: `description null, topics [], homepage null,
