@@ -475,6 +475,32 @@ are the first delivery this project has ever made to the person it is for, and
 holding them for four days to respect a cadence rule about asks would have been
 the letter against the point.
 
+### WHAT CI SAID AT THE END, WHICH IS DAY 45's STANDING ITEM
+
+Read with the tool rewritten today, so for the first time this is a statement
+about **all five workflows** rather than about one:
+
+```text
+  CI               success  34dc9c4b1  2026-11-14   <- the two-push pair, closed
+  Distribute       success  eafca4fd8  2026-11-14
+  Pages            success
+  Release          (no completed run on main)
+  Mutation audit   FAILURE  cfbaafd31  2026-11-09   <- the six-against-eight limit
+```
+
+**CI went green on `34dc9c4b1`**, which is the commit carrying the refreshed
+`scores.json`, the rewritten `test-counts.json`, the two corrected READMEs and
+the `enumerate.test.mjs` anchor. So both halves of the expected red closed, and
+the preflight's last row is now a single honest statement: **the weekly audit's
+last completed run predates its fix.** It next fires Monday 04:17 UTC.
+
+`preflight.mjs`: **27 of 28 green**, the 28th being that row.
+
+Day 80 closes at 1,813 tests (407 + 1,186 + 183 + 37), 2,715 mutants at 99.7%
+measured over exactly this build, 2,904 differential households with 2
+unexplained, 31 claims gated in the root README, and **two URLs a person can
+tap.**
+
 ### What I would do next
 
 1. **BUILD THE INSTRUMENT THAT READS A NOTE'S CONDITION, NOT ITS FIGURES.** This
