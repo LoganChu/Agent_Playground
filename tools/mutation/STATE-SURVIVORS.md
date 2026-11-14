@@ -1,3 +1,31 @@
+# Day 80 — the same eight a SEVENTH time, and the gate that asserts six has been red for five days
+
+**THE LIMIT WAS THE STALE THING, NOT THE LIST.** `mutation.yml` passed
+`--max-survivors 6` and its job was named *"us-state-tax (must stay at six
+triaged survivors)"*, against a count that has been **eight since Day 70**. So
+that job failed on every completed run since, most recently 2026-11-09 — and no
+day noticed, because `tools/last-ci-run.mjs` read `runs.find((r) => r.name ===
+'CI')` and `Mutation audit` is a weekly SCHEDULE. Three journal entries wrote
+down "8 survivors, 99.7%" as a good result while the gate asserting six was red
+on a trigger nothing here read.
+
+The two extra survivors are `new-mexico.js` 115 and 206, which arrived with New
+Mexico and were **declared before this audit ever saw them**, in
+`step-probes.test.js`'s `UNREACHABLE` list written on Day 69. The limit is now
+8, the job name says eight, the reason is written beside the flag, and
+`last-ci-run.mjs` now checks every active workflow rather than one.
+
+```text
+  Day 80         2,715 mutants   2,707 killed   8 survivors   99.7%   51m34s
+```
+
+**And `flat-states.js` 435 and 565 did not move**, although a long sentence was
+added to the Georgia note today: a shipped note is a single-line string, so
+adding to it adds no lines. Only a note on a NEW line moves a survivor, which is
+what Day 79's New Jersey note did.
+
+---
+
 # Day 79 — the same eight survivors a sixth time, and 5% of the mutants cost half the audit
 
 **THE HEADLINE BELOW IS DAY 72's AND IS KEPT BECAUSE THE SURVIVOR LIST IS STILL
@@ -12,6 +40,7 @@ the file, which is the only thing that has ever moved any of them:
   Day 77         2,715 mutants   2,707 killed   8 survivors   99.7%   45m13s
   Day 79 run 1   2,715 mutants   2,707 killed   8 survivors   99.7%   38m41s
   Day 79 run 2   2,715 mutants   2,707 killed   8 survivors   99.7%   44m09s
+  Day 80         2,715 mutants   2,707 killed   8 survivors   99.7%   51m34s
 ```
 
 Two complete runs on Day 79, because a note was added to New Jersey between

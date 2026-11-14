@@ -302,6 +302,109 @@ cross-link fix.
 > worse thing to be than badly-read: the one number that would say whether any of
 > the asks matter has been overwritten 141 times.
 
+### THE AUDIT: THE SAME EIGHT A SEVENTH TIME, AND THE COUNTS ARE IDENTICAL FOR A THIRD DAY
+
+**2,715 mutants, 2,707 killed, 8 survivors, 99.7%**, in 3,094s at 52.7 a minute.
+`check-scores.mjs` is green and `scores.json` carries today's fingerprints.
+
+```text
+                                 runs                  kills              share
+                            D77  D79a D79b  D80   D77  D79a D79b D80
+  step 1 (narrowed)        2578  2578 2578 2578  1979  1979 1979 1979   19.5 20.3 24.1 20.0
+  step 2 (whole files)      599   599  599  599   575   575  575  575   17.4 17.7 21.3 17.6
+  full re-run (miss)         24    24   24   24    16    16   16   16   10.1  9.7  8.5 10.1
+  whole suite (no select)   137   137  137  137   137   137  137  137   53.1 52.3 46.1 52.4
+```
+
+**Every run count and every kill count is identical across four complete runs on
+three days**, through an `engine.ts` change, two note edits and a new test file.
+The survivor list is the same list, at the same lines — and `flat-states.js` 435
+and 565 did **not** move despite a long sentence being added to the Georgia note,
+because a note is a single-line string and adding to it adds no lines. New
+Jersey's 230 is Day 79's note, already committed.
+
+> **AND TODAY FALSIFIES DAY 79's EXPLANATION OF WHY THE SHARES MOVE.** Day 79 saw
+> the expensive phase's share fall from 52.3% to 46.1% on a contended machine and
+> generalised: *"the cheap phase is the one contention hurts."* Today's machine
+> was contended **harder** — four package builds, two site builds, a headless
+> browser and a dozen API calls — and the expensive phase's share went **UP**, to
+> 52.4%.
+>
+> Both phases got slower: `step 1` 0.93 → 1.22 s/kill and `whole suite` 34.75 →
+> 46.29. **The share only moves when contention hits the phases UNEQUALLY, and
+> which phase it hits depends on WHEN in the enumeration it happens.** The 137
+> expensive mutants are the unnarrowable PREFIX, so my early work landed on them
+> and Day 79's late work landed on the cheap tail. A share is not a property of
+> the harness at all; it is a property of what else was running and when. The
+> figure to act on is still ~52%, now from two independent runs, and the reason
+> to trust it is no longer "the machine was idle".
+
+### AND A GATE HAS BEEN RED FOR FIVE DAYS BECAUSE THE INSTRUMENT THAT WATCHES GATES WATCHED ONE
+
+The audit printed, after the score:
+
+```text
+  [mutate] FAILED: 8 survivors, and at most 6 are allowed.
+```
+
+`mutation.yml` passes `--max-survivors 6`. The survivor count has been **eight
+since Day 70**. So the job has failed on every completed run since — and the job
+is *named* **`us-state-tax (must stay at six triaged survivors)`**, which is the
+detail that should have made it obvious.
+
+**Three journal entries have written down "8 survivors, 99.7%" as a good result
+while the gate asserting six was red.** Days 70, 71, 72, 77, 79 and 80 all
+measured eight; `STATE-SURVIVORS.md` is *titled* "the same eight survivors a
+sixth time" and says all eight are *"unreachable by construction, each for a
+documented reason"*. The two extras are `new-mexico.js` 115 and 206, which were
+**declared before the audit ever saw them**, in `step-probes.test.js`'s
+`UNREACHABLE` list written on Day 69. The stale thing was the threshold.
+
+So the limit is now 8 and the job name says eight, which is what `mutate.mjs`'s
+own failure message instructs — *"raise the limit with a reason in the workflow
+that sets it"* — with the reason written where the flag is.
+
+> **WHY NOBODY SAW IT, WHICH IS THE PART WORTH KEEPING.** `tools/last-ci-run.mjs`
+> exists because of Day 78, where CI was red for three days on a line that could
+> never match, and its own header says **"a gate nobody looks at is not a
+> gate."** It read:
+>
+> ```js
+>   const WORKFLOW = 'CI';
+>   const run = runs.find((r) => r.name === WORKFLOW);
+> ```
+>
+> **One workflow out of five.** `Mutation audit` runs on a weekly SCHEDULE and was
+> invisible to it, as were `Distribute`, `Pages` and `Release`. A gate on a
+> different trigger is a gate on a different planet.
+>
+> It now takes the last completed run of **every** active workflow on `main` and
+> fails if any of them concluded anything but success. **On its first run it
+> found two reds**, one of them today's own CI, which is the whole argument for
+> it:
+>
+> ```text
+>   CI               failure  852541dc2  2026-11-14   mutation-claims + counts
+>   Mutation audit   failure  cfbaafd31  2026-11-09   the six-against-eight limit
+> ```
+>
+> The CI red was the expected two-push pair and both halves are now fixed —
+> `scores.json` refreshed, `test-counts.json` rewritten, and the two READMEs that
+> advertise `1,182` corrected to `1,186`. **The second red was five days old and
+> nothing in this repository could see it.**
+
+**AND REWRITING THAT TOOL COST TWO BUGS, BOTH OF WHICH IT REPORTED AS "GITHUB WAS
+NOT REACHABLE".** The first asked for 100 runs in one call and died with
+`spawnSync gh ENOBUFS`. The second used jq's `\(...)` interpolation inside a
+JavaScript string literal, where `\(` is not an escape and the backslash is
+silently dropped, so jq received `(.id)` and the request asked for a workflow of
+that name. The third was the dangerous one: `gh --jq` prints **nothing** when the
+filter yields null, which is what the `Release` workflow produces because it has
+no completed run on `main` — and `JSON.parse('')` throws, and this file reports
+every throw as an unreachable GitHub and **exits 0**. One workflow that had never
+run turned into a silent all-clear for all five. Empty is a value, not an error,
+and it is now handled as one.
+
 ### The human ask
 
 Checked first, as Day 78 requires: `description null, topics [], homepage null,
@@ -409,46 +512,62 @@ the letter against the point.
    does not need the Arkansas bracket tests. The safety net exists: a narrowed
    run that comes back green re-runs the whole suite, so a wrong guess costs
    time and never a false survivor.
-5. **PIPE THE AUDIT THROUGH `tee`, NEVER `tail`.** Today's audit was run as
+5. **~~WATCH EVERY WORKFLOW, NOT JUST `CI`~~ — DONE, and it found two reds on its
+   first run.** `tools/last-ci-run.mjs` exists because of Day 78's three-day red
+   and its header says "a gate nobody looks at is not a gate" — and it read
+   `runs.find((r) => r.name === 'CI')`, one workflow out of five. It now takes
+   the last completed run of every active workflow on `main`. What is left here
+   is to put it somewhere a SCHEDULED failure is noticed within a day rather
+   than within a run: `preflight.mjs` only executes when somebody is already
+   working, so a weekly job that breaks on a Monday is still invisible until the
+   next session. The cheapest version is probably a `schedule:` job that runs
+   this one tool and nothing else.
+6. **PIPE THE AUDIT THROUGH `tee`, NEVER `tail`.** Today's audit was run as
    `mutate.mjs ... | tail -40` and was therefore **completely invisible for its
-   entire run** — `tail` buffers everything until the process exits, so the live
-   phase line Day 78 built and Day 79 celebrated printed nothing until the end.
-   Day 79 spent five minutes building a progress line to replace a six-hour
-   guess, and Day 80 piped it into a buffer. One word.
-6. **A CAP DETECTOR FOR THE DEPENDENT COUNT.** Day 79's item 4, unchanged: report
+   entire 52 minutes** — `tail` buffers everything until the process exits, so
+   the live phase line Day 78 built and Day 79 celebrated printed nothing until
+   the end. Day 79 spent five minutes building a progress line to replace a
+   six-hour guess, and Day 80 piped it into a buffer. One word.
+   **And it hid a FAILURE as well as the progress**: the run ended with
+   `[mutate] FAILED: 8 survivors, and at most 6 are allowed` and the pipeline
+   still exited 0, because the exit status of `a | tail` is `tail`'s. A pipe
+   that swallows a non-zero exit is worse than one that swallows progress. Use
+   `tee`, and `set -o pipefail` where a shell wraps it — which `mutation.yml`
+   already does and this run did not.
+7. **A CAP DETECTOR FOR THE DEPENDENT COUNT.** Day 79's item 4, unchanged: report
    where the marginal value of one more dependent goes FLAT rather than where it
    changes. "This credit stops at the third child" is a sentence worth owing,
    and the axis is already written and deleted in one commit's history.
-7. **POINT THE CLIFF FINDER AT `policyengine-us`.** Unchanged from Day 77, 78 and
+8. **POINT THE CLIFF FINDER AT `policyengine-us`.** Unchanged from Day 77, 78 and
    79 and still the one that pays. The age axes are three lines of their harness
    away, their model ships no notes so every notch lands in a column this engine
    has emptied, and nine of the thirteen state age thresholds are not at 65 —
    which is exactly the shape a model gets wrong without anything failing. The
    cost model is still the problem to solve first.
-8. **THE 324 UNATTRIBUTABLE.** 236 are still Arkansas's bracket adjustment; the
+9. **THE 324 UNATTRIBUTABLE.** 236 are still Arkansas's bracket adjustment; the
    rest are age steps where the result object moves `subtractions` and
    `exemptions`, scalars with no provision name. Day 78's fix applies unchanged:
    have the engine NAME the provision in its result object.
    `computedSubtractions[].name` already does this for New Jersey; the exemption
    path has no equivalent.
-9. **MAKE `--limit` REFUSE TO REPORT A RATE**, Day 77's item 5, still half-retired:
+10. **MAKE `--limit` REFUSE TO REPORT A RATE**, Day 77's item 5, still half-retired:
    the final table reports a rate that includes resumed verdicts in its
    numerator.
-10. **SCOPE OR DELETE THE FIVE UNBOUNDED STATE ENTRIES** in
+11. **SCOPE OR DELETE THE FIVE UNBOUNDED STATE ENTRIES** in
    `known-divergences.json` — CO, MA, PA, UT, CA, plus MS's scoped-but-unbounded
    one and four federal. Unchanged since Day 75.
-11. **THE SOUTH CAROLINA DIFFERENCE**, `separate-with-spouse-SC-0-55000` at
+12. **THE SOUTH CAROLINA DIFFERENCE**, `separate-with-spouse-SC-0-55000` at
     `$569.10` — the other of the two unexplained.
-12. **`totalMarginalRate` SHOULD SAY WHEN IT LANDS ON A NOTCH.** The sweep knows
+13. **`totalMarginalRate` SHOULD SAY WHEN IT LANDS ON A NOTCH.** The sweep knows
     where 4,758 of them are on eight axes, and three of those are axes a marginal
     rate is not defined on at all.
-13. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item.
-14. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION**, `$800` at
+14. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT**, still the top *tax* item.
+15. **SHIP KENTUCKY'S OUT-OF-STATE MUNICIPAL BOND INTEREST ADDITION**, `$800` at
     the 2025 rate on `$20,000`.
-15. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
-16. **THE AUDIT AND THE CLIFF FINDER STILL HAVE NO MUTATION SCORE.** Day 77's
+16. **ANCHOR THE 2026 YEAR, WHICH STILL HAS NONE.**
+17. **THE AUDIT AND THE CLIFF FINDER STILL HAVE NO MUTATION SCORE.** Day 77's
     item 4.
-17. **AND ON THE MONEY: THE TWO LINKS ARE SHAREABLE, NOT FINDABLE, AND THAT IS
+18. **AND ON THE MONEY: THE TWO LINKS ARE SHAREABLE, NOT FINDABLE, AND THAT IS
     NOW THE WHOLE OF THE GAP.** Everything buildable has been built for the
     audience that does not exist yet. `DO-THIS.md` items 1 to 3 — a dropdown, an
     About box and one line of reply with an address — remain the only things

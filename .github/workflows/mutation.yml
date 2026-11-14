@@ -78,7 +78,7 @@ jobs:
           fi
 
   state:
-    name: us-state-tax (must stay at six triaged survivors)
+    name: us-state-tax (must stay at eight triaged survivors)
     runs-on: ubuntu-latest
     # 120 rather than 45 as of v0.32.0, and the reason is a trade worth naming.
     # This job's cost is (number of mutants) x (how long the suite takes), and the
@@ -106,8 +106,32 @@ jobs:
       - name: Audit the rule parameters
         run: |
           set -euo pipefail
+          # DAY 80 — THE LIMIT WAS 6 AND THE TRIAGED COUNT HAS BEEN 8 SINCE DAY 70,
+          # SO THIS JOB HAS FAILED ON EVERY COMPLETED RUN SINCE AND NOBODY READ IT.
+          #
+          # The two extra survivors are `states/new-mexico.js` 115 and 206, which
+          # arrived with New Mexico and were DECLARED BEFORE THE AUDIT EVER SAW
+          # THEM — they are in `step-probes.test.js`'s `UNREACHABLE` list, written
+          # on Day 69 with the arithmetic for why no shipped answer can read
+          # either figure. `STATE-SURVIVORS.md` has recorded "the same eight" for
+          # six consecutive complete runs (seven, after today) and says all eight
+          # are "unreachable by construction, each for a documented reason".
+          #
+          # So the stale thing was the threshold, not the code, and raising it is
+          # what `mutate.mjs`'s own failure message instructs: "raise the limit
+          # with a reason in the workflow that sets it." This is the reason. The
+          # job's NAME said six as well, which is the part that should have made
+          # this obvious, and it now says eight.
+          #
+          # Why it went unread for five days: `tools/preflight.mjs` and the
+          # journals check CI through `tools/last-ci-run.mjs`, which reads
+          # `ci.yml` only. This workflow runs on a weekly SCHEDULE and is in
+          # nobody's path. A gate on a different trigger is a gate on a different
+          # planet — the same shape as every other finding today, where the thing
+          # that was right (the job name, the note, the guard's own name) was the
+          # thing nothing looked at.
           node tools/mutation/mutate.mjs packages/us-state-tax --workers 4 \
-            --max-survivors 6 --record "$RUNNER_TEMP/scores.json" \
+            --max-survivors 8 --record "$RUNNER_TEMP/scores.json" \
             --skip localities/ohio.js,localities/ohio-school-districts.js,localities/indiana.js,localities/michigan.js,localities/maryland.js,localities/new-york.js,localities/counties.js \
             | tee "$GITHUB_STEP_SUMMARY"
       # The fresh record, printed so a run that MOVED the score says what the
