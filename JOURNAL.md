@@ -381,6 +381,21 @@ the letter against the point.
    **It does not recover the first eighty days, which are gone. It means the next
    eighty have a number.**
 
+   **And it was exercised in production inside the same run, on the push that
+   introduced it** — a push that changed `dist.yml` and no page, which is exactly
+   the case it exists for. `Distribute` 142, step 7:
+
+   ```text
+     unchanged, keeping its download count: retirement-tax-calculator.html
+     unchanged, keeping its download count: state-tax-checks.html
+     both assets unchanged; nothing uploaded and no counter reset
+   ```
+
+   That is also the first proof that the single-file build is byte-reproducible
+   **across machines**: the digest GitHub's runner computed equals the one this
+   sandbox computed, to all 64 characters, which the local check could not
+   establish on its own.
+
    What is still worth doing here is the question this cannot answer: a download
    count measures fetches of a file, and the thing that would actually say
    whether anybody arrives is referrer or view data, which GitHub exposes only
