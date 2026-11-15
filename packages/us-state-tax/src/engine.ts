@@ -2343,6 +2343,74 @@ function kentuckyModifiedGrossIncomeFloor(federalAgi: number, stateAgi: number):
 }
 
 /**
+ * The credit line's name when the caller SUPPLIED a modified gross income the
+ * form cannot produce — one below the floor this engine can derive.
+ *
+ * ## Day 81, and it is the same defect class as Virginia's `$503.12`
+ *
+ * Kentucky's and New Mexico's shipped notes each state the floor as a FACT
+ * about the figure, not as this package's assumption:
+ *
+ * ```text
+ *   KY  "MODIFIED GROSS INCOME ... is the LARGER of federal AGI and Kentucky
+ *        AGI and not either one of them"
+ *   NM  "the form states the relationship itself — the total must equal or
+ *        exceed Federal Adjusted Gross Income from Form PIT-1, line 9"
+ * ```
+ *
+ * Both worksheets build the figure by ADDING to that floor — out-of-state
+ * municipal bond interest and a Form 4972 lump sum in Kentucky, eight gross
+ * figures in New Mexico, with N.M. Admin. Code § 3.3.1.10's *"zero is the
+ * lowest amount which may be reported for any item"* forbidding any of them to
+ * net against another. **So a supplied figure below the floor is not a figure a
+ * filled-in worksheet can hold.** Until today the engine took it anyway,
+ * through `nonNegative`, which refuses a negative and accepts everything else:
+ *
+ * ```text
+ *   KY 2025 single $200,000  supplied 0 vs omitted   $7,869.20 of tax -> $0.00
+ *   NM 2026 joint  $45,000   supplied 0 vs omitted   $315.20 of rebate -> $763.20
+ * ```
+ *
+ * Both run the SAME WAY — a figure below the floor buys a larger credit, and
+ * the Kentucky one buys the whole bill. The two branches above already reason
+ * about this direction in terms: *"a floor on the income is a CEILING on this
+ * credit"*. That sentence is why a DERIVED income is annotated; its converse is
+ * why a supplied one below the floor must be.
+ *
+ * **It is disclosed and not overridden, which is a deliberate choice.** The
+ * caller may know a line this package cannot reach — that is the whole reason
+ * the field exists — and silently replacing their figure with this engine's
+ * floor would answer a question they did not ask. What they cannot do is pass a
+ * figure the form forbids and have nothing say so. The note names both amounts
+ * and the direction, which is this package's contract with a caller everywhere
+ * else: compute what you were given, and say what is wrong with it.
+ *
+ * Zero is the value this matters for and it is not hypothetical. A blank
+ * spreadsheet cell is a zero in this repository's own buyer-facing audit —
+ * `readMoney` in `tools/audit/household.mjs` returns `0` for `''` — so "the
+ * customer left the column empty" and "the customer says the figure is nothing"
+ * are one `if` apart, and on Kentucky that `if` is worth the entire return.
+ */
+function belowFloorNote(
+  name: string,
+  field: string,
+  supplied: number,
+  floor: number,
+  floorDescription: string,
+  why: string,
+  kind: 'credit' | 'rebate'
+): string {
+  const money = (n: number) =>
+    `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return (
+    `${name} (the ${field} supplied, ${money(supplied)}, is BELOW ${floorDescription}, ` +
+    `${money(floor)} — ${why}, so no completed worksheet holds this figure. It was used as ` +
+    `given and NOT overridden; a modified gross income below the floor buys a LARGER ${kind}, ` +
+    `so this one is too high)`
+  );
+}
+
+/**
  * The threshold amount the family size tax credit's staircase is measured
  * against — KRS 141.066(1)(e), the federal poverty guideline for the family
  * size, counting no more than {@link FamilySizeTaxCreditRule.maximumFamilySize}
@@ -4413,10 +4481,11 @@ function computeOnce(
   if (def.familySizeTaxCredit) {
     const rule = def.familySizeTaxCredit;
     const supplied = input.kentuckyModifiedGrossIncome;
-    const income =
-      supplied === undefined
-        ? kentuckyModifiedGrossIncomeFloor(measures.federalAdjustedGrossIncome, stateAgi)
-        : nonNegative(supplied, 'kentuckyModifiedGrossIncome');
+    const floor = kentuckyModifiedGrossIncomeFloor(measures.federalAdjustedGrossIncome, stateAgi);
+    const income = supplied === undefined ? floor : nonNegative(supplied, 'kentuckyModifiedGrossIncome');
+    // A SUPPLIED figure BELOW the floor is a figure the worksheet cannot
+    // produce. See `belowFloorNote`.
+    const belowFloor = supplied !== undefined && income < floor;
     const threshold = familySizeCreditThreshold(rule, input);
     const share = familySizeCreditShare(rule, threshold, income);
     // The tax left after the personal credits, floored at zero. The floor is
@@ -4430,8 +4499,18 @@ function computeOnce(
       // CEILING on this credit, so a return the staircase has already settled
       // at zero needs no annotation — the true figure is at or above the
       // derived one and cannot buy a step back.
-      name:
-        supplied === undefined && share > 0
+      name: belowFloor
+        ? belowFloorNote(
+            rule.name,
+            'kentuckyModifiedGrossIncome',
+            income,
+            floor,
+            'max(federal AGI, Kentucky AGI)',
+            'the KRS 141.066 worksheet ADDS out-of-state municipal bond interest and a Form 4972 ' +
+              'lump sum to that figure and subtracts nothing from it',
+            'credit'
+          )
+        : supplied === undefined && share > 0
           ? `${rule.name} (assumed: modified gross income is max(federal AGI, Kentucky AGI) — ` +
             `worksheet lines (c) and (d), out-of-state municipal bond interest and a Form 4972 ` +
             `lump sum, are NOT added, and a floor on the income is a CEILING on this credit; ` +
@@ -4444,17 +4523,26 @@ function computeOnce(
   if (def.lowIncomeRebate) {
     const rule = def.lowIncomeRebate;
     const supplied = input.newMexicoModifiedGrossIncome;
-    const income =
-      supplied === undefined
-        ? newMexicoModifiedGrossIncomeFloor(input, measures.federalAdjustedGrossIncome)
-        : nonNegative(supplied, 'newMexicoModifiedGrossIncome');
+    const floor = newMexicoModifiedGrossIncomeFloor(input, measures.federalAdjustedGrossIncome);
+    const income = supplied === undefined ? floor : nonNegative(supplied, 'newMexicoModifiedGrossIncome');
+    const belowFloor = supplied !== undefined && income < floor;
     credits.push({
       // The assumption is named only when it can still be wrong. A derived
       // floor ABOVE the table's last row settles the answer at zero on its own,
       // because the true figure is at or above the floor — so annotating that
       // return would report an uncertainty the arithmetic has already closed.
-      name:
-        supplied === undefined && Math.max(0, income) <= rule.maximumIncome
+      name: belowFloor
+        ? belowFloorNote(
+            rule.name,
+            'newMexicoModifiedGrossIncome',
+            income,
+            floor,
+            'federal AGI plus tax-exempt interest plus any untaxed Social Security',
+            'PIT-RC states the relationship itself: the total "must equal or exceed Federal ' +
+              'Adjusted Gross Income from Form PIT-1, line 9"',
+            'rebate'
+          )
+        : supplied === undefined && Math.max(0, income) <= rule.maximumIncome
           ? `${rule.name} (assumed: modified gross income is the floor derivable from federal ` +
             `AGI, tax-exempt interest and any untaxed Social Security — a floor on the income ` +
             `is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)`

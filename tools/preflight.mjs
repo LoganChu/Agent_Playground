@@ -87,6 +87,15 @@ const CHECKS = [
     expect: (out) => (out.match(/^# pass (\d+)/m) ?? [])[1] && `${(out.match(/^# pass (\d+)/m))[1]} tests`,
   },
   {
+    // The tools that live at the ROOT of `tools/`, by glob, for Day 65's reason
+    // applied a third time. `note-conditions.test.mjs` is the only one today;
+    // the glob is so that the second one is covered by arriving rather than by
+    // somebody remembering this line.
+    label: "the root tools' own tests",
+    cmd: 'node --test tools/*.test.mjs',
+    expect: (out) => (out.match(/^# pass (\d+)/m) ?? [])[1] && `${(out.match(/^# pass (\d+)/m))[1]} tests`,
+  },
+  {
     // The CROSS-PACKAGE tests, by glob, for Day 65's reason applied a second
     // time: `tracked-paths.test.mjs` arrived on Day 68 and a gate that names
     // files one at a time is a gate that silently stops covering the newest one.
@@ -101,6 +110,26 @@ const CHECKS = [
     // check passed, because nothing in this file had ever looked at the index.
     label: 'what this repository is allowed to track',
     cmd: 'node tools/cross-package/tracked-paths.mjs --check',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
+    // Day 81, and the finding is that this row did not exist. `note-figures.mjs`
+    // has had a `--check` mode and a recorded ceiling since Day 67 and was
+    // wired into nothing — not this file, not CI, not an npm script — so the
+    // count went from 69 to 94 over fourteen days and the ratchet never
+    // clicked. The third instance of "a gate nobody looks at is not a gate",
+    // after Day 78's three-day red and Day 80's five-day one.
+    label: 'every figure with cents in shipped prose, against the tests',
+    cmd: 'node tools/note-figures.mjs --check',
+    expect: (out) => (out.match(/^(\d+ distinct figures.*)$/m) ?? [])[1],
+  },
+  {
+    // Day 81. The class Day 80 named — the shipped note was right and the code
+    // did something else — and the first instrument that can see it. Two known
+    // instances to validate against, both of which it reports when the Day 80
+    // fix is reverted.
+    label: 'what a note says a field means, against what the engine does with it',
+    cmd: 'node tools/note-conditions.mjs --check',
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
   },
   {

@@ -326,6 +326,25 @@ CLAIMS.push({
   eq: (a, b) => a === b,
 });
 
+// The (state, field) pairs where supplying a zero is not the same as omitting the
+// field — read from the ledger `tools/note-conditions.mjs --check` regenerates,
+// so the README's "Five" cannot outlive the sixth.
+//
+// APPENDED HERE AND NOT AT THE END OF THE FILE, which is Day 80's finding about
+// this exact tool: a claim pushed BELOW the loop never runs, and `--check`
+// printed `ok — 30 claims` over a README that said the wrong thing. The claim
+// count is the evidence either way — adding a claim that does not raise it has
+// not added a claim.
+CLAIMS.push({
+  label: 'zero-versus-absent pairs, stated on the front page',
+  want: WORDS[
+    JSON.parse(readFileSync(join(ROOT, 'tools', 'note-conditions.json'), 'utf8')).sentinels.length
+  ],
+  find: () =>
+    [...text.matchAll(/\*\*([A-Z][a-z]+) \(state, field\) pairs in the whole package/g)].map((m) => m[1]),
+  eq: (a, b) => a === b,
+});
+
 const problems = [];
 const checked = [];
 for (const c of CLAIMS) {

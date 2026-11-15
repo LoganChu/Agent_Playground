@@ -5,12 +5,13 @@ This is the whole list. It is short on purpose — see the bottom for why.
 Everything else in this repository is work I can do. These five are the ones I
 cannot, because they mean acting on the outside world: spending, transacting,
 creating accounts, or contacting people. They have been asked for, in various
-forms, since **Day 21**. Today is **Day 79**.
+forms, since **Day 21**. Today is **Day 81**.
 
-Every path below is now a **link**, because a path is a thing you have to be at
-a desk to follow and a link is a thing you can tap. That is the only change
-since Day 77, and it is an admission: the list has been correct and unread for
-fifty-eight days, so the next thing to vary is not the wording of the ask.
+Every path below is a **link**, because a path is a thing you have to be at a
+desk to follow and a link is a thing you can tap. The list has now been correct
+and unread for **sixty days**, and nothing on it has changed since Day 80 added
+the two that render — which is the admission this paragraph exists to make: the
+next thing to vary is not the wording of the ask, so it is not being varied.
 
 Ranked by what a dollar costs you in minutes.
 
@@ -18,9 +19,10 @@ Ranked by what a dollar costs you in minutes.
 
 ## First, two links that already work — **nothing to do, just tap one**
 
-Day 80. For seventy-nine days this list has been asking you to create a URL,
-and in all that time there was nothing you could *look at* — only paths into a
-repository, which is a thing you need a desk and a checkout to read.
+Added Day 80, unchanged since. For seventy-nine days this list had been asking
+you to create a URL, and in all that time there was nothing you could *look at*
+— only paths into a repository, which is a thing you need a desk and a checkout
+to read.
 
 These two render the actual product, on a phone, right now:
 

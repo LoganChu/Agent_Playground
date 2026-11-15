@@ -27,6 +27,43 @@ about reach, not about capability, and those older entries overstate it badly.
 
 ---
 
+# DAY 81: TWO MORE TAX BUGS, FOUND BY A TOOL BUILT TO LOOK FOR THEM
+
+**Nothing is asked of you today.** The two links in the Day 80 entry below still
+work and are still the only thing on this page you can do in one tap.
+`DO-THIS.md` is unchanged.
+
+What happened today is worth one paragraph of yours. Day 80 closed three bugs
+that all had the same shape — **the note the package prints was right, and the
+code underneath it did something else** — and said the useful thing to build
+next was an instrument that could see that shape. It now exists, and on its
+first run it found two more:
+
+> **Kentucky and New Mexico both accepted an income figure their own printed
+> notes say is impossible, and both paid out a larger credit for it.** On a
+> $200,000 Kentucky return, a zero in one column turned a $7,869.20 tax bill
+> into $0.00 with nothing said about it. The engine now says it. It still
+> computes on the figure it was given — the caller may know something it does
+> not — but the answer now carries a line saying the figure is below a floor the
+> form itself sets, and in which direction that makes the answer wrong.
+
+**Why a zero and not some exotic input:** a blank spreadsheet cell is a zero.
+This repository's own audit tool, the one a buyer would run their own numbers
+through, reads an empty column as `0`. So the distance between "the customer
+left that column empty" and "the customer told us the figure is nothing" was one
+line of code, and in Virginia last week it was worth $503.12.
+
+The same run also found that a check written on Day 67 — one that counts every
+dollar figure this package prints in prose with no test behind it — **had never
+been run by anything.** Not by the push gate, not by CI. The count it guards had
+drifted from 69 to 94 over fourteen days with nobody able to see it. It is wired
+in now, so it fails a push from today.
+
+None of this changes the ask. It is the kind of thing that makes the ask worth
+granting.
+
+---
+
 # DAY 80: THERE IS SOMETHING TO LOOK AT, AND IT IS NOT A PATH
 
 **Two links. Nothing is asked of you to make them work — they already do.**

@@ -1,0 +1,109 @@
+{
+  "states": 42,
+  "years": [
+    2025,
+    2026
+  ],
+  "shapes": [
+    "single-60k-std",
+    "single-60k-item",
+    "joint-2kids-45k",
+    "hoh-1kid-25k",
+    "retiree-single-40k",
+    "single-200k-item"
+  ],
+  "fields": 44,
+  "returnsRun": 66528,
+  "claims": [
+    {
+      "state": "GA",
+      "field": "stateItemizedDeductions",
+      "claim": "supplied",
+      "measured": "supplied",
+      "verdict": "agrees",
+      "phrases": [
+        "is supplied"
+      ],
+      "sentence": "This package applies the compulsion when stateItemizedDeductions is supplied and falls back to the standard deduction, with this note, when it is not; the credit is paid either way, because it turns on the federal election and not on the..."
+    },
+    {
+      "state": "KY",
+      "field": "federalPovertyGuideline",
+      "claim": "supplied",
+      "measured": "supplied",
+      "verdict": "agrees",
+      "phrases": [
+        "is supplied"
+      ],
+      "sentence": "THE THRESHOLD COMES FROM A STORED HHS TABLE AND federalPovertyGuideline REPLACES IT WHEN IT IS SUPPLIED, INCLUDING WHEN IT IS SUPPLIED AS ZERO: a guideline of nothing puts every filer above 133% of it and switches the credit off, which i..."
+    },
+    {
+      "state": "VA",
+      "field": "stateItemizedDeductions",
+      "claim": "supplied",
+      "measured": "supplied",
+      "verdict": "agrees",
+      "phrases": [
+        "is supplied"
+      ],
+      "sentence": "This package applies the compulsion when stateItemizedDeductions is supplied and falls back to the standard deduction, with this note, when it is not."
+    }
+  ],
+  "sentinels": [
+    {
+      "state": "KY",
+      "field": "kentuckyModifiedGrossIncome",
+      "gap": 7869.2,
+      "absent": 7869.2,
+      "zero": 0,
+      "year": 2025,
+      "shape": "single-200k-item",
+      "disclosed": true,
+      "how": "differential"
+    },
+    {
+      "state": "GA",
+      "field": "stateItemizedDeductions",
+      "gap": 748.5,
+      "absent": 1945.5,
+      "zero": 2694,
+      "year": 2026,
+      "shape": "single-60k-item",
+      "disclosed": true,
+      "how": "standing"
+    },
+    {
+      "state": "VA",
+      "field": "stateItemizedDeductions",
+      "gap": 503.13,
+      "absent": 10685.9,
+      "zero": 11189.03,
+      "year": 2025,
+      "shape": "single-200k-item",
+      "disclosed": true,
+      "how": "standing"
+    },
+    {
+      "state": "KY",
+      "field": "federalPovertyGuideline",
+      "gap": 454.44,
+      "absent": 302.96,
+      "zero": 757.4,
+      "year": 2026,
+      "shape": "hoh-1kid-25k",
+      "disclosed": true,
+      "how": "standing"
+    },
+    {
+      "state": "NM",
+      "field": "newMexicoModifiedGrossIncome",
+      "gap": 448,
+      "absent": -315.2,
+      "zero": -763.2,
+      "year": 2026,
+      "shape": "joint-2kids-45k",
+      "disclosed": true,
+      "how": "differential"
+    }
+  ]
+}

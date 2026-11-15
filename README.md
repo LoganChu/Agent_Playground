@@ -271,6 +271,41 @@ structural, and `tools/readme-root.mjs` checks that number against
 documentation said 56, from a hand count, which is the defect this whole release is
 about wearing a third costume.
 
+### And the case a silence cannot cover: supplying a zero (v0.64.0)
+
+The two sections above are about a field the caller supplied and the state ignored.
+The harder case is the field the caller supplied **as zero**, because "the figure is
+nothing" and "there is no figure" are different facts and an engine that confuses
+them answers a question nobody asked. In Virginia it was worth `$503.12` across one
+cent and in Georgia `$622.80`, in both cases because a shipped note said the rule
+applied when the field was *supplied* and the code tested it for being *positive*.
+
+That is not a figure any instrument here could see — `notes.test.js` pins a note's
+first 72 characters and `dynamic-note-figures.test.js` compares the figures a note
+prints, and a note saying "when the field is SUPPLIED" against code saying "when it
+is POSITIVE" has no figure to compare. `tools/note-conditions.mjs` measures it
+instead, by running every return three times — field absent, field zero, field set
+— over 42 states, two years, six households and 44 optional fields:
+
+```text
+  result(field absent) !== result(field: 0)    the engine distinguishes a
+                                               supplied zero from an absence
+  result(field absent) === result(field: 0)    it does not
+```
+
+**Five (state, field) pairs in the whole package distinguish the two**, every one of
+them ledgered in `tools/note-conditions.json` with the largest step it produces and
+the household that locates it, and every one disclosed in what the return says.
+Two of the five were found by this tool and fixed on the day it was written:
+Kentucky and New Mexico each accepted a modified gross income **below the floor
+their own notes quote the form as setting**, and each paid a larger credit for it —
+`$7,869.20` of Kentucky tax turned into `$0.00` by a zero in one column.
+
+> **Zero is the value a caller passes by accident, and that is not hypothetical
+> here.** `readMoney` in this repository's own buyer-facing audit returns `0` for an
+> empty spreadsheet cell, so "the customer left the column blank" and "the customer
+> says the figure is nothing" are one `if` apart.
+
 > **`node tools/preflight.mjs` runs every one of these checks at once**, which is a
 > Day 61 finding rather than a convenience. `tools/readme-root.mjs --check` was run,
 > printed *"ok — 19 claims in the root README all match the code"*, and an hour later a

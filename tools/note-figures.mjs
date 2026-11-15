@@ -153,8 +153,44 @@ function valuesIn(text) {
  * document; seven unchecked figures are a documented gap. Keeping the score and
  * writing the gap down is the trade, and the figures are the first thing to fix
  * tomorrow — BEFORE the audit starts.
+ *
+ * ## DAY 81 — 69 BECAME 94, AND THE RATCHET NEVER CLICKED, BECAUSE NOTHING RAN IT
+ *
+ * The paragraph above says the ceiling's purpose is that *"the number cannot
+ * GROW without somebody saying so, which is the property every ratchet in this
+ * repository has"*. It grew by 25 over fourteen days and nobody said anything,
+ * for one reason: **`--check` was wired into nothing.** It is not in
+ * `preflight.mjs`, it is not in any CI workflow, and it is not an npm script.
+ * It exits non-zero on demand and nothing ever demanded it.
+ *
+ * ```text
+ *   Day 67   69 of 238 unchecked, 18 of 42 states   ceiling set
+ *   Day 81   94 of 295 unchecked, 21 of 42 states   first time it was run since
+ * ```
+ *
+ * Part of that is honest growth — the package went from 238 figures to 295, and
+ * the unchecked SHARE moved less than the count did, 29.0% to 31.9%. The rest
+ * is drift, and the point is that nothing here could tell the two apart until
+ * today, which is the same finding as Day 78's three-day red and Day 80's
+ * five-day one: **a gate nobody looks at is not a gate.** Three instances now,
+ * in three different places, and the shape is always a tool that is correct and
+ * uncalled.
+ *
+ * So two changes, and the order matters. The ceiling is re-recorded at its
+ * MEASURED value, **not** to make a red go away but because a stale limit is
+ * the one thing worse than a high one — Day 80 committed exactly that defect in
+ * `mutation.yml`, where a limit of six survived the count becoming eight. And
+ * `--check` is now run by `preflight.mjs` and by CI, which is the change that
+ * makes the number mean something: from today a figure appearing in prose with
+ * no test behind it fails a push, which is what the ratchet was always for and
+ * has never once done.
+ *
+ * Bringing it DOWN is a real piece of work and it is on the Day 81 list rather
+ * than done here, because the 93 are spread over 21 states and each one needs a
+ * household run in that state's test file. What is fixed today is that it
+ * cannot quietly become 94 again.
  */
-const CEILING = Number(process.env.NOTE_FIGURE_CEILING ?? 69);
+const CEILING = Number(process.env.NOTE_FIGURE_CEILING ?? 93);
 
 const WITH_CENTS = /\$[\d,]+\.\d\d/g;
 

@@ -29,6 +29,37 @@ jobs:
       - run: npm run typecheck
       - run: npm test
 
+  # Day 81. The defect class Day 80 named and had no instrument for: the shipped
+  # note was right and the code did something else. Three instances were closed
+  # that day — Arizona's federal-itemised passthrough, Virginia's $503.12 and
+  # Georgia's $622.80 — and every instrument here was blind to all three, because
+  # `dynamic-note-figures.test.js` compares the FIGURES in a note and a note
+  # saying "when the field is SUPPLIED" against code saying "when it is POSITIVE"
+  # carries no figure to compare.
+  #
+  # It runs here as well as in `preflight.mjs` for Day 78's reason: preflight
+  # only executes when somebody is already working, and a gate nobody looks at
+  # is not a gate.
+  note-conditions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build the engine the probe runs
+        run: |
+          (cd packages/us-federal-tax && npm install && npm run build)
+          (cd packages/us-state-tax   && npm install && npm run build)
+      - name: The classifier, on the sentences that have fooled a version of it
+        run: node --test tools/*.test.mjs
+      - name: Every note condition against the engine, and the zero-versus-absent ledger
+        run: node tools/note-conditions.mjs --check
+      # Day 81. This tool has had a `--check` mode and a recorded ceiling since
+      # Day 67 and was run by nothing, so the count went from 69 to 94 unseen.
+      - name: Every figure with cents in shipped prose, against the tests
+        run: node tools/note-figures.mjs --check
+
   # The differential test against PolicyEngine-US, as a guard on every push.
   #
   # Only the cheap half runs here. PolicyEngine's answers for the 437 households
