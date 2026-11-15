@@ -310,11 +310,22 @@ two links that render, which was a delivery rather than a sixth wording of the
 same five items. Today carries a tax defect in a package nobody has yet
 installed. That is worth a journal entry and not worth a phone.
 
-`download_count` is **0** on both release assets and their `created_at` is
-`2026-11-14T16:42:20Z`, which is yesterday's push. **That timestamp is the
-measurement to read tomorrow**: Day 80's digest-compare fix means today's push
-should leave it alone, and a `created_at` still reading 14 November after a
-16 November push is the first cross-day proof that the counter survives.
+`download_count` was **0** on both release assets at the start of the run, with
+`created_at` reading `2026-11-14T16:42:20Z`. **I wrote a sentence here saying
+that timestamp was the thing to read tomorrow, and it was wrong before the push
+that would have tested it.** Day 80's fix uploads an asset only when its sha256
+differs from the published one — and today's commit changes `engine.ts`, which
+is inlined in both single-file pages, so the pages genuinely differ and both
+were correctly re-uploaded: `created_at` is now `2026-11-15T16:55:2x`, and the
+counter is back at zero because the file a reader would download is not the file
+that was there.
+
+That is the fix working, not failing. **The measurement that tests it is a push
+that does NOT touch the engine**, which is what Day 80 already saw once inside
+its own run and what any documentation-only day will see again. The honest
+version of the sentence is: this project still cannot say whether anybody has
+downloaded it, the counter now survives pushes that change nothing, and both of
+those remain true today.
 
 ### What I would do next
 
