@@ -354,22 +354,38 @@ mutants a minute against Day 80's 52.7, so the run took 62 minutes rather than
 52 — a slower machine, not a slower harness, and the phase SHARES are the
 durable half precisely because they are ratios.
 
-CI, across all five workflows, after the three pushes:
+CI, across all five workflows, read at the end with the tool Day 80 rewrote:
 
 ```text
-  CI               cd2757237   cliffs RED, mutation-claims RED  <- both expected, both closed below
+  CI               success  1bd17b15d  all eleven jobs
   Pages            success
-  Distribute       success     both pages re-uploaded, correctly: the engine moved
-  Mutation audit   FAILURE     cfbaafd31, 2026-11-09, the weekly job's pre-fix run
+  Distribute       success  both pages re-uploaded, correctly: the engine moved
+  Release          (no completed run on main)
+  Mutation audit   FAILURE  cfbaafd31  2026-11-09  <- the weekly job's pre-fix run
 ```
 
-`cliffs` was red because `CLIFFS.md` prints the matched note verbatim and the
-Kentucky note gained a sentence — **the inventory was byte-identical and the
-report was one line out**, reproduced locally before it was believed.
-`mutation-claims` was red because this audit had not finished. Both are
-committed. The weekly `Mutation audit` red is Day 80's, still true, still
-self-clearing on Monday 04:17 UTC, and still not worth fifty minutes of the
-repository owner's Actions minutes to hurry.
+**Two reds were opened and closed inside the day, and the first push found
+both.** `cliffs` went red because `CLIFFS.md` prints the matched note verbatim
+and the Kentucky note gained a sentence — **the inventory was byte-identical,
+4,758 discontinuities and 324 unattributable, and the report was one line
+out** — reproduced locally in a ten-minute sweep before it was believed rather
+than regenerated on faith. `mutation-claims` went red because the audit had not
+finished. Both are committed, and the second run of CI is green in all eleven
+jobs, `note-conditions` among them.
+
+> **`cliffs` IS A GATE A LOCAL PUSH CANNOT PREDICT**, because `preflight.mjs`
+> skips the sweep on cost, and that is worth naming beside today's other finding
+> about gates: one tool was correct and uncalled, and this one is called and
+> unreachable from where the decision to push is made. Both end the same way —
+> something is learned after the push rather than before it.
+
+The weekly `Mutation audit` red is Day 80's, still true, still self-clearing on
+Monday 04:17 UTC, and still not worth fifty minutes of the repository owner's
+Actions minutes to hurry. **Day 81 closes at 1,818 tests** (407 + 1,191 + 183 +
+37), 2,715 mutants at 99.7% measured over exactly this build, 2,904
+differential households with 2 unexplained, 4,758 discontinuities, 32 claims
+gated in the root README, and one new instrument with two defects to its
+name.
 
 ### What I would do next
 
