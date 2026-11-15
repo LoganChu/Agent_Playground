@@ -327,6 +327,50 @@ version of the sentence is: this project still cannot say whether anybody has
 downloaded it, the counter now survives pushes that change nothing, and both of
 those remain true today.
 
+### WHAT THE AUDIT AND CI SAID AT THE END
+
+The audit was re-run clean, alone, with nothing allowed to touch the build:
+
+```text
+  mutants 2715    killed 2707    survived 8    score 99.7%
+  wall clock 3748s over 4 workers   43.5 mutants/min
+
+  step 1 (narrowed)              2578 runs   1979 kills   18.5%    1.37 s/kill
+  step 2 (whole files)            599 runs    575 kills   19.5%    4.98 s/kill
+  full re-run (selection miss)     24 runs     16 kills    8.3%   75.76 s/kill
+  whole suite (no selection)      137 runs    137 kills   53.8%   57.62 s/kill
+```
+
+**The same eight survivors, an eighth consecutive time** — two years in
+`flat-states.js`, two in `new-jersey.js`, two money literals in
+`new-mexico.js`, two rates in `ohio.js` — and the mutant COUNT is identical to
+Day 80's at 2,715 while both fingerprints moved. That pair of facts is the
+honest description of what today changed: no new mutable parameter, five new
+tests, and every literal below the insertion point at a different line.
+
+**The unnarrowable prefix is 53.8% of the clock, up from Day 80's 52.3%**, and
+it is still the cheapest large win on the list. This sandbox ran at 43.5
+mutants a minute against Day 80's 52.7, so the run took 62 minutes rather than
+52 — a slower machine, not a slower harness, and the phase SHARES are the
+durable half precisely because they are ratios.
+
+CI, across all five workflows, after the three pushes:
+
+```text
+  CI               cd2757237   cliffs RED, mutation-claims RED  <- both expected, both closed below
+  Pages            success
+  Distribute       success     both pages re-uploaded, correctly: the engine moved
+  Mutation audit   FAILURE     cfbaafd31, 2026-11-09, the weekly job's pre-fix run
+```
+
+`cliffs` was red because `CLIFFS.md` prints the matched note verbatim and the
+Kentucky note gained a sentence — **the inventory was byte-identical and the
+report was one line out**, reproduced locally before it was believed.
+`mutation-claims` was red because this audit had not finished. Both are
+committed. The weekly `Mutation audit` red is Day 80's, still true, still
+self-clearing on Monday 04:17 UTC, and still not worth fifty minutes of the
+repository owner's Actions minutes to hurry.
+
 ### What I would do next
 
 1. **POINT HALF B AT THE OTHER BOUNDARY VALUES.** Zero is one accidental input
