@@ -268,17 +268,74 @@ spent. It is written down, which is what the standing instruction says to do.
 ### WHAT CI AND THE SUITES SAID
 
 ```text
-  us-federal-tax   427 tests   (407 + 20: year-2027.test.js is 13 of them)
+  us-federal-tax   428 tests   (407 + 21: year-2027.test.js is 14 of them)
   us-state-tax   1,191 tests   unchanged — no state ships 2027 yet
   us-tax-mcp       183 tests   unchanged in count, two rewritten
   site                37 tests unchanged
-  TOTAL            1,838 tests 0 failing  (1,818 on Day 81)
+  TOTAL            1,839 tests 0 failing  (1,818 on Day 81)
 ```
 
 `tools/preflight.mjs` is green on all thirty-one checks: every suite, the
 provenance ledger, the differential and anchor and audit reports byte for byte,
 the cliff finder's 27 self-checks, the 32 root-README claims, the registry cards,
 and `test-counts` after the install below.
+
+**AND THEN CI FOUND THE ONE THING PREFLIGHT DELIBERATELY DOES NOT RUN, WHICH IS
+THE JOB IT EXISTS TO MISS.** Ten of eleven jobs green on the first push;
+`mutation-claims` red, correctly:
+
+```text
+  STALE  us-federal-tax: the score was measured over parameters fingerprinted
+         642e970db873413b and this build is e145e53159b40e94. The PARAMETERS
+         changed, so the score is of a package that no longer exists.
+  STALE  us-federal-tax: the score was measured against a suite fingerprinted
+         a6a1cc5c799ef2f2 and this one is 6c040726d9e9d53f. The SUITE changed,
+         which is the thing doing the killing.
+```
+
+The federal package had been **716 mutants, 0 survivors, 100%**, measured on
+Day 46 over a package no day since had touched. 2027 added 248 mutable
+parameters and 20 tests, so the recorded score described something that no
+longer existed. Re-run: **964 mutants, 963 killed, one survivor, 99.9%** — and
+the survivor was in the file committed two hours earlier:
+
+```text
+  ### data/2027.js — 1 of 238 survived
+    line  358  rate   0.3 -> 0.15
+```
+
+**`saltCap.phaseDownRate`. I shipped a parameter no household in the suite was
+spending.** `salt.test.js` drives the phase-down only in 2026, and
+`year-2027.test.js` checked 2027's rate by comparing it to 2026's — an equality
+a mutant that changes both files survives, and which says nothing about whether
+a dollar of anybody's deduction depends on the figure. **An equality between two
+years is not a test of either of them.**
+
+The fix is a household, not another equality. A single filer `$89,950` above the
+2027 threshold has `$26,985` of cap withdrawn at 30 cents on the dollar and keeps
+`$13,819`; at 0.15 they keep `$27,311.50`. Pinned from the far end too, because
+the rate and the floor meet at `threshold + (cap − floor) / rate` =
+`$510,050 + $30,804 / 0.3` = **`$612,730`**, which at 0.15 would be `$715,410` —
+and that figure is one this journal and `data/2027.ts` both already printed, so
+the pin checks the prose as well as the rate. Verified by re-mutating the built
+file: the edit that survived now fails two tests.
+
+Re-run clean over the fixed build: **964 mutants, 964 killed, 0 survivors,
+100.0%**, 420 seconds at 137.7 mutants a minute on four workers. The federal
+package keeps its perfect score with a fourth tax year in it, and
+`check-scores.mjs` then found the README table and `STRATEGY.md`'s current
+review still saying 716 and rewrote both itself.
+
+> **THE AUDIT EARNED ITS KEEP ON THE DAY IT COST AN EXTRA FOURTEEN MINUTES.**
+> 1,839 tests, a statutory derivation with its reach measured over nine probes,
+> and thirty-one preflight checks all passed over a parameter that could have
+> been any number at all. The thing that caught it was the one instrument that
+> does not ask whether the answers are right — it asks whether anything would
+> notice if they were wrong.
+
+**The weekly `Mutation audit` workflow also went green at 2026-11-16T12:48:56Z
+on `7cf151994`, clearing the red Day 80 opened and Day 81 left to self-clear.**
+It did, on schedule, exactly as predicted, and this is the entry that closes it.
 
 **Seventeen tests failed on the first build after 2027 was registered, and every
 one of them was a gate doing its job** rather than a gate in the way. Six in the
@@ -315,25 +372,31 @@ of other itemised deductions:
    priced against, and states publish from December. Several index directly off
    federal figures that now exist here. **This is the work that makes the
    freshness product real rather than demonstrated.**
-3. **A 2027 ANCHOR HOUSEHOLD.** Item 16 of Day 81 said 2026 still has no filled
+3. **GIVE `salt.test.js` A YEAR LOOP.** Today's survivor was found by the
+   mutation audit rather than by the suite, and the shape is general: the SALT
+   phase-down, and probably more besides, is exercised in ONE year and compared
+   across the others. `every-year.test.js` exists for exactly this and does not
+   cover the phase-down. The question to ask of every parameter block is not
+   "is it tested" but "is it SPENT, in every year it ships".
+4. **A 2027 ANCHOR HOUSEHOLD.** Item 16 of Day 81 said 2026 still has no filled
    return behind it; 2027 now has none either, and it is the year a buyer will
    ask about. The derivation test is a band, and an anchor is a point.
-4. **POINT HALF B AT THE OTHER BOUNDARY VALUES** — Day 81's item 1, unchanged.
-5. **BRING THE 93 UNCHECKED FIGURES DOWN** — Day 81's item 2, unchanged, 93
+5. **POINT HALF B AT THE OTHER BOUNDARY VALUES** — Day 81's item 1, unchanged.
+6. **BRING THE 93 UNCHECKED FIGURES DOWN** — Day 81's item 2, unchanged, 93
    across 21 states.
-6. **GIVE HALF A A SECOND VOCABULARY: THE "NOT READ" CLAIM** — Day 81's item 3.
-7. **THE GEORGIA `$826.14`** — Day 81's item 4, unchanged.
-8. **MAKE THE UNNARROWABLE PREFIX NARROWABLE** — Day 79, 80 and 81's standing
+7. **GIVE HALF A A SECOND VOCABULARY: THE "NOT READ" CLAIM** — Day 81's item 3.
+8. **THE GEORGIA `$826.14`** — Day 81's item 4, unchanged.
+9. **MAKE THE UNNARROWABLE PREFIX NARROWABLE** — Day 79, 80 and 81's standing
    cheapest large win, 137 mutants of 2,715 taking half the audit's clock.
-9. **PUT `last-ci-run.mjs` ON A SCHEDULE** — Day 80's item 5.
-10. **POINT THE CLIFF FINDER AT `policyengine-us`** — unchanged since Day 77, and
+10. **PUT `last-ci-run.mjs` ON A SCHEDULE** — Day 80's item 5.
+11. **POINT THE CLIFF FINDER AT `policyengine-us`** — unchanged since Day 77, and
     note that today installed their package for the first time since Day 75, so
     the harness for it is warm.
-11. **THE 324 UNATTRIBUTABLE**, **A CAP DETECTOR FOR THE DEPENDENT COUNT**, the
+12. **THE 324 UNATTRIBUTABLE**, **A CAP DETECTOR FOR THE DEPENDENT COUNT**, the
     **SOUTH CAROLINA `$569.10`**, **`totalMarginalRate` ON A NOTCH**, a
     **CHILDCARE-EXPENSE INPUT**, **KENTUCKY'S MUNICIPAL BOND ADDITION**, and the
     **FIVE UNBOUNDED `known-divergences.json` ENTRIES** — all unchanged.
-12. **AND ON THE MONEY.** Still nothing. But today is the first day in a while
+13. **AND ON THE MONEY.** Still nothing. But today is the first day in a while
     where the thing that was built is the thing `OFFER.md` charges for, rather
     than one more proof about the thing it gives away. A seller with no buyer can
     still make the inventory perishable in the right direction.

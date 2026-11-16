@@ -48,6 +48,7 @@ import {
   PRIMARY_VERIFIED_YEARS,
   isPrimaryVerified,
   getYearParameters,
+  stateAndLocalTaxDeduction,
 } from './strict.mjs';
 
 const BEFORE = getYearParameters(2026);
@@ -270,6 +271,58 @@ test('the SALT cap is a statutory schedule and is computable without the IRS', (
   assert.equal(YEAR.saltCap.floor.single, 10_000);
   assert.equal(YEAR.saltCap.floor.single, BEFORE.saltCap.floor.single);
   assert.equal(YEAR.saltCap.finalYear, 2029);
+  // The rate is § 164(b)(6)(B)'s and is not indexed or scheduled.
+  assert.equal(YEAR.saltCap.phaseDownRate, BEFORE.saltCap.phaseDownRate);
+});
+
+test('the 2027 SALT phase-down is SPENT, not just stored', () => {
+  // THIS TEST EXISTS BECAUSE THE MUTATION AUDIT FOUND ITS ABSENCE, ON THE DAY
+  // 2027 WAS COMMITTED. The federal package had 716 mutants and no survivors;
+  // adding 2027 took it to 964 and left exactly one — `phaseDownRate` in
+  // `data/2027.ts`, changed from 0.3 to 0.15 with the whole suite still green.
+  //
+  // Every other 2027 figure is reachable from a household some test already
+  // runs. This one is not: `salt.test.js` drives the phase-down only in 2026,
+  // and the assertions above compare 2027's rate to 2026's — which a mutant
+  // that changes BOTH files would survive, and which says nothing about
+  // whether any dollar of anybody's deduction depends on the figure.
+  //
+  // So the fix is a household, not another equality. A single filer $89,950
+  // above the 2027 threshold:
+  //     excess 89,950 x 0.30 = 26,985 of cap withdrawn
+  //     40,804 - 26,985      = 13,819 of deduction left
+  // At 0.15 the same filer keeps $27,311.50. The pin is the dollar figure.
+  const atIncome = (adjustedGrossIncome) =>
+    stateAndLocalTaxDeduction({
+      filingStatus: 'single',
+      year: 2027,
+      stateAndLocalTaxesPaid: 50_000,
+      adjustedGrossIncome,
+    });
+
+  const below = atIncome(510_050);
+  assert.equal(below.excessIncome, 0, 'at the threshold itself nothing is withdrawn');
+  assert.equal(below.deduction, 40_804);
+
+  const inside = atIncome(600_000);
+  assert.equal(inside.excessIncome, 89_950);
+  assert.equal(inside.phaseDownReduction, 26_985, '30 cents of cap per dollar of excess');
+  assert.equal(inside.deduction, 13_819);
+
+  // And the far end of the band, which is where the rate and the floor meet:
+  // the cap stops falling once it reaches $10,000, so the band ends at
+  // threshold + (cap - floor) / rate = 510,050 + 30,804 / 0.3 = 612,730.
+  // At 0.15 that point would be $715,410, so this pins the rate from the other
+  // side — and it is a figure `JOURNAL.md` and `data/2027.ts` both print.
+  const bandEnd = 612_730;
+  assert.equal(
+    YEAR.saltCap.phaseDownThreshold.single +
+      (YEAR.saltCap.cap.single - YEAR.saltCap.floor.single) / YEAR.saltCap.phaseDownRate,
+    bandEnd,
+  );
+  assert.equal(atIncome(bandEnd).deduction, 10_000, 'the floor is reached exactly here');
+  assert.equal(atIncome(bandEnd - 1).deduction > 10_000, true, 'and not one dollar earlier');
+  assert.equal(atIncome(bandEnd + 100_000).deduction, 10_000, 'and never goes below it');
 });
 
 test('the EITC table is internally consistent with its own statutory rates', () => {

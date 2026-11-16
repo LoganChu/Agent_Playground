@@ -549,11 +549,15 @@ value for.
 
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
-| `us-federal-tax` | 716 | **0** | **100%** |
+| `us-federal-tax` | 964 | **0** | **100%** |
 | `us-state-tax` (rule parameters) | 2715 | 8 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.7% |
 
 The state figure was re-measured on **Day 71** over the build that ships today; the
-federal one on Day 46, over a package no day since has touched. Both scores are
+federal one on **Day 82**, when tax year 2027 took it from 716 mutants to 964 and
+left exactly one survivor — `saltCap.phaseDownRate` in the new year's parameters,
+a figure no household in the suite was spending. The test that spends it is in
+[`test/year-2027.test.js`](packages/us-federal-tax/test/year-2027.test.js) and the
+re-run is the 964 above. Both scores are
 measurements of exactly the code in this checkout — which
 `node tools/mutation/check-scores.mjs` verifies rather than asserts, by fingerprinting the
 files it would mutate. **And the audit now records what it COST beside what it measured**:

@@ -1,21 +1,21 @@
 {
   "packages": {
     "us-federal-tax": {
-      "measured": "2026-11-12",
-      "mutants": 716,
-      "killed": 716,
+      "measured": "2026-11-16",
+      "mutants": 964,
+      "killed": 964,
       "survivors": 0,
       "score": 100,
-      "mutantFingerprint": "642e970db873413b",
-      "suiteFingerprint": "a6a1cc5c799ef2f2",
+      "mutantFingerprint": "e145e53159b40e94",
+      "suiteFingerprint": "a78ccf2bdfe3fce3",
       "cost": {
-        "seconds": 285,
+        "seconds": 419,
         "workers": 4,
-        "mutantsPerMinute": 150.6,
+        "mutantsPerMinute": 138,
         "phases": {
           "whole suite (no selection)": {
-            "runs": 716,
-            "kills": 716,
+            "runs": 964,
+            "kills": 964,
             "share": 100
           }
         }

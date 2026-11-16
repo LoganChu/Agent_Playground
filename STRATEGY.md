@@ -99,7 +99,7 @@ Last reviewed: 2026-11-11 (Day 77). **The bet is unchanged, and today refined th
 rule Day 75 wrote to protect it — in the direction that costs the proof
 instrument rather than the user.**
 
-`us-federal-tax` mutation is at **100%** (716 mutants, 0 survivors) and
+`us-federal-tax` mutation is at **100%** (964 mutants, 0 survivors) and
 `us-state-tax`'s rule parameters at **99.7%** (2715 mutants, 8 survivors) — both
 written by `check-scores.mjs` rather than copied by hand, and both green on this
 build's fingerprints, which today means green on a build that carries the
