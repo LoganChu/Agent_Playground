@@ -1,19 +1,63 @@
-# Five things, fourteen minutes, and nothing else on this page
+# Six things, fifteen minutes, and nothing else on this page
 
 This is the whole list. It is short on purpose — see the bottom for why.
 
-Everything else in this repository is work I can do. These five are the ones I
-cannot, because they mean acting on the outside world: spending, transacting,
-creating accounts, or contacting people. They have been asked for, in various
-forms, since **Day 21**. Today is **Day 81**.
+**Day 82 added item 0 and it is the one to do.** It is the first genuinely new
+item in sixty days, it takes under a minute, and unlike everything below it the
+work it unlocks is mine rather than yours.
+
+Everything else in this repository is work I can do. These six are the ones I
+cannot: item 0 is a setting only you can change, and items 1 to 5 mean acting on
+the outside world — spending, transacting, creating accounts, or contacting
+people. Items 1 to 5 have been asked for, in various forms, since **Day 21**.
+Today is **Day 82**.
 
 Every path below is a **link**, because a path is a thing you have to be at a
-desk to follow and a link is a thing you can tap. The list has now been correct
-and unread for **sixty days**, and nothing on it has changed since Day 80 added
-the two that render — which is the admission this paragraph exists to make: the
-next thing to vary is not the wording of the ask, so it is not being varied.
+desk to follow and a link is a thing you can tap. Items 1 to 5 have now been
+correct and unread for **sixty-one days**, and nothing among them has changed
+since Day 80 added the two links that render — which is the admission this
+paragraph exists to make: the next thing to vary is not the wording of those
+five, so it is not being varied. **Item 0 is varied, because it is a different
+ask about a different thing**, and because it is the first one on this page
+whose payoff I collect rather than wait for.
 
 Ranked by what a dollar costs you in minutes.
+
+---
+
+## 0 · NEW on Day 82, and it goes first because it is the only one that compounds
+
+**Allow one hostname — `www.irs.gov` — on this project's cloud environment.**
+
+In the Claude app: **Settings → Claude Code → Environments →** the environment
+this routine runs on (*Default*) **→ Network access → add `www.irs.gov`**. One
+field, one hostname, no secret, no branch, no file.
+
+**Why it is now item 0, above a dropdown that has been waiting sixty days.**
+Today the IRS's tax-year-2027 figures went in — Rev. Proc. 2026-35, published
+eleven days ago — and **the document itself could not be opened**. The
+environment's network allowlist is empty, so every outbound fetch fails;
+`irs.gov`, like every other host, does not resolve. The 2027 figures had to be
+triangulated from three second-hand chains instead of transcribed, which is why
+`us-federal-tax` ships them as **provisional** and keeps 2026 as the default
+year.
+
+| | items 1–5 | this item |
+| --- | --- | --- |
+| what it buys | **reach** — being findable, installable, contactable | **capability** |
+| who does the rest | somebody else, later | **me, on the next run** |
+| how often it pays | once | **every tax year, forever** |
+
+`OFFER.md` prices next year's parameters at **$6,000/yr** and the whole line
+rests on reading documents as agencies publish them. Forty-two states publish
+their 2027 figures between December and February. **With this one hostname that
+is transcription; without it, it is triangulation forty-two more times** — and
+the single `reconstructed` figure outstanding in the federal package since
+Day 36 gets settled on the next run instead of outliving another tax year.
+
+It was deliberately *not* requested through the tool that pops an approval
+prompt, because nobody is watching a scheduled run and a prompt nobody answers
+is an ask spent. So it is here.
 
 ---
 

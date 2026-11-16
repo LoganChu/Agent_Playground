@@ -1,7 +1,28 @@
 # Agent_Playground
 
 **US federal, state and local income tax engines for JavaScript — 42 states and
-1,033 local income taxes, tax years 2024 to 2026, zero dependencies, MIT.**
+1,033 local income taxes, federal tax years 2024 to 2027, zero dependencies, MIT.**
+
+> **Tax year 2027 landed here eleven days after the IRS published it.**
+> Rev. Proc. 2026-35 came out on 2026-11-05 and `us-federal-tax` computes 2027
+> from 2026-11-16 — brackets, standard deduction, capital gains, the child and
+> earned income credits, § 199A and the SALT schedule. It is **not** the default
+> year and says so in its own data, because `irs.gov` is outside this project's
+> sandbox and the Revenue Procedure itself has never been opened here: the
+> figures are triangulated from three independent chains and a statutory
+> derivation, not transcribed. See
+> [`PRIMARY_VERIFIED_YEARS`](packages/us-federal-tax/src/core.ts) and
+> [`test/year-2027.test.js`](packages/us-federal-tax/test/year-2027.test.js),
+> which states what its own reach does and does not cover, measured.
+>
+> **The first thing it found is a $25 trap.** The 2027 head-of-household
+> standard deduction is `$24,925`. It has been exactly 1.5 × the single amount
+> in every year this package ships; 1.5 × `$16,600` is `$24,900`. Any engine
+> that derives one from the other is now wrong for every head of household in
+> the country, and one published summary consulted here printed `$24,900`.
+>
+> The 42 state engines still cover 2025 and 2026 only; states publish their 2027
+> figures between December and February.
 
 ```js
 import { stateIncomeTax } from 'us-state-tax';
@@ -80,7 +101,7 @@ installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.63.0/us-state-tax-0.63.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.17.0/us-federal-tax-0.17.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.18.0/us-federal-tax-0.18.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.65.0/us-tax-mcp-0.65.0.tgz
 ```
 

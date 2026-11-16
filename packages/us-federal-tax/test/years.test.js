@@ -30,7 +30,7 @@ const ORDINARY_RATES = [0.1, 0.12, 0.22, 0.24, 0.32, 0.35, 0.37];
 const CAPITAL_GAINS_RATES = [0, 0.15, 0.2];
 
 test('SUPPORTED_YEARS matches the registry and is ascending', () => {
-  assert.deepEqual(SUPPORTED_YEARS, [2024, 2025, 2026]);
+  assert.deepEqual(SUPPORTED_YEARS, [2024, 2025, 2026, 2027]);
   assert.deepEqual(
     SUPPORTED_YEARS,
     Object.keys(YEARS)
@@ -43,25 +43,31 @@ test('SUPPORTED_YEARS matches the registry and is ascending', () => {
 });
 
 test('an unsupported year throws rather than falling back', () => {
-  for (const year of [2023, 2027, 1999]) {
+  // 2027 USED TO BE THE PROBE HERE and is now a shipped year, which is the
+  // hazard this test exists to avoid in the other direction: a probe that
+  // becomes real stops testing anything the day it does. 2028 is the next one
+  // and will have the same problem the day it ships, so the probe is now
+  // DERIVED from the registry rather than written down.
+  const aboveEverything = Math.max(...SUPPORTED_YEARS) + 1;
+  const belowEverything = Math.min(...SUPPORTED_YEARS) - 1;
+  for (const year of [belowEverything, aboveEverything, 1999]) {
+    assert.ok(!SUPPORTED_YEARS.includes(year), `${year} is probed as unsupported and is shipped`);
     assert.throws(() => getYearParameters(year), UnsupportedYearError);
   }
   // The message names the years that *are* available, because the alternative
-  // — silently computing 2027 tax on 2026 brackets — is the expensive kind of
+  // — silently computing 2028 tax on 2027 brackets — is the expensive kind of
   // wrong.
-  assert.match(
-    (() => {
-      try {
-        getYearParameters(2027);
-      } catch (error) {
-        return error.message;
-      }
-    })(),
-    /2024, 2025, 2026/,
-  );
+  const message = (() => {
+    try {
+      getYearParameters(aboveEverything);
+    } catch (error) {
+      return error.message;
+    }
+  })();
+  assert.match(message, new RegExp(SUPPORTED_YEARS.join(', ')));
 });
 
-for (const year of [2024, 2025, 2026]) {
+for (const year of SUPPORTED_YEARS) {
   const params = getYearParameters(year);
 
   test(`${year}: every status-keyed table covers all five filing statuses`, () => {
@@ -318,18 +324,27 @@ test('the 2025 standard deduction is the OBBBA figure, not the Revenue Procedure
 
   // Standard deductions rise every year in this window.
   const single = SUPPORTED_YEARS.map((y) => getYearParameters(y).standardDeduction.single);
-  assert.deepEqual(single, [14_600, 15_750, 16_100]);
+  assert.deepEqual(single, [14_600, 15_750, 16_100, 16_600]);
 });
 
-test('the Schedule 1-A deductions exist in 2025 and 2026 but not 2024', () => {
+test('the Schedule 1-A deductions exist from 2025 on but not in 2024', () => {
   assert.equal(scheduleOneAParameters(2024), null);
-  assert.notEqual(scheduleOneAParameters(2025), null);
-  assert.notEqual(scheduleOneAParameters(2026), null);
+  for (const year of SUPPORTED_YEARS.filter((y) => y >= 2025)) {
+    assert.notEqual(scheduleOneAParameters(year), null, `${year}: Schedule 1-A applies`);
+  }
 
-  // None of the four amounts is inflation-indexed, so 2025 and 2026 must be
-  // identical. Asserting deep equality turns any future drift into a failure
-  // rather than a silently divergent copy.
-  assert.deepEqual(scheduleOneAParameters(2025), scheduleOneAParameters(2026));
+  // None of the four amounts is inflation-indexed, so every year from 2025 to
+  // the 2028 sunset must be identical. Asserting deep equality turns any future
+  // drift into a failure rather than a silently divergent copy — and 2027 is
+  // the year that claim stopped being free, because Rev. Proc. 2026-35 moved
+  // almost everything else in the package and moved none of these four.
+  for (const year of SUPPORTED_YEARS.filter((y) => y > 2025)) {
+    assert.deepEqual(
+      scheduleOneAParameters(year),
+      scheduleOneAParameters(2025),
+      `${year}: no § 224 / § 225 / § 151(d)(5) / § 163(h)(4) amount is indexed`,
+    );
+  }
 });
 
 test('a tipped worker gets the deduction in 2025 and nothing in 2024', () => {
@@ -431,10 +446,19 @@ test('the child tax credit rises to $2,200 in 2025, and so does the SSN requirem
   assert.equal(p(2024).amountPerChild, 2_000);
   assert.equal(p(2025).amountPerChild, 2_200);
   assert.equal(p(2026).amountPerChild, 2_200);
+  // And moves for the first time in 2027: the § 24 indexing rounds DOWN to a
+  // multiple of $100, so the credit sat at $2,200 for two years and then
+  // stepped the whole $100 at once. Same shape, same year, for the refundable
+  // cap below — $1,700 in 2024, 2025 and 2026, then $1,800.
+  assert.equal(p(2027).amountPerChild, 2_300);
+  assert.equal(p(2027).refundable.maximumPerChild, 1_800);
 
-  // The refundable cap and the never-indexed thresholds hold across all three.
-  for (const year of SUPPORTED_YEARS) {
+  // The refundable cap holds across the first three years and the
+  // never-indexed figures hold across all four.
+  for (const year of [2024, 2025, 2026]) {
     assert.equal(p(year).refundable.maximumPerChild, 1_700);
+  }
+  for (const year of SUPPORTED_YEARS) {
     assert.equal(p(year).amountPerOtherDependent, 500);
     assert.equal(p(year).phaseOut.thresholds.marriedFilingJointly, 400_000);
     assert.equal(p(year).phaseOut.thresholds.marriedFilingSeparately, 200_000);
@@ -445,11 +469,12 @@ test('the child tax credit rises to $2,200 in 2025, and so does the SSN requirem
   assert.equal(p(2024).requiresTaxpayerSocialSecurityNumber, false);
   assert.equal(p(2025).requiresTaxpayerSocialSecurityNumber, true);
   assert.equal(p(2026).requiresTaxpayerSocialSecurityNumber, true);
+  assert.equal(p(2027).requiresTaxpayerSocialSecurityNumber, true);
 });
 
 test('the Social Security wage base, and the maximum SE tax it implies', () => {
   const bases = SUPPORTED_YEARS.map((y) => getYearParameters(y).socialSecurityWageBase);
-  assert.deepEqual(bases, [168_600, 176_100, 184_500]);
+  assert.deepEqual(bases, [168_600, 176_100, 184_500, 192_300]);
 
   // A high earner pays 12.4% of the whole base plus 2.9% of everything. The
   // OASDI half is the part that moves, and it is a clean independent check
@@ -458,6 +483,7 @@ test('the Social Security wage base, and the maximum SE tax it implies', () => {
     [2024, 20_906.4],
     [2025, 21_836.4],
     [2026, 22_878.0],
+    [2027, 23_845.2],
   ]) {
     const se = selfEmploymentTax({ netProfit: 500_000, year });
     assert.equal(se.socialSecurity, expected, `${year}`);

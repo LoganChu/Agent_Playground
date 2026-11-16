@@ -10,6 +10,8 @@
 
 export {
   LATEST_YEAR,
+  PRIMARY_VERIFIED_YEARS,
+  isPrimaryVerified,
   SUPPORTED_YEARS,
   UnsupportedYearError,
   YEARS,
@@ -107,6 +109,7 @@ export {
   OBBBA_2025_STANDARD_DEDUCTION_INCREASE,
 } from './data/2025.js';
 export { YEAR_2026 } from './data/2026.js';
+export { YEAR_2027 } from './data/2027.js';
 
 export { FILING_STATUSES, WITHHOLDING_COLUMNS } from './types.js';
 export type {

@@ -10,7 +10,50 @@ Security benefits, quarterly estimated payments,
 and Publication 15-T payroll withholding — with every published figure traceable to
 the IRS release it came from.
 
-**Tax years 2024, 2025 and 2026.**
+**Tax years 2024, 2025, 2026 and 2027.**
+
+New in 0.18.0: **tax year 2027**, from Rev. Proc. 2026-35, eleven days after the
+IRS published it. `SUPPORTED_YEARS` is `[2024, 2025, 2026, 2027]` and
+`LATEST_YEAR` is **still 2026** — deliberately, and the reason is the most
+important sentence on this page about 2027:
+
+> **`rp-26-35.pdf` was never opened.** `irs.gov` does not resolve from the
+> sandbox this package is maintained in. 2024, 2025 and 2026 were transcribed
+> from the Revenue Procedure that publishes them; 2027 was triangulated from
+> three independent chains that agree — a machine-readable transcription
+> carrying per-figure page citations into the PDF, two independent secondary
+> transcriptions, and the statute's own indexing arithmetic. That is a real
+> claim and a weaker one, so 2027 is a year you ask for by name and never one
+> you get by default. `isPrimaryVerified(2027)` returns `false`, the caveat is
+> in `getYearParameters(2027).sources` where a consumer will see it, and
+> promoting the year is a one-line edit that a test forces `LATEST_YEAR` to
+> follow.
+
+**And the first thing 2027 found is a `$25` trap worth naming in a headline.**
+The head-of-household standard deduction is `$24,925`. It has been exactly
+1.5 × the single amount in 2024 (`$21,900`), 2025 (`$23,625`) and 2026
+(`$24,150`) — but § 63(c)(7)(B)(ii) indexes the two amounts *separately*, and
+2027 is the year their roundings part. 1.5 × `$16,600` is `$24,900`. **An engine
+that derives one amount from the other is `$25` of deduction wrong for every
+head of household in the country**, and one of the published summaries consulted
+for this release printed `$24,900` for exactly that reason.
+
+Three more 2027 changes that are easy to carry forward wrongly:
+
+| | 2026 | 2027 | why it is missed |
+| --- | --- | --- | --- |
+| Child tax credit | `$2,200` / `$1,700` refundable | **`$2,300` / `$1,800`** | the indexing rounds *down* to `$100`, so it sat still for two years and then stepped the whole `$100` at once |
+| § 199A(i) minimum deduction | `$400` on `$1,000` of active QBI | **`$415` on `$1,030`** | indexed after 2026; in its only prior year it was indistinguishable from a statutory constant |
+| Head-of-household brackets | 22% level with single, 32% `$25` below | **22% `$25` below, 32% level** | separate roundings of separately indexed amounts, moving in both directions |
+
+Nothing on Schedule 1-A moved — the `$25,000` tips cap, the `$12,500`/`$25,000`
+overtime caps, the `$6,000` senior deduction and the `$10,000` vehicle loan
+interest cap are 2025's figures, because none carries an indexing provision. The
+`§ 63(f)` age amount beside the senior deduction on the same return *did* move,
+`$2,050` to `$2,100`, and those two are the easiest pair in the Code to conflate.
+Publication 15-T for 2027 does not exist until December, so the withholding
+block is a reconstruction and `withholding.notes` says which half of it is
+carried forward.
 
 New in 0.12.0, and it is a **correction in the other direction**: the last three
 releases all made a widow's bill too *low*. These make a separate filer's bill too
@@ -136,7 +179,7 @@ by a differential test against PolicyEngine-US, in
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.17.0/us-federal-tax-0.17.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.18.0/us-federal-tax-0.18.0.tgz
 ```
 
 - **Zero dependencies.** Runs in Node, the browser, Bun, Deno, and edge runtimes.
@@ -176,7 +219,7 @@ plan.installments; // four dated installments
 ```js
 import { SUPPORTED_YEARS, estimateFederalTax } from 'us-federal-tax';
 
-SUPPORTED_YEARS; // [2024, 2025, 2026]
+SUPPORTED_YEARS; // [2024, 2025, 2026, 2027]
 
 const household = {
   filingStatus: 'marriedFilingJointly',
@@ -187,7 +230,7 @@ const household = {
 };
 
 SUPPORTED_YEARS.map((year) => estimateFederalTax({ ...household, year }).totalTax);
-// [6432, 5563, 5544]
+// [6432, 5563, 5544, 5304]
 ```
 
 An unsupported year **throws** `UnsupportedYearError` rather than falling back to
@@ -921,7 +964,7 @@ estimateFederalTax({ filingStatus: 'single', wages: 1 }, { strict: true });
 ```
 
 Pass `strict: true` from a test suite, where a typo should stop the run. This
-package's own suite does, from every one of its **407 tests**.
+package's own suite does, from every one of its **427 tests**.
 
 Three details that are decisions rather than accidents:
 
@@ -1040,7 +1083,7 @@ guard telling a caller that a field the engine reads is a field it ignores.
 | `withholdingColumn(filingStatus)` | Which of the three W-4 columns a filing status uses |
 | `PAY_PERIODS_PER_YEAR` | The eight pay periods and their divisors |
 | `getYearParameters(year)` | Raw parameters and their citations |
-| `SUPPORTED_YEARS` | `[2024, 2025, 2026]`, ascending |
+| `SUPPORTED_YEARS` | `[2024, 2025, 2026, 2027]`, ascending |
 | `KNOWN_ESTIMATE_INPUT_FIELDS` | Every field name `EstimateInput` has, proved against the interface by the compiler |
 | `nearestFields(key, known)` | The field names an unrecognised key most likely meant |
 | `unknownInputKeys(input, known)` | Every unrecognised own key of an input, for a caller who wants the check early |
@@ -1142,13 +1185,19 @@ provenance**, and until v0.14.0 this package did not have one: `getYearParameter
 returned 240 numbers and 8 documents with nothing connecting the two.
 
 That gap hid a real defect, and the numbers are worth stating plainly. Measured
-against the figures each year actually reads:
+against the figures each year actually reads, **as the package stood at v0.13.0**
+— the three tax years that existed when the gap was measured:
 
 | tax year | citations it shipped | documents its figures come from | missing |
 | --- | --- | --- | --- |
 | 2024 | 8 | 19 | **13** |
 | 2025 | 10 | 24 | **17** |
 | 2026 | 25 | 24 | **11** |
+
+2027 is not a row here and never will be. It arrived after the ledger did, so it
+has carried every document its figures come from since its first commit — 37
+citations against 24 documents needed — and a historical measurement it was never
+part of cannot have a hole where it would have been.
 
 The missing ones are not obscure. § 3101 and § 3111 set the FICA rates, § 1401 and
 § 1402 the self-employment tax, § 86 the four Social Security thresholds this
@@ -1157,8 +1206,8 @@ nobody doubts are the figures nobody cites**, which is the reason a per-year
 citation list drifts: the newest year is the only one anybody edits, and the oldest
 numbers in the package are the ones that never come up.
 
-`FEDERAL_FIGURE_PROVENANCE` closes it. Every one of the **796 numbers** across the
-three years is claimed by exactly one entry, and each entry says what kind of
+`FEDERAL_FIGURE_PROVENANCE` closes it. Every one of the **1,075 numbers** across the
+four years is claimed by exactly one entry, and each entry says what kind of
 authority publishes the figure — which is the same thing as saying **what a new tax
 year costs**:
 

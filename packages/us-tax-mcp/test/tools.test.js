@@ -241,8 +241,8 @@ test('compare_tax_years runs every supported year by default', () => {
     w2Wages: 120000,
     qualifyingChildren: 2,
   });
-  assert.deepEqual(structured.years, [2024, 2025, 2026]);
-  assert.equal(structured.estimates.length, 3);
+  assert.deepEqual(structured.years, [2024, 2025, 2026, 2027]);
+  assert.equal(structured.estimates.length, 4);
   for (const year of structured.years) {
     assert.equal(typeof structured.totalTaxByYear[year], 'number');
   }
@@ -408,7 +408,17 @@ test('the rendered brackets are the ones the engine actually uses', () => {
 
 test('list_supported_years names the gaps, because a model cannot see them otherwise', () => {
   const { text, structured } = ok('list_supported_years', {});
-  assert.deepEqual(structured.supportedYears, [2024, 2025, 2026]);
+  assert.deepEqual(structured.supportedYears, [2024, 2025, 2026, 2027]);
+  // A MODEL CANNOT READ A CODE COMMENT. 2027's figures were never checked
+  // against rp-26-35.pdf, `latestYear` is deliberately 2026, and both facts
+  // have to arrive in the tool's own output or they do not exist for a caller.
+  assert.deepEqual(structured.primaryVerifiedYears, [2024, 2025, 2026]);
+  assert.deepEqual(structured.provisionalYears, [2027]);
+  assert.equal(structured.latestYear, 2026);
+  assert.match(text, /UNVERIFIED YEAR: 2027/);
+  assert.match(text, /say that it is provisional/);
+  assert.match(text, /2026:\n  Figures read from the issuing document: yes/);
+  assert.match(text, /2027:\n  Figures read from the issuing document: NO — provisional/);
   assert.match(text, /Alternative minimum tax/);
   assert.match(text, /State and local income tax is not modelled/);
   assert.match(text, /§ 68/);
@@ -419,7 +429,7 @@ test('list_supported_years names the gaps, because a model cannot see them other
 test('Schedule 1-A is reported as in effect only for the years it exists', () => {
   const { text } = ok('list_supported_years', {});
   const section2024 = text.slice(text.indexOf('2024:'), text.indexOf('2025:'));
-  const section2026 = text.slice(text.indexOf('2026:'), text.indexOf('Not modelled'));
+  const section2026 = text.slice(text.indexOf('2026:'), text.indexOf('2027:'));
   assert.match(section2024, /Schedule 1-A \(OBBBA deductions\): not in effect/);
   assert.match(section2026, /Schedule 1-A \(OBBBA deductions\): in effect/);
 });

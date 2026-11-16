@@ -355,6 +355,18 @@ export const FEDERAL_FIGURE_PROVENANCE: readonly FigureSource[] = [
       '§ 199A(i) as added by Pub. L. 119-21 § 70105(c) — a $400 minimum deduction where active QBI is at least $1,000, first available in 2026',
     constant: true,
   },
+  {
+    path: 'section199A.minimumDeduction.**',
+    years: [2027],
+    kind: 'indexed',
+    document: 'Rev. Proc.',
+    provision: '§ 199A',
+    cite:
+      '§ 199A(i)(3) — both amounts adjusted for inflation after 2026: a $415 minimum deduction where active QBI is at least $1,030',
+    constant: true,
+    why:
+      'THE KIND CHANGES BETWEEN 2026 AND 2027 AND THE FIGURES DO TOO, which is why this cannot share an entry with the year above it. § 199A(i) was enacted for 2026 and states $400 and $1,000 in the statute, so 2026 is `statute` and reading the Code is enough; § 199A(i)(3) indexes both after 2026, so from 2027 the number is the Revenue Procedure’s and the Code no longer states it. 2026 was the provision’s only year when this ledger was written, and a figure that has existed for one year is indistinguishable from a constant.',
+  },
 
   // -------------------------------------------------------------------------
   // The SALT cap. A statutory schedule throughout: $10,000 flat, then a raised
@@ -451,9 +463,9 @@ export const FEDERAL_FIGURE_PROVENANCE: readonly FigureSource[] = [
     document: 'Rev. Proc.',
     provision: '§ 24',
     cite: '§ 24 as amended by Pub. L. 119-21 § 70104 — the maximum refundable portion, indexed and rounded down to a multiple of $100',
-    constant: true,
+    constant: false,
     why:
-      '$1,700 in all three years, and NOT a carry-forward: the adjustment is rounded DOWN to a multiple of $100, so the figure holds until the unrounded amount clears $1,800. Each year’s value was read from that year’s Revenue Procedure, which is the only thing that distinguishes this from the failure it looks like.',
+      'THE PREDICTION THIS ENTRY MADE CAME TRUE, WHICH IS WHY IT NOW READS `false`. It held $1,700 in 2024, 2025 and 2026 and said so: "the adjustment is rounded DOWN to a multiple of $100, so the figure holds until the unrounded amount clears $1,800." Rev. Proc. 2026-35 clears it, and 2027 is $1,800. The three still years were never a carry-forward — each was read from its own Revenue Procedure — and the single step of $100 after three flat years is what down-rounding to $100 looks like from the outside.',
   },
   {
     path: 'childTaxCredit.refundable.phaseInRate',
@@ -607,7 +619,7 @@ export const FEDERAL_FIGURE_PROVENANCE: readonly FigureSource[] = [
   // -------------------------------------------------------------------------
   {
     path: 'scheduleOneA.finalYear',
-    years: [2025, 2026],
+    years: [2025, 2026, 2027],
     kind: 'statute-scheduled',
     document: 'Pub. L. 119-21',
     cite: 'Pub. L. 119-21 §§ 70201, 70202, 70103, 70203 — each deduction applies to 2025 through 2028',
@@ -615,7 +627,7 @@ export const FEDERAL_FIGURE_PROVENANCE: readonly FigureSource[] = [
   },
   {
     path: 'scheduleOneA.tips.**',
-    years: [2025, 2026],
+    years: [2025, 2026, 2027],
     kind: 'statute',
     document: '§ 224',
     cite: '§ 224 — a $25,000 cap, reduced by $100 per full $1,000 of MAGI above $150,000 ($300,000 joint)',
@@ -623,7 +635,7 @@ export const FEDERAL_FIGURE_PROVENANCE: readonly FigureSource[] = [
   },
   {
     path: 'scheduleOneA.overtime.**',
-    years: [2025, 2026],
+    years: [2025, 2026, 2027],
     kind: 'statute',
     document: '§ 225',
     cite: '§ 225 — $12,500 ($25,000 joint), on the same phase-out as § 224',
@@ -631,7 +643,7 @@ export const FEDERAL_FIGURE_PROVENANCE: readonly FigureSource[] = [
   },
   {
     path: 'scheduleOneA.senior.**',
-    years: [2025, 2026],
+    years: [2025, 2026, 2027],
     kind: 'statute',
     document: '§ 151(d)(5)',
     cite:
@@ -640,7 +652,7 @@ export const FEDERAL_FIGURE_PROVENANCE: readonly FigureSource[] = [
   },
   {
     path: 'scheduleOneA.vehicleLoanInterest.**',
-    years: [2025, 2026],
+    years: [2025, 2026, 2027],
     kind: 'statute',
     document: '§ 163(h)(4)',
     cite:

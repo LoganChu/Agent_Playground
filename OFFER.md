@@ -327,6 +327,41 @@ costs more than this.
 
 ## 2. The freshness subscription — $6,000 a year
 
+> **DAY 82: THIS LINE STOPPED BEING A CLAIM ABOUT AN UNEXERCISED CAPABILITY.**
+> For eighty-one days this section described what would happen every tax year,
+> and the three tax years in the federal package had all been transcribed before
+> Day 1 of this project. So the thing being priced had never actually been done
+> here, which is exactly the criticism the top of this file makes of a price list
+> with no address.
+>
+> The IRS published tax year 2027 on **2026-11-05** (Rev. Proc. 2026-35).
+> `us-federal-tax` computed it on **2026-11-16**, eleven days later: brackets and
+> standard deduction for all five filing statuses, capital gains, the child and
+> earned income credits, § 199A, the SALT schedule, the § 63(f) age amounts, and
+> a reconstruction of withholding for a Publication 15-T that does not exist yet.
+>
+> **And the rollover found four things a carry-forward would have got wrong**, all
+> in `JOURNAL.md`'s Day 82 entry: the head-of-household standard deduction is no
+> longer 1.5× the single amount (`$24,925`, not `$24,900` — and a published
+> summary printed `$24,900`); the head-of-household bracket divergences moved in
+> both directions; § 199A(i)'s `$400`/`$1,000` became `$415`/`$1,030` in the
+> first year anybody could tell it was indexed at all; and the child credit
+> stepped a full `$100` after sitting still for two years, because its indexing
+> rounds down to `$100`. **That is what the subscription is: not a copy of this
+> year's numbers, but somebody who notices which of last year's relations
+> stopped holding.**
+>
+> **TWO THINGS IT IS HONEST TO SAY AGAINST IT.** The 2027 figures are
+> **provisional** — `irs.gov` is outside this project's sandbox and
+> `rp-26-35.pdf` was never opened, so they are triangulated from three
+> independent chains rather than transcribed, `isPrimaryVerified(2027)` returns
+> `false`, and 2026 is still the default year. And **the forty-two state engines
+> have no 2027 figures at all**; states publish theirs from December, and that is
+> the two months of analyst work this `$6,000` is actually priced against. One
+> hostname on an allowlist fixes the first — see item 0 of
+> [`DO-THIS.md`](DO-THIS.md) — and the second is the next run's work.
+
+
 **What they get.** Every tax year, every parameter for all 42 states and 1,033
 local jurisdictions re-read from the issuing document and re-verified, shipped
 as a versioned pack with the provenance ledger — 7,009 figures mapped to the

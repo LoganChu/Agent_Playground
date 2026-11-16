@@ -373,7 +373,7 @@ test('README: sources are present and well formed', () => {
 });
 
 test('README: the tax-years example', () => {
-  assert.deepEqual(SUPPORTED_YEARS, [2024, 2025, 2026]);
+  assert.deepEqual(SUPPORTED_YEARS, [2024, 2025, 2026, 2027]);
 
   const household = {
     filingStatus: 'marriedFilingJointly',
@@ -384,7 +384,7 @@ test('README: the tax-years example', () => {
   };
   assert.deepEqual(
     SUPPORTED_YEARS.map((year) => estimateFederalTax({ ...household, year }).totalTax),
-    [6_432, 5_563, 5_544],
+    [6_432, 5_563, 5_544, 5_304],
   );
 });
 

@@ -2,12 +2,14 @@ import type { Bracket, BracketDetail, FilingStatus, YearParameters } from './typ
 import { YEAR_2024 } from './data/2024.js';
 import { YEAR_2025 } from './data/2025.js';
 import { YEAR_2026 } from './data/2026.js';
+import { YEAR_2027 } from './data/2027.js';
 
 /** Every tax year this package knows about, newest last. */
 export const YEARS: Readonly<Record<number, YearParameters>> = {
   2024: YEAR_2024,
   2025: YEAR_2025,
   2026: YEAR_2026,
+  2027: YEAR_2027,
 };
 
 /** Every supported tax year, ascending. */
@@ -15,8 +17,37 @@ export const SUPPORTED_YEARS: readonly number[] = Object.keys(YEARS)
   .map(Number)
   .sort((a, b) => a - b);
 
-/** The most recent tax year with published parameters. */
+/**
+ * The default tax year.
+ *
+ * **This is deliberately not the newest year in {@link YEARS}.** 2027 ships
+ * here, but every figure in it was transcribed at second hand: `irs.gov` is
+ * outside this project's sandbox, so Rev. Proc. 2026-35 itself has never been
+ * opened. A year whose numbers nobody has checked against the document is a
+ * year a caller should have to ask for by name, so the default stays on the
+ * newest year that *was* read. See {@link PRIMARY_VERIFIED_YEARS}.
+ */
 export const LATEST_YEAR = 2026;
+
+/**
+ * The years whose figures were transcribed from the issuing document itself.
+ *
+ * Every year in {@link YEARS} that is NOT in this list was assembled from
+ * secondary transcriptions that agree with each other and with the statute's
+ * own indexing arithmetic — which is a real claim, and a weaker one. The
+ * distinction belongs in the data rather than in a comment, because a comment
+ * cannot be asserted against.
+ *
+ * This is the federal half of the state engine's `provisional` flag. Moving a
+ * year into this list is a one-line change and should be made the moment
+ * somebody reads the document.
+ */
+export const PRIMARY_VERIFIED_YEARS: readonly number[] = [2024, 2025, 2026];
+
+/** Whether a year's figures were read from the document that publishes them. */
+export function isPrimaryVerified(year: number): boolean {
+  return PRIMARY_VERIFIED_YEARS.includes(year);
+}
 
 export class UnsupportedYearError extends Error {
   constructor(year: number) {

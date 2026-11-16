@@ -106,8 +106,8 @@ test('every number in every year is claimed by exactly one ledger entry', () => 
     }
   }
   // Pinned, per Day 35: a walk that silently stops finding things must fail
-  // rather than report a clean sweep over nothing. 240 + 277 + 279.
-  assert.equal(claimed, 796, 'the number of figures claimed has changed — check what moved before editing this');
+  // rather than report a clean sweep over nothing. 240 + 277 + 279 + 279.
+  assert.equal(claimed, 1075, 'the number of figures claimed has changed — check what moved before editing this');
 });
 
 test('no figure is claimed by two entries of equal specificity', () => {
@@ -307,7 +307,12 @@ test('an indexed figure’s Revenue Procedure names its own tax year', () => {
   // A year file copied from its neighbour keeps the neighbour's Revenue
   // Procedure, and every figure in it then cites the wrong document while every
   // other assertion in this file still passes.
-  const REVENUE_PROCEDURE = { 2024: 'Rev. Proc. 2023-34', 2025: 'Rev. Proc. 2024-40', 2026: 'Rev. Proc. 2025-32' };
+  const REVENUE_PROCEDURE = {
+    2024: 'Rev. Proc. 2023-34',
+    2025: 'Rev. Proc. 2024-40',
+    2026: 'Rev. Proc. 2025-32',
+    2027: 'Rev. Proc. 2026-35',
+  };
   for (const year of SUPPORTED_YEARS) {
     const titles = getYearParameters(year).sources.map((source) => source.title);
     const named = titles.filter((title) => title.includes('Rev. Proc.'));
@@ -340,6 +345,9 @@ test('an indexed figure’s Revenue Procedure names its own tax year', () => {
  * for no reason — or left behind when the figure it supported was removed —
  * would sit there for ever looking like evidence.
  */
+/** 2027's own citation count, kept beside the three it is added to. */
+const YEAR_2027_CITATIONS = 37;
+
 const NOT_BEHIND_A_FIGURE = [
   { token: '§ 1(f)(7)', purpose: 'rule: how the adjustments are rounded, which explains figures rather than setting them' },
   { token: 'correction to the tax rate schedules', purpose: 'correction: the 2024 Form 1040 instructions printed one bracket wrong' },
@@ -353,6 +361,22 @@ const NOT_BEHIND_A_FIGURE = [
   { token: 'corrections to the 2025 Form 8995-A instructions', purpose: 'correction: which line the QBI limitation is measured against' },
   { token: 'C.F.R. § 1.199A-1', purpose: 'regulation: netting negative QBI, which is an algorithm and not a figure' },
   { token: 'Schedule 8812', purpose: 'form: where the child credit and its refundable portion are computed' },
+  // 2027's three transcription chains, and the warning that sits above them.
+  // None of these is behind a figure in the sense this file means — the figures
+  // are the Revenue Procedure's — but 2027 is the one year where the question
+  // "who read the document" has a different answer from "who published it", so
+  // the chains are cited and accounted for here rather than left out.
+  {
+    token: 'TRANSCRIPTION NOT VERIFIED',
+    purpose:
+      'warning: the only year in this package whose Revenue Procedure was never opened, stated in the sources where a caller reading them will see it',
+  },
+  { token: 'IRS newsroom IR-2026-133', purpose: 'cross-check: the newsroom summary of Rev. Proc. 2026-35' },
+  {
+    token: 'policyengine-us',
+    purpose:
+      'cross-check: a machine-readable transcription carrying per-figure page citations into rp-26-35.pdf — used for its citations, not as an authority; see Day 27',
+  },
 ];
 
 test('every citation is either behind a figure or says what else it is for', () => {
@@ -375,7 +399,7 @@ test('every citation is either behind a figure or says what else it is for', () 
       accounted += 1;
     }
   }
-  assert.equal(accounted, 91, 'the number of citations has changed — 23 + 31 + 37');
+  assert.equal(accounted, 91 + YEAR_2027_CITATIONS, `the number of citations has changed — 23 + 31 + 37 + ${YEAR_2027_CITATIONS}`);
 });
 
 test('every row of NOT_BEHIND_A_FIGURE matches a citation that is really not behind a figure', () => {
@@ -394,7 +418,7 @@ test('every row of NOT_BEHIND_A_FIGURE matches a citation that is really not beh
       `NOT_BEHIND_A_FIGURE lists '${row.token}', which either no year cites any more or is ` +
         'now behind a figure. An allowlist nobody prunes is how a real gap gets excused.',
     );
-    assert.match(row.purpose, /^(form|rule|correction|cross-check|guidance|regulation): /);
+    assert.match(row.purpose, /^(form|rule|correction|cross-check|guidance|regulation|warning): /);
   }
 });
 
@@ -469,8 +493,22 @@ const CITATIONS_BEFORE = JSON.parse(
 );
 
 test('the citation gap the README quotes is the gap the ledger measures', () => {
+  // SCOPED TO THE YEARS v0.13.0 SHIPPED, NOT TO SUPPORTED_YEARS. This measures
+  // a gap that was closed at one moment in this package's history; a tax year
+  // added afterwards was never in the snapshot and cannot be missing documents
+  // it was never measured for. Reading `SUPPORTED_YEARS` here made the arrival
+  // of 2027 look like a hole in a historical measurement.
+  //
+  // The scoping is itself asserted below, so it cannot quietly swallow a year
+  // that SHOULD have been in the snapshot.
+  const MEASURED_YEARS = Object.keys(CITATIONS_BEFORE).map(Number).sort((a, b) => a - b);
+  assert.deepEqual(
+    MEASURED_YEARS,
+    SUPPORTED_YEARS.filter((year) => year <= 2026),
+    'every year this package shipped at v0.13.0 must be in the snapshot — a year dropped from it is a measurement silently narrowed, not a measurement passed',
+  );
   const missingBefore = {};
-  for (const year of SUPPORTED_YEARS) {
+  for (const year of MEASURED_YEARS) {
     const needed = new Set();
     for (const path of figurePaths(year)) {
       const entry = figureProvenance(path, year);
@@ -503,7 +541,7 @@ test('the citation gap the README quotes is the gap the ledger measures', () => 
 });
 
 test('the figure counts the README quotes are the ones the ledger claims', () => {
-  const documented = { 2024: 19, 2025: 24, 2026: 24 };
+  const documented = { 2024: 19, 2025: 24, 2026: 24, 2027: 24 };
   for (const year of SUPPORTED_YEARS) {
     const needed = new Set();
     for (const path of figurePaths(year)) {
@@ -516,8 +554,8 @@ test('the figure counts the README quotes are the ones the ledger claims', () =>
   }
   assert.equal(
     SUPPORTED_YEARS.reduce((total, year) => total + figurePaths(year).length, 0),
-    796,
-    'the README says 796 numbers across the three years',
+    1075,
+    'the README says 1,075 numbers across the four years',
   );
 });
 
@@ -528,9 +566,13 @@ test('the README prints the numbers this file computes', () => {
   // its measurement being rerun is how a correctness package ends up quoting a
   // figure it no longer has.
   const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8');
-  for (const row of ['| 2024 | 8 | 19 | **13** |', '| 2025 | 10 | 24 | **17** |', '| 2026 | 25 | 24 | **11** |']) {
+  for (const row of [
+    '| 2024 | 8 | 19 | **13** |',
+    '| 2025 | 10 | 24 | **17** |',
+    '| 2026 | 25 | 24 | **11** |',
+  ]) {
     assert.ok(readme.includes(row), `the README no longer prints the row ${row}`);
   }
-  assert.ok(readme.includes('**796 numbers**'), 'the README no longer states the number of figures claimed');
+  assert.ok(readme.includes('**1,075 numbers**'), 'the README no longer states the number of figures claimed');
   assert.ok(readme.includes('41 times'), 'the README no longer states the total gap');
 });

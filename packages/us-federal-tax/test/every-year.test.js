@@ -64,6 +64,8 @@ import assert from 'node:assert/strict';
 import {
   FILING_STATUSES,
   LATEST_YEAR,
+  PRIMARY_VERIFIED_YEARS,
+  isPrimaryVerified,
   SUPPORTED_YEARS,
   SOCIAL_SECURITY_TAXABILITY,
   earnedIncomeCredit,
@@ -222,14 +224,37 @@ test('§ 86’s fractions are the Code’s, and the first tier really is a LESSE
   );
 });
 
-test('LATEST_YEAR is the latest year, and is not merely asserted to be', () => {
+test('LATEST_YEAR is the latest VERIFIED year, and is not merely asserted to be', () => {
   // A survivor of the mutation run. `LATEST_YEAR` is exported public API and the
   // default year for every entry point, and nothing tied it to the years actually
   // shipped: adding 2027's parameters without touching it would leave every
   // default caller on 2026 with no test failing. Day 30's rule — a table that
   // states a RELATION cannot drift from the data it describes.
-  assert.equal(LATEST_YEAR, Math.max(...SUPPORTED_YEARS));
+  //
+  // THE RELATION CHANGED ON DAY 82 AND IT IS NOW A STRONGER ONE, not a weakened
+  // one. 2027 ships, and its figures were transcribed at second hand because
+  // `irs.gov` is outside this project's sandbox and Rev. Proc. 2026-35 has never
+  // been opened here. A year nobody has checked against the document must not
+  // become the silent default for every caller who passes no year, so the
+  // default tracks the newest PRIMARY-VERIFIED year instead of the newest year.
+  //
+  // Both halves are asserted, so neither can drift:
+  //   - the default is the newest verified year (not "some" verified year), and
+  //   - the only years above it are exactly the unverified ones.
+  // Verifying 2027 is then a one-line edit to PRIMARY_VERIFIED_YEARS that this
+  // test FORCES to move LATEST_YEAR with it.
+  assert.equal(LATEST_YEAR, Math.max(...PRIMARY_VERIFIED_YEARS));
   assert.ok(SUPPORTED_YEARS.includes(LATEST_YEAR));
+  for (const year of PRIMARY_VERIFIED_YEARS) {
+    assert.ok(SUPPORTED_YEARS.includes(year), `${year} is claimed verified and is not shipped`);
+    assert.ok(isPrimaryVerified(year), `${year} is in the list and the predicate disagrees`);
+  }
+  assert.deepEqual(
+    SUPPORTED_YEARS.filter((year) => !isPrimaryVerified(year)),
+    SUPPORTED_YEARS.filter((year) => year > LATEST_YEAR),
+    'an unverified year must be NEWER than the default — an unverified year below it would be one every ' +
+      'existing caller is already silently using',
+  );
   // And ascending, which `SUPPORTED_YEARS` documents and nothing checked.
   assert.deepEqual([...SUPPORTED_YEARS].sort((a, b) => a - b), [...SUPPORTED_YEARS]);
 });
@@ -293,6 +318,16 @@ const CAPITAL_GAINS_PINS = [
   [2026, 'headOfHousehold', 584_600, 78010],
   [2026, 'qualifyingSurvivingSpouse', 103_900, 750],
   [2026, 'qualifyingSurvivingSpouse', 618_700, 78220],
+  [2027, 'single', 56_050, 750],
+  [2027, 'single', 568_200, 77822.5],
+  [2027, 'marriedFilingSeparately', 56_050, 750],
+  [2027, 'marriedFilingSeparately', 321_800, 40862.5],
+  [2027, 'marriedFilingJointly', 107_100, 750],
+  [2027, 'marriedFilingJointly', 638_600, 80725],
+  [2027, 'headOfHousehold', 73_350, 750],
+  [2027, 'headOfHousehold', 603_400, 80507.5],
+  [2027, 'qualifyingSurvivingSpouse', 107_100, 750],
+  [2027, 'qualifyingSurvivingSpouse', 638_600, 80725],
 ];
 
 test('every long-term capital gains ceiling is pinned, in every year and every status', () => {
@@ -485,6 +520,15 @@ const AGED_BLIND_PINS = [
   [2026, 'marriedFilingSeparately', 16_100, 17_750, 19_400],
   [2026, 'headOfHousehold', 24_150, 26_200, 28_250],
   [2026, 'qualifyingSurvivingSpouse', 32_200, 33_850, 35_500],
+  // 2027, and READ THE HEAD-OF-HOUSEHOLD ROW. $24,925 is not 1.5 x $16,600.
+  // It had been exactly that in every year above it, and 2027 is the year the
+  // two separately-indexed amounts round apart. An engine deriving one from the
+  // other is $25 of deduction short for every head of household in the country.
+  [2027, 'single', 16_600, 18_700, 20_800],
+  [2027, 'marriedFilingJointly', 33_200, 34_900, 36_600],
+  [2027, 'marriedFilingSeparately', 16_600, 18_300, 20_000],
+  [2027, 'headOfHousehold', 24_925, 27_025, 29_125],
+  [2027, 'qualifyingSurvivingSpouse', 33_200, 34_900, 36_600],
 ];
 
 test('§ 63(f)’s aged and blind amounts are pinned for every year and status', () => {
@@ -583,6 +627,7 @@ test('§ 199A’s indexed threshold is pinned in every year and status', () => {
     2024: { single: 191_950, marriedFilingJointly: 383_900, marriedFilingSeparately: 191_950 },
     2025: { single: 197_300, marriedFilingJointly: 394_600, marriedFilingSeparately: 197_300 },
     2026: { single: 201_750, marriedFilingJointly: 403_500, marriedFilingSeparately: 201_775 },
+    2027: { single: 208_300, marriedFilingJointly: 416_600, marriedFilingSeparately: 208_325 },
   };
   for (const year of SUPPORTED_YEARS) {
     const p = getYearParameters(year).section199A.thresholdAmount;
@@ -599,11 +644,26 @@ test('§ 199A’s indexed threshold is pinned in every year and status', () => {
     assert.equal(p.headOfHousehold, p.single, `${year}: head of household takes the single threshold`);
     assert.equal(p.qualifyingSurvivingSpouse, p.single, `${year}: so does a surviving spouse`);
   }
-  assert.equal(
-    getYearParameters(2026).section199A.thresholdAmount.marriedFilingSeparately,
-    201_775,
-    'the one year where the separate figure is not the single one',
-  );
+  // The $25 split is no longer a one-off: 2026 was $201,750 / $201,775 and 2027
+  // is $208,300 / $208,325. Two years out of four, which is what § 1(f)(7)'s
+  // separate $25 rounding does whenever the unrounded amount lands between two
+  // multiples of $50 — so it is now asserted as the rule it is, with the years
+  // it holds in named rather than described.
+  const SEPARATE_IS_ABOVE_SINGLE = { 2026: 201_775, 2027: 208_325 };
+  for (const year of SUPPORTED_YEARS) {
+    const p = getYearParameters(year).section199A.thresholdAmount;
+    const expected = SEPARATE_IS_ABOVE_SINGLE[year];
+    if (expected === undefined) {
+      assert.equal(
+        p.marriedFilingSeparately,
+        p.single,
+        `${year}: the separate figure equals the single one, and no year may change that silently`,
+      );
+    } else {
+      assert.equal(p.marriedFilingSeparately, expected, `${year}: the separate figure`);
+      assert.equal(p.marriedFilingSeparately, p.single + 25, `${year}: $25 above single, which is § 1(f)(7)`);
+    }
+  }
 });
 
 test('every parameter block’s finalYear says which year it stops applying to', () => {
@@ -619,6 +679,7 @@ test('every parameter block’s finalYear says which year it stops applying to',
     2024: { saltCap: 2024, scheduleOneA: null },
     2025: { saltCap: 2029, scheduleOneA: 2028 },
     2026: { saltCap: 2029, scheduleOneA: 2028 },
+    2027: { saltCap: 2029, scheduleOneA: 2028 },
   };
   for (const year of SUPPORTED_YEARS) {
     const p = getYearParameters(year);

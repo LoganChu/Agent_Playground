@@ -11,6 +11,8 @@ import {
   FEDERAL_FIGURE_PROVENANCE,
   FILING_STATUSES,
   LATEST_YEAR,
+  PRIMARY_VERIFIED_YEARS,
+  isPrimaryVerified,
   SUPPORTED_YEARS,
   computePaycheck,
   figureProvenance,
@@ -947,10 +949,26 @@ const yearsTool: ToolDefinition = {
     const rows: string[] = [];
     rows.push(`Supported tax years: ${SUPPORTED_YEARS.join(', ')} (latest ${LATEST_YEAR}).`);
     rows.push('An unsupported year is an error, never a silent fallback to a neighbouring year.');
+    const unverified = SUPPORTED_YEARS.filter((year) => !isPrimaryVerified(year));
+    if (unverified.length > 0) {
+      // THE WHOLE REASON THIS IS HERE. A model reading this server cannot see a
+      // comment in a data file, and `latestYear` being lower than the newest
+      // supported year is a fact it would otherwise have to infer. Say it.
+      rows.push(
+        `UNVERIFIED YEAR${unverified.length > 1 ? 'S' : ''}: ${unverified.join(', ')}. ` +
+          'These figures were cross-checked against secondary transcriptions of the IRS release and ' +
+          'against the statute\u2019s own indexing arithmetic, but NOT read from the Revenue Procedure ' +
+          `itself. They are computable on request and are not the default \u2014 ${LATEST_YEAR} is. ` +
+          'If you report a figure for one of these years, say that it is provisional.',
+      );
+    }
     rows.push('');
     for (const year of SUPPORTED_YEARS) {
       const params = getYearParameters(year);
       rows.push(`${year}:`);
+      rows.push(
+        `  Figures read from the issuing document: ${isPrimaryVerified(year) ? 'yes' : 'NO — provisional'}`,
+      );
       rows.push(
         `  Schedule 1-A (OBBBA deductions): ${params.scheduleOneA ? 'in effect' : 'not in effect'}`,
       );
@@ -969,6 +987,8 @@ const yearsTool: ToolDefinition = {
       structured: {
         supportedYears: [...SUPPORTED_YEARS],
         latestYear: LATEST_YEAR,
+        primaryVerifiedYears: [...PRIMARY_VERIFIED_YEARS],
+        provisionalYears: SUPPORTED_YEARS.filter((year) => !isPrimaryVerified(year)),
         sourcesByYear: Object.fromEntries(
           SUPPORTED_YEARS.map((year) => [year, citations(getYearParameters(year))]),
         ),
