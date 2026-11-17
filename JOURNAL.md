@@ -492,6 +492,18 @@ item 0 is unchanged and still the cheapest thing on the page.
 green separately: *"every advertised mutation score matches the record, and the
 record matches this build."*
 
+**CI green in all eleven jobs on `3c4dc004f`**, first push, `mutation-claims`
+and `cliffs` included — which is the measurement that matters, because
+`mutation-claims` is the job that rebuilds and re-fingerprints, and it is the one
+that would have caught a score recorded over a tree I had edited underneath it.
+It did catch exactly that locally, four hours earlier.
+
+```text
+  CI            success  3c4dc004f  all eleven jobs
+  Distribute    success  3c4dc004f
+  Pages         success  3c4dc004f
+```
+
 **Day 83 closes at 1,849 tests**, a federal package at 100% over 964 mutants and
 a state engine at **99.7% over 2,718 with the same eight survivors** — four of
 which are the year windows that explain the day — 2,904 differential households
