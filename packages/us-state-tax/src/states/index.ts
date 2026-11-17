@@ -40,7 +40,19 @@ import type { StateCode } from '../types.js';
 /** Every tax year any state in this package covers. */
 export const SUPPORTED_YEARS: readonly number[] = [2025, 2026];
 
-function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
+/**
+ * Every state definition that exists for one tax year.
+ *
+ * Exported for `test/year-guard.test.js` and deliberately **not** re-exported
+ * from the package's `index.ts`: a caller must go through
+ * {@link getStateDefinition}, which refuses a year rather than returning a
+ * nearest one. The gate needs the builders themselves, because that is where the
+ * year check lives, and where two builders covering ten of the forty-two states
+ * were missing it: Arizona and the nine with no income tax both answered for
+ * every year from 1990 to 2100, `status: 'published'`, with the figures of
+ * whichever year the ternary fell through to.
+ */
+export function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
   const al = alabama(year);
   const ar = arkansas(year);
   const ca = california(year);
@@ -165,8 +177,33 @@ export const RETIREMENT_READING_RULES = [
  * `agedIncomeSubtraction` — and the build refused it. A derived list is only as
  * wide as the places it looks, and a misspelt place is a place it does not look.
  */
+/**
+ * ## THESE TWO LISTS ONCE MADE A NON-UNIFORM YEAR UNIMPORTABLE
+ *
+ * Day 83. Both of them read `SUPPORTED_YEARS` and called
+ * {@link getStateDefinition} for the whole cross product of states and years.
+ * `getStateDefinition` **throws** on a state-year the registry does not hold,
+ * and these are module-level `const`s — so the first tax year that some states
+ * served and others did not turned `import 'us-state-tax'` into a `RangeError`
+ * at load, before any caller reached a function.
+ *
+ * **The header of this file has said since it was written that "support is per
+ * state *and* per year, not per state."** That is the design, it is what
+ * {@link supportedYears} exists to express, and it had never once been true:
+ * both supported years were served by all forty-two states, so the cross product
+ * was square and the throw unreachable. Adding tax year 2027 for the nine states
+ * with no income tax — the only nine that can answer for a year before the state
+ * publishes anything — produced `RangeError: AZ is supported but tax year 2027
+ * is not` from a `.filter` running at import.
+ *
+ * It is not a hypothetical shape. **Forty-two states publish their 2027 figures
+ * between December and February**, one at a time, so every month from the next
+ * one is a non-uniform year. The fix is to ask each state which years IT serves
+ * rather than which years the package advertises; the gate is
+ * `test/year-guard.test.js`.
+ */
 export const STATES_READING_RETIREMENT: readonly StateCode[] = SUPPORTED_STATES.filter((code) =>
-  SUPPORTED_YEARS.some((year) => {
+  supportedYears(code).some((year) => {
     const def = getStateDefinition(code, year) as unknown as Record<string, unknown>;
     return RETIREMENT_READING_RULES.some((rule) => def[rule] !== undefined);
   }),
@@ -241,7 +278,7 @@ export const SOCIAL_SECURITY_READING_RULES = [
  */
 export const STATES_READING_TAXABLE_SOCIAL_SECURITY: readonly StateCode[] =
   SUPPORTED_STATES.filter((code) =>
-    SUPPORTED_YEARS.some((year) => {
+    supportedYears(code).some((year) => {
       const def = getStateDefinition(code, year) as unknown as Record<string, unknown>;
       return SOCIAL_SECURITY_READING_RULES.some(
         (rule) => def[rule] !== undefined && def[rule] !== false,

@@ -162,7 +162,44 @@ export const NO_INCOME_TAX_NAMES: Readonly<Record<string, string>> = Object.from
   STATES.map((s) => [s.code, s.name]),
 );
 
+/**
+ * The tax years these nine definitions are written for.
+ *
+ * ## WHY A LIST AND NOT `year >= 2025`
+ *
+ * This function had no year check at all. It stamped the requested year onto all
+ * nine states and returned them, so `noIncomeTaxDefinitions(2020)` described
+ * **New Hampshire as a state with no individual income tax in 2020** — when the
+ * interest and dividends tax was live at 5% and would be for three more years —
+ * and `noIncomeTaxDefinitions(2015)` said the same of Tennessee, whose Hall
+ * income tax ran until tax year 2021. Both claims arrived as
+ * `status: 'published'`.
+ *
+ * Nothing could reach them: `REGISTRY` is built only from
+ * {@link SUPPORTED_YEARS} and this module is not exported from the package. The
+ * defect was a missing guard rather than a wrong answer being served, and the
+ * distinction is the whole reason it survived. **Thirty-two of the thirty-three
+ * taxing states decline a year they have no figures for** — thirty-one with the
+ * line `if (year !== 2025 && year !== 2026) return undefined;` and California
+ * through a per-year if/else chain — and the two builders that did not guard
+ * were Arizona's and this one, which between them are **ten of the forty-two
+ * states**. This one is the more interesting of the two, because its answer is
+ * the same every year: a builder that returns a constant looks like it cannot be
+ * wrong about a year, and the two states above are what makes that false —
+ * *which states belong in this list* is itself a function of the year.
+ *
+ * The forward direction is the other half. The comment inside the mapper —
+ * *"nothing here is indexed, and nothing here is pending a release: a state with
+ * no income tax has no figure that can arrive later"* — is the argument for why
+ * these nine, alone among the forty-two, can answer for a tax year before the
+ * state publishes anything. It is still a claim about enacted law and not about
+ * arithmetic, so the years are **listed** rather than left open: an open
+ * `year >= 2025` would have this package answer for 2099.
+ */
+const YEARS: readonly number[] = [2025, 2026];
+
 export function noIncomeTaxDefinitions(year: number): StateIncomeTaxDefinition[] {
+  if (!YEARS.includes(year)) return [];
   return STATES.map((s) => ({
     code: s.code,
     name: s.name,

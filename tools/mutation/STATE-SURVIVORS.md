@@ -1532,11 +1532,44 @@ REMOVABLE, and removing it is better than triaging it.
 
 ### C — a year window outside `SUPPORTED_YEARS` (4). Unreachable in principle.
 
-`new-jersey.js` 104 and 229 (`year >= 2026 && year <= 2028`), `flat-states.js` **435**
-(`year >= 2024`) and **565** (`year >= 2025`) — the two flat-states numbers were 157 and
+`new-jersey.js` 104 and **230** (`year >= 2026 && year <= 2028`), `flat-states.js` **506**
+(`year >= 2024`) and **636** (`year >= 2025`) — the two flat-states numbers were 157 and
 287 before Day 44, 179 and 309 before Day 46, 234 and 364 before Day 47, 368 and 498
-before Day 48, and have now moved FOUR times without anything they describe having
-changed, which is the note above this one. **Read the other three columns, not this one.**
+before Day 48, 435 and 565 before Day 83, and have now moved FIVE times without anything
+they describe having changed, which is the note above this one. **Read the other three
+columns, not this one.**
+
+> **DAY 83 — AND THIS ENTRY TURNED OUT TO BE THE EXPLANATION OF A REAL DEFECT,
+> WHICH IS NOT WHAT A TRIAGE NOTE IS FOR.**
+>
+> These four have been labelled *unreachable in principle* for forty days, and
+> the principle is `SUPPORTED_YEARS` being narrow: no supported year sits below
+> 2025, so nothing can tell `year >= 2024` from `year >= 2023`.
+>
+> **Nobody asked whether every builder ENFORCES that narrowness.** Two did not.
+> `arizona()` answered for every year from 1990 to 2100 with 2026's standard
+> deduction and a `published` status, and `noIncomeTaxDefinitions()` described New
+> Hampshire as having no income tax in 2020, when its interest and dividends tax
+> was live at 5%. Between them they covered ten of the forty-two states. Nothing
+> could reach either — the registry is built only from `SUPPORTED_YEARS` — but the
+> next thing on the roadmap is adding a tax year, which is the day they fire.
+>
+> **AND THIS AUDIT COULD NOT HAVE FOUND THEM.** It perturbs figures that exist;
+> an absent `if` has no literal to change, so the two missing guards contributed
+> no mutant at all — not a survivor, not a kill, nothing. A score of 99.7% over
+> 2,718 mutants is silent on whether a branch is there.
+>
+> The instrument for that class is `us-state-tax/test/year-guard.test.js`, which
+> sweeps the input domain rather than the code: every year from 1990 to 2100
+> against every state and locality builder, in 3 ms.
+>
+> The line numbers above moved for the usual reason, with one twist worth
+> recording. The audit that ran at 16:39 UTC reported **485** and 615; the one
+> that ran at 17:56 on the final tree reported **506** and **636**. Both are
+> correct readings of the tree they were given, and three doc-comment edits landed
+> between them — which is Day 81's rule (*a long measurement owns the build it is
+> measuring*) broken and then obeyed on the same day. `check-scores.mjs` is what
+> caught it, by fingerprint, exactly as designed.
 
 > **Day 48: 368 and 498 became 435 and 565, AND ALL SIX LINE NUMBERS WERE PREDICTED
 > CORRECTLY FOR THE FIRST TIME.**

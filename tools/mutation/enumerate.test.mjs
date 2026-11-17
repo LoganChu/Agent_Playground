@@ -267,7 +267,40 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // above 100 and all ten are perturbable, for no cost: the integer form also
   // makes the cutoff arithmetic exact. Two figures of twenty-three are blind,
   // and both are declared.
-  assert.equal(mutants.length, 2_715, 'mutants the enumerator finds in the current tree');
+  // 2,718 ON DAY 83, up 3 from Day 82's 2,715, AND THE SPLIT IS MEASURED RATHER
+  // THAN REASONED OUT, because the first draft of this comment reasoned it out.
+  //
+  //   +2  states/no-income-tax.js  the new `const YEARS = [2025, 2026]`, both
+  //       literals, `kind: 'year'`, line 165 of the emitted file. **The file
+  //       contributed ZERO before today** — `mutantsInSource` over the previous
+  //       source returns 0, because its only numbers were in comment prose and
+  //       in note strings, and `maskNonCode` excludes both.
+  //   +1  states/flat-states.js    186 -> 187, net. Arizona's three
+  //       `year === 2025 ? a : b` ternaries became a two-key record and gained a
+  //       year guard: three `2025` literals out, two record keys and two guard
+  //       literals in.
+  //
+  // Both new guards are SPENT and not merely shipped: the audit the same day
+  // killed all three, 2,710 of 2,718, with the same eight survivors.
+  //
+  // AND THE AUDIT COULD NOT HAVE FOUND WHAT THOSE GUARDS FIX. Mutation testing
+  // perturbs figures that exist; an absent `if` has no literal to change, so the
+  // two missing year checks contributed no mutant at all — not a survivor, not a
+  // kill. `packages/us-state-tax/test/year-guard.test.js` is the instrument for
+  // that class, and it enumerates the input domain instead of the code.
+  assert.equal(mutants.length, 2_718, 'mutants the enumerator finds in the current tree');
+  // THE TWO FILES TODAY'S THREE CAME FROM, pinned separately so a future total
+  // that happens to land on 2,718 for different reasons cannot pass.
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/no-income-tax.js').length,
+    2,
+    'the nine no-income-tax states contribute exactly their year list and nothing else',
+  );
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/flat-states.js').length,
+    187,
+    'flat-states after Arizona got the year guard the other seven already had',
+  );
   // THE NEW MEXICO FILE'S OWN COUNT, pinned for the reason the Louisiana and
   // Kansas anchors above are: the newest rule in the package is where the
   // enumerator's reach is least established.
@@ -301,8 +334,23 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // parameter, and the offset says the enumerator is reading the same BYTES.
   // A sample that pinned only the line would survive the file being rewritten
   // around it.
-  assert.deepEqual(at('states/flat-states.js', 435), {
-    rel: 'states/flat-states.js', offset: 50_364, from: '2024', to: '2023', kind: 'year', line: 435,
+  //
+  // DAY 83 — BOTH MOVED, AND THIS TIME THE CAUSE IS DOC COMMENTS. `435` became
+  // `506` and `50_364` became `54_630`: Arizona's year guard arrived with the
+  // note explaining why it had been missing, which added 71 lines and 4,266
+  // bytes above this anchor. The source grew by **4,349** bytes against the
+  // offset's **4,266**, an 83-byte gap of the same kind Day 80 recorded and did
+  // not run down — `tsc` does not re-emit comments byte for byte.
+  //
+  // **AND THE MEASUREMENT WAS TAKEN LAST, WHICH IS DAY 48'S RULE AND IT EARNED
+  // ITS KEEP TWICE TODAY.** The audit that ran this morning reported the same
+  // survivor at line **485**, because it was built from the tree as it stood at
+  // 16:39 UTC and three comment edits landed after it started. 485 is not wrong;
+  // it is a reading of a build that no longer exists — which is also why
+  // `check-scores.mjs` declared the score stale and the audit was re-run on the
+  // final tree.
+  assert.deepEqual(at('states/flat-states.js', 506), {
+    rel: 'states/flat-states.js', offset: 54_630, from: '2024', to: '2023', kind: 'year', line: 506,
   });
 
   // LOUISIANA, pinned on Day 60 — the newest state in the package, because a
@@ -664,5 +712,21 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // contribution any rule has made to that kind — and it is the direct result of
   // writing the percentages as integers so that the SHARES rather than the
   // thresholds are the decimals in (0,1).
-  assert.deepEqual(byKind, { money: 1_914, rate: 492, year: 309 });
+  // DAY 83 — `year` 309 -> 312, `money` AND `rate` UNMOVED, AND THAT IS THE
+  // CLEANEST CONFIRMATION OF THE DAY'S ARITHMETIC AVAILABLE.
+  //
+  // The total went 2,715 -> 2,718, and this says all three are years. Which is
+  // exactly what the two edits predict and what a total alone could not show:
+  //
+  //   +2  `const YEARS = [2025, 2026]` in `no-income-tax.js`, a file that
+  //       contributed zero mutable literals of any kind before today.
+  //   +1  Arizona, net. Three `year === 2025` ternaries out, two record keys and
+  //       two guard literals in.
+  //
+  // **`money` unmoved at 1,914 is the load-bearing half.** Arizona's six
+  // standard-deduction amounts were rewritten from three ternary pairs into a
+  // two-key record, and six money literals went in and six came out — so the
+  // reshaping moved no tax parameter, which is the claim the diff makes and the
+  // only one a reader cannot check by eye.
+  assert.deepEqual(byKind, { money: 1_914, rate: 492, year: 312 });
 });

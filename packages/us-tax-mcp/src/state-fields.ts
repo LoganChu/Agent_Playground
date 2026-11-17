@@ -9,6 +9,26 @@
  * and it is 36% of a `tools/list` payload that had reached 44,945 bytes against a
  * 45,000-byte ceiling. Utah was the state that ran the payload into the wall.
  *
+ * ## EVERY DERIVED LIST HERE ASKS EACH STATE WHICH YEARS IT SERVES
+ *
+ * Day 83. Six lists in this file were derived over the cross product of
+ * `SUPPORTED_STATES` and `SUPPORTED_YEARS`, and `getStateDefinition` **throws**
+ * on a state-year the registry does not hold. They are module-level `const`s, so
+ * the first tax year that some states served and others did not would have made
+ * `import 'us-tax-mcp'` raise a `RangeError` at load — an MCP server that cannot
+ * start, rather than a tool that returns a wrong answer.
+ *
+ * **The `?.` chains and the one `def === undefined` check in this file read as
+ * if they already handled it.** They did not: nothing reached them, because the
+ * lookup throws before returning. A guard that cannot run is worse than no guard,
+ * because it answers the question for the next reader. They are now behind
+ * `supportedYears(code)`, which is the list each state actually serves.
+ *
+ * Forty-two states publish their 2027 figures between December and February, one
+ * at a time, so every month from the next one is a non-uniform year. The gate is
+ * `us-state-tax`'s `test/year-guard.test.js`, which builds the non-uniform case
+ * and imports it.
+ *
  * Day 21 found the rule that fixes it: *when a schema already tells the reader
  * where the real documentation lives, the duplicate beside it is not
  * documentation.* It did not reach this tool, because the three tools it fixed
@@ -33,8 +53,12 @@ import {
   STATES_READING_RETIREMENT,
   STATES_READING_TAXABLE_SOCIAL_SECURITY,
   SUPPORTED_STATES,
-  SUPPORTED_YEARS,
+  // `SUPPORTED_YEARS` is deliberately NOT imported here. Every derivation in
+  // this file is per state, so the advertised year list has no correct use in
+  // it — and leaving the import in place after the fix would hand the next
+  // reader the exact symbol whose misuse was the defect.
   getStateDefinition,
+  supportedYears,
 } from './state-engine/index.js';
 import type { StateIncomeTaxDefinition } from './state-engine/index.js';
 
@@ -131,8 +155,14 @@ function matching(
   for (const path of paths) if (!PATHS_USED.includes(path)) PATHS_USED.push(path);
   const split = paths.map(segmentsOf);
   return SUPPORTED_STATES.filter((code) =>
-    SUPPORTED_YEARS.some((year) => {
+    // Per state, and not over the advertised year list — see the header note on
+    // the non-uniform year. `getStateDefinition` THROWS on a state-year the
+    // registry does not hold, so the `undefined` check below never ran and the
+    // `?.` chains in this file never short-circuited: they read as handling an
+    // unsupported state-year and could not reach it.
+    supportedYears(code).some((year) => {
       const def = getStateDefinition(code, year);
+      /* c8 ignore next -- unreachable while the lookup throws; kept as the type's floor. */
       if (def === undefined) return false;
       return split.some((segments) => {
         const found = read(def, segments);
@@ -159,7 +189,7 @@ function matching(
  * list needed no edit to know it.
  */
 const BLIND_STATES: readonly string[] = SUPPORTED_STATES.filter((code) =>
-  SUPPORTED_YEARS.some((year) => {
+  supportedYears(code).some((year) => {
     const def = getStateDefinition(code, year);
     return (
       def?.exemption?.perBlindOrDisabledFiler !== undefined ||
@@ -403,7 +433,7 @@ const SURPLUS_CREDIT_FIELD: string = (() => {
   const names = new Set<string>();
   for (const code of SUPPORTED_STATES) {
     if (!SURPLUS_CREDIT_STATES.includes(code)) continue;
-    for (const year of SUPPORTED_YEARS) {
+    for (const year of supportedYears(code)) {
       const field = getStateDefinition(code, year)?.surplusCredit?.basisField;
       if (field !== undefined) names.add(field);
     }
@@ -545,7 +575,7 @@ const EARNED_INCOME_STATES: readonly string[] = [
  * server would have refused a field their own notes told the caller to pass.
  */
 const MUNICIPAL_ADDBACK_STATES: readonly string[] = SUPPORTED_STATES.filter((code) =>
-  SUPPORTED_YEARS.some(
+  supportedYears(code).some(
     (year) => getStateDefinition(code, year)?.outOfStateMunicipalInterestAddition !== undefined,
   ),
 );
@@ -605,7 +635,7 @@ const boolean: JsonSchema = { type: 'boolean' };
  * `retirement` field's "N states read this" count was the first instance.
  */
 const FEDERAL_TAX_DEDUCTION_STATES: readonly string[] = SUPPORTED_STATES.filter((code) =>
-  SUPPORTED_YEARS.some(
+  supportedYears(code).some(
     (year) => getStateDefinition(code, year)?.federalIncomeTaxDeduction !== undefined,
   ),
 );
@@ -618,7 +648,7 @@ const REFUNDABLE_CREDIT_STATES = {
 
 function subtractorsOf(credit: string): readonly string[] {
   return SUPPORTED_STATES.filter((code) =>
-    SUPPORTED_YEARS.some((year) =>
+    supportedYears(code).some((year) =>
       (getStateDefinition(code, year)?.federalIncomeTaxDeduction?.refundableCredits ?? []).includes(
         credit as never,
       ),

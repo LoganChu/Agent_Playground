@@ -9,7 +9,16 @@ import type { LocalIncomeTaxDefinition } from './definition.js';
 import type { LocalityCode, StateCode } from '../types.js';
 import { SUPPORTED_YEARS } from '../states/index.js';
 
-function definitionsForYear(year: number): LocalIncomeTaxDefinition[] {
+/**
+ * Every locality definition that exists for one tax year.
+ *
+ * Exported for `test/year-guard.test.js`, for the same reason the state
+ * registry's is: the year check lives in the builders, and on Day 83 two of the
+ * state builders were missing it. Both localities here were clean — New York
+ * City and Yonkers refuse every year outside the supported two — and the gate
+ * is what keeps that a fact rather than a spot check.
+ */
+export function definitionsForYear(year: number): LocalIncomeTaxDefinition[] {
   return [newYorkCity(year), yonkers(year)].filter(
     (d): d is LocalIncomeTaxDefinition => d !== undefined,
   );

@@ -96,6 +96,29 @@ const CLAIMS = [
     find: () => [...text.matchAll(/(?:engine for|all) ([0-9]+) states/g)].map((m) => Number(m[1])),
   },
   {
+    // DAY 83, AND IT IS THE SAME DEFECT THIS FILE EXISTS FOR, ONE SENTENCE OVER.
+    // The front page has read "A suite of 1,197 tests cannot catch it" since
+    // Day 72. **1,197 was never a count of anything**, and that is measured
+    // rather than inferred: every version of `tools/test-counts.json` in this
+    // repository's history was read, and no per-package or total count has ever
+    // been 1,197. The four recorded values anywhere near it are 1,181, 1,182,
+    // 1,186 and 1,191. On the day the sentence was written the record held 406
+    // federal, 1,181 state, 182 MCP, 34 site and 1,803 in total.
+    //
+    // So the number was invented, and it sat on the front page of the repository
+    // for thirteen days outside the claims this file checks.
+    //
+    // It was about to get harder to see rather than easier: the state suite
+    // reached 1,198 today, so the invented figure is now wrong by one against a
+    // real measurement, which is the most expensive kind of wrong.
+    //
+    // THE RULE: a number in prose is a claim whether or not it is in a table,
+    // and the front page is where an unchecked one costs the most.
+    label: 'suite size on the front page',
+    want: json('tools/test-counts.json').total,
+    find: () => [...text.matchAll(/A suite of ([0-9][0-9,]*) tests/g)].map((m) => Number(m[1].replaceAll(',', ''))),
+  },
+  {
     label: 'local income taxes',
     want: localities,
     find: () => [...text.matchAll(/([0-9][0-9,]*) local income taxes/g)].map((m) => Number(m[1].replaceAll(',', ''))),

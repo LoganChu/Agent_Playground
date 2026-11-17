@@ -361,6 +361,39 @@ costs more than this.
 > hostname on an allowlist fixes the first — see item 0 of
 > [`DO-THIS.md`](DO-THIS.md) — and the second is the next run's work.
 
+> **DAY 83: THE SECOND OF THOSE TWO WAS NOT THE WORK IT LOOKED LIKE, AND THIS IS
+> THE HONEST ACCOUNT OF WHY.**
+>
+> The state half was expected to be parameter entry. It was not: the mechanism
+> under it did not run. A tax year in `us-state-tax` is supported **per state**,
+> which is the whole point — in December some states will have published 2027 and
+> most will not — and the first time such a year was actually constructed, both
+> `us-state-tax` and `us-tax-mcp` **raised a `RangeError` at module load**. Eight
+> lists across the two packages were derived from every state crossed with every
+> advertised year, and asking a state about a year it does not have is an error by
+> design. For the MCP server that is a server that does not start.
+>
+> No figure was wrong. Nothing a caller could reach was wrong. **The grid had
+> always been square** — both supported years are served by all forty-two states —
+> so 1,849 tests, 2,718 enumerable mutants and 2,904 differential households all
+> examined the only shape the package had ever had. The file holding the worst of
+> it opens with *"support is per state **and** per year, not per state"*: the
+> design, and never once true.
+>
+> It is fixed in both packages, with ten tests that build the lopsided year and
+> import it. And the remaining cost is now **enumerated instead of estimated**:
+> `node tools/next-year-ripple.mjs` patches a copy of the package, adds a probe
+> year served only by the nine states with no income tax, and counts what breaks.
+> Today it reads **79 failures across 15 files**, every one an assertion that says
+> "both years" in a suite about to have three.
+>
+> **Why a buyer should be told this rather than shielded from it.** The thing
+> being priced here is not a table of numbers; it is somebody noticing what
+> stopped holding. The single most valuable finding available on the day the state
+> rollover began was that the rollover did not compile — and the only reason it was
+> found in November rather than in January is that somebody tried to ship a year
+> before a year was due.
+
 
 **What they get.** Every tax year, every parameter for all 42 states and 1,033
 local jurisdictions re-read from the issuing document and re-verified, shipped

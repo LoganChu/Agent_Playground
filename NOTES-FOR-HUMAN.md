@@ -27,6 +27,103 @@ about reach, not about capability, and those older entries overstate it badly.
 
 ---
 
+# DAY 83: NOTHING NEW IS ASKED OF YOU, AND THE THING THAT IS PRICED AT $6,000/YR DID NOT COMPILE
+
+**You do not need to do anything new today.** `DO-THIS.md` is unchanged except
+for one paragraph added under item 0, and the ask is the same hostname.
+
+What happened is worth two minutes of your time, because it is about the one
+line in `OFFER.md` that does not depend on you clicking anything.
+
+## The thing being sold, and the thing that was wrong with it
+
+`OFFER.md` prices three products. The middle one is **$6,000/yr for next year's
+parameters**, and its argument is one sentence: *"what they cannot clone is
+**next** year."* Anybody can copy a tax engine; nobody can copy the work of
+reading forty-two states' new figures as they publish them.
+
+Yesterday the federal half of that was done for real for the first time — tax
+year 2027, eleven days after the IRS published it. Today was meant to be the
+start of the state half: forty-two states publish their 2027 figures between
+December and February, one at a time.
+
+**It does not work.** Not the numbers — the mechanism. The engine supports a tax
+year *per state*, which is the whole point, because in December some states will
+have published 2027 and most will not. The first time I actually tried a year
+like that, two of the three packages **failed to load at all**:
+
+```text
+  RangeError: AZ is supported but tax year 2027 is not. Supported years: 2025, 2026.
+```
+
+Eight lists across the two packages were built by asking every state about every
+year, and asking a state about a year it does not have is an error by design. So
+the moment the years stopped being the same for all forty-two states, importing
+the package threw before any code ran. For `us-tax-mcp` that means an MCP server
+that does not start.
+
+## Why nobody noticed for eighty-two days
+
+Because both supported years are served by all forty-two states. The grid has
+always been square, so the wrong way of asking and the right way of asking gave
+identical answers, and 1,849 tests all examined the square grid. The file that
+contains the worst of it opens with the sentence *"support is per state **and**
+per year, not per state"* — which was the design, and had never once been true.
+
+**This is the kind of defect that is worth more than a wrong number.** A wrong
+number is one state in one year. This was the delivery mechanism for the only
+thing in the catalogue a competitor cannot copy.
+
+It is fixed, in both packages, and there are ten new tests that build the
+lopsided case on purpose and import it — including three that would have been
+green against the broken code if they had only checked that the fix *looked*
+right, which is why they check that the package *loads*.
+
+## Two smaller things, both the same shape
+
+While sweeping for it I found two places where the engine would answer for a
+year it knows nothing about:
+
+- **Arizona** would answer for any year at all — `arizona(1999)` returned 2026's
+  standard deduction and a tax rate that did not exist in 1999, labelled
+  "published".
+- **The nine states with no income tax** would answer for any year too, which
+  means the engine described **New Hampshire as having no income tax in 2020**.
+  New Hampshire taxed interest and dividends at 5% in 2020 and did so until
+  2024.
+
+Neither could be reached by anyone using the package — the registry only ever
+asks for the two supported years — so nobody has ever received either answer.
+They were traps set to go off on exactly the change I was making. Both now
+refuse, and a new test sweeps every year from 1990 to 2100 against every state
+and locality to make sure no future one slips through.
+
+## And the honest bit
+
+Yesterday's journal recorded a rule I had just learned: a pipeline's exit code
+is not the program's. I broke the same rule again today within a few hours, in a
+different disguise — a trailing `; echo` instead of a `| tail` — and briefly
+believed a 62-minute audit had finished in four seconds. It had refused to
+start. The rule's real form is wider than I wrote it: anything after your
+program on the command line owns the exit status.
+
+## What this does and does not change for you
+
+It does not create a dollar. It removes the reason the priced sentence could not
+be delivered, which is different from delivering it. The remaining work on the
+state half is reading forty-two documents as the states publish them — and
+that is what the hostname in item 0 is for.
+
+The measured cost of finishing it is in the journal: with the crash fixed,
+adding 2027 for the nine no-income-tax states leaves **79 ordinary test failures
+across 15 files**, every one an assertion that says "both years" in a suite
+about to have three. That is counted by a script rather than estimated —
+`node tools/next-year-ripple.mjs` — so the next run can watch the number fall
+instead of rediscovering it. That is a known, enumerated, finishable piece of work
+rather than an unknown, which is the other thing today bought.
+
+---
+
 # DAY 81: TWO MORE TAX BUGS, FOUND BY A TOOL BUILT TO LOOK FOR THEM
 
 **Nothing is asked of you today.** The two links in the Day 80 entry below still

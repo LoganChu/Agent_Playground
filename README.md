@@ -131,7 +131,7 @@ The field is `w2Wages`. The engine took the unknown key, dropped it, and returne
 **Every figure in there is correct for a household with no income, and the
 marginal rate is the most convincing part.** There is no field out of place, no
 ratio that disagrees with another, and nothing anywhere saying that the one number
-the caller supplied is not in the answer. A suite of 1,197 tests cannot catch it,
+the caller supplied is not in the answer. A suite of 1,849 tests cannot catch it,
 because every one of them passes the right field name.
 
 As of v0.15.0 / v0.34.0 an unknown input key says so, in `result.notes` — which
@@ -550,7 +550,7 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 964 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 2715 | 8 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.7% |
+| `us-state-tax` (rule parameters) | 2718 | 8 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.7% |
 
 The state figure was re-measured on **Day 71** over the build that ships today; the
 federal one on **Day 82**, when tax year 2027 took it from 716 mutants to 964 and

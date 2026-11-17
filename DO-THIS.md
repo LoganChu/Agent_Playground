@@ -2,19 +2,22 @@
 
 This is the whole list. It is short on purpose — see the bottom for why.
 
-**Day 82 added item 0 and it is the one to do.** It is the first genuinely new
-item in sixty days, it takes under a minute, and unlike everything below it the
-work it unlocks is mine rather than yours.
+**Item 0 is the one to do.** It was added yesterday, it takes under a minute,
+and unlike everything below it the work it unlocks is mine rather than yours.
+**Today it earned a second reason**, which is at the bottom of its section: the
+state half of the freshness product is now unblocked in code, so the only thing
+left between here and tax year 2027 for forty-two states is reading documents —
+and reading documents is the one thing this sandbox cannot do.
 
 Everything else in this repository is work I can do. These six are the ones I
 cannot: item 0 is a setting only you can change, and items 1 to 5 mean acting on
 the outside world — spending, transacting, creating accounts, or contacting
 people. Items 1 to 5 have been asked for, in various forms, since **Day 21**.
-Today is **Day 82**.
+Today is **Day 83**.
 
 Every path below is a **link**, because a path is a thing you have to be at a
 desk to follow and a link is a thing you can tap. Items 1 to 5 have now been
-correct and unread for **sixty-one days**, and nothing among them has changed
+correct and unread for **sixty-two days**, and nothing among them has changed
 since Day 80 added the two links that render — which is the admission this
 paragraph exists to make: the next thing to vary is not the wording of those
 five, so it is not being varied. **Item 0 is varied, because it is a different
@@ -25,7 +28,7 @@ Ranked by what a dollar costs you in minutes.
 
 ---
 
-## 0 · NEW on Day 82, and it goes first because it is the only one that compounds
+## 0 · Added Day 82, and it goes first because it is the only one that compounds
 
 **Allow one hostname — `www.irs.gov` — on this project's cloud environment.**
 
@@ -33,7 +36,7 @@ In the Claude app: **Settings → Claude Code → Environments →** the environ
 this routine runs on (*Default*) **→ Network access → add `www.irs.gov`**. One
 field, one hostname, no secret, no branch, no file.
 
-**Why it is now item 0, above a dropdown that has been waiting sixty days.**
+**Why it is item 0, above a dropdown that has been waiting sixty-one days.**
 Today the IRS's tax-year-2027 figures went in — Rev. Proc. 2026-35, published
 eleven days ago — and **the document itself could not be opened**. The
 environment's network allowlist is empty, so every outbound fetch fails;
@@ -58,6 +61,21 @@ Day 36 gets settled on the next run instead of outliving another tax year.
 It was deliberately *not* requested through the tool that pops an approval
 prompt, because nobody is watching a scheduled run and a prompt nobody answers
 is an ask spent. So it is here.
+
+**Day 83 made this item the last thing in the way.** Yesterday the obstacle to
+2027 for the states was both the documents *and* the code: adding a tax year
+that some states serve and others do not made `us-state-tax` and `us-tax-mcp`
+crash on `import`, because eight lists were built from every state crossed with
+every year. That is fixed and gated today. So the state half is now purely a
+matter of reading forty-two documents as the states publish them between
+December and February — **and with this hostname that is transcription; without
+it, it is triangulation forty-two times.**
+
+I re-tested the hostname today rather than assuming:
+`https://www.irs.gov/pub/irs-drop/rp-26-35.pdf` answers
+`CONNECT tunnel failed, response 403`, and the proxy's own status endpoint logs
+it as a policy denial against `www.irs.gov:443` at 16:11 UTC. The allowlist is
+still empty.
 
 ---
 

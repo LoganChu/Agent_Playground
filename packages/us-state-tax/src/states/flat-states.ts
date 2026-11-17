@@ -109,11 +109,85 @@ const AZ_CITATIONS: readonly Citation[] = [
  * carrying a literal of its own — a figure nothing reads is a mutant nothing
  * can kill, which is Day 34's lesson.
  */
-function arizonaStandardDeduction(year: number) {
+const AZ_STANDARD_DEDUCTION: Readonly<
+  Record<number, { single: number; joint: number; headOfHousehold: number }>
+> = {
   // Rev. Proc. 2025-32 § 4.14(1) for 2026; OBBBA § 70102 as indexed for 2025.
-  const single = year === 2025 ? 15_750 : 16_100;
-  const joint = year === 2025 ? 31_500 : 32_200;
-  const headOfHousehold = year === 2025 ? 23_625 : 24_150;
+  2025: { single: 15_750, joint: 31_500, headOfHousehold: 23_625 },
+  2026: { single: 16_100, joint: 32_200, headOfHousehold: 24_150 },
+};
+
+/**
+ * ## A TABLE RATHER THAN A TERNARY, BECAUSE THE TERNARY HAD NO FLOOR
+ *
+ * This read `year === 2025 ? 15_750 : 16_100` for three figures, and
+ * {@link arizona} had no year guard — so `arizona(1999)` returned 2026's
+ * standard deduction stamped `year: 1999, status: 'published'`, and so did
+ * `arizona(2099)`.
+ *
+ * **Thirty-two of the thirty-three taxing states decline a year they have no
+ * figures for** — thirty-one with the same line,
+ * `if (year !== 2025 && year !== 2026) return undefined;`, and California,
+ * whose builder is a per-year if/else chain, falling through to the same
+ * `undefined`. Arizona did not, and neither did the nine with no income tax, so
+ * **ten of the forty-two answered for any year at all**. Arizona is the first
+ * state written into this file and it never got the line.
+ *
+ * **Nothing could reach it**, which is the measurement rather than the excuse:
+ * `REGISTRY` is built only from {@link SUPPORTED_YEARS}, the builders are not
+ * exported from the package, and `getStateDefinition` throws for any other year.
+ * It was a trap with no live caller, armed to fire on the next thing the roadmap
+ * calls for — adding a tax year.
+ *
+ * A record is used instead of restoring the missing `if`, because a missing key
+ * is a `TypeError` at the point of use and a missing ternary branch is a wrong
+ * number that type-checks. See `test/year-guard.test.js`, which probes every
+ * year from 1990 to 2100 against every builder.
+ *
+ * ## WHY 2027 IS NOT HERE, WHICH IS THE INTERESTING HALF
+ *
+ * Arizona's amounts for 2027 are *determined* — § 43-1041(H) indexes the
+ * subsection (A) amounts "in the same manner in which the federal basic standard
+ * deduction is adjusted for inflation pursuant to section 63", the 2025 bases
+ * were made equal to the federal ones, and Rev. Proc. 2026-35 published the
+ * federal 2027 figures on 2026-11-05. Borrowing the method from an equal base
+ * gives an equal answer, so the arithmetic says `$16,600 / $33,200 / $24,925`.
+ *
+ * **It is not entered, because 2027 is the first year the borrowed method is
+ * visibly ambiguous.** The federal 2027 head-of-household amount is `$24,925`,
+ * which is a multiple of `$25` and not of `$50` — the first time in four years
+ * it has not been a multiple of `$50`, and the reason `us-federal-tax`'s Day 82
+ * entry calls it a `$25` trap. Whether § 43-1041(H)'s "same manner" reaches
+ * § 1(f)(6)'s rounding unit as the Revenue Procedure applied it, or reaches the
+ * `$50` rule that § 63(c)(7) states and that would give `$24,900`, is a question
+ * about the text of § 43-1041(H) — and azleg.gov is refused by this sandbox's
+ * egress policy. A derived figure whose derivation has two readings that differ
+ * by `$25` is exactly the figure not to derive.
+ */
+function arizonaStandardDeduction(year: number) {
+  const amounts = AZ_STANDARD_DEDUCTION[year];
+  // THIS THROW IS UNREACHABLE TODAY, AND SAYING SO IS THE POINT — today's main
+  // finding was six `def?.` chains in `us-tax-mcp` that read as guards and could
+  // never run. The difference is what the unreachability depends on. Those were
+  // unreachable unconditionally, because the function they guarded throws rather
+  // than returning `undefined`. This one is unreachable only while {@link arizona}'s
+  // year guard and this record agree about which years Arizona has, and it exists
+  // for the case where they stop agreeing: a year added to the guard and not to
+  // the table would otherwise destructure `undefined` and fail somewhere else
+  // with a `TypeError` about a property.
+  //
+  // And it is covered rather than merely asserted. `test/year-guard.test.js`
+  // proves `arizona(y)` declines every year outside `SUPPORTED_YEARS` and
+  // returns a definition for every year inside it — which together is exactly
+  // the claim that the guard and this table name the same years, because a year
+  // the guard admits and the table lacks reaches this line.
+  if (amounts === undefined) {
+    throw new RangeError(
+      `No Arizona standard deduction is recorded for ${year}. Years: ` +
+        `${Object.keys(AZ_STANDARD_DEDUCTION).join(', ')}.`,
+    );
+  }
+  const { single, joint, headOfHousehold } = amounts;
   return byStatus({
     single,
     joint,
@@ -126,7 +200,8 @@ function arizonaStandardDeduction(year: number) {
   });
 }
 
-function arizona(year: number): StateIncomeTaxDefinition {
+function arizona(year: number): StateIncomeTaxDefinition | undefined {
+  if (year !== 2025 && year !== 2026) return undefined;
   return {
     code: 'AZ',
     subtractsTaxableSocialSecurity: true,
