@@ -505,7 +505,26 @@ all that is left — transcription with that hostname, triangulation without it.
 ```
 
 `tools/preflight.mjs` green on **all thirty-two checks**, which is one more than
-yesterday: `federal-basis-copies` is the new one.
+yesterday: `federal-basis-copies` is the new one. `check-scores.mjs` green
+separately — *"every advertised mutation score matches the record, and the record
+matches this build"* — which on a day with three audits is the assertion that
+earns its keep.
+
+**CI green in all eleven jobs on `aaf10617`, first push**, `mutation-claims` and
+`cliffs` included, and `Distribute` and `Pages` green beside it.
+
+```text
+  CI            success  aaf10617  all eleven jobs
+  Distribute    success  aaf10617
+  Pages         success  aaf10617
+```
+
+**Day 84 closes at 1,854 tests**, a federal package at 100% over 964 mutants, a
+state engine at **99.7% over 2,720 with the same eight survivors** — four of which
+are the year windows that explain the week — 2,904 differential households,
+4,758 discontinuities, thirty-three gated claims on the front page, and, for the
+first time, **a tax year that is served by nine of the forty-two states and by
+nine only**.
 
 Two packages were released: `us-state-tax` **0.64.0** and `us-tax-mcp` **0.66.0**.
 And `us-tax-mcp`'s README had said *"tax years 2024, 2025 and 2026"* since Day 82,
