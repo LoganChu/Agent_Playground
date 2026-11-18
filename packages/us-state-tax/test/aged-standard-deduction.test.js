@@ -35,7 +35,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { SUPPORTED_STATES, SUPPORTED_YEARS, getStateDefinition, stateIncomeTax } from './strict.mjs';
+import { getStateDefinition, stateIncomeTax, SUPPORTED_STATES, SUPPORTED_YEARS, supportedYears } from './strict.mjs';
 
 /**
  * § 63(c)(2) and § 63(f)(1) for a single filer, as amended by OBBBA § 70101.
@@ -47,6 +47,12 @@ import { SUPPORTED_STATES, SUPPORTED_YEARS, getStateDefinition, stateIncomeTax }
 const FEDERAL = {
   2025: { basic: 15_750, aged: 2_000 },
   2026: { basic: 16_100, aged: 2_050 },
+  // Rev. Proc. 2026-35, as shipped by `us-federal-tax`'s `data/2027.ts`. Only the
+  // nine states with no individual income tax serve 2027, so every probe below
+  // measures a zero move for it — which is the assertion worth having, not a row
+  // worth skipping: if a no-income-tax state ever reads a federal deduction, this
+  // is where it shows up.
+  2027: { basic: 16_600, aged: 2_100 },
 };
 
 /** A fixed AGI with a given below-AGI deduction, and nothing else moving. */
@@ -145,7 +151,7 @@ const MOVERS = {
 test('every state that reads the federal standard deduction reads § 63(f) with it', () => {
   const measured = {};
   for (const state of SUPPORTED_STATES) {
-    for (const year of SUPPORTED_YEARS) {
+    for (const year of supportedYears(state)) {
       if (!getStateDefinition(state, year)) continue;
       const { basic, aged } = FEDERAL[year];
       const delta = taxAt(state, year, basic) - taxAt(state, year, basic + aged);
@@ -176,7 +182,7 @@ test('NO federal-taxable-income state is insensitive to a dollar of federal dedu
   //   TO CANCEL CANNOT TELL A BOUNDED CANCELLATION FROM AN UNBOUNDED ONE.
   const insensitive = [];
   for (const state of SUPPORTED_STATES) {
-    for (const year of SUPPORTED_YEARS) {
+    for (const year of supportedYears(state)) {
       const def = getStateDefinition(state, year);
       if (!def || def.base !== 'federalTaxableIncome') continue;
       const { basic } = FEDERAL[year];
@@ -196,7 +202,7 @@ test('the add-back is bounded by the increase the state has not adopted, in ever
   // always zero would pass the first and fail the second.
   let declared = 0;
   for (const state of SUPPORTED_STATES) {
-    for (const year of SUPPORTED_YEARS) {
+    for (const year of supportedYears(state)) {
       const def = getStateDefinition(state, year);
       const rule = def?.recognizedStandardDeduction;
       if (!rule) continue;

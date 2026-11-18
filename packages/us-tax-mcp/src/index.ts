@@ -40,6 +40,13 @@ export {
   supportedYears as supportedStateYears,
   isSupported as isStateYearSupported,
   SUPPORTED_YEARS as STATE_TAX_YEARS,
+  // Both directions, because from tax year 2027 they are different questions:
+  // `supportedStateYears('CA')` is two years and `statesForYear(2027)` is nine
+  // states. An embedder crossing `SUPPORTED_STATES` with `STATE_TAX_YEARS`
+  // builds thirty-three pairs `getStateDefinition` throws on — which is exactly
+  // what this package's own `state-fields.ts` did until Day 83.
+  statesForYear,
+  SUPPORTED_STATE_YEARS,
 } from './state-engine/index.js';
 export type {
   ConformityBase,

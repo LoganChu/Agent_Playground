@@ -6,6 +6,8 @@ import {
   FILING_STATUSES,
   NO_INCOME_TAX_STATES,
   SUPPORTED_STATES,
+  SUPPORTED_STATE_YEARS,
+  statesForYear,
   SUPPORTED_YEARS,
   UNCOVERED_TAXING_JURISDICTIONS,
   getStateDefinition,
@@ -22,17 +24,53 @@ const federal = (agi, taxableIncome, deduction = agi - taxableIncome) => ({
   deductionKind: 'standard',
 });
 
-test('every supported state resolves for every supported year', () => {
+test('every supported state resolves for every year IT serves, and the grid is not square', () => {
   assert.equal(SUPPORTED_STATES.length, 42);
+
+  // ## THE ASSERTION THIS REPLACED WAS `supportedYears(state) === SUPPORTED_YEARS`
+  //
+  // It held for eighty-three days and it was never the design. The header of
+  // `states/index.ts` has said since it was written that "support is per state
+  // *and* per year, not per state"; `supportedYears` exists to express that;
+  // `getStateDefinition`'s refusal quotes it. All of it was decorative, because
+  // both supported years were served by all forty-two states — and a test
+  // asserting the two lists are equal is a test that the design is NOT in use.
+  //
+  // From tax year 2027 they differ, and the difference is the product: the nine
+  // states with no individual income tax are the only nine that can answer
+  // before a state publishes anything, so they serve 2027 today and the other
+  // thirty-three serve it on the day each publishes, between December and
+  // February. What is asserted now is the shape rather than the squareness —
+  // every state serves at least one year, no state claims a year the package
+  // does not have, and the union is exactly `SUPPORTED_YEARS`.
+  const union = new Set();
   for (const state of SUPPORTED_STATES) {
-    assert.deepEqual(supportedYears(state), SUPPORTED_YEARS);
-    for (const year of SUPPORTED_YEARS) {
-      const def = getStateDefinition(state, year);
-      assert.equal(def.code, state);
-      assert.equal(def.year, year);
-      assert.ok(def.citations.length > 0, `${state} has no citation`);
-      assert.ok(def.notes.length > 0, `${state} has no notes`);
+    const years = supportedYears(state);
+    assert.ok(years.length > 0, `${state} serves no year at all`);
+    for (const year of years) {
+      assert.ok(SUPPORTED_YEARS.includes(year), `${state} claims ${year}, which the package lacks`);
+      union.add(year);
     }
+  }
+  assert.deepEqual([...union].sort(), [...SUPPORTED_YEARS].sort());
+
+  // And the shape itself, named rather than counted, so that the day Alabama
+  // publishes its 2027 figures this line is what fails and says why.
+  assert.deepEqual(
+    [...statesForYear(2027)],
+    ['AK', 'FL', 'NH', 'NV', 'SD', 'TN', 'TX', 'WA', 'WY'],
+    'the states serving 2027 have changed — if a state has published, this is the gate saying so',
+  );
+  assert.equal(statesForYear(2025).length, 42);
+  assert.equal(statesForYear(2026).length, 42);
+  assert.equal(SUPPORTED_STATE_YEARS.length, 42 + 42 + 9);
+
+  for (const [state, year] of SUPPORTED_STATE_YEARS) {
+    const def = getStateDefinition(state, year);
+    assert.equal(def.code, state);
+    assert.equal(def.year, year);
+    assert.ok(def.citations.length > 0, `${state} has no citation`);
+    assert.ok(def.notes.length > 0, `${state} has no notes`);
   }
 });
 
@@ -234,7 +272,7 @@ test('the uncovered jurisdictions are ordered largest first, against the figures
 
 test('every state computes for every filing status without throwing', () => {
   for (const state of SUPPORTED_STATES) {
-    for (const year of SUPPORTED_YEARS) {
+    for (const year of supportedYears(state)) {
       for (const filingStatus of FILING_STATUSES) {
         const r = stateIncomeTax({
           state,
@@ -297,7 +335,7 @@ test('Washington says "no income tax" is incomplete', () => {
 
 test('every provisional state-year says so in its first note', () => {
   for (const state of SUPPORTED_STATES) {
-    for (const year of SUPPORTED_YEARS) {
+    for (const year of supportedYears(state)) {
       const def = getStateDefinition(state, year);
       if (def.status !== 'provisional') continue;
       // "PROVISIONAL" and not "PROVISIONAL:" — Day 28 gave four of these a
@@ -419,7 +457,7 @@ test("a stepped exemption's stored top step agrees with the chart", () => {
   // per-state file of whoever remembered is exactly what was missing.
   let checked = 0;
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       const rule = getStateDefinition(state, year).exemption;
       if (!rule?.perExemptionSteps) continue;
       for (const status of FILING_STATUSES) {
@@ -541,7 +579,7 @@ test('a rate or a threshold printed in a rule NAME is a figure that rule actuall
 
   let checked = 0;
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       const walk = (node, path, seen) => {
         if (node === null || typeof node !== 'object' || seen.has(node)) return;
         seen.add(node);
@@ -618,7 +656,7 @@ test("a threshold the engine cannot apply is quoted in the note that asks the ca
   ];
   let checked = 0;
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       const def = getStateDefinition(state, year);
       for (const entry of CALLER_APPLIES) {
         const value = entry.read(def);

@@ -39,9 +39,10 @@ import assert from 'node:assert/strict';
 
 import {
   FILING_STATUSES,
+  getStateDefinition,
+  SUPPORTED_STATE_YEARS,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
-  getStateDefinition,
 } from './strict.mjs';
 import { stateFigureProvenance } from '../dist/esm/data/provenance.js';
 
@@ -57,12 +58,10 @@ const resolve = (root, path) => {
 
 /** Every (definition, provisional figure) pair in the package. */
 const entries = () =>
-  SUPPORTED_YEARS.flatMap((year) =>
-    SUPPORTED_STATES.flatMap((state) => {
-      const definition = getStateDefinition(state, year);
-      return (definition?.provisionalFigures ?? []).map((figure) => ({ definition, figure }));
-    }),
-  );
+  SUPPORTED_STATE_YEARS.flatMap(([state, year]) => {
+    const definition = getStateDefinition(state, year);
+    return (definition?.provisionalFigures ?? []).map((figure) => ({ definition, figure }));
+  });
 
 /** The positions in a dot path that name a filing status. */
 const statusPositions = (path) =>

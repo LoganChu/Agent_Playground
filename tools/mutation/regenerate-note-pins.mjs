@@ -17,15 +17,19 @@
  */
 import { writeFileSync } from 'node:fs';
 import {
-  SUPPORTED_STATES,
   SUPPORTED_YEARS,
   getStateDefinition,
+  statesForYear,
 } from '../../packages/us-state-tax/dist/esm/index.js';
 import { PREFIX_LENGTH, notePrefix } from '../../packages/us-state-tax/test/note-prefix.mjs';
 
 const rows = [];
 for (const year of SUPPORTED_YEARS) {
-  for (const state of SUPPORTED_STATES) {
+  // The states that serve THIS year, not all forty-two. Crossing the two lists
+  // throws from the first non-uniform year onwards, which is every year from
+  // 2027: the nine states with no income tax serve it and the thirty-three that
+  // tax serve it on the day each publishes.
+  for (const state of statesForYear(year)) {
     const def = getStateDefinition(state, year);
     (def.notes ?? []).forEach((text, i) => rows.push([year, state, 'def', i, notePrefix(text)].join('|')));
     (def.conditionalNotes ?? []).forEach((note, i) =>

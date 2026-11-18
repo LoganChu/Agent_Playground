@@ -130,7 +130,7 @@ const LEDGER = join(ROOT, 'tools', 'note-conditions.json');
 const CHECK = process.argv.includes('--check');
 const WRITE = process.argv.includes('--write');
 
-const { stateIncomeTax, SUPPORTED_STATES, SUPPORTED_YEARS, KNOWN_STATE_INPUT_FIELDS } = await import(
+const { stateIncomeTax, SUPPORTED_STATES, SUPPORTED_YEARS, supportedYears, KNOWN_STATE_INPUT_FIELDS } = await import(
   join(ROOT, 'packages', 'us-state-tax', 'dist', 'esm', 'index.js')
 );
 
@@ -395,7 +395,7 @@ function measure() {
   const notesByState = new Map();
   for (const state of SUPPORTED_STATES) {
     notesByState.set(state, new Set());
-    for (const year of SUPPORTED_YEARS) {
+    for (const year of supportedYears(state)) {
       for (const [shapeName, build] of SHAPES) {
         const base = build(state, year);
         for (const field of PROBED_FIELDS) {

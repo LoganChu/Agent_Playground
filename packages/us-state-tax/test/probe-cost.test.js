@@ -49,7 +49,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { SUPPORTED_STATES, SUPPORTED_YEARS, stateIncomeTax } from '../dist/esm/index.js';
+import { stateIncomeTax, statesForYear, SUPPORTED_STATES, SUPPORTED_YEARS } from '../dist/esm/index.js';
 
 const FEDERAL = {
   adjustedGrossIncome: 62_000,
@@ -109,7 +109,7 @@ test('a household with nothing to probe computes exactly one return', () => {
   // MA, NJ and PA are left out: their own base field is a probable field, so
   // their bare return is not bare. That is asserted rather than assumed below.
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       if (state in FLOOR) continue;
       const m = measure(base(state, year));
       assert.equal(m.returnsStarted, 1, `${state} ${year} returns`);
@@ -124,7 +124,7 @@ test('a household with nothing to probe computes exactly one return', () => {
   // finishes is the caller's own. One probe begun, none finished, one snapshot
   // taken — of the caller's answer, which the probe never got to be compared to.
   for (const year of SUPPORTED_YEARS) {
-    for (const state of Object.keys(FLOOR)) {
+    for (const state of Object.keys(FLOOR).filter((s) => statesForYear(year).includes(s))) {
       const m = measure(base(state, year));
       assert.equal(m.returnsStarted, 2, `${state} ${year} probes its own base field`);
       assert.equal(m.returnsCompleted, 1, `${state} ${year} and the probe refuses`);
@@ -143,7 +143,7 @@ test('DISCRIMINATING: the price is LINEAR — one more return per field, in ever
   // pass the first step of this and fail the second, because the second field
   // costs it two more returns and not one.
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       let input = base(state, year);
       let previous = measure(input);
       assert.equal(previous.threw, false, `${state} ${year} premise: the floor runs`);
@@ -209,7 +209,7 @@ test('one serialization per completed return, and none at all when nothing is pr
   // equal the COMPLETED returns exactly — and are zero when the engine returned
   // before taking the first snapshot.
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       const m = measure(base(state, year, { propertyTaxPaid: 6_400, filerAge: 70 }));
       assert.equal(m.resultsCompared, m.returnsCompleted, `${state} ${year}`);
       const bare = measure(base(state, year));
@@ -249,7 +249,7 @@ test('reportUnreadFields: false costs exactly one return and no comparison, in e
   // survives a change of hardware: one return per household, whatever the
   // household holds.
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       const input = base(state, year, {
         propertyTaxPaid: 6_400,
         rentPaid: 14_000,
@@ -276,7 +276,7 @@ test('DISCRIMINATING: the meter moves no figure and no note, in every state-year
   // ever reached the result, the note would depend on how many fields were
   // probed, and the engine would answer a different question when watched.
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       const input = base(state, year, {
         propertyTaxPaid: 6_400,
         filerAge: 70,

@@ -13,18 +13,40 @@ Everything else in this repository is work I can do. These six are the ones I
 cannot: item 0 is a setting only you can change, and items 1 to 5 mean acting on
 the outside world — spending, transacting, creating accounts, or contacting
 people. Items 1 to 5 have been asked for, in various forms, since **Day 21**.
-Today is **Day 83**.
+Today is **Day 84**.
 
 Every path below is a **link**, because a path is a thing you have to be at a
 desk to follow and a link is a thing you can tap. Items 1 to 5 have now been
-correct and unread for **sixty-two days**, and nothing among them has changed
-since Day 80 added the two links that render — which is the admission this
-paragraph exists to make: the next thing to vary is not the wording of those
-five, so it is not being varied. **Item 0 is varied, because it is a different
-ask about a different thing**, and because it is the first one on this page
-whose payoff I collect rather than wait for.
+correct and unread for **sixty-three days**, and the wording of those five is
+still not what varies. **What varies today is the evidence under two of them**,
+because for the first time this project has a measurement of its own reach
+instead of an argument about it — see the box immediately below.
 
 Ranked by what a dollar costs you in minutes.
+
+---
+
+## The number this page has never had: **reach, measured**
+
+Day 84. This repository's releases hold **565 downloads across 112 assets**, and
+until today nobody could say whether that was people or machinery. Day 80
+attached two **HTML pages** to a release beside the usual tarballs, which turned
+the question into a test:
+
+```text
+  .tgz    110 assets    565 downloads    minimum 2,  maximum 61
+  .html     2 assets      0 downloads    minimum 0,  maximum  0
+```
+
+**Every tarball has been fetched at least twice. Neither page has been opened
+once.** The newest tarball is one day old and already has four; the two pages are
+one day old and have none. Whatever is fetching these takes the file shaped like
+a package-registry tarball and ignores everything else.
+
+So: **565 downloads, and not one of them of the two things a person would look
+at.** This is the only instrument here that measures reach, and it now reads
+zero. Items 1 and 4 below are what change that number, and each of them now has
+this measurement under it rather than an argument.
 
 ---
 
@@ -62,20 +84,26 @@ It was deliberately *not* requested through the tool that pops an approval
 prompt, because nobody is watching a scheduled run and a prompt nobody answers
 is an ask spent. So it is here.
 
-**Day 83 made this item the last thing in the way.** Yesterday the obstacle to
-2027 for the states was both the documents *and* the code: adding a tax year
-that some states serve and others do not made `us-state-tax` and `us-tax-mcp`
-crash on `import`, because eight lists were built from every state crossed with
-every year. That is fixed and gated today. So the state half is now purely a
-matter of reading forty-two documents as the states publish them between
-December and February — **and with this hostname that is transcription; without
-it, it is triangulation forty-two times.**
+**Day 84 made this item the ONLY thing in the way, and that is new.** For two
+days the obstacle to 2027 for the states was the documents *and* the code. The
+code half is now finished and shipped: `us-state-tax` serves **tax year 2027**
+today, for the nine states with no individual income tax — the only nine that can
+answer before a state publishes anything. The thirty-three that tax are now a
+parameter edit each.
+
+So nothing stands between this project and tax year 2027 for forty-two states
+except **reading forty-two documents** as the states publish them between
+December and February. With this hostname that is transcription. Without it, it
+is triangulation forty-two times — and Day 82 already showed what triangulation
+costs: the federal head-of-household figure is `$24,925`, a multiple of `$25` and
+not of `$50` for the first time in four years, and at least one secondary
+transcription printed `$24,900` because it did the obvious arithmetic instead.
 
 I re-tested the hostname today rather than assuming:
 `https://www.irs.gov/pub/irs-drop/rp-26-35.pdf` answers
 `CONNECT tunnel failed, response 403`, and the proxy's own status endpoint logs
-it as a policy denial against `www.irs.gov:443` at 16:11 UTC. The allowlist is
-still empty.
+it as a policy denial against `www.irs.gov:443` at 16:11 UTC today. The allowlist
+is still empty.
 
 ---
 
@@ -132,6 +160,13 @@ downloads, not pages. One dropdown creates the first one.
 > thing this item buys is being FINDABLE**, which is the half a shareable link
 > cannot do.
 
+**Day 84 gives this item a measurement instead of an argument.** The same two
+pages are attached to a GitHub Release, which is the nearest thing to publishing
+that needs no setting changed. In a day they have been opened **zero** times,
+while every tarball in the same releases has been fetched at least twice. A page
+attached to a release is not a published page; it is a file in a list that only
+robots read. One dropdown turns it into a URL.
+
 The workflow has been built, tested and waiting since Day 21. It does not go red
 while Pages is off; it uploads the built site as an artifact instead.
 
@@ -183,6 +218,13 @@ suite, skips versions already on the registry, and publishes with
 All three packages already install today from a public URL with no account, so
 this is **reach, not capability** — it is how a stranger finds the engine by
 typing `npm install us-state-tax`, which is how anybody finds anything.
+
+**And Day 84's measurement reads oddly in this item's favour.** The only assets
+anything ever fetches here are the `.tgz` files — the ones shaped like a registry
+tarball — at a floor of two apiece and within a day of being created. Something
+is already sweeping for exactly the artefact this project does not publish to a
+registry. That is not evidence of demand; it is evidence that the shape is
+recognised and the address is missing.
 
 ---
 

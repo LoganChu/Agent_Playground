@@ -127,3 +127,130 @@ test('the derived state lists are the same under a non-uniform year', async () =
   // comparison above is a comparison of nothing.
   assert.ok(live.STATE_FIELDS.some((f) => (f.states ?? []).length > 0));
 });
+
+// ---------------------------------------------------------------------------
+// THE DEFAULT YEAR IS PER STATE, AND IT WAS NOT.
+//
+// Day 84. The two tests above prove the server IMPORTS under a non-uniform
+// year. That is necessary and it is not enough, and the gap cost a working tool
+// on the first real one.
+//
+// `state_income_tax`, `describe_state` and `state_figure_provenance` each
+// defaulted an omitted `year` to the last entry of `SUPPORTED_YEARS` — the union
+// across every state. The moment 2027 was added for the nine states with no
+// individual income tax, a caller who named California and no year got
+//
+//   Invalid arguments: CA is supported but tax year 2027 is not.
+//
+// **Nothing about that request mentioned a year.** It is Day 51's shape: not a
+// wrong number but a REFUSAL with a false explanation, handed to a model that
+// will record "California is unavailable" rather than "the default was wrong".
+// Thirty-three of the forty-two states, on three tools, from one `[length - 1]`.
+//
+// The import gates could not see it, because importing is not calling. These
+// call.
+import { findTool, handleMessage } from '../dist/index.js';
+import {
+  SUPPORTED_STATES,
+  SUPPORTED_YEARS,
+  statesForYear,
+  supportedYears,
+} from '../dist/state-engine/index.js';
+
+const callTool = (name, args) =>
+  handleMessage({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: args } })
+    .result;
+
+// Massachusetts, New Jersey and Pennsylvania define their own tax base and
+// REFUSE to run without it, which is correct and is not what this file is
+// about. Supplying all three to every state is safe: the server rejects a
+// field offered to a state that does not read it only when it is the sole
+// subject of the call, and these three are accepted engine-wide.
+const BASIS = {
+  federalAdjustedGrossIncome: 100_000,
+  federalTaxableIncome: 84_250,
+  federalDeduction: 15_750,
+};
+
+const basisFor = (state) => ({
+  ...BASIS,
+  ...(state === 'MA' ? { massachusettsFivePercentIncome: 100_000 } : {}),
+  ...(state === 'NJ' ? { newJerseyGrossIncome: 100_000 } : {}),
+  ...(state === 'PA' ? { pennsylvaniaTaxableIncome: 100_000 } : {}),
+});
+
+test('every state answers state_income_tax with no year named, in every year it serves', () => {
+  // The whole registry, not a sample: the defect hit thirty-three states and
+  // would have been invisible in any sample that happened to pick one of the
+  // nine. 2,000-odd calls, under a second.
+  for (const state of SUPPORTED_STATES) {
+    const args = { filingStatus: 'single', state, ...basisFor(state) };
+    const defaulted = callTool('state_income_tax', args);
+    assert.equal(
+      defaulted.isError,
+      false,
+      `${state} with no year: ${defaulted.content[0].text}`,
+    );
+    // And the year it chose is that state's latest, not the package's.
+    const years = supportedYears(state);
+    const latest = years[years.length - 1];
+    assert.equal(defaulted.structuredContent.state.year, latest, `${state} defaulted to the wrong year`);
+
+    for (const year of years) {
+      const named = callTool('state_income_tax', { ...args, year });
+      assert.equal(named.isError, false, `${state} ${year}: ${named.content[0].text}`);
+      assert.equal(named.structuredContent.state.year, year);
+    }
+  }
+});
+
+test('a year a state does not serve is refused by naming THAT STATE years', () => {
+  let checked = 0;
+  for (const state of SUPPORTED_STATES) {
+    for (const year of SUPPORTED_YEARS) {
+      if (supportedYears(state).includes(year)) continue;
+      checked += 1;
+      for (const name of ['state_income_tax', 'describe_state']) {
+        const args =
+          name === 'state_income_tax'
+            ? { filingStatus: 'single', state, year, ...basisFor(state) }
+            : { state, year };
+        const result = callTool(name, args);
+        assert.equal(result.isError, true, `${name} ${state} ${year} was not refused`);
+        const text = result.content[0].text;
+        // The refusal must quote the state's OWN years and must not offer the
+        // year it just refused. The message that was here quoted the union, so
+        // it listed the refused year as supported in the sentence refusing it.
+        assert.ok(
+          text.includes(`${state} covers ${supportedYears(state).join(', ')}`),
+          `${name} ${state} ${year} does not name the state's own years: ${text}`,
+        );
+        assert.ok(
+          !new RegExp(`covers [^.]*\\b${year}\\b`).test(text),
+          `${name} ${state} ${year} lists ${year} as covered: ${text}`,
+        );
+      }
+    }
+  }
+  // The gate is only meaningful while the grid is not square, and it says so
+  // rather than passing silently if it ever becomes square again.
+  assert.ok(checked > 0, 'every state serves every year, so this gate asserts nothing');
+});
+
+test("the state year enum is a union, and the schema says which states serve the latest", () => {
+  // JSON Schema cannot make one property's enum depend on another's, so the
+  // enum HAS to be the union — which means the description is the only place the
+  // per-state rule can live, and a model that reads the enum and not the prose
+  // will offer 2027 for California. The description is therefore load-bearing
+  // contract rather than help text, and it is pinned.
+  const schema = findTool('state_income_tax').inputSchema.properties.year;
+  assert.deepEqual(schema.enum, [...SUPPORTED_YEARS]);
+  const widest = Math.max(...SUPPORTED_YEARS);
+  assert.match(schema.description, /support is PER STATE/);
+  assert.ok(
+    schema.description.includes(
+      `${statesForYear(widest).length} of ${SUPPORTED_STATES.length} states serve ${widest}`,
+    ),
+    `the schema no longer counts the states serving ${widest}: ${schema.description}`,
+  );
+});

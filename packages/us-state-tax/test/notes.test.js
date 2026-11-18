@@ -49,9 +49,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   FILING_STATUSES,
+  getStateDefinition,
+  statesForYear,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
-  getStateDefinition,
 } from './strict.mjs';
 import { notePrefix } from './note-prefix.mjs';
 import { HOUSEHOLDS, household } from './status-households.mjs';
@@ -67,7 +68,7 @@ test('every state-year still emits the notes it emitted, in order', () => {
   assert.ok(PINS.rows.length > 400, 'the fixture is present and not truncated');
   const shipped = new Map();
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       for (const { kind, i, text } of notesOf(getStateDefinition(state, year))) {
         shipped.set(`${year}|${state}|${kind}|${i}`, notePrefix(text));
       }
@@ -188,7 +189,7 @@ test('a provisional state-year says so in a note, and a published one does not',
   // carried the flag and not the sentence would be technically honest and useless.
   let provisional = 0;
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       const def = getStateDefinition(state, year);
       const says = notesOf(def).some((n) => /^PROVISIONAL/.test(n.text.trim()));
       if (def.status === 'provisional') {
@@ -208,7 +209,7 @@ test('no note is empty, duplicated within its state-year, or unable to survive t
   // two notes in one state-year cannot share a prefix, because then the fixture
   // could not tell them apart and a swap between them would pass.
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       const seen = new Set();
       for (const { kind, i, text } of notesOf(getStateDefinition(state, year))) {
         const where = `${state} ${year} ${kind}[${i}]`;
@@ -249,7 +250,7 @@ test('every conditional note fires for some return and not for others', () => {
   }
   let checked = 0;
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       const def = getStateDefinition(state, year);
       for (const [i, note] of (def.conditionalNotes ?? []).entries()) {
         const fired = inputs.filter(({ filingStatus, name }) =>

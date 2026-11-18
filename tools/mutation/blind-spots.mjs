@@ -86,7 +86,7 @@ try {
     '  (cd packages/us-state-tax && npm install && npm run build)',
   );
 }
-const { getStateDefinition, SUPPORTED_STATES, SUPPORTED_YEARS } = pkg;
+const { getStateDefinition, SUPPORTED_STATES, SUPPORTED_YEARS, supportedYears } = pkg;
 
 /**
  * The rule fields that hold at least one figure the audit cannot perturb.
@@ -343,9 +343,10 @@ const problems = [];
 let total = 0;
 
 for (const state of SUPPORTED_STATES) {
-  for (const year of SUPPORTED_YEARS) {
+  // Same fix and the same dead guard as `tools/note-figures.mjs`: the years one
+  // state serves, rather than every year the package has.
+  for (const year of supportedYears(state)) {
     const def = getStateDefinition(state, year);
-    if (!def) continue;
     for (const [path, v] of walk(def, '', [])) {
       total += 1;
       const c = classOf(v);

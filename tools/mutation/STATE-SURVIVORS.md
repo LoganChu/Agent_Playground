@@ -1,3 +1,92 @@
+# Day 84 — the same eight a NINTH time, and the four that explain the day
+
+```text
+  Day 84         2,720 mutants   2,712 killed   8 survivors   99.7%   48m49s
+```
+
+**THE SAME EIGHT, BY FILE, KIND, VALUE AND LINE NUMBER.** Nine complete audits
+now return the identical list. Two new mutants arrived today and both were
+killed, so the day's guards are spent rather than merely shipped — and both are
+years, with `money` unmoved at 1,914 and `rate` at 492, which is how a reader
+knows that adding tax year 2027 moved no tax parameter.
+
+## FOUR OF THE EIGHT ARE WHY DAY 83 HAPPENED, AND THEY HAVE NOT CHANGED
+
+Class C of this list has read, for weeks, *"a year window outside
+`SUPPORTED_YEARS` (4). **Unreachable in principle.**"*
+
+```text
+  states/flat-states.js   506   year   2024 -> 2023     Georgia's lower bound
+  states/flat-states.js   636   year   2025 -> 2024     Illinois's lower bound
+  states/new-jersey.js    104   year   2028 -> 2027     upper bound of a window
+  states/new-jersey.js    230   year   2028 -> 2027     the same window, in a note
+```
+
+These four survive because **no supported year is low enough, or high enough, to
+tell the window apart**. They are the audit stating, every day for weeks, that
+four of this package's year guards are untestable *because the year list is
+narrow* — and nobody asked whether every builder ENFORCED that narrowness. Two
+did not, which was Day 83, and sixteen test files did not, which was Day 84.
+
+**New Jersey's pair is now one year closer to being reachable.** The window is
+`year >= 2026 && year <= 2028`; `SUPPORTED_YEARS` reached 2027 today. The upper
+bound still cannot be distinguished — 2028 and 2027 both include 2027 — but a
+2028 that any state serves kills both. Georgia's and Illinois's lower bounds
+cannot be reached by going forward and never will be.
+
+> **AND THE RULE THAT MATTERS MOST ABOUT THIS FILE IS STILL THAT IT CANNOT SEE A
+> MISSING GUARD AT ALL.** Mutation testing perturbs figures that exist. An absent
+> `if` has no literal to change, so the two missing year checks Day 83 found
+> contributed no mutant — not a survivor, not a kill, nothing. Nine identical
+> audits reported 99.7% while two builders answered for every year from 1990 to
+> 2100. `packages/us-state-tax/test/year-guard.test.js` is the instrument for
+> that class, and it enumerates the input domain rather than the code.
+
+## THE CLOCK, AND ONE RUN THROWN AWAY ON PURPOSE
+
+```text
+  wall clock 2,929s over 4 workers        55.7 mutants/min
+  whole suite (no selection)   132 runs   55.8% of the clock   48.85s each
+  step 1 (narrowed)          2,588 runs   18.4%                 1.07s each
+  step 2 (whole files)         599 runs   16.8%                 3.38s each
+  full re-run (selection miss)  24 runs    9.0%                64.64s each
+```
+
+**132 of 2,720 mutants — 4.9% — still take 55.8% of the clock**, at 48.85s each
+against 1.07s for a narrowed run. That is the unnarrowable prefix, and it is
+still the cheapest large win available anywhere in this repository.
+
+**THE AUDIT RAN THREE TIMES AND TWO WERE THROWN AWAY.**
+
+Run 1 was stopped at twelve minutes, when `tools/cross-package/federal-basis-copies.mjs`
+found the Utah fixture defect: fixing a test file changes which mutants the suite
+kills, so the ten minutes went in the bin rather than produce a score measured
+against a suite that no longer existed.
+
+Run 2 finished and `check-scores.mjs` refused it — the suite fingerprint had
+moved, because a release headline was added to `readme.test.js`. **That is a file
+this harness does not run**; `[mutate] not run: test/readme.test.js (named in
+--skip-tests)` is the first line of its own output, and no mutant here could be
+killed or spared by it.
+
+> **`suiteFingerprint` IS WIDER THAN THE SUITE THAT KILLS.** It hashes every
+> `.js`, `.json` and `.mjs` under `test/`, and three of those files are excluded
+> from every run — `readme.test.js` by name, two more because they read outside
+> the package. So three files can invalidate a fifty-minute measurement they
+> cannot affect.
+>
+> It is not obviously safe to narrow. The exclusion set is a CLI flag plus a
+> content-derived list, so a narrowed fingerprint that does not RECORD what was
+> skipped could carry a score across a change to a file the next run does
+> include — a false pass, which is worse than the false stale it removes.
+> Narrowing it means recording the skipped test files in `scores.json` beside the
+> skipped source files already there, with this harness's own tests driving it.
+
+Run 3 is the recorded one. Day 81's rule, obeyed by choosing to pay for it twice:
+a long measurement owns the build it is measuring.
+
+---
+
 # Day 80 — the same eight a SEVENTH time, and the gate that asserts six has been red for five days
 
 **THE LIMIT WAS THE STALE THING, NOT THE LIST.** `mutation.yml` passed

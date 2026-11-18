@@ -48,6 +48,13 @@ import assert from 'node:assert/strict';
 
 import { definitionsForYear } from '../dist/esm/states/index.js';
 import { definitionsForYear as localitiesForYear } from '../dist/esm/localities/index.js';
+import {
+  SUPPORTED_LOCALITIES,
+  SUPPORTED_LOCALITY_YEARS,
+  getLocalityDefinition,
+  isLocalitySupported,
+  supportedLocalityYears,
+} from '../dist/esm/index.js';
 import { SUPPORTED_STATES, SUPPORTED_YEARS, supportedYears } from './strict.mjs';
 
 const FIRST_PROBE = 1990;
@@ -80,7 +87,59 @@ test('no LOCALITY builder answers for an unsupported year either, 1990 to 2100',
     if (defs.length > 0) answered.push(`${year}: ${defs.map((d) => d.code).join(' ')}`);
   }
   assert.deepEqual(answered, [], 'a locality builder answered for an unsupported year:\n  ' + answered.join('\n  '));
-  for (const year of SUPPORTED_YEARS) assert.ok(localitiesForYear(year).length > 0, `year ${year}`);
+
+  // Counted against the years localities actually serve, not against the
+  // package-wide list. The first draft asserted `localitiesForYear(year).length > 0`
+  // for every `SUPPORTED_YEARS` entry, and it failed on the first non-uniform
+  // year for a reason that has nothing to do with the defect this file guards:
+  // tax year 2027 is served by the nine states with no income tax and by NO
+  // locality, because every local income tax here has a rate or a bracket the
+  // jurisdiction publishes separately. That is the same uniformity assumption
+  // the eight derived lists had, written into the gate that was supposed to be
+  // about non-uniformity — one level out, and by me, on the day after.
+  assert.ok(SUPPORTED_LOCALITY_YEARS.length > 0, 'no year serves any locality at all');
+  for (const year of SUPPORTED_LOCALITY_YEARS) {
+    assert.ok(localitiesForYear(year).length > 0, `year ${year}`);
+  }
+  for (const year of SUPPORTED_YEARS) {
+    const served = localitiesForYear(year).length > 0;
+    assert.equal(
+      served,
+      SUPPORTED_LOCALITY_YEARS.includes(year),
+      `SUPPORTED_LOCALITY_YEARS disagrees with the builders about ${year}`,
+    );
+  }
+});
+
+test('a locality refuses a year it does not serve, and names the years it does', () => {
+  // The state refusal has quoted `supportedYears(state)` since Day 83; the
+  // locality refusal quoted the package-wide `SUPPORTED_YEARS` until today, so
+  // the first year served by states and not by localities would have told a New
+  // York City caller that 2027 was a supported year in the same sentence that
+  // refused it. That is Day 83's "a guard that cannot run answers the question
+  // for the next reader" in its other form: a message that cannot be wrong until
+  // the grid stops being square, and is wrong the moment it does.
+  const unserved = SUPPORTED_YEARS.filter((y) => !SUPPORTED_LOCALITY_YEARS.includes(y));
+  for (const locality of SUPPORTED_LOCALITIES) {
+    assert.deepEqual(
+      [...supportedLocalityYears(locality)],
+      [...SUPPORTED_LOCALITY_YEARS].filter((y) => isLocalitySupported(locality, y)),
+    );
+    for (const year of unserved) {
+      assert.throws(
+        () => getLocalityDefinition(locality, year),
+        (err) => {
+          assert.ok(err instanceof RangeError);
+          assert.match(err.message, new RegExp(`tax year ${year} is not`));
+          assert.ok(
+            !new RegExp(`Supported years:[^.]*\\b${year}\\b`).test(err.message),
+            `the refusal for ${locality} ${year} lists ${year} as supported: ${err.message}`,
+          );
+          return true;
+        },
+      );
+    }
+  }
 });
 
 test('the probe actually exercises the builders rather than an empty loop', () => {

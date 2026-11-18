@@ -288,13 +288,30 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // two missing year checks contributed no mutant at all — not a survivor, not a
   // kill. `packages/us-state-tax/test/year-guard.test.js` is the instrument for
   // that class, and it enumerates the input domain instead of the code.
-  assert.equal(mutants.length, 2_718, 'mutants the enumerator finds in the current tree');
+  // ## DAY 84: 2,718 -> 2,720, AND THE SPLIT IS WHAT MAKES IT READABLE
+  //
+  // Tax year 2027 went into `SUPPORTED_YEARS` and into the nine no-income-tax
+  // states' own `YEARS`, and both are year lists the enumerator mutates. The
+  // by-kind breakdown is the claim worth making, because it is the one a reader
+  // cannot check by eye:
+  //
+  //   money  1,914 -> 1,914   UNMOVED
+  //   rate     492 ->   492   UNMOVED
+  //   year     312 ->   314   both of them
+  //
+  // **`money` and `rate` both unmoved is the load-bearing half.** Adding a tax
+  // year for nine states moved no tax parameter in the package, which is exactly
+  // what adding a year for nine states with no income tax ought to do — and it
+  // is the thing a diff of this size cannot be read for.
+  assert.equal(mutants.length, 2_720, 'mutants the enumerator finds in the current tree');
+  // The by-kind split itself is pinned at the bottom of this file.
   // THE TWO FILES TODAY'S THREE CAME FROM, pinned separately so a future total
-  // that happens to land on 2,718 for different reasons cannot pass.
+  // that happens to land on 2,720 for different reasons cannot pass.
   assert.equal(
     mutants.filter((m) => m.rel === 'states/no-income-tax.js').length,
-    2,
-    'the nine no-income-tax states contribute exactly their year list and nothing else',
+    3,
+    'the nine no-income-tax states contribute exactly their year list and nothing else — ' +
+      'three years from Day 84, because the nine are the only states that can serve 2027',
   );
   assert.equal(
     mutants.filter((m) => m.rel === 'states/flat-states.js').length,
@@ -728,5 +745,19 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // two-key record, and six money literals went in and six came out — so the
   // reshaping moved no tax parameter, which is the claim the diff makes and the
   // only one a reader cannot check by eye.
-  assert.deepEqual(byKind, { money: 1_914, rate: 492, year: 312 });
+  // DAY 84 — `year` 312 -> 314, `money` AND `rate` UNMOVED AGAIN, AND THIS IS
+  // THE ONLY INSTRUMENT THAT SAYS SO.
+  //
+  // Tax year 2027 went live for the nine states with no individual income tax.
+  // The total went 2,718 -> 2,720 and both are years:
+  //
+  //   +1  `2027` in `SUPPORTED_YEARS`, `states/index.js`.
+  //   +1  `2027` in the nine states' own `YEARS`, `no-income-tax.js`.
+  //
+  // **A tax year arrived and no tax parameter moved**, which is what adding a
+  // year for nine states that tax nothing has to mean. The diff that landed it
+  // touched sixteen test files, five tools, two packages' sources and three
+  // READMEs; `money` at 1,914 is the one line that says none of that reached a
+  // figure a filer pays.
+  assert.deepEqual(byKind, { money: 1_914, rate: 492, year: 314 });
 });

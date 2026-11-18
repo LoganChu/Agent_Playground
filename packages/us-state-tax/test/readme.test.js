@@ -26,6 +26,7 @@ import {
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
   UNCOVERED_TAXING_JURISDICTIONS,
+  statesForYear,
   getStateDefinition,
   michiganCities,
   nycRate,
@@ -56,10 +57,35 @@ test('README: the four quick-start figures', () => {
   assert.equal(at('TX'), 0);
 });
 
-test('README: 39 states, 2025 and 2026, nine with no income tax', () => {
+test('README: 39 states, 2025 to 2027, nine with no income tax', () => {
   assert.equal(SUPPORTED_STATES.length, 42);
-  assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
+  assert.deepEqual(SUPPORTED_YEARS, [2025, 2026, 2027]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
+
+  // ## THE HEADLINE HAS TO SAY WHICH STATES, NOT JUST WHICH YEARS
+  //
+  // Day 84. The first line of this README said "tax years 2025 and 2026" for
+  // eighty-three days and it was exactly true, because both years were served
+  // by all forty-two states. 2027 is served by nine of them and by no locality,
+  // so "tax years 2025 to 2027" would be a sentence that is true of the package
+  // and false of forty of the forty-two things in it — the most expensive kind
+  // of README claim, because a reader checks it against the one state they came
+  // for.
+  //
+  // Asserted against the registry rather than against a remembered list: the day
+  // Alabama publishes its 2027 figures, this is what fails and says the headline
+  // is now too narrow.
+  const headline = readFileSync(
+    join(resolve(dirname(fileURLToPath(import.meta.url)), '..'), 'README.md'),
+    'utf8',
+  )
+    .split('\n')
+    .slice(0, 8)
+    .join('\n');
+  assert.match(headline, /2025, 2026 and — for the nine states with no income tax — 2027/);
+  assert.deepEqual([...statesForYear(2027)], [...NO_INCOME_TAX_STATES].sort());
+  assert.equal(statesForYear(2025).length, 42);
+  assert.equal(statesForYear(2026).length, 42);
   // SIXTEEN graduated, THIRTEEN flat, one on a schedule of its own, nine with none.
   // Louisiana made the flat column the larger of the two on Day 60: Act 11 of the
   // 2024 Third Extraordinary Session replaced its graduated 1.85/3.5/4.25 schedule
@@ -2128,6 +2154,17 @@ test("README: the gap list cannot name a state this package covers", () => {
 
 /** Every release that has a "New in" paragraph, newest first, with its subject. */
 const RELEASE_HEADLINES = [
+  // 0.64.0 is the first entry in this table that is not about a PROVISION at
+  // all. It is a tax YEAR — 2027, for the nine states with no individual income
+  // tax — and what made it a release rather than a one-line edit is that it is
+  // the first year this package has ever served that every state does not. The
+  // registry was designed for exactly that and had never been asked to do it:
+  // `supportedYears(state)` and `SUPPORTED_YEARS` were the same array for
+  // eighty-three days, so the cross product was square, the per-state refusal
+  // unreachable, and every list derived across years quietly correct. Making
+  // the grid lopsided broke sixteen test files in this package and three
+  // `us-tax-mcp` tools for thirty-three states.
+  ['0.64.0', /TAX YEAR 2027, FOR THE NINE STATES/],
   // 0.63.0 is the first entry in this table that is not about a state at all.
   // The provision is FEDERAL — § 32(i)'s investment-income bar — and nineteen
   // states inherit it through the figure a caller passes, so the disclosure

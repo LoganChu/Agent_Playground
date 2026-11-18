@@ -19,6 +19,7 @@ import {
   NO_INCOME_TAX_STATES,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
+  statesForYear,
   stateIncomeTax,
 } from '../../packages/us-state-tax/dist/esm/index.js';
 import {
@@ -32,7 +33,7 @@ import {
 const taxing = SUPPORTED_STATES.filter((s) => !NO_INCOME_TAX_STATES.includes(s));
 const rows = [];
 for (const year of SUPPORTED_YEARS) {
-  for (const state of taxing) {
+  for (const state of taxing.filter((code) => statesForYear(year).includes(code))) {
     for (const filingStatus of FILING_STATUSES) {
       for (const name of HOUSEHOLDS) {
         const result = stateIncomeTax(household(name, state, year, filingStatus), FIGURE_SWEEP_OPTIONS);

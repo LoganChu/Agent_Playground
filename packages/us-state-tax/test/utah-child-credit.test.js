@@ -43,11 +43,32 @@ const creditNamed = (result, fragment) =>
 // exactly what CI does. So the two federal figures Utah reads are computed from
 // published 2026 parameters, in the open, where the arithmetic behind the 20%
 // marginal rate can be checked by eye.
+//
+// ## DAY 84: THREE OF THESE FOUR WERE 2025 FIGURES UNDER A 2026 COMMENT
+//
+// `single`, `marriedFilingSeparately` and `headOfHousehold` held `$15,750`,
+// `$15,750` and `$23,625` — the 2025 amounts — in a table the comment above
+// calls "published 2026 parameters", feeding households that `family()` defaults
+// to `year = 2026`, beside an `EITC` table labelled "§ 32, 2026". Only
+// `marriedFilingJointly` was right, and `family()` defaults to
+// `marriedFilingJointly`, which is why nothing noticed for as long as the file
+// has existed.
+//
+// **Four assertions reached the wrong three**: the single and separate and
+// head-of-household credits, and the head-of-household marginal rate. Each was
+// computing a 2026 Utah return from a filer who had taken 2025's federal
+// deduction — a household nobody could file, which is Day 52's defect exactly.
+//
+// Found by `tools/cross-package/federal-basis-copies.mjs`, on its first clean
+// run, and it is the reason that tool exists: each of the three wrong values IS
+// a real federal figure, so nothing short of comparing them to the right YEAR
+// could tell. Nine hand-written copies of this table live in this suite and
+// none of them had been checked against the package that ships the real ones.
 const STANDARD_DEDUCTION = {
-  single: 15_750,
+  single: 16_100,
   marriedFilingJointly: 32_200,
-  marriedFilingSeparately: 15_750,
-  headOfHousehold: 23_625,
+  marriedFilingSeparately: 16_100,
+  headOfHousehold: 24_150,
 };
 
 /** § 32, 2026: rate, maximum and withdrawal rate by qualifying-child count. */

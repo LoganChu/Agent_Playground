@@ -75,6 +75,8 @@ import {
   NO_INCOME_TAX_STATES,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
+  statesForYear,
+  supportedYears,
   applyBrackets,
   getStateDefinition,
   stateIncomeTax,
@@ -109,7 +111,11 @@ const parse = (row) => {
 /** Every staircase in the package, with its state and year. */
 function* shippedCharts() {
   for (const year of SUPPORTED_YEARS) {
-    for (const state of TAXING) {
+    // Intersected with the states that serve THIS year, not just the states that
+    // tax. From 2027 the two differ: the nine with no income tax serve it and the
+    // thirty-three that tax do not, so `TAXING` alone crosses into thirty-three
+    // state-years the registry refuses.
+    for (const state of statesForYear(year).filter((s) => TAXING.includes(s))) {
       for (const chart of stepCharts(getStateDefinition(state, year))) {
         yield { year, state, ...chart };
       }
@@ -576,7 +582,7 @@ test("Ohio's 20% joint filing credit row is arithmetic no return can reach", () 
   //
   // Asserted rather than probed, because a probe would have to claim the row
   // matters. It does not: a nonrefundable share of zero is zero at every rate.
-  for (const year of SUPPORTED_YEARS) {
+  for (const year of supportedYears('OH')) {
     const def = getStateDefinition('OH', year);
     const topOfZeroBand = def.rate.bands[0].upTo;
     const [firstStep] = def.jointFilingCredit.steps;

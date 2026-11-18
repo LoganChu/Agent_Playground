@@ -225,16 +225,19 @@ function shippedProse(def) {
 }
 
 const pkg = await import(join(ROOT, 'packages', 'us-state-tax', 'dist', 'esm', 'index.js'));
-const { SUPPORTED_STATES, SUPPORTED_YEARS, getStateDefinition } = pkg;
+const { SUPPORTED_STATES, SUPPORTED_YEARS, getStateDefinition, supportedYears } = pkg;
 const testValues = valuesIn(testCorpus(join(ROOT, 'packages', 'us-state-tax')));
 
 const unchecked = new Map();
 let figures = 0;
 for (const state of SUPPORTED_STATES) {
   const seen = new Set();
-  for (const year of SUPPORTED_YEARS) {
+  // `supportedYears(state)`, not `SUPPORTED_YEARS`. The `if (!def) continue`
+  // that stood here could never run — `getStateDefinition` throws — so this
+  // walked the cross product and died on the first state-year the registry
+  // does not hold, which from 2027 is thirty-three of forty-two.
+  for (const year of supportedYears(state)) {
     const def = getStateDefinition(state, year);
-    if (!def) continue;
     for (const text of shippedProse(def)) {
       for (const hit of text.match(WITH_CENTS) ?? []) seen.add(hit);
     }

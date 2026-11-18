@@ -1,5 +1,5 @@
 /**
- * `us-state-tax` — US state individual income tax, for tax years 2025 and 2026.
+ * `us-state-tax` — US state individual income tax, for tax years 2025 to 2027.
  *
  * Dependency-free, MIT, and built around one claim: the rate is the easy part.
  * What decides whether a state number is right is the *starting point* — which
@@ -22,14 +22,19 @@ export {
   SOCIAL_SECURITY_READING_RULES,
   UNCOVERED_TAXING_JURISDICTIONS,
   getStateDefinition,
+  SUPPORTED_STATE_YEARS,
   isSupported,
   stateName,
+  statesForYear,
   supportedYears,
 } from './states/index.js';
 export {
   SUPPORTED_LOCALITIES,
+  SUPPORTED_LOCALITY_YEARS,
   getLocalityDefinition,
+  isLocalitySupported,
   localityState,
+  supportedLocalityYears,
 } from './localities/index.js';
 export {
   MARYLAND_COUNTIES,

@@ -57,11 +57,13 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   FILING_STATUSES,
+  getStateDefinition,
   NO_INCOME_TAX_STATES,
+  stateIncomeTax,
+  statesForYear,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
-  getStateDefinition,
-  stateIncomeTax,
+  supportedYears,
 } from './strict.mjs';
 import {
   DIGEST_COLUMNS,
@@ -73,6 +75,15 @@ import {
 
 const PINS = JSON.parse(readFileSync(new URL('./status-sweep.json', import.meta.url), 'utf8'));
 const TAXING = SUPPORTED_STATES.filter((s) => !NO_INCOME_TAX_STATES.includes(s));
+
+// The taxing states that serve one tax year.
+//
+// `TAXING` is a list of STATES; crossing it with `SUPPORTED_YEARS` was a list of
+// state-years only while every state served every year. From 2027 it is a list
+// of state-years plus thirty-three pairs `getStateDefinition` throws on: the
+// nine with no income tax serve 2027 today, and the thirty-three that tax serve
+// it on the day each publishes its figures, between December and February.
+const TAXING_IN = (year) => statesForYear(year).filter((s) => TAXING.includes(s));
 const STATUSES = new Set(FILING_STATUSES);
 
 const parse = (row) => {
@@ -131,7 +142,7 @@ test('the fixture covers every state, year, status and household this package sh
   const seen = new Set(PINS.rows.map((r) => r.split('|').slice(0, 4).join('|')));
   let expected = 0;
   for (const year of SUPPORTED_YEARS) {
-    for (const state of TAXING) {
+    for (const state of TAXING_IN(year)) {
       for (const filingStatus of FILING_STATUSES) {
         for (const name of HOUSEHOLDS) {
           const key = `${year}|${state}|${filingStatus}|${name}`;
@@ -441,7 +452,7 @@ function* byStatusCells(state, year) {
 
 for (const state of TAXING) {
   test(`every byStatus cell ${state} ships moves a pinned answer`, () => {
-    for (const year of SUPPORTED_YEARS) {
+    for (const year of supportedYears(state)) {
       for (const cell of byStatusCells(state, year)) {
         const { def, table, leaf, where, at, widowExempt, ledgerExempt } = cell;
         // A doubling, plus one so that a parameter of zero also changes. The
@@ -525,7 +536,7 @@ test('the byStatus cells the package ships, and the numbers inside them', () => 
   let checked = 0;
   const exempt = [];
   for (const year of SUPPORTED_YEARS) {
-    for (const state of TAXING) {
+    for (const state of TAXING_IN(year)) {
       for (const cell of byStatusCells(state, year)) {
         checked++;
         if (cell.widowExempt || cell.ledgerExempt) exempt.push(cell.where);
@@ -642,7 +653,7 @@ test('the byStatus cells the package ships, and the numbers inside them', () => 
   const countLeaves = (v) =>
     mutable(v) ? 1 : v === null || typeof v !== 'object' ? 0 : Object.values(v).reduce((a, b) => a + countLeaves(b), 0);
   for (const year of SUPPORTED_YEARS) {
-    for (const state of TAXING) {
+    for (const state of TAXING_IN(year)) {
       for (const { table } of byStatusTables(getStateDefinition(state, year), '', [], new WeakSet())) {
         for (const status of FILING_STATUSES) inside += countLeaves(table[status]);
       }
@@ -658,7 +669,7 @@ test('the byStatus cells the package ships, and the numbers inside them', () => 
   // it or fails.
   const byState = new Map();
   for (const year of SUPPORTED_YEARS) {
-    for (const state of TAXING) {
+    for (const state of TAXING_IN(year)) {
       const def = getStateDefinition(state, year);
       if (def === undefined) continue;
       let own = 0;

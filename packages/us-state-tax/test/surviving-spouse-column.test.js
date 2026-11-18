@@ -71,11 +71,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  getStateDefinition,
   NO_INCOME_TAX_STATES,
+  stateIncomeTax,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
-  getStateDefinition,
-  stateIncomeTax,
+  supportedYears,
 } from './strict.mjs';
 import { FIGURE_SWEEP_OPTIONS, HOUSEHOLDS, household } from './status-households.mjs';
 
@@ -200,7 +201,7 @@ test('the ledger of states that offer the status is the fifteen the READMEs clai
 test('every state whose surviving-spouse column is observable has said why', () => {
   const unexplained = [];
   for (const state of TAXING) {
-    for (const year of SUPPORTED_YEARS) {
+    for (const year of supportedYears(state)) {
       const def = getStateDefinition(state, year);
       const rows = battery(state, year);
       const observable = rows.filter(
@@ -242,7 +243,7 @@ test('every state whose surviving-spouse column is observable has said why', () 
 test('a declared surviving-spouse status is the one the engine actually uses', () => {
   const declared = [];
   for (const state of TAXING) {
-    for (const year of SUPPORTED_YEARS) {
+    for (const year of supportedYears(state)) {
       const def = getStateDefinition(state, year);
       const rule = def.survivingSpouseFilesAs;
       if (rule === undefined) continue;
@@ -319,7 +320,7 @@ test('a declared surviving-spouse status is the one the engine actually uses', (
 
 test('a declared surviving-spouse status moves an answer, or the state has nothing of its own to move', () => {
   for (const state of TAXING) {
-    for (const year of SUPPORTED_YEARS) {
+    for (const year of supportedYears(state)) {
       const def = getStateDefinition(state, year);
       if (def.survivingSpouseFilesAs === undefined) continue;
       const rows = battery(state, year);

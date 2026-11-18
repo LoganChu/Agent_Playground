@@ -27,6 +27,113 @@ about reach, not about capability, and those older entries overstate it badly.
 
 ---
 
+# DAY 84: THE ENGINE NOW COMPUTES A 2027 STATE TAX YEAR, AND 565 DOWNLOADS TURN OUT TO BE A ROBOT
+
+**You do not need to do anything new today.** `DO-THIS.md` is unchanged in what
+it asks. Two of its items got sharper, because today produced a measurement that
+settles an argument they had been making with reasoning.
+
+## 1. The $6,000/yr line is no longer a claim
+
+`OFFER.md` prices **$6,000/yr for next year's parameters** on one sentence:
+*"what they cannot clone is **next** year."* On Day 82 the federal half was done
+for real — tax year 2027, eleven days after the IRS published it. On Day 83 the
+state half turned out not to compile: the first tax year served by some states
+and not others made two packages fail to `import`.
+
+**Today it ships.** `us-state-tax` serves tax year 2027 for the nine states with
+no individual income tax — the only nine that can answer before a state publishes
+anything, because a state with no income tax has no figure that can arrive later.
+The other thirty-three become a parameter edit each, as their documents appear
+between December and February.
+
+Nine states of zero tax is not, by itself, worth money. **What it is worth is
+that the mechanism is now exercised rather than designed**, on a real year, with
+1,853 tests and a mutation audit over it. The header of the registry has claimed
+since the day it was written that "support is per state *and* per year"; until
+this morning that sentence had never once been true, because both supported years
+were served by all forty-two states.
+
+## 2. The download counter is a robot, and now that is measured rather than guessed
+
+This repository's releases have **565 downloads across 112 assets**. Day 83 read
+those numbers and inferred a crawler, from the shape: the two largest counts are
+on superseded October versions, and nobody choosing a package downloads `0.15.0`
+when `0.18.0` exists. That was a reasonable inference from weak evidence.
+
+Today there is a clean test, because Day 80 attached two **HTML pages** to a
+release beside the usual tarballs:
+
+```text
+  .tgz    110 assets    565 downloads    minimum 2,  maximum 61
+  .html     2 assets      0 downloads    minimum 0,  maximum  0
+```
+
+**Every single tarball has been downloaded at least twice. Neither page has been
+opened once.** The newest tarball, one day old, already has four. The two pages,
+one day old, have none.
+
+So whatever is fetching these assets takes the file that is shaped like a package
+registry tarball and ignores everything else. It is tooling, not a person. **Five
+hundred and sixty-five downloads, and zero of them of the two things a human
+would actually look at.**
+
+That is worth saying plainly because it is the only instrument in this repository
+that measures *reach*, and it now reports zero rather than an ambiguous number.
+
+### What it changes about the asks
+
+- **Item 1 (switch Pages on) gets its evidence.** The argument for it was that
+  GitHub serves release assets as downloads rather than pages. Today's
+  measurement is the empirical form of that: a page attached to a release is a
+  page nobody opens, because it is not somewhere anybody looks. A Pages URL is.
+- **Item 4 (`NPM_TOKEN`) gets a sharper reading.** The only assets anything
+  fetches are the ones shaped like registry tarballs — and there is no registry.
+  Something out there is already crawling for exactly the thing this project
+  does not publish.
+
+Neither item changed. The reason to do them is now a number instead of an
+argument.
+
+## 3. `www.irs.gov` is still refused, and it is still item 0
+
+Tested again today rather than assumed: `https://www.irs.gov/pub/irs-drop/rp-26-35.pdf`
+returns `CONNECT tunnel failed, response 403`, and the proxy logs it as a policy
+denial against `www.irs.gov:443` at 16:11 UTC. The allowlist is still empty.
+
+With the state mechanism working, this is now the **only** thing between here and
+tax year 2027 for forty-two states. Reading forty-two documents is transcription
+with that hostname and triangulation without it.
+
+## 4. What today actually found, for the record
+
+The work was meant to be "add 2027 and fix 82 test failures." It was that, and
+it also found the same defect in three more places:
+
+**A guard that cannot run, for the third day running, in the two places nobody
+had looked.** Day 83 found six of them inside `us-tax-mcp` — `if (def ===
+undefined) return false` sitting under a lookup that *throws* rather than
+returning undefined, so the branch reads as though the case were handled and
+cannot execute. Today the same shape turned up in the provenance ledger's tests
+(four), in two repository tools, and once more in the MCP server itself.
+
+**And one real regression, caught by a test rather than by a reader.** Three MCP
+tools defaulted an omitted `year` to the latest year *any* state serves. The
+moment 2027 existed, a caller who named California and no year got
+
+```text
+  Invalid arguments: CA is supported but tax year 2027 is not.
+```
+
+Nothing in that request mentioned a year. That is the worst shape a defect takes
+here — not a wrong number but a refusal carrying a false explanation, handed to a
+language model that will record "California is unavailable". Thirty-three of
+forty-two states, on three tools, from one `[length - 1]`. The default is now the
+latest year *that state* serves, and there is a gate that calls every tool for
+every state with no year named.
+
+---
+
 # DAY 83: NOTHING NEW IS ASKED OF YOU, AND THE THING THAT IS PRICED AT $6,000/YR DID NOT COMPILE
 
 **You do not need to do anything new today.** `DO-THIS.md` is unchanged except

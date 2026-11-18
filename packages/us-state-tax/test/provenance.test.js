@@ -40,9 +40,10 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  getStateDefinition,
+  isSupported,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
-  getStateDefinition,
   supportedYears,
 } from './strict.mjs';
 import {
@@ -120,6 +121,36 @@ const quotedProvenanceSplit = () => {
 const realFigures = (definition) =>
   figurePaths(definition, '', []).filter((path) => !isSentinelFigure(at(definition, path)));
 
+/**
+ * The tax years one ledger entry speaks for.
+ *
+ * ## THIS REPLACED `entry.years ?? SUPPORTED_YEARS`, AND FOUR DEAD GUARDS WITH IT
+ *
+ * Day 84. Four sites in this file read the entry's years and then wrote
+ *
+ *     const definition = getStateDefinition(entry.state, year);
+ *     if (definition === undefined) continue;
+ *
+ * `getStateDefinition` does not return `undefined`. It **throws** a `RangeError`
+ * naming the state and the year, and has since it was written — so every one of
+ * those `continue`s was unreachable, and the file read as though the
+ * missing-state-year case were already handled. It was handled nowhere.
+ *
+ * Nothing could tell, because `SUPPORTED_YEARS` was served by all forty-two
+ * states: the fallback was never wrong, so the guard was never reached. Tax year
+ * 2027 is served by the nine states with no individual income tax and by none of
+ * the thirty-three that tax, and the first run after that landed came back with
+ * `AL is supported but tax year 2027 is not` out of a ledger assertion about
+ * constancy.
+ *
+ * This is the same defect Day 83 closed inside `us-tax-mcp` — *"a guard that
+ * cannot run is worse than no guard, because it answers the question for the
+ * next reader"* — in the instrument rather than the engine, and found the same
+ * way: by making the grid non-square.
+ */
+const ledgerYears = (entry) =>
+  (entry.years ?? supportedYears(entry.state)).filter((year) => isSupported(entry.state, year));
+
 test('every figure in every state-year has exactly one provenance entry', () => {
   const uncovered = [];
   let covered = 0;
@@ -140,7 +171,7 @@ test('every figure in every state-year has exactly one provenance entry', () => 
   //
   // **AND IT IS PINNED EXACTLY RATHER THAN FLOORED, WHICH IS DAY 73'S LESSON
   // APPLIED TO THE ASSERTION THAT TAUGHT IT.** `covered > 2_000` stood here
-  // against a real value of 7,009 — a floor three and a half times below the
+  // against a real value of 7,018 — a floor three and a half times below the
   // thing it guards, so every figure between 2,001 and 7,009 could vanish and
   // this test would pass. The published sentence states the split, so the
   // published sentence is what it is checked against: the count of mapped
@@ -175,10 +206,9 @@ test('every figure in every state-year has exactly one provenance entry', () => 
 test('every ledger entry is needed by at least one figure', () => {
   const unused = [];
   for (const entry of STATE_FIGURE_PROVENANCE) {
-    const years = entry.years ?? SUPPORTED_YEARS;
+    const years = ledgerYears(entry);
     const used = years.some((year) => {
       const definition = getStateDefinition(entry.state, year);
-      if (definition === undefined) return false;
       return realFigures(definition).some(
         (path) =>
           stateFigureProvenanceMatches(entry.path, path) &&
@@ -219,9 +249,7 @@ test('an entry claiming constancy has figures that do not move, and the reverse'
   let checkedBothWays = 0;
   let vacuous = 0;
   for (const entry of STATE_FIGURE_PROVENANCE) {
-    const years = (entry.years ?? SUPPORTED_YEARS).filter(
-      (year) => getStateDefinition(entry.state, year) !== undefined,
-    );
+    const years = ledgerYears(entry);
     // Figures this entry actually wins, per year.
     const byYear = years.map((year) => {
       const definition = getStateDefinition(entry.state, year);
@@ -285,9 +313,7 @@ test('an indexed figure that has not moved says why it is not a carry-forward', 
   const silent = [];
   for (const entry of STATE_FIGURE_PROVENANCE) {
     if (entry.kind !== 'indexed' || !entry.constant) continue;
-    const years = (entry.years ?? SUPPORTED_YEARS).filter(
-      (year) => getStateDefinition(entry.state, year) !== undefined,
-    );
+    const years = ledgerYears(entry);
     if (years.length < 2) continue;
     if ((entry.why ?? '').length > 40) continue;
     silent.push(
@@ -301,9 +327,8 @@ test("an entry's document is a citation the state-year already carries", () => {
   const missing = [];
   for (const entry of STATE_FIGURE_PROVENANCE) {
     if (entry.document === undefined) continue;
-    for (const year of entry.years ?? SUPPORTED_YEARS) {
+    for (const year of ledgerYears(entry)) {
       const definition = getStateDefinition(entry.state, year);
-      if (definition === undefined) continue;
       if (!definition.citations.some((citation) => citation.title.includes(entry.document))) {
         missing.push(`${entry.state} ${year}: '${entry.document}' for ${entry.path}`);
       }
@@ -332,9 +357,8 @@ test("an entry's document identifies ONE citation, not merely matches one", () =
   const ambiguous = [];
   for (const entry of STATE_FIGURE_PROVENANCE) {
     if (entry.document === undefined) continue;
-    for (const year of entry.years ?? SUPPORTED_YEARS) {
+    for (const year of ledgerYears(entry)) {
       const definition = getStateDefinition(entry.state, year);
-      if (definition === undefined) continue;
       const hits = definition.citations.filter((citation) => citation.title.includes(entry.document));
       if (hits.length > 1) {
         ambiguous.push(

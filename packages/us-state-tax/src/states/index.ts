@@ -38,7 +38,7 @@ import { wisconsin } from './wisconsin.js';
 import type { StateCode } from '../types.js';
 
 /** Every tax year any state in this package covers. */
-export const SUPPORTED_YEARS: readonly number[] = [2025, 2026];
+export const SUPPORTED_YEARS: readonly number[] = [2025, 2026, 2027];
 
 /**
  * Every state definition that exists for one tax year.
@@ -371,10 +371,51 @@ export function isSupported(state: string, year: number): boolean {
   return REGISTRY.has(`${state}:${year}`);
 }
 
-/** Years supported for one state. Every supported state currently covers both. */
+/**
+ * The tax years one state is actually served for.
+ *
+ * **This is no longer the same list for every state, and that is the point.**
+ * `SUPPORTED_YEARS` is every year ANY state here covers; this is every year THIS
+ * state covers. From tax year 2027 the two differ: the nine states with no
+ * individual income tax serve 2027 and the other thirty-three do not, because a
+ * state with no income tax has no figure that can arrive later and the other
+ * thirty-three each publish one between December and February.
+ *
+ * Until Day 84 the two lists were interchangeable in fact, which is how eight
+ * derived lists across two packages came to be built from the cross product of
+ * every state with every year — and how `import 'us-state-tax'` came to throw
+ * the first time the grid was not square.
+ */
 export function supportedYears(state: StateCode): readonly number[] {
   return SUPPORTED_YEARS.filter((y) => isSupported(state, y));
 }
+
+/**
+ * The states served for one tax year — the transpose of {@link supportedYears}.
+ *
+ * Both directions are needed and neither is derivable from `SUPPORTED_STATES`
+ * and `SUPPORTED_YEARS` once the grid stops being square. A caller asking "what
+ * can I ask about 2027" gets nine states; a caller asking "what can I ask about
+ * Texas" gets three years. Crossing the two lists instead produces thirty-three
+ * pairs that {@link getStateDefinition} throws on, which is how `import` itself
+ * came to throw on Day 83 and how the test suite came to throw on Day 84.
+ *
+ * Returns a new array in `SUPPORTED_STATES` order; empty for a year nothing
+ * serves, rather than throwing, because "which states have 2031" is a question
+ * with an answer.
+ */
+export function statesForYear(year: number): readonly StateCode[] {
+  return SUPPORTED_STATES.filter((state) => isSupported(state, year));
+}
+
+/**
+ * Every `[state, year]` pair the registry actually holds, in state then year
+ * order. The honest replacement for `SUPPORTED_STATES × SUPPORTED_YEARS`.
+ */
+export const SUPPORTED_STATE_YEARS: readonly (readonly [StateCode, number])[] =
+  SUPPORTED_STATES.flatMap((state) =>
+    supportedYears(state).map((year) => [state, year] as [StateCode, number]),
+  );
 
 export function getStateDefinition(state: StateCode, year: number): StateIncomeTaxDefinition {
   const def = REGISTRY.get(`${state}:${year}`);

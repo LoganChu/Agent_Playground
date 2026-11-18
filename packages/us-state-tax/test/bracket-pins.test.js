@@ -52,6 +52,7 @@ import {
   applyBrackets,
   FILING_STATUSES,
   getStateDefinition,
+  statesForYear,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
 } from './strict.mjs';
@@ -83,7 +84,7 @@ test('the fixture covers every band of every schedule this package ships', () =>
   const seen = new Set(PINS.rows.map(([y, s, f]) => `${y}|${s}|${f}`));
   const expectedCount = new Map();
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       const rate = getStateDefinition(state, year).rate;
       if (!rate || rate.kind !== 'brackets') continue;
       const tables = rate.byStatus ? Object.entries(rate.byStatus) : [['*', rate.brackets ?? rate.table]];
@@ -114,7 +115,7 @@ test('every rate schedule is ascending, open at the top, and has no empty band',
   // engine can never reach is not tested by anything — and it is reachable here
   // only by looking at the table rather than at an answer.
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       const rate = getStateDefinition(state, year).rate;
       if (!rate || rate.kind !== 'brackets') continue;
       const tables = rate.byStatus ? Object.entries(rate.byStatus) : [['*', rate.brackets ?? rate.table]];

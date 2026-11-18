@@ -6,15 +6,26 @@ self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, t
 **state income tax for 35 states including SOUTH CAROLINA, Minnesota, Wisconsin, Oregon, Missouri, New York, New Jersey, Alabama, Massachusetts, Maryland,
 Ohio and Virginia** and **1,033 local income taxes — New York City, Yonkers, all 24 Maryland
 jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all 679 Ohio municipalities
-and all 214 Ohio school districts** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
-the IRS release or state statute it came from.
+and all 214 Ohio school districts** — for **tax years 2024 to 2027 federally, 2025 to 2027
+by state** — entirely offline, with every figure cited to the IRS release or state statute
+it came from.
+
+> **TAX YEARS ARE PER JURISDICTION HERE, AND THE TOOL SCHEMAS CANNOT SAY SO.** Federal
+> 2027 is Rev. Proc. 2026-35, shipped eleven days after the IRS published it and flagged
+> **provisional**. State 2027 is served by the **nine states with no individual income
+> tax** and by no other state and no locality, because those nine are the only ones with
+> no figure that can arrive later; the other thirty-three publish between December and
+> February. JSON Schema cannot make one property's `enum` depend on another's value, so
+> `state_income_tax`'s `year` is advertised as the union across all states and its
+> **description** carries the per-state rule. Omit `year` and you get the latest year that
+> state has. Name one it does not have and the refusal lists that state's own years.
 
 - **Zero dependencies.** Nothing to install but this package. An MCP server is spawned once
   per conversation; every dependency is latency the user pays each time.
 - **MIT.** Usable in a commercial product.
 - **Deterministic and offline.** No API key, no network call, no rate limit. The same inputs
   give the same answer forever.
-- **Three tax years, not one** — which is what makes "what changed for me" answerable.
+- **Four tax years, not one** — which is what makes "what changed for me" answerable.
 
 ```jsonc
 // claude_desktop_config.json, .mcp.json, or your client's equivalent
@@ -24,7 +35,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.65.0/us-tax-mcp-0.65.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.66.0/us-tax-mcp-0.66.0.tgz"
       ]
     }
   }
@@ -1214,8 +1225,8 @@ EITC withdrawal at the § 32 phase-out rate.
 
 The engines underneath live in the same repository. `packages/us-federal-tax`: **428 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **1,198 tests**, every state figure cited to its statute.
-This package adds **186 more** covering the protocol and the tool layer. Those three
+sources. `packages/us-state-tax`: **1,199 tests**, every state figure cited to its statute.
+This package adds **190 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the
 assertion that was supposed to keep them honest turned out to be comparing the README

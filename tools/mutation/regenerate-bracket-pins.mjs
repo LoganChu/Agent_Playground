@@ -10,11 +10,11 @@
  *   git diff --stat packages/us-state-tax/test/bracket-pins.json   # read every line
  */
 import { writeFileSync } from 'node:fs';
-import { applyBrackets, getStateDefinition, SUPPORTED_STATES, SUPPORTED_YEARS } from '../../packages/us-state-tax/dist/esm/index.js';
+import { applyBrackets, getStateDefinition, SUPPORTED_YEARS, statesForYear } from '../../packages/us-state-tax/dist/esm/index.js';
 
 const rows = [];
 for (const year of SUPPORTED_YEARS) {
-  for (const state of SUPPORTED_STATES) {
+  for (const state of statesForYear(year)) {
     const rate = getStateDefinition(state, year).rate;
     if (!rate || rate.kind !== 'brackets') continue;
     const tables = rate.byStatus ? Object.entries(rate.byStatus) : [['*', rate.brackets ?? rate.table]];

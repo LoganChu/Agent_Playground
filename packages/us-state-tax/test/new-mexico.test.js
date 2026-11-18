@@ -29,11 +29,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  getStateDefinition,
+  stateIncomeTax,
+  statesForYear,
   SUPPORTED_LOCALITIES,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
-  getStateDefinition,
-  stateIncomeTax,
 } from '../dist/esm/index.js';
 
 /** The federal deduction a New Mexico return reads off Form 1040 line 12. */
@@ -485,7 +486,7 @@ test('NEW MEXICO HAS THE LARGEST LIVE SOCIAL SECURITY DISCONTINUITY HERE, AND TH
 
   const worst = new Map();
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       if (!getStateDefinition(state, year)) continue;
       let biggest = 0;
       for (const agi of probes) {

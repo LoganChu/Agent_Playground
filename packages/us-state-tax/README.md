@@ -1,11 +1,13 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025 and 2026**, across **42
+US **state and local** individual income tax for tax years **2025, 2026 and — for the nine states with no income tax — 2027**, across **42
 states** including **NEW MEXICO**, **Kansas**, **Arkansas**, **Iowa**, **Oklahoma**, **North Dakota**, **Louisiana**, **South Carolina**, **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
 **Massachusetts**, **Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+
+New in 0.64.0: **TAX YEAR 2027, FOR THE NINE STATES WITH NO INDIVIDUAL INCOME TAX — AND IT IS THE FIRST YEAR THIS PACKAGE HAS EVER SERVED THAT EVERY STATE DOES NOT.** The nine are the only states that can answer before a state publishes anything, because a state with no income tax has no figure that can arrive later; the other thirty-three publish their 2027 figures between December and February and arrive one at a time. The header of `states/index.ts` has said since it was written that *"support is per state **and** per year, not per state"* — and until now that had never once been true, because both supported years were served by all forty-two states, so the cross product was square and the refusal unreachable. Making it untrue broke the package's own suite in sixteen files, broke three `us-tax-mcp` tools for thirty-three states by redirecting a default year nobody had asked for, and turned up seven more `if (def === undefined)` guards sitting under a lookup that throws. `supportedYears(state)` and the new `statesForYear(year)` are the two directions a caller needs, and both are now shipped API rather than something each consumer rebuilds as a cross product.
 
 New in 0.63.0: **NINETEEN STATE EARNED INCOME CREDITS ARE BARRED OUTRIGHT BY A FEDERAL CEILING ON INVESTMENT INCOME, AND NOTHING HERE SAID SO.** § 32(i) disallows the federal credit — not tapers it — above about `$12,000` of interest, dividends, capital gain, rent and royalties. One cent over and the whole credit is gone, and so is every state credit computed as a percentage of it. Sixteen of the nineteen states here had notes describing their credit's *phase-out* to the hundredth of a point and not one word about the cliff, which is the shape a caller who reads the notes will build. The disclosure now ships from one place — the condition is federal and is inherited through the figure you pass — and it is **priced from this return's own credits**: `$8,505.64` of South Carolina credit on one cent for a single parent of two on `$25,000` of wages, `$5,376.79` in Maryland across two lines of one credit, `$3,402.26` in Colorado. `tools/cross-package/eitc-investment-income-cliff.mjs` re-derives every figure in that sentence from two returns a cent apart, in both packages, and refused four of its own first drafts: the match rate times the federal credit is **not** the credit — New York reduces it by the household credit, Wisconsin's rate is four rates by child count, Maryland's refundable half is a second line, and South Carolina's is limited by the liability.
 
@@ -894,7 +896,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.63.0/us-state-tax-0.63.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.64.0/us-state-tax-0.64.0.tgz
 ```
 
 ## The rate is the easy part
@@ -3122,7 +3124,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **965** notes every
+`test/notes.test.js` pins the first 72 characters of all **979** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -3147,17 +3149,17 @@ reads, and all 27 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 7,320 numeric
-figures over 84 state-years, against 632 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 7,329 numeric
+figures over 93 state-years, against 643 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
 
-Of those 7,320, **7,009 are mapped to a document and 311 are classified as sentinels** —
+Of those 7,329, **7,018 are mapped to a document and 311 are classified as sentinels** —
 a bracket with no ceiling, a cap meaning "the whole of it" — which no document states and
 which the ledger has to classify anyway. Both halves of that sentence are load-bearing:
-the ledger *covers* 7,320 figures and *maps* 7,009 of them, and a claim that it maps all
-7,320 **to the document each came from** overstates it by exactly the figures it
+the ledger *covers* 7,329 figures and *maps* 7,018 of them, and a claim that it maps all
+7,329 **to the document each came from** overstates it by exactly the figures it
 deliberately declares as documentless. Day 73 made that claim in `STRATEGY.md`, corrected
 it, and then overcorrected this section — which was right, and machine-checked, and is
 restored. **A list of sources beside a list of figures
@@ -3453,7 +3455,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **1,198 tests**. Turning it on, when there were 618 of them, is what
+from all **1,199 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

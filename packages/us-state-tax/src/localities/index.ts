@@ -36,6 +36,41 @@ const STATE_OF: ReadonlyMap<string, StateCode> = new Map(
   [...REGISTRY.values()].map((d) => [d.code, d.state]),
 );
 
+/** Whether this package holds a definition for one locality in one tax year. */
+export function isLocalitySupported(locality: string, year: number): boolean {
+  return REGISTRY.has(`${locality}:${year}`);
+}
+
+/**
+ * The tax years one locality is actually served for.
+ *
+ * The counterpart of {@link supportedYears} for states, and it exists for the
+ * same reason that one does: `SUPPORTED_YEARS` is every year ANY jurisdiction in
+ * this package covers, which is not every year a particular one covers. The
+ * refusal below used to quote the package-wide list, so the first year served by
+ * states and not by localities would have told a New York City caller that 2027
+ * was a supported year in the same sentence that refused it.
+ *
+ * That was not a latent nicety. Tax year 2027 is served by the nine states with
+ * no income tax — the only nine that can answer before a state publishes
+ * anything — and by no locality at all, because every locality here has a figure
+ * that arrives later: New York City's and Yonkers' brackets, Maryland's 24
+ * county rates, Indiana's 92, Ohio's 679 municipalities and 214 school districts.
+ */
+export function supportedLocalityYears(locality: LocalityCode): readonly number[] {
+  return SUPPORTED_YEARS.filter((y) => isLocalitySupported(locality, y));
+}
+
+/**
+ * Every tax year at least one locality is served for.
+ *
+ * Derived from the registry rather than listed, so it narrows on its own the day
+ * a locality stops covering a year and widens the day one starts.
+ */
+export const SUPPORTED_LOCALITY_YEARS: readonly number[] = SUPPORTED_YEARS.filter((y) =>
+  [...REGISTRY.keys()].some((k) => k.endsWith(`:${y}`)),
+);
+
 /** Every locality code this package supports, sorted. */
 export const SUPPORTED_LOCALITIES: readonly LocalityCode[] = [...new Set(STATE_OF.keys())]
   .sort()
@@ -67,7 +102,9 @@ export function getLocalityDefinition(
   }
   throw new RangeError(
     `${locality} is supported but tax year ${year} is not. Supported years: ` +
-      `${SUPPORTED_YEARS.join(', ')}.`,
+      `${supportedLocalityYears(locality).join(', ')}. A year this package serves for ` +
+      `some state is not necessarily served for any locality: every local income tax ` +
+      `here has a rate or a bracket that the jurisdiction publishes separately.`,
   );
 }
 

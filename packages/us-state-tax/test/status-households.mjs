@@ -124,6 +124,21 @@ const FEDERAL_STANDARD_DEDUCTION = {
     headOfHousehold: 24_150,
     qualifyingSurvivingSpouse: 32_200,
   },
+  // Rev. Proc. 2026-35, as `us-federal-tax`'s `data/2027.ts` ships it.
+  //
+  // **THE HEAD OF HOUSEHOLD AMOUNT IS NOT 1.5 x THE SINGLE ONE AND THIS IS THE
+  // FIRST YEAR THAT IS TRUE.** 1.5 x $16,600 is $24,900; § 63(c)(7)(B)(ii) with
+  // § 1(f)(6)'s rounding gives $24,925, a multiple of $25 and not of $50. At
+  // least one secondary transcription printed $24,900 for exactly that reason.
+  // A household fixture that derived the figure instead of carrying it would
+  // have been wrong by $25 of deduction in every head-of-household row.
+  2027: {
+    single: 16_600,
+    marriedFilingJointly: 33_200,
+    marriedFilingSeparately: 16_600,
+    headOfHousehold: 24_925,
+    qualifyingSurvivingSpouse: 33_200,
+  },
 };
 
 /**
@@ -173,6 +188,13 @@ const FEDERAL_AGED_ADDITION = {
     marriedFilingSeparately: 1_650,
     headOfHousehold: 2_050,
     qualifyingSurvivingSpouse: 1_650,
+  },
+  2027: {
+    single: 2_100,
+    marriedFilingJointly: 1_700,
+    marriedFilingSeparately: 1_700,
+    headOfHousehold: 2_100,
+    qualifyingSurvivingSpouse: 1_700,
   },
 };
 

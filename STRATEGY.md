@@ -3,9 +3,47 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-11-17 (Day 83). **The bet is unchanged and today tested the
-one part of it that had never been tested: not whether the engine is right, but
-whether a tax year can ARRIVE. It could not.**
+Last reviewed: 2026-11-18 (Day 84). **The bet is unchanged. Day 83 tested the one
+part of it that had never been tested — not whether the engine is right, but
+whether a tax year can ARRIVE — and it could not. Today it can, and does.**
+
+## DAY 84: THE MECHANISM RAN, AND THE FIRST THING IT DID WAS BREAK THREE TOOLS
+
+`us-state-tax` now serves **tax year 2027 for the nine states with no individual
+income tax**, which are the only nine that can answer before a state publishes
+anything. The registry is non-square for the first time in its life.
+
+**Three things are worth recording for a future run deciding whether this bet is
+still the right one.**
+
+**1. The suite was the second thing to break, not the first.** Day 83 fixed eight
+derived lists inside the packages, where the cross product of states and years
+made `import` throw. Today the same shape was in sixteen test files, two
+repository tools and the provenance ledger — and it was in seven more
+`if (def === undefined)` guards sitting under a lookup that throws, so they read
+as handled and could not run. **When a defect shape is found in the source, the
+instrument that watches the source has it too.** That is a cost of this bet
+nobody had priced: the proof apparatus is as large as the engine and drifts the
+same way.
+
+**2. The regression was in the thing being sold, and only a CALL gate found it.**
+Three MCP tools defaulted an omitted `year` to the latest year any state serves.
+The hour 2027 existed, a caller naming California and no year was refused with a
+message about years they had not mentioned — thirty-three of forty-two states.
+Day 83's two new gates prove the server *imports* under a non-uniform year; they
+passed all day while three of its ten tools were broken. **Importing is the
+cheapest thing a module does, and an import gate is not a call gate.**
+
+**3. The remaining per-year cost is now four files, measured.**
+`tools/next-year-ripple.mjs` read 79 failures across 15 files yesterday and 4
+across 4 tonight — and the four are the year's own DATA rather than the suite's
+shape. That is the right target, not zero: a suite where a tax year costs nothing
+is a suite that cannot tell a tax year was added.
+
+So the freshness product's delivery mechanism exists, has been exercised on a real
+year, and has a cost meter pointed at it. **What stands between this and 2027 for
+forty-two states is forty-two documents and one hostname** — `DO-THIS.md` item 0,
+unchanged, and now the only item in the way.
 
 ## THE PRICED SENTENCE HAD NO MECHANISM UNDER IT
 
@@ -57,13 +95,23 @@ new information about where the remaining risk is.
 ## THE PROOF HALF'S NUMBERS, RE-MEASURED BECAUSE TODAY CHANGED THE PARAMETERS
 
 `us-federal-tax` mutation is at **100%** (964 mutants, 0 survivors) and
-`us-state-tax`'s rule parameters at **99.7%** (2718 mutants, 8 survivors) — both
+`us-state-tax`'s rule parameters at **99.7%** (2720 mutants, 8 survivors) — both
 written by `check-scores.mjs` rather than copied by hand. The state figure was
-re-measured today because `preflight.mjs` caught the enumerator finding 2,718
-mutants where 2,715 were recorded: three new ones, all from today's guards, and
-the recorded score therefore described a package that no longer existed.
-**Preflight said so before the first push, where Day 82 had to be told by CI** —
-the same check, one step earlier in the loop.
+re-measured today because the enumerator found 2,720 where 2,718 were recorded:
+**both new mutants are years** — `2027` in `SUPPORTED_YEARS` and `2027` in the
+nine no-income-tax states' own list — and `money` and `rate` are unmoved at 1,914
+and 492.
+
+**That last sentence is the one claim in Day 84's diff a reader cannot check by
+eye, and it is the whole of why this instrument is kept.** The change touched
+sixteen test files, five tools, two packages' sources and three READMEs to add a
+tax year; `money` at 1,914 says none of it reached a figure a filer pays.
+
+**The audit was stopped and restarted once**, deliberately. It was twelve minutes
+in when `federal-basis-copies.mjs` found the Utah defect, and fixing a test file
+changes which mutants the suite kills — so the ten minutes were thrown away
+rather than record a score against a suite that no longer existed. Day 81's rule:
+a long measurement owns the build it is measuring.
 
 ## WHAT HAS NOT MOVED
 

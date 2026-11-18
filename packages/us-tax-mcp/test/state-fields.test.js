@@ -31,6 +31,7 @@ import {
   KNOWN_STATE_INPUT_FIELDS,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
+  supportedYears,
   getStateDefinition,
 } from '../dist/state-engine/index.js';
 
@@ -721,7 +722,7 @@ test("the surplus-credit field's NAME is the engine's, not this module's", () =>
   // actually accepts.
   const declared = new Set();
   for (const state of SUPPORTED_STATES) {
-    for (const year of SUPPORTED_YEARS) {
+    for (const year of supportedYears(state)) {
       const field = getStateDefinition(state, year)?.surplusCredit?.basisField;
       if (field !== undefined) declared.add(field);
     }
@@ -738,7 +739,7 @@ test("the surplus-credit field's NAME is the engine's, not this module's", () =>
   // rule — in ANY year, because the rule is absent in even ones and a gate that
   // dropped Oregon for that reason would refuse the field in the year it works.
   const states = SUPPORTED_STATES.filter((state) =>
-    SUPPORTED_YEARS.some((year) => getStateDefinition(state, year)?.surplusCredit !== undefined),
+    supportedYears(state).some((year) => getStateDefinition(state, year)?.surplusCredit !== undefined),
   );
   assert.deepEqual([...entry.states].sort(), [...states].sort());
 });

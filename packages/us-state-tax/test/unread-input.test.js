@@ -19,9 +19,10 @@ import test from 'node:test';
 import {
   KNOWN_STATE_INPUT_FIELDS,
   NO_INCOME_TAX_STATES,
+  stateIncomeTax,
+  statesForYear,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
-  stateIncomeTax,
 } from '../dist/esm/index.js';
 
 const FEDERAL = {
@@ -239,7 +240,7 @@ test('no structural field is ever reported, in any state-year', () => {
   // answer, and a probe that tried would throw for a reason that has nothing to
   // do with whether the caller's figure was spent.
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       const result = stateIncomeTax(base(state, year, { propertyTaxPaid: 6_400 }));
       for (const field of ['state', 'year', 'filingStatus', 'federal'])
         assert.equal(namesField(result, field), false, `${state} ${year} ${field}`);
@@ -255,7 +256,7 @@ test('reportUnreadFields: false moves NO figure and no other note, in every stat
   // place a figure could change unobserved.
   let withNote = 0;
   for (const year of SUPPORTED_YEARS) {
-    for (const state of SUPPORTED_STATES) {
+    for (const state of statesForYear(year)) {
       const input = base(state, year, {
         propertyTaxPaid: 6_400,
         rentPaid: 14_000,

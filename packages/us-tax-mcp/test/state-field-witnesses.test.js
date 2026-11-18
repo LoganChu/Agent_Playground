@@ -95,6 +95,7 @@ import {
   stateIncomeTax,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
+  supportedYears,
   getStateDefinition,
   marylandCounties,
   indianaCounties,
@@ -792,11 +793,13 @@ test('every derivation path reaches a real figure in at least one state-year', (
     const segments = path
       .split('.')
       .flatMap((part) => (part.endsWith('[]') ? [part.slice(0, -2), '[]'] : [part]));
+    // `supportedYears(code)` and not `SUPPORTED_YEARS`, and the `def !== undefined`
+    // below it was unreachable either way: `getStateDefinition` throws. Day 83
+    // closed six guards of this shape inside `state-fields.ts` and left the ones
+    // in the files that watch it — which is where a dead guard survives longest,
+    // because a test that cannot reach its own branch still reports a pass.
     const live = SUPPORTED_STATES.some((code) =>
-      SUPPORTED_YEARS.some((year) => {
-        const def = getStateDefinition(code, year);
-        return def !== undefined && read(def, segments) !== undefined;
-      }),
+      supportedYears(code).some((year) => read(getStateDefinition(code, year), segments) !== undefined),
     );
     if (!live) dead.push(path);
   }

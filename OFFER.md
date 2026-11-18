@@ -394,11 +394,42 @@ costs more than this.
 > found in November rather than in January is that somebody tried to ship a year
 > before a year was due.
 
+> **DAY 84: THE STATE ENGINE NOW SERVES TAX YEAR 2027, AND THE SENTENCE AT THE
+> TOP OF THIS SECTION IS NO LONGER A PROMISE.**
+>
+> `us-state-tax` ships **2027 for the nine states with no individual income tax**
+> — the only nine that can answer before a state publishes anything, because a
+> state with no income tax has no figure that can arrive later. Alongside
+> `us-federal-tax`'s 2027, that is a tax year this project ENTERED rather than
+> inherited, in both engines, in the month it became available.
+>
+> **Nine states of zero tax is not the product. The mechanism is.** The
+> thirty-three that tax are now a parameter edit each, and the registry has, for
+> the first time, actually been non-square: a year is served state by state, as
+> the states publish. Yesterday that did not compile. The yardstick is
+> `supportedYears(state)` and `statesForYear(year)` — both now shipped API, both
+> because a caller facing a non-square registry has the same question the suite
+> had.
+>
+> **AND IT COST ONE REGRESSION, WHICH IS ALSO THE ARGUMENT.** Three MCP tools
+> defaulted an omitted `year` to the latest year *any* state serves. The hour
+> 2027 existed, a caller naming California and no year got `CA is supported but
+> tax year 2027 is not` — a refusal with a false explanation, for a request that
+> never mentioned a year, on thirty-three of forty-two states. It was caught by a
+> test the same afternoon and is gated by one that calls every tool for every
+> state with no year named.
+>
+> **That is what the subscription buys.** Not next year's numbers — those are
+> public. It is that the first non-uniform tax year in this engine's life broke
+> two packages at `import`, broke eighty-two tests, and silently redirected a
+> default across thirty-three states, and all three were found and closed in
+> November, by somebody running the rollover before the rollover was due.
+
 
 **What they get.** Every tax year, every parameter for all 42 states and 1,033
 local jurisdictions re-read from the issuing document and re-verified, shipped
-as a versioned pack with the provenance ledger — 7,009 figures mapped to the
-document each came from, behind 632 citation entries, each saying which document,
+as a versioned pack with the provenance ledger — 7,018 figures mapped to the
+document each came from, behind 643 citation entries, each saying which document,
 which line, and what kind of authority it is. The ledger covers 311 further
 numeric leaves and classifies them as sentinels — figures no document states,
 such as a bracket with no ceiling — which is why the two counts differ. Plus the year's verification report and the differential grid.

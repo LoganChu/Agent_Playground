@@ -8,10 +8,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  SUPPORTED_STATES,
-  SUPPORTED_YEARS,
   getStateDefinition,
   stateIncomeTax,
+  SUPPORTED_STATES,
+  SUPPORTED_YEARS,
+  supportedYears,
 } from './strict.mjs';
 
 const money = (actual, expected, msg) =>
@@ -67,7 +68,7 @@ const eitcOf = (result) =>
 test('every state whose definition carries an earned income credit pays its match rate', () => {
   const withCredit = [];
   for (const state of SUPPORTED_STATES) {
-    for (const year of SUPPORTED_YEARS) {
+    for (const year of supportedYears(state)) {
       const rule = getStateDefinition(state, year).earnedIncomeCredit;
       if (!rule) continue;
       if (!withCredit.includes(state)) withCredit.push(state);

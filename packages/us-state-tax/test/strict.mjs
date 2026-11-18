@@ -37,3 +37,28 @@ export * from '../dist/esm/index.js';
 /** `stateIncomeTax`, defaulting to `strict: true`. A caller may still override. */
 export const stateIncomeTax = (input, options = {}) =>
   engine(input, { strict: true, ...options });
+
+// ---------------------------------------------------------------------------
+// THE STATE-YEAR PAIRS THIS PACKAGE ACTUALLY SERVES.
+//
+// Day 84. `SUPPORTED_STATES × SUPPORTED_YEARS` was the whole suite's idea of
+// "every state-year" for eighty-three days, and it was right for eighty-three
+// days because both supported years were served by all forty-two states. Tax
+// year 2027 ends that: the nine states with no individual income tax serve it —
+// they are the only nine that can answer before a state publishes anything —
+// and the other thirty-three do not, because each of them has a figure that
+// arrives between December and February.
+//
+// The cross product is therefore no longer a list of state-years. It is a list
+// of state-years plus thirty-three pairs that make `getStateDefinition` throw,
+// and a sweep over it does not fail with an assertion about tax — it fails with
+// a `RangeError` from the lookup, in whatever test happened to reach it first.
+// Day 83 fixed exactly this shape inside the two packages, where it made
+// `import` itself throw. This is the same shape in the instrument that watches
+// them.
+//
+// The two replacements — `statesForYear(year)` and `supportedYears(state)` —
+// are SHIPPED API rather than test helpers, and deliberately so: a caller
+// asking a non-square registry "what can I ask about 2027" has the same problem
+// this suite had, and the answer should not live in `test/`. They are re-exported
+// by the `export *` above.

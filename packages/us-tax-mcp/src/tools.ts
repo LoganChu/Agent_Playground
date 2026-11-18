@@ -68,6 +68,8 @@ import {
   SUPPORTED_STATES as STATE_CODES,
   SUPPORTED_YEARS as STATE_YEARS,
   stateIncomeTax,
+  statesForYear,
+  supportedYears as supportedStateYears,
 } from './state-engine/index.js';
 import type {
   FilingStatus as StateFilingStatus,
@@ -1220,6 +1222,58 @@ const paycheckTool: ToolDefinition = {
  * three federal numbers instead makes the dependency explicit and makes the two
  * tools reconcile by construction.
  */
+/**
+ * The tax year to use when the caller names a state and no year.
+ *
+ * ## THE DEFAULT WAS `STATE_YEARS[STATE_YEARS.length - 1]` AND IT REFUSED 33 STATES
+ *
+ * Day 84. `STATE_YEARS` is every year ANY state in the engine covers. For
+ * eighty-three days that was also every year EVERY state covers, so the last
+ * entry was a safe default for all forty-two. Tax year 2027 ended that: it is
+ * served by the nine states with no individual income tax and by none of the
+ * thirty-three that tax, so the moment 2027 was added the latest-year default
+ * answered `CA is supported but tax year 2027 is not` to a caller who had asked
+ * nothing about years at all.
+ *
+ * **That is the worst shape a defect takes in this package**, and it is Day 51's
+ * again: not a wrong number but a REFUSAL carrying a false explanation, handed to
+ * a model that will read it as "California is unavailable" rather than "you were
+ * given a year California does not have". The caller is argued out of a correct
+ * question.
+ *
+ * The default is now the latest year THAT STATE serves — 2026 for the
+ * thirty-three, 2027 for the nine — and it becomes 2027 for each of the
+ * thirty-three on the day its figures are entered, without this line changing.
+ */
+function latestYearFor(state: StateCode): number {
+  const years = supportedStateYears(state);
+  const latest = years[years.length - 1];
+  if (latest === undefined) {
+    throw new ToolInputError(`${state} is supported for no tax year, which cannot happen.`);
+  }
+  return latest;
+}
+
+/**
+ * Refuse a state-year the engine does not hold, naming the years THAT STATE has.
+ *
+ * The engine's own `RangeError` says this correctly already. What this adds is
+ * that the refusal arrives as a `ToolInputError` — which the server reports as
+ * arguments the caller can fix — rather than as an unhandled engine throw, and
+ * that it says why the union is wider than the state.
+ */
+function requireStateYear(state: StateCode, year: number): void {
+  const years = supportedStateYears(state);
+  if (years.includes(year)) return;
+  const widest = Math.max(...STATE_YEARS);
+  throw new ToolInputError(
+    `${state} is supported but tax year ${year} is not. ${state} covers ${years.join(', ')}. ` +
+      `Tax years here are per STATE: ${STATE_YEARS.join(', ')} is the union across all ` +
+      `${STATE_CODES.length} states, and only ${statesForYear(widest).length} of them serve ` +
+      `${widest}. Each state publishes its figures at its own pace, between December and February.`,
+  );
+}
+
 const stateTool: ToolDefinition = {
   name: 'state_income_tax',
   title: 'State income tax',
@@ -1267,8 +1321,26 @@ const stateTool: ToolDefinition = {
       year: {
         type: 'integer',
         enum: [...STATE_YEARS],
+        // ## THIS ENUM IS A UNION AND THE DESCRIPTION HAS TO SAY SO
+        //
+        // JSON Schema cannot make one property's enum depend on another's
+        // value, so this lists every year ANY state serves. It listed every
+        // year EVERY state served until 2027 arrived, and the difference is
+        // what a model reads: offered `[2025, 2026, 2027]` for California with
+        // no further word, it will offer 2027, and the engine will refuse it.
+        //
+        // The schema is the whole contract a language model has. A year it is
+        // told it may pass and then refused for is worse than one it was never
+        // offered, so the description carries the per-state rule and the
+        // default states what it falls back to. `describe_state` and
+        // `list_supported_years` give the exact per-state list.
         description:
-          'State tax year. Eight states cut their rate for 2026; an unsupported year is an error, not a fallback.',
+          'State tax year, and support is PER STATE: this enum is the union across all states. ' +
+          `${statesForYear(Math.max(...STATE_YEARS)).length} of ${STATE_CODES.length} states serve ` +
+          `${Math.max(...STATE_YEARS)} — the ones with no individual income tax, which have no figure ` +
+          'that can arrive later. Every other state serves it once it publishes, between December and ' +
+          'February. Omit this and you get the latest year THAT state has. Eight states cut their ' +
+          'rate for 2026; an unsupported state-year is an error naming that state\'s years, not a fallback.',
       },
       federalAdjustedGrossIncome: {
         type: 'number',
@@ -1339,7 +1411,8 @@ const stateTool: ToolDefinition = {
       );
     }
     const filingStatus = readFilingStatus(source) as unknown as StateFilingStatus;
-    const year = readNumber(source, 'year', { integer: true }) ?? STATE_YEARS[STATE_YEARS.length - 1]!;
+    const year = readNumber(source, 'year', { integer: true }) ?? latestYearFor(state as StateCode);
+    requireStateYear(state as StateCode, year);
 
     const agi = readNumber(source, 'federalAdjustedGrossIncome');
     const taxable = readNumber(source, 'federalTaxableIncome');
@@ -1947,12 +2020,8 @@ const describeStateTool: ToolDefinition = {
       );
     }
     const year =
-      readNumber(source, 'year', { integer: true }) ?? STATE_YEARS[STATE_YEARS.length - 1]!;
-    if (!(STATE_YEARS as readonly number[]).includes(year)) {
-      throw new ToolInputError(
-        `year must be one of ${STATE_YEARS.join(', ')}, received ${year}.`,
-      );
-    }
+      readNumber(source, 'year', { integer: true }) ?? latestYearFor(state as StateCode);
+    requireStateYear(state as StateCode, year);
     const includeNotes = readBoolean(source, 'includeNotes') ?? true;
 
     const code = state as StateCode;
@@ -2147,13 +2216,15 @@ function stateProvenance(
       `Unsupported state ${JSON.stringify(rawState)}. Supported: ${STATE_CODES.join(', ')}.`,
     );
   }
-  const year = rawYear ?? Math.max(...STATE_YEARS);
+  // `Math.max(...STATE_YEARS)` was the default here and `getStateDefinition`
+  // does not return `undefined` — it throws — so the guard below it could never
+  // run and the message it carried ("Supported years: " plus the union) would
+  // have been wrong for thirty-three states the first time it did. Day 83 closed
+  // six guards of exactly this shape in `state-fields.ts`; this is the seventh,
+  // and it was two lines away from the ones that were fixed.
+  const year = rawYear ?? latestYearFor(state);
+  requireStateYear(state, year);
   const definition = getStateDefinition(state, year);
-  if (definition === undefined) {
-    throw new ToolInputError(
-      `${state} is not supported for tax year ${year}. Supported years: ${STATE_YEARS.join(', ')}.`,
-    );
-  }
   const documentsFor = (entry: StateFigureSource) =>
     entry.document === undefined
       ? []

@@ -1,6 +1,6 @@
 {
   "name": "us-tax-mcp",
-  "version": "0.65.0",
+  "version": "0.66.0",
   "description": "MCP server giving an AI agent exact US tax figures for 2024-2026: federal, 42 states and 1,033 local income taxes including 679 municipalities and 214 Ohio school districts. Refuses any argument a state does not read. Zero dependencies, MIT.",
   "keywords": [
     "mcp",

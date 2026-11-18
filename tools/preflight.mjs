@@ -138,6 +138,11 @@ const CHECKS = [
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
   },
   {
+    label: 'every hand-written federal basis in the state suite, against us-federal-tax',
+    cmd: 'node tools/cross-package/federal-basis-copies.mjs',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
     label: "Arizona's deduction against the federal basic one",
     cmd: 'node tools/cross-package/arizona-deduction.mjs --check',
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1] ?? 'ok',

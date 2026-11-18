@@ -15,7 +15,9 @@ import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 import {
+  STATE_TAX_YEARS,
   SUPPORTED_STATES,
+  SUPPORTED_YEARS,
   estimateFederalTax,
   getStateDefinition,
   getYearParameters,
@@ -1139,4 +1141,42 @@ test('the declared-pair count and the Kentucky removal are the code\'s', () => {
     );
   }
   quotesAcrossLines('Kentucky came OUT of the two age lists on Day 53 and WENT BACK IN');
+});
+
+test('the README states the tax years both engines actually serve', () => {
+  // ## THE YEAR CLAIM ON THE FRONT OF THIS README WAS UNGATED AND WENT STALE
+  //
+  // Day 84. It read "tax years 2024, 2025 and 2026" for two days after
+  // `us-federal-tax` shipped 2027, because every other number on this page is
+  // checked and this one was prose. Day 83's rule, one package over: **a number
+  // in prose is a claim whether or not it is in a table.**
+  //
+  // It is also the one claim here that cannot be a single range, and that is the
+  // product rather than an awkwardness: federal years and state years differ,
+  // and from 2027 the STATE years differ between states. So the assertion is on
+  // both engines' own lists and on the shape of the sentence, not on a literal.
+  const federalYears = [...SUPPORTED_YEARS];
+  const stateYears = [...STATE_TAX_YEARS];
+  const span = (years) => `${Math.min(...years)} to ${Math.max(...years)}`;
+  assert.ok(
+    README.replace(/\s+/g, ' ').includes(
+      `tax years ${span(federalYears)} federally, ${span(stateYears)} by state`,
+    ),
+    `the README no longer states tax years ${span(federalYears)} federally and ` +
+      `${span(stateYears)} by state`,
+  );
+  // Both spans must be contiguous, or "X to Y" is a claim about years that are
+  // not there. The federal list is; the state list is too, because 2027 is
+  // served by SOME state.
+  for (const years of [federalYears, stateYears]) {
+    const sorted = [...years].sort((a, b) => a - b);
+    for (let i = 1; i < sorted.length; i += 1) {
+      assert.equal(sorted[i], sorted[i - 1] + 1, `${years.join(', ')} has a gap`);
+    }
+  }
+  // And the note under it must say the per-state rule, because the tool schema
+  // physically cannot: a model reading `enum: [2025, 2026, 2027]` and no prose
+  // will offer 2027 for California.
+  assert.match(README, /nine states with no individual income[\s>]+tax/);
+  assert.match(README, /Omit `year` and you get the latest year that[\s>]+state has/);
 });

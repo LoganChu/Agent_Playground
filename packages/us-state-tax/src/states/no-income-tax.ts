@@ -196,7 +196,7 @@ export const NO_INCOME_TAX_NAMES: Readonly<Record<string, string>> = Object.from
  * arithmetic, so the years are **listed** rather than left open: an open
  * `year >= 2025` would have this package answer for 2099.
  */
-const YEARS: readonly number[] = [2025, 2026];
+const YEARS: readonly number[] = [2025, 2026, 2027];
 
 export function noIncomeTaxDefinitions(year: number): StateIncomeTaxDefinition[] {
   if (!YEARS.includes(year)) return [];

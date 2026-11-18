@@ -36,9 +36,10 @@ import assert from 'node:assert/strict';
 
 import {
   FILING_STATUSES,
+  getStateDefinition,
+  SUPPORTED_STATE_YEARS,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
-  getStateDefinition,
 } from './strict.mjs';
 
 /** Walk a dot path, treating numeric segments as array indices. */
@@ -52,9 +53,7 @@ const resolve = (root, path) => {
 };
 
 const everyDefinition = () =>
-  SUPPORTED_YEARS.flatMap((year) =>
-    SUPPORTED_STATES.map((state) => getStateDefinition(state, year)),
-  );
+  SUPPORTED_STATE_YEARS.map(([state, year]) => getStateDefinition(state, year));
 
 const provisional = () => everyDefinition().filter((d) => d.status === 'provisional');
 

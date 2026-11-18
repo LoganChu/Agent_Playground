@@ -973,6 +973,20 @@
   "2026|WI|def|13|Not modelled: the child and dependent care credit, which from 2024 is 10",
   "2026|WI|def|14|Whether Wisconsin's $700 exemption may be claimed for a spouse with no g",
   "2026|WI|cond|0|This return reaches the § 71.05(6)(b)54m election. The engine has comput",
-  "2026|WY|def|0|Wyoming has no individual income tax."
+  "2026|WY|def|0|Wyoming has no individual income tax.",
+  "2027|AK|def|0|Alaska has no individual income tax and no state sales tax. It is the on",
+  "2027|AK|def|1|The Permanent Fund Dividend is not taxed by Alaska, but it is federally ",
+  "2027|FL|def|0|Florida has no individual income tax; the state constitution forbids one",
+  "2027|NH|def|0|New Hampshire has never taxed wages, and its tax on interest and dividen",
+  "2027|NH|def|1|The repeal was accelerated: 2021 legislation phased the tax out through ",
+  "2027|NV|def|0|Nevada has no individual income tax; the state constitution forbids one.",
+  "2027|NV|def|1|Nevada levies a Modified Business Tax on employer payroll. It is an empl",
+  "2027|SD|def|0|South Dakota has no individual income tax.",
+  "2027|TN|def|0|Tennessee has no tax on wages. The Hall income tax on interest and divid",
+  "2027|TX|def|0|Texas has no individual income tax. A 2019 constitutional amendment requ",
+  "2027|WA|def|0|Washington has no individual income tax on wages.",
+  "2027|WA|def|1|Washington does levy a 7% excise tax on long-term capital gains above an",
+  "2027|WA|def|2|Real estate sales, retirement account distributions and most business as",
+  "2027|WY|def|0|Wyoming has no individual income tax."
  ]
 }
