@@ -315,13 +315,34 @@ function pennsylvania(year: number): StateIncomeTaxDefinition | undefined {
       reductionPerIncrement: 0.1,
     },
     notes: [
-      'Pennsylvania is one of three states this package serves for tax year 2027 and it is the only one of the three with no rate schedule at all. Indiana steps to 2.90% and Mississippi to 3.75% because statutes say so; Pennsylvania stays at 3.07% because nothing in the computation is indexed, scheduled or triggered — the rate has been 3.07% since 2004 and the Special Tax Forgiveness table since 2003. The other thirty taxing states are not refused for 2027 out of caution but because each has a figure that genuinely does not exist yet: an indexed amount a department publishes between December and February, or a rate step that applies only on a revenue determination nobody has made.',
       'Pennsylvania does not start from federal AGI. It taxes eight classes of income separately, with no standard deduction, no personal exemption, and no deduction for 401(k) or 403(b) elective deferrals — those are taxable in Pennsylvania in the year contributed. Passing federal AGI in as the Pennsylvania base understates the tax for anyone contributing to a retirement plan.',
       'Losses in one Pennsylvania income class cannot offset gains in another. A filer with a $20,000 business loss and $80,000 of wages pays Pennsylvania tax on the full $80,000.',
       'Special Tax Forgiveness is a staircase, not a phase-out: full forgiveness up to the allowance, then ten percentage points less for each $250 of eligibility income above it, reaching zero $2,500 later. Because each step forgives ten points less of the WHOLE tax, the cost of a step grows with the household. Across the band a single filer faces about 11% and a single parent of two about 34%, against a statutory 3.07%.',
       'Eligibility income for forgiveness is broader than Pennsylvania taxable income: it adds non-taxable interest, gifts and awards over $300, and support received from others. This package defaults it to taxable income; pass `pennsylvaniaEligibilityIncome` when they differ.',
       'Pennsylvania is not the whole bill. Almost every Pennsylvania municipality and school district levies a local earned income tax, typically 1% and 3.75%+ in Philadelphia. This package computes the state tax only.',
       'Pennsylvania does not tax Social Security benefits or distributions from qualified retirement plans taken after retirement age.',
+      // ## THIS NOTE IS LAST, AND IT CARRIES NO STAIRCASE VOCABULARY
+      //
+      // Day 85. `tools/cliffs/classify.mjs` quotes, as the evidence for an
+      // unattributed notch, the first two of a state's notes containing any of
+      // its staircase words - cliff, staircase, notch, step, discontinuity,
+      // band. The first draft of the note below was FIRST in this array and
+      // said Indiana "steps" to 2.90%, so it matched, and `CLIFFS.md`
+      // regenerated with a paragraph about YEAR COVERAGE standing where the
+      // explanation of the Special Tax Forgiveness staircase belongs - in four
+      // of Pennsylvania's notch reports, including the `Matched on` line.
+      //
+      // Caught by CI rather than here: `preflight` runs the cliff finder's
+      // self-check and its `--check` on the inventory, and the inventory did
+      // not move - 4,758 discontinuities, unchanged. What moved was the PROSE
+      // the report quotes, and only the regenerate-and-diff step sees that.
+      //
+      // **THE RULE: A SHIPPED NOTE IS AN INPUT TO THE INSTRUMENTS, NOT ONLY
+      // DOCUMENTATION.** Two of them read these strings - the cliff classifier
+      // for its evidence and `note-figures.mjs` for the figures in them - so a
+      // word chosen loosely here is a wrong answer somewhere else. Keep this
+      // one last and keep the staircase words out of it.
+      'Pennsylvania is one of three states this package serves for tax year 2027, and the only one of the three whose rate is not on a published schedule. Indiana moves to 2.90% and Mississippi to 3.75% because statutes say so; Pennsylvania stays at 3.07% because nothing in the computation is indexed, scheduled or triggered — the rate has not changed since 2004 and the Special Tax Forgiveness table since 2003. The other thirty taxing states are not refused for 2027 out of caution, but because each has a figure that genuinely does not exist yet: an indexed amount a department publishes between December and February, or a rate reduction that applies only on a revenue determination nobody has made.',
     ],
     citations: PA_CITATIONS,
   };

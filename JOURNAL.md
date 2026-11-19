@@ -651,6 +651,67 @@ is the only version of that rule that survives a long day. I checked afterwards
 that nothing under `packages/us-state-tax` had been touched after the audit's
 start timestamp. Nothing had.
 
+### AND CI CAUGHT WHAT PREFLIGHT COULD NOT: A NOTE I WROTE TOOK OVER A CLIFF REPORT
+
+I pushed on a green preflight — thirty-two checks, `check-scores` green
+separately — and **CI went red on the `cliffs` job.** Not on the cliff
+inventory, which was unchanged to the discontinuity:
+
+```text
+  cliff inventory unchanged: 4758 discontinuities over 2100 sweeps, 518s
+  ##[error]CLIFFS.md is out of date.    1 file changed, 9 insertions(+), 1 deletion(-)
+```
+
+The deletion is the one that mattered. `tools/cliffs/classify.mjs` quotes, as
+the evidence for an unattributed notch, the first two of a state's notes
+containing any of its staircase words — `/cliff|staircase|notch|steps?\b|.../`.
+The Pennsylvania note I wrote this afternoon opens the state's note list and
+says *"Indiana **steps** to 2.90% and Mississippi to 3.75%"* and *"a rate
+**step** that applies only on a revenue determination"*.
+
+**Two words used in a sense that has nothing to do with a staircase, and the
+report regenerated with a paragraph about YEAR COVERAGE standing where the
+explanation of Pennsylvania's Special Tax Forgiveness staircase belongs** — in
+four notch groups, and on the `Matched on` line, which is the one a reader takes
+as the attribution.
+
+> **THE RULE: A SHIPPED NOTE IS AN INPUT TO THE INSTRUMENTS, NOT ONLY
+> DOCUMENTATION.** At least two things in this repository read these strings as
+> data — the cliff classifier for its evidence, `note-figures.mjs` for the
+> figures inside them — so a word chosen loosely in a note is a wrong answer
+> somewhere else. I have been writing notes all day as though they were prose.
+
+**WHY PREFLIGHT MISSED IT, WHICH IS THE REUSABLE PART.** `preflight` runs the
+cliff finder's self-check (27 of 27) and its `--check` against the inventory,
+and both were right: no notch moved, no count moved, nothing about the ENGINE
+changed. The only step that sees this is regenerate-and-diff, and that runs in
+CI alone because it costs eight minutes. **The check that passed and the check
+that failed were asking different questions, and the cheap one cannot be made to
+ask the expensive one's.**
+
+The fix went through three drafts, which is itself the lesson repeating:
+
+1. Moved the note last and dropped the staircase words. `CLIFFS.md` down to 8
+   insertions, `Matched on` correct again — but my note still appeared as
+   *secondary* evidence in four notch reports, because the sentence explaining
+   why it avoids staircase words **listed the staircase words**.
+2. Took that explanation out of the shipped note and put it in a code comment
+   above the array, where a lesson about this repository's own classifier
+   belongs. A note is for a caller.
+3. **`CLIFFS.md` now regenerates byte-identical.** The note is last, it carries
+   no staircase vocabulary, and it touches no instrument.
+
+**And the cost is a second 42-minute audit**, because the note text is in the
+dist bytes the score is fingerprinted over. The mutant count did not move —
+2,715 either way, and the enumerator's by-kind split is identical — but
+`check-scores` is right to refuse: it cannot know that a changed byte is prose.
+Day 84 left *"narrow `suiteFingerprint` to the suite that actually runs"* as
+item 10 and warned the narrowed version can produce a false PASS. **Today the
+same shape cost an audit on the PARAMETER side rather than the suite side, and
+the conservative behaviour was right both times.** It is the second day running
+that this fingerprint has cost roughly an hour for an edit that could not change
+a verdict.
+
 ### WHAT THE SUITES SAID
 
 ```text
@@ -709,11 +770,26 @@ start timestamp. Nothing had.
    time: Indiana at 2.90% with county tax, or Mississippi across its $10,000 zero
    bracket. Day 82's item 4, which until today could only have anchored a zero.
 
-8. **MAKE THE UNNARROWABLE PREFIX NARROWABLE** (132 of ~2,700 mutants taking more
-   than half the audit's clock) and **NARROW `suiteFingerprint` TO THE SUITE THAT
-   ACTUALLY RUNS** — Day 84's items 9 and 10, both unchanged, both standing.
+8. **MAKE THE UNNARROWABLE PREFIX NARROWABLE** (132 of 2,715 mutants taking 51.8%
+   of the audit's clock at 39.51s each) — Day 84's item 9, unchanged.
 
-9. **AND ON THE MONEY.** Still nothing. The instrument moved from `0 and 0` to
+9. **THE FINGERPRINTS ARE WIDER THAN THE THINGS THEY GUARD, AND IT HAS NOW COST
+   AN HOUR ON TWO CONSECUTIVE DAYS.** Day 84 lost a fifty-minute audit to an
+   edit in `readme.test.js`, which the harness never runs. Today lost a
+   forty-two-minute one to **two words inside a shipped note** — prose, in a
+   string, which the enumerator's own `maskNonCode` excludes from mutation and
+   which therefore cannot change a single verdict. The mutant count was 2,715
+   before and after and the by-kind split was identical.
+   **Both conservative behaviours were correct** — `check-scores` cannot know a
+   changed byte is prose — so this is a task and not a patch, and the risk is
+   unchanged: a narrowed fingerprint that does not record exactly what it
+   excluded can produce a false PASS, which is worse than the false stale it
+   removes. The buildable version is to fingerprint **the mutable literals the
+   enumerator finds** rather than the source bytes, for the parameter side; the
+   enumerator already produces exactly that list, and a score carried across a
+   change that moves no mutant is sound by construction.
+
+10. **AND ON THE MONEY.** Still nothing. The instrument moved from `0 and 0` to
    `1 and 1` and I do not believe it was a person; see above for why. Reach is
    still about zero and the two things that change it are a dropdown and a token.
 
