@@ -27,8 +27,8 @@
       "killed": 2707,
       "survivors": 8,
       "score": 99.7,
-      "mutantFingerprint": "badb00c7a3cb9413",
-      "suiteFingerprint": "5e27d1f6945f59ec",
+      "mutantFingerprint": "0dbd347a7a75f777",
+      "suiteFingerprint": "128ec18958d1a3bc",
       "skipped": [
         "localities/ohio.js",
         "localities/ohio-school-districts.js",
@@ -39,29 +39,29 @@
         "localities/counties.js"
       ],
       "cost": {
-        "seconds": 2562,
+        "seconds": 2284,
         "workers": 4,
-        "mutantsPerMinute": 63.6,
+        "mutantsPerMinute": 71.3,
         "phases": {
           "step 1 (narrowed)": {
             "runs": 2583,
             "kills": 1987,
-            "share": 21
+            "share": 20.1
           },
           "step 2 (whole files)": {
             "runs": 596,
             "kills": 572,
-            "share": 18
+            "share": 18.1
           },
           "full re-run (selection miss)": {
             "runs": 24,
             "kills": 16,
-            "share": 9.3
+            "share": 9.8
           },
           "whole suite (no selection)": {
             "runs": 132,
             "kills": 132,
-            "share": 51.8
+            "share": 51.9
           }
         }
       }
