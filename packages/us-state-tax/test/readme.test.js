@@ -82,8 +82,19 @@ test('README: 39 states, 2025 to 2027, nine with no income tax', () => {
     .split('\n')
     .slice(0, 8)
     .join('\n');
-  assert.match(headline, /2025, 2026 and — for the nine states with no income tax — 2027/);
-  assert.deepEqual([...statesForYear(2027)], [...NO_INCOME_TAX_STATES].sort());
+  // ## AND THE HEADLINE HAD TO CHANGE AGAIN ONE DAY LATER, WHICH IS THE POINT
+  //
+  // "for the nine states with no income tax" was exactly true for one day.
+  // Indiana, Mississippi and Pennsylvania serve 2027 from Day 85 — not because
+  // any of them published, but because their entire 2027 computation is already
+  // law — so the headline now counts the states instead of describing them, and
+  // the count is asserted against the registry rather than written here twice.
+  assert.match(headline, /2025, 2026 and — for twelve states — 2027/);
+  assert.equal(statesForYear(2027).length, 12);
+  assert.deepEqual(
+    [...statesForYear(2027)],
+    [...new Set([...NO_INCOME_TAX_STATES, 'IN', 'MS', 'PA'])].sort(),
+  );
   assert.equal(statesForYear(2025).length, 42);
   assert.equal(statesForYear(2026).length, 42);
   // SIXTEEN graduated, THIRTEEN flat, one on a schedule of its own, nine with none.
@@ -1974,7 +1985,13 @@ test('README: every count in the step-probe and notes sections', () => {
   // read through the underscore separator the test file writes them with.
   assert.ok(stepProbes.includes(`assert.equal(checked, ${String(quoted(/— ([\d,]{3,6}) of them/)).replace(/\B(?=(\d{3})+(?!\d))/g, "_")},`));
   // 462 notes, against the fixture itself rather than against another comment.
-  assert.equal(notePins.rows.length, quoted(/all \*\*(\d{3})\*\* notes/));
+  // `(\d{3})` was here, and it stopped matching the day the count reached four
+  // digits — which is a regex that fails OPEN: `quoted` asserts the section
+  // still quotes the pattern, so a widened count would have failed loudly
+  // rather than silently, but it would have failed for the wrong reason and
+  // named the README as the thing that changed. The separator is part of the
+  // number here, exactly as it is in every other count this file reads.
+  assert.equal(notePins.rows.length, quoted(/all \*\*([\d,]{3,6})\*\* notes/));
   // 72 characters of each.
   assert.ok(notePrefix.includes(`PREFIX_LENGTH = ${quoted(/first (\d+) characters/)};`));
   // 15 rates and thresholds printed in rule names.
@@ -2164,6 +2181,7 @@ const RELEASE_HEADLINES = [
   // unreachable, and every list derived across years quietly correct. Making
   // the grid lopsided broke sixteen test files in this package and three
   // `us-tax-mcp` tools for thirty-three states.
+  ['0.65.0', /THREE TAXING STATES NOW ANSWER FOR TAX YEAR 2027/],
   ['0.64.0', /TAX YEAR 2027, FOR THE NINE STATES/],
   // 0.63.0 is the first entry in this table that is not about a state at all.
   // The provision is FEDERAL — § 32(i)'s investment-income bar — and nineteen

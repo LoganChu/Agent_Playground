@@ -12,13 +12,33 @@ it came from.
 
 > **TAX YEARS ARE PER JURISDICTION HERE, AND THE TOOL SCHEMAS CANNOT SAY SO.** Federal
 > 2027 is Rev. Proc. 2026-35, shipped eleven days after the IRS published it and flagged
-> **provisional**. State 2027 is served by the **nine states with no individual income
-> tax** and by no other state and no locality, because those nine are the only ones with
-> no figure that can arrive later; the other thirty-three publish between December and
-> February. JSON Schema cannot make one property's `enum` depend on another's value, so
+> **provisional**. State 2027 is served by **twelve states**: the nine with no individual
+> income tax, which have no figure that can arrive later, and **Indiana, Mississippi and
+> Pennsylvania**, whose whole 2027 computation is already written into statute. No
+> locality serves it. The other thirty states publish between December and February. JSON
+> Schema cannot make one property's `enum` depend on another's value, so
 > `state_income_tax`'s `year` is advertised as the union across all states and its
 > **description** carries the per-state rule. Omit `year` and you get the latest year that
 > state has. Name one it does not have and the refusal lists that state's own years.
+
+> **AND IN 0.67.0 `list_supported_years` FINALLY ANSWERS FOR THE STATES.** It
+> described the federal years only, which was harmless while every state served
+> every state year. It now returns the grid in both directions — `statesByYear`
+> and `yearsByState` — and, for any year not served by everybody, **names the
+> states that are missing rather than counting them**: a count sends a caller
+> back to guessing which thirty.
+
+> **AND IN 0.67.0 THOSE DESCRIPTIONS STOPPED BEING PROSE.** `state_income_tax`'s opened
+> with *"for 2025 or 2026"* from the day it was written, and the server's `initialize`
+> instructions said it computed federal tax *"for tax years 2024, 2025 and 2026"* — both
+> already wrong before this release, by one day and by three. Every other year claim on
+> this server is computed from the engines; those two were sentences, and sentences do not
+> fail. **An under-claim in a tool description is invisible from the server side**: the
+> model reads the narrower span, never asks for the year, and nothing refuses it, so there
+> is no event to see. All three claims — the tool description, the `year` enum's
+> explanation and the federal span, with its provisional year named as provisional — are
+> now derived from the two engines and pinned by `test/year-claims.test.js`, which was
+> checked by putting each of the three old sentences back and watching it go red.
 
 - **Zero dependencies.** Nothing to install but this package. An MCP server is spawned once
   per conversation; every dependency is latency the user pays each time.
@@ -35,7 +55,7 @@ it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.66.0/us-tax-mcp-0.66.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.67.0/us-tax-mcp-0.67.0.tgz"
       ]
     }
   }
@@ -1226,7 +1246,7 @@ EITC withdrawal at the § 32 phase-out rate.
 The engines underneath live in the same repository. `packages/us-federal-tax`: **428 tests**
 against hand-computed figures, every parameter cross-checked against two independent
 sources. `packages/us-state-tax`: **1,199 tests**, every state figure cited to its statute.
-This package adds **190 more** covering the protocol and the tool layer. Those three
+This package adds **195 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the
 assertion that was supposed to keep them honest turned out to be comparing the README

@@ -2,7 +2,7 @@
  * The page. All of the tax work is in `src/compute.js`; this file only reads
  * the form, renders, and remembers which state row you clicked.
  */
-import { FILING_STATUSES, YEARS, compute } from './src/compute.js';
+import { FILING_STATUSES, TOTAL_STATES, YEARS, compute } from './src/compute.js';
 
 const $ = (selector) => document.querySelector(selector);
 const form = $('#form');
@@ -69,7 +69,32 @@ function renderFederal(model) {
   const { federal: fed, marginal, received } = model;
   const card = $('#federal');
   card.replaceChildren();
-  card.append(el('h2', null, `Federal, ${fed.year}`));
+  card.append(el('h2', null, `Federal, ${fed.year}` + (model.federalProvisional ? ' — provisional' : '')));
+  // ## A PROVISIONAL YEAR HAS TO SAY SO ON THE PAGE, NOT ONLY IN A README
+  //
+  // Day 85. This page started offering tax year 2027 today, and the federal
+  // 2027 figures are **triangulated rather than transcribed** — `irs.gov` does
+  // not resolve from the sandbox this engine is built in, so Rev. Proc. 2026-35
+  // was never opened. `us-federal-tax` has said so since Day 82 through
+  // `isPrimaryVerified(year)`, and nothing on this page read it.
+  //
+  // Serving a year whose figures are a reconstruction, to a person deciding
+  // where to retire, without saying which kind of number they are looking at,
+  // is the quiet overclaim this whole repository exists to avoid. The engine
+  // already knew; the page just had to ask.
+  if (model.federalProvisional) {
+    card.append(
+      el(
+        'p',
+        'prose',
+        `The ${fed.year} federal figures here are PROVISIONAL. They were reconstructed from ` +
+          'secondary sources rather than transcribed from the IRS release, because the machine ' +
+          'that builds this engine cannot reach irs.gov. They are believed right and they are not ' +
+          'verified against the published document. Every earlier year on this page was read from ' +
+          'its own Revenue Procedure.',
+      ),
+    );
+  }
 
   const headline = el('div', 'headline');
   headline.append(
@@ -234,7 +259,14 @@ function renderAllocation(card, model) {
 function renderRanking(model) {
   const card = $('#ranking');
   card.replaceChildren();
-  card.append(el('h2', null, `State income tax, cheapest first — ${model.input.year}`));
+  card.append(
+    el(
+      'h2',
+      null,
+      `State income tax, cheapest first — ${model.input.year}` +
+        (model.states.length < TOTAL_STATES ? ` (${model.states.length} of ${TOTAL_STATES} states)` : ''),
+    ),
+  );
   card.append(
     el(
       'p',
@@ -245,6 +277,27 @@ function renderRanking(model) {
         'wrong one.',
     ),
   );
+  // ## A SHORT LIST HAS TO SAY THAT IT IS SHORT
+  //
+  // This page's own title is "all 42 states at once", and from tax year 2027 the
+  // engine serves twelve. Ranking twelve states under that headline and saying
+  // nothing is the kind of quiet wrongness this project spends its days hunting
+  // elsewhere — so the heading counts them and this sentence says why, for
+  // exactly the years where it is true.
+  if (model.states.length < TOTAL_STATES) {
+    card.append(
+      el(
+        'p',
+        'prose',
+        `${TOTAL_STATES - model.states.length} states have not published their ${model.input.year} ` +
+          'figures yet, so they are not ranked here. Tax years are supported per STATE: a state ' +
+          'appears for a year once its own figures are law, and most publish between December and ' +
+          'February. This engine refuses a year it does not hold rather than reusing the ' +
+          'neighbouring one — several of these states change their rate between years, so last ' +
+          'year’s figure would look right and be wrong.',
+      ),
+    );
+  }
 
   renderAllocation(card, model);
 

@@ -44,10 +44,10 @@ export const stateIncomeTax = (input, options = {}) =>
 // Day 84. `SUPPORTED_STATES × SUPPORTED_YEARS` was the whole suite's idea of
 // "every state-year" for eighty-three days, and it was right for eighty-three
 // days because both supported years were served by all forty-two states. Tax
-// year 2027 ends that: the nine states with no individual income tax serve it —
-// they are the only nine that can answer before a state publishes anything —
-// and the other thirty-three do not, because each of them has a figure that
-// arrives between December and February.
+// year 2027 ends that: twelve states serve it — the nine with no individual
+// income tax, which have no figure that can arrive later, and the three whose
+// 2027 is already written into statute — and the other thirty do not, because
+// each of them has a figure that arrives between December and February.
 //
 // The cross product is therefore no longer a list of state-years. It is a list
 // of state-years plus thirty-three pairs that make `getStateDefinition` throw,

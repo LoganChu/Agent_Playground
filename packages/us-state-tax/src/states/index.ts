@@ -376,10 +376,15 @@ export function isSupported(state: string, year: number): boolean {
  *
  * **This is no longer the same list for every state, and that is the point.**
  * `SUPPORTED_YEARS` is every year ANY state here covers; this is every year THIS
- * state covers. From tax year 2027 the two differ: the nine states with no
- * individual income tax serve 2027 and the other thirty-three do not, because a
- * state with no income tax has no figure that can arrive later and the other
- * thirty-three each publish one between December and February.
+ * state covers. From tax year 2027 the two differ, and they differ for TWO
+ * reasons rather than one. The nine states with no individual income tax serve
+ * 2027 because a state with no income tax has no figure that can arrive later.
+ * Indiana, Mississippi and Pennsylvania serve it because their entire 2027
+ * computation is already written into statute — two scheduled rate steps and
+ * one rate that has not moved since 2004, with no indexed parameter behind any
+ * of them. The remaining thirty each have a figure that does not exist yet:
+ * an amount a department publishes between December and February, or a rate
+ * step that applies only on a revenue determination nobody has made.
  *
  * Until Day 84 the two lists were interchangeable in fact, which is how eight
  * derived lists across two packages came to be built from the cross product of

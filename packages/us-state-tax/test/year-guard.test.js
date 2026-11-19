@@ -92,8 +92,8 @@ test('no LOCALITY builder answers for an unsupported year either, 1990 to 2100',
   // package-wide list. The first draft asserted `localitiesForYear(year).length > 0`
   // for every `SUPPORTED_YEARS` entry, and it failed on the first non-uniform
   // year for a reason that has nothing to do with the defect this file guards:
-  // tax year 2027 is served by the nine states with no income tax and by NO
-  // locality, because every local income tax here has a rate or a bracket the
+  // tax year 2027 is served by some states and by NO locality at all, because
+  // every local income tax here has a rate or a bracket the
   // jurisdiction publishes separately. That is the same uniformity assumption
   // the eight derived lists had, written into the gate that was supposed to be
   // about non-uniformity — one level out, and by me, on the day after.
@@ -302,9 +302,33 @@ test('the package imports when a year is served by some states and not others', 
   }
   const taxing = mod.SUPPORTED_STATES.filter((s) => !mod.NO_INCOME_TAX_STATES.includes(s));
   assert.equal(taxing.length, 33);
+  // ## `[2025, 2026]` WAS HERE, AND IT IS THE SQUARE-GRID ASSUMPTION FOR THE
+  // ## THIRD TIME IN THIS ONE FILE
+  //
+  // Day 83 wrote `definitionsForYear(year).length === SUPPORTED_STATES.length`
+  // here and Day 84 broke it. Day 84 wrote `localitiesForYear(year).length > 0`
+  // for every supported year and broke that the same afternoon. Both were the
+  // belief that a year is served by everybody, written into the file whose
+  // entire subject is that it is not — and this literal is the third, broken by
+  // the first three TAXING states to serve 2027.
+  //
+  // What the probe is actually about is that the probe year reaches the nine and
+  // nobody else. So that is what is asserted: the taxing states refuse the probe
+  // year, and their real year lists are whatever the live package says they are
+  // rather than a literal that has now been wrong three times.
+  const live = await import('./strict.mjs');
   for (const state of taxing) {
     assert.equal(mod.isSupported(state, PROBE_YEAR), false, `${state} should refuse`);
-    assert.deepEqual(mod.supportedYears(state), [2025, 2026]);
+    assert.equal(
+      mod.supportedYears(state).includes(PROBE_YEAR),
+      false,
+      `${state} must not serve the probe year`,
+    );
+    assert.deepEqual(
+      mod.supportedYears(state),
+      [...live.supportedYears(state)],
+      `${state}'s year list changed under the probe, which means the probe did more than add a year`,
+    );
     assert.throws(() => mod.getStateDefinition(state, PROBE_YEAR), /tax year/);
   }
 });

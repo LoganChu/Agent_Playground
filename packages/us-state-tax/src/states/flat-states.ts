@@ -784,7 +784,16 @@ const IN_CITATIONS: readonly Citation[] = [
 ];
 
 function indiana(year: number): StateIncomeTaxDefinition | undefined {
-  if (year !== 2025 && year !== 2026) return undefined;
+  // 2027 IS ALREADY LAW, AND IT IS THE RATE AND NOTHING ELSE. IC 6-3-2-1(a)(5)
+  // sets 2.9% for taxable years beginning after December 31, 2026, and every
+  // other Indiana figure below — the $1,000 exemptions, the $1,500 child
+  // addition, the $500 means-tested senior amount and its $40,000/$20,000
+  // thresholds, the three bands of the elderly credit, the 10% earned income
+  // match — is a statutory constant with no indexing mechanism. So 2027 equals
+  // 2026 everywhere except `rate`, because the law says so and not because this
+  // package carried a figure forward. That is the distinction `status:
+  // 'provisional'` exists to mark, and Indiana does not need it.
+  if (year !== 2025 && year !== 2026 && year !== 2027) return undefined;
   return {
     code: 'IN',
     subtractsTaxableSocialSecurity: true,
@@ -804,7 +813,7 @@ function indiana(year: number): StateIncomeTaxDefinition | undefined {
     year,
     status: 'published',
     base: 'federalAdjustedGrossIncome',
-    rate: { kind: 'flat', rate: year === 2025 ? 0.03 : 0.0295 },
+    rate: { kind: 'flat', rate: year === 2025 ? 0.03 : year === 2026 ? 0.0295 : 0.029 },
     deduction: { kind: 'none' },
     exemption: {
       perFiler: perPerson(1000),
@@ -883,7 +892,7 @@ function indiana(year: number): StateIncomeTaxDefinition | undefined {
       requiresJointReturnWhenMarried: true,
     },
     notes: [
-      'Every Indiana county levies its own income tax on the SAME figure — IT-40 line 7, after the deductions and the $1,000 exemptions — from 0.5% (Porter) to 3.00% (Randolph, the statutory maximum). The average is 1.914% against a state rate of 3.00% in 2025 and 2.95% in 2026, so the county tax is about 39% of a typical Indiana bill, and a Randolph County filer pays their county MORE than their state in 2026. Pass `county`; without it this is the state half of the return, and the result says what the cheapest and dearest counties would have cost.',
+      'Every Indiana county levies its own income tax on the SAME figure — IT-40 line 7, after the deductions and the $1,000 exemptions — from 0.5% (Porter) to 3.00% (Randolph, the statutory maximum). The average is 1.914% against a state rate of 3.00% in 2025, 2.95% in 2026 and 2.90% in 2027, so the county tax is about 39% of a typical Indiana bill and is a larger share of it every year the state rate steps down, and a Randolph County filer pays their county MORE than their state from 2026. Pass `county`; without it this is the state half of the return, and the result says what the cheapest and dearest counties would have cost.',
       'The county is the one the filer lived in on 1 JANUARY, for the whole year, and a county rate can change on 1 October as well as on 1 January — so the rate an employer withholds and the rate the return settles at can differ for part of a year. This package stores the 1 January rate, which is what the annual return uses.',
       'Indiana\'s $1,000 exemption is the SMALLEST of the four on Schedule 3 and the only one a household total can find. On top of it: $1,500 more for each dependent CHILD — under 19, or under 24 and a full-time student — $1,000 for each filer at 65, $1,000 for each blind filer, and $500 MORE for each filer at 65 whose federal AGI is under $40,000 ($20,000 filing separately). All four are computed here from v0.21.0; before that a family with two children was $149.10 too high in Marion County and a retired couple under $40,000 was $149.10 too high as well.',
       'The child exemption needs `dependentAges`, not `dependents`: an Indiana dependent child is worth $2,500 of exemption and a dependent parent $1,000, and a count cannot tell them apart. Supply `dependentsAttendingCollege` as well for a dependent aged 19 to 23, who qualifies only as a full-time student.',
@@ -1281,7 +1290,23 @@ const MS_CITATIONS: readonly Citation[] = [
 ];
 
 function mississippi(year: number): StateIncomeTaxDefinition | undefined {
-  if (year !== 2025 && year !== 2026) return undefined;
+  // 2027 IS ALREADY LAW HERE TOO, AND AGAIN IT IS THE RATE ALONE. The Build Up
+  // Mississippi Act (HB 1, 2025) writes 4.4% for 2025, 4.0% for 2026 and 3.75%
+  // for 2027 into § 27-7-5 with no condition attached; the revenue triggers in
+  // that act reach only the years after 2030. The $10,000 zero bracket, the
+  // $2,300/$4,600/$3,400 standard deduction, the $6,000/$12,000/$8,000
+  // exemption and the three $1,500 additions are statutory constants that have
+  // not moved and are not indexed.
+  if (year !== 2025 && year !== 2026 && year !== 2027) return undefined;
+  // RESOLVED ONCE, read five times. Mississippi does not vary the rate by
+  // filing status — only the zero bracket does any work and it is per return —
+  // so the five schedules below exist to be read rather than to differ. Written
+  // as five copies of a ternary chain, adding a year means editing the same
+  // expression five times and a reader has five places to check they agree.
+  // There is deliberately no lookup with a default: a table indexed by year
+  // needs a fallback, and the only honest fallback for a tax rate is a throw,
+  // which the gate immediately above has already made unreachable.
+  const rate = year === 2025 ? 0.044 : year === 2026 ? 0.04 : 0.0375;
   return {
     code: 'MS',
     subtractsTaxableSocialSecurity: true,
@@ -1322,23 +1347,23 @@ function mississippi(year: number): StateIncomeTaxDefinition | undefined {
         // below it. Same schedule for every filing status.
         single: [
           { rate: 0, upTo: 10_000 },
-          { rate: year === 2025 ? 0.044 : 0.04, upTo: Infinity },
+          { rate, upTo: Infinity },
         ],
         marriedFilingJointly: [
           { rate: 0, upTo: 10_000 },
-          { rate: year === 2025 ? 0.044 : 0.04, upTo: Infinity },
+          { rate, upTo: Infinity },
         ],
         marriedFilingSeparately: [
           { rate: 0, upTo: 10_000 },
-          { rate: year === 2025 ? 0.044 : 0.04, upTo: Infinity },
+          { rate, upTo: Infinity },
         ],
         headOfHousehold: [
           { rate: 0, upTo: 10_000 },
-          { rate: year === 2025 ? 0.044 : 0.04, upTo: Infinity },
+          { rate, upTo: Infinity },
         ],
         qualifyingSurvivingSpouse: [
           { rate: 0, upTo: 10_000 },
-          { rate: year === 2025 ? 0.044 : 0.04, upTo: Infinity },
+          { rate, upTo: Infinity },
         ],
       },
     },
@@ -1379,7 +1404,7 @@ function mississippi(year: number): StateIncomeTaxDefinition | undefined {
     notes: [
       'Mississippi allows an additional $1,500 exemption for each filer at 65 (§ 27-7-21(f)) and another $1,500 for each who is blind (§ 27-7-21(g)), and Form 80-105 counts them on the SAME line as the dependents before multiplying by $1,500 — so a table that reports Mississippi\'s exemption as $6,000/$12,000 plus $1,500 a dependent has described three of the four boxes. They stack on one person. Pass `filerAge`, `spouseAge` and `blindOrDisabled`; worth $60 a box in 2026 and $66 in 2025, and $120 to a couple both 65 with wage income. Neither was computed here before v0.23.0.',
       'The first $10,000 of Mississippi taxable income is taxed at 0%, and that bracket is per return: it is not doubled on a joint return, even though the exemption and the standard deduction both are.',
-      "Mississippi's rate falls from 4.7% in 2024 to 4.4% in 2025 and 4.0% in 2026 under the Build Up Mississippi Act, with further reductions toward zero conditional on revenue triggers.",
+      "Mississippi's rate falls from 4.7% in 2024 to 4.4% in 2025, 4.0% in 2026 and 3.75% in 2027 under the Build Up Mississippi Act (HB 1, 2025). THE 2027 STEP IS NOT CONDITIONAL, and this note said it was until 0.65.0: the act writes 3.75% for 2027, 3.5% for 2028, 3.25% for 2029 and 3% for 2030 into Section 27-7-5 outright, and the revenue triggers — the part that could carry the rate to zero — reach only the years AFTER 2030. That distinction is the whole reason this package serves 2027 for Mississippi and refuses it for Georgia and North Carolina, whose next steps are written in statute too and apply only on a determination that has not been made.",
       'Mississippi does not tax qualified retirement income — § 27-7-15(4)(k) — and from v0.19.0 this package applies that itself from `retirement` or `retirementIncome`. Social Security is subtracted separately from `taxableSocialSecurity`. DO NOT ALSO PUT THE PENSION IN `subtractions`, which is what the note here said to do before v0.19.0: doing both subtracts it twice.',
       'AND THAT AGE TEST IS A CLIFF, which the sentence below describes as a condition and never as a shape. The exemption is uncapped, so everything it covers is exempt the day it applies and taxable the day before: on a single filer with $30,000 of pension and $20,000 of Social Security the whole Mississippi bill steps from $514.80 to $0.00 between 59 and 60, and from $468.00 to $0.00 for 2026 at the lower rate. There is no taper and no proration for the year of retirement — a model that phases the exemption in across a band of ages is wrong by the entire bill.',
       'The exemption is for income received AT retirement age. § 27-7-15(4)(l) leaves a premature distribution — one the federal § 72(t) penalty would reach — fully taxable, so this package requires an age of 59.5 or over. Ages are supplied as whole numbers, so a filer who turns 59½ during the year is treated here as not qualifying and their Mississippi tax is overstated for that one year. PolicyEngine-US models the exemption with no age test at all and says so in its own parameter file; the two disagree for exactly this filer.',

@@ -6455,6 +6455,76 @@
    "qualifyingSurvivingSpouse",
    444630,
    22784.2
+  ],
+  [
+   2027,
+   "MS",
+   "single",
+   1000,
+   0
+  ],
+  [
+   2027,
+   "MS",
+   "single",
+   11000,
+   37.5
+  ],
+  [
+   2027,
+   "MS",
+   "marriedFilingJointly",
+   1000,
+   0
+  ],
+  [
+   2027,
+   "MS",
+   "marriedFilingJointly",
+   11000,
+   37.5
+  ],
+  [
+   2027,
+   "MS",
+   "marriedFilingSeparately",
+   1000,
+   0
+  ],
+  [
+   2027,
+   "MS",
+   "marriedFilingSeparately",
+   11000,
+   37.5
+  ],
+  [
+   2027,
+   "MS",
+   "headOfHousehold",
+   1000,
+   0
+  ],
+  [
+   2027,
+   "MS",
+   "headOfHousehold",
+   11000,
+   37.5
+  ],
+  [
+   2027,
+   "MS",
+   "qualifyingSurvivingSpouse",
+   1000,
+   0
+  ],
+  [
+   2027,
+   "MS",
+   "qualifyingSurvivingSpouse",
+   11000,
+   37.5
   ]
  ]
 }

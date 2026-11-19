@@ -28,10 +28,37 @@ import {
   stateIncomeTax,
   SUPPORTED_STATES,
   STATES_READING_RETIREMENT,
+  supportedYears,
 } from './strict.mjs';
 import { FIGURE_SWEEP_OPTIONS } from './status-households.mjs';
 
-const FEDERAL_DEDUCTION = {
+/**
+ * The 2025 federal standard deduction, held fixed across every year this file
+ * sweeps — ON PURPOSE, and the purpose is what makes the year in the name
+ * honest rather than misleading.
+ *
+ * ## THIS IS A DIFFERENTIAL SWEEP, SO THE BASIS CANCELS
+ *
+ * Every assertion below compares two households that differ in ONE field — the
+ * filer's own retirement income against a survivor's — and asserts the two
+ * answers agree. The same federal block goes into both sides, so its figures do
+ * not have to be the year's; they have to be IDENTICAL, which is a weaker and
+ * completely different requirement. `household` says as much about the three
+ * state-defined bases it fills in for the same reason.
+ *
+ * It is named `_2025` anyway, and that is the point: these five numbers ARE the
+ * 2025 § 63(c) table, and until Day 85 the name did not say so, which put them
+ * among the nineteen figures `tools/cross-package/federal-basis-copies.mjs`
+ * could only check for MEMBERSHIP in some year's table. A typo in one of them
+ * would have been caught; 2025's amounts sitting in a table that MEANT 2026
+ * would not have been — which is the Utah defect of Day 84 exactly, and it was
+ * found in a table whose name said nothing.
+ *
+ * **A fixed basis is a deliberate choice and a mislabelled one is an accident,
+ * and from the outside the two are the same five numbers.** The name is what
+ * separates them.
+ */
+const FEDERAL_DEDUCTION_2025 = {
   single: 15_750,
   marriedFilingSeparately: 15_750,
   headOfHousehold: 23_625,
@@ -49,7 +76,7 @@ const creditOf = (result, name) =>
   (result.credits ?? []).find((c) => c.name === name)?.amount ?? 0;
 
 const household = (state, year, filingStatus, agi, age) => {
-  const deduction = FEDERAL_DEDUCTION[filingStatus];
+  const deduction = FEDERAL_DEDUCTION_2025[filingStatus];
   return {
     state,
     year,
@@ -79,8 +106,14 @@ test('exactly one state reads survivor retirement income differently from the fi
   const differ = new Set();
   let comparisons = 0;
   for (const state of SUPPORTED_STATES) {
-    for (const year of [2025, 2026]) {
-      for (const filingStatus of Object.keys(FEDERAL_DEDUCTION)) {
+    // `[2025, 2026]` was written here, and from Day 85 it is a COVERAGE gap
+    // rather than a crash: twelve states serve 2027 and this sweep skipped all
+    // twelve of them for it. The same literal in a test that calls
+    // `getStateDefinition` would have thrown instead — which is the loud half
+    // of the defect Day 84 found in sixteen files. The quiet half is a list
+    // that simply stops short, passes, and reports a finished sweep.
+    for (const year of supportedYears(state)) {
+      for (const filingStatus of Object.keys(FEDERAL_DEDUCTION_2025)) {
         for (const agi of [40_000, 90_000, 200_000]) {
           // 50 and 60 are under both age gates in this rule, 65 is South
           // Carolina's and 70 is clear of every one of them.
@@ -135,7 +168,13 @@ test('exactly one state reads survivor retirement income differently from the fi
   // rather than by a reading. New Mexico is the sharper of the two, because
   // § 7-2-5.13 NAMES the surviving spouse of a retiree and gives her the same
   // $30,000, so the agreement here is the statute's own and not an absence.
-  assert.equal(comparisons, 10080, 'comparisons made');
+  // 10,080 was 42 states x 2 years x 5 statuses x 3 incomes x 4 ages x 2 field
+  // pairs. 11,520 is the same sweep once the year loop asks each state which
+  // years it serves: twelve states serve 2027, and 12 x 5 x 3 x 4 x 2 = 1,440.
+  // The count is pinned rather than floored so that a year loop which silently
+  // narrows — the failure this file's own `[2025, 2026]` literal was — fails
+  // here instead of reporting a finished sweep over less than it claims.
+  assert.equal(comparisons, 11520, 'comparisons made');
   assert.deepEqual([...differ].sort(), ['SC']);
 });
 
@@ -243,7 +282,13 @@ test('every state whose tax moves when `retirement` is supplied is in the derive
     },
   };
   for (const state of SUPPORTED_STATES) {
-    for (const year of [2025, 2026]) {
+    // `[2025, 2026]` was written here, and from Day 85 it is a COVERAGE gap
+    // rather than a crash: twelve states serve 2027 and this sweep skipped all
+    // twelve of them for it. The same literal in a test that calls
+    // `getStateDefinition` would have thrown instead — which is the loud half
+    // of the defect Day 84 found in sixteen files. The quiet half is a list
+    // that simply stops short, passes, and reports a finished sweep.
+    for (const year of supportedYears(state)) {
       for (const filingStatus of ['single', 'marriedFilingJointly']) {
         // 62 is Oregon's retirement credit age and Georgia's military cliff; 66
         // and 70 clear every other gate; 50 is under all of them.
@@ -307,7 +352,13 @@ test('no state combines a survivor claim with a rule that reads the pooled incom
   const withSurvivorClaim = [];
   const pooledReaders = { retirementIncomeCredit: [], planTypeRetirement: [] };
   for (const state of SUPPORTED_STATES) {
-    for (const year of [2025, 2026]) {
+    // `[2025, 2026]` was written here, and from Day 85 it is a COVERAGE gap
+    // rather than a crash: twelve states serve 2027 and this sweep skipped all
+    // twelve of them for it. The same literal in a test that calls
+    // `getStateDefinition` would have thrown instead — which is the loud half
+    // of the defect Day 84 found in sixteen files. The quiet half is a list
+    // that simply stops short, passes, and reports a finished sweep.
+    for (const year of supportedYears(state)) {
       const def = getStateDefinition(state, year);
       if ((def.retirementIncomeSubtractions ?? []).some((r) => r.survivorClaim !== undefined)) {
         if (!withSurvivorClaim.includes(state)) withSurvivorClaim.push(state);

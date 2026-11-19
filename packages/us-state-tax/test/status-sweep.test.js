@@ -646,7 +646,16 @@ test('the byStatus cells the package ships, and the numbers inside them', () => 
   // > findings, and what defends them is a type — `byStatus` with every cell
   // > written out — plus `new-mexico.test.js` asserting the table shape, not a
   // > perturbation of a number that is already as small as a number gets.
-  assert.equal(checked, 1262, 'byStatus cells with a parameter the harness would mutate');
+  //
+  // 1,287 from Day 85: the 2027 cells of INDIANA and MISSISSIPPI, the first two
+  // taxing states to serve a third year. PENNSYLVANIA serves 2027 beside them
+  // and contributes NOTHING to this count, measured rather than assumed: it has
+  // no by-status table anywhere in its definition — one rate, no standard
+  // deduction, no personal exemption — so the state whose whole return is three
+  // numbers is invisible to the instrument that counts by-status cells. That is
+  // the right answer and not a gap, and it is the reason this count moved by
+  // less than a third of a year's worth.
+  assert.equal(checked, 1287, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -702,7 +711,12 @@ test('the byStatus cells the package ships, and the numbers inside them', () => 
   // `Infinity` that is not a figure. A state whose by-status tables are all
   // scalars contributes one number per cell; Kansas contributes 1.5 because half
   // of its tables are schedules and the other half are single amounts.
-  assert.equal(inside, 5_043, 'numbers inside those cells');
+  // 5,073 from Day 85, which is +30 against +25 cells one assertion above. The
+  // gap is Mississippi: five of its new 2027 cells are rate SCHEDULES rather
+  // than amounts, and a schedule cell holds more than one number — the zero
+  // band's ceiling and the 3.75% rate on the excess. This is exactly the gap
+  // the two counts exist to keep visible.
+  assert.equal(inside, 5_073, 'numbers inside those cells');
   // Connecticut held this record from Day 20 to Day 63 with 1,020 — nearly a
   // third of 3,192, because its three staircases and its 2% add-back table are
   // all by-status and all four columns wide. Minnesota's arrival added 170;
@@ -753,5 +767,13 @@ test('the byStatus cells the package ships, and the numbers inside them', () => 
   // cells are reachable and reached — see `surviving-spouse-column.test.js`,
   // where New Mexico is in the ledger of states that offer the status rather than
   // in the list that redirects it.
-  assert.equal(exempt.length, 82, 'cells the engine cannot reach, all of them documented');
+  // 85 FROM DAY 85, AND THE THREE THAT ARRIVED ARE MISSISSIPPI'S 2027
+  // SURVIVING-SPOUSE CELLS — the rate schedule, the standard deduction and the
+  // exemption — exempt by construction for the same reason as its 2025 and 2026
+  // ones: § 27-7-21(d) has no surviving-spouse box and `survivingSpouseFilesAs`
+  // has already translated her to head of family before any of these tables is
+  // read. Indiana and Pennsylvania gained 2027 in the same release and
+  // contribute none: Indiana HAS a surviving-spouse column that households
+  // reach, and Pennsylvania has no by-status table at all.
+  assert.equal(exempt.length, 85, 'cells the engine cannot reach, all of them documented');
 });

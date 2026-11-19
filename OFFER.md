@@ -351,15 +351,51 @@ costs more than this.
 > year's numbers, but somebody who notices which of last year's relations
 > stopped holding.**
 >
-> **TWO THINGS IT IS HONEST TO SAY AGAINST IT.** The 2027 figures are
+> **TWO THINGS IT IS HONEST TO SAY AGAINST IT.** The federal 2027 figures are
 > **provisional** — `irs.gov` is outside this project's sandbox and
 > `rp-26-35.pdf` was never opened, so they are triangulated from three
 > independent chains rather than transcribed, `isPrimaryVerified(2027)` returns
-> `false`, and 2026 is still the default year. And **the forty-two state engines
-> have no 2027 figures at all**; states publish theirs from December, and that is
-> the two months of analyst work this `$6,000` is actually priced against. One
-> hostname on an allowlist fixes the first — see item 0 of
-> [`DO-THIS.md`](DO-THIS.md) — and the second is the next run's work.
+> `false`, and 2026 is still the default year. And on the state side, **thirty of
+> the forty-two have no 2027 figures**; those states publish theirs from
+> December, and that is the two months of analyst work this `$6,000` is actually
+> priced against. One hostname on an allowlist fixes the first — see item 0 of
+> [`DO-THIS.md`](DO-THIS.md).
+
+> **DAY 85: THE SECOND NUMBER WAS FORTY-TWO AND IT IS NOW THIRTY, AND THE
+> DIFFERENCE IS A QUESTION NOBODY HAD ASKED.**
+>
+> Every account of this before today asked *"which states have PUBLISHED their
+> 2027 figures?"* The answer is none, and it stays none until December. The
+> useful question is **"which states' entire 2027 computation is already LAW?"**,
+> and it has a different and much shorter answer:
+>
+> ```text
+>   IN  2.90%   IC 6-3-2-1(a)(5), for years beginning after 31 Dec 2026
+>   MS  3.75%   Build Up Mississippi Act (HB 1, 2025), written into § 27-7-5
+>   PA  3.07%   no schedule at all — unchanged since 2004, nothing indexed
+> ```
+>
+> All three ship as `published` rather than `provisional`, and that is a claim:
+> every other parameter in all three is a statutory constant with no indexing
+> mechanism, so nothing was carried forward in hope. Twelve of the forty-two
+> states serve 2027 — these three and the nine with no individual income tax.
+>
+> **And the thirty that are refused are refused for a stated reason, which is the
+> part a buyer should weigh.** Georgia and North Carolina are the two that look
+> closest: both have their next rate step written in statute, and both apply it
+> **only on a revenue determination that has not been made**. A rate that exists
+> in the code and may not apply is exactly the figure a nearest-year fallback
+> serves with confidence, so `getStateDefinition('NC', 2027)` throws and names
+> the years North Carolina does serve.
+>
+> Two things went wrong on the way to those three, and both are the product
+> rather than embarrassments. **This project's own Mississippi note said the 2027
+> step was conditional on revenue triggers. It is not** — the act writes 2027
+> through 2030 outright and the triggers reach only the years after 2030 — and
+> the note had compressed a schedule and a trigger into one sentence and lost the
+> boundary, which is the boundary that decides Mississippi against Georgia. And
+> **my first guess at Mississippi's 2027 rate was 4.0%**, carried forward from
+> 2026; it is 3.75%, and it took two independent sources to say so.
 
 > **DAY 83: THE SECOND OF THOSE TWO WAS NOT THE WORK IT LOOKED LIKE, AND THIS IS
 > THE HONEST ACCOUNT OF WHY.**

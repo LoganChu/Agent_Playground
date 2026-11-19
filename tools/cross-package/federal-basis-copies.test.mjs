@@ -34,6 +34,22 @@ const ROOT = join(HERE, '../..');
 const TOOL = join(HERE, 'federal-basis-copies.mjs');
 const TESTS = join(ROOT, 'packages/us-state-tax/test');
 
+/** Run the checker against the tree as it stands. */
+function run() {
+  try {
+    return { out: execFileSync(process.execPath, [TOOL], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }), code: 0 };
+  } catch (e) {
+    return { out: `${e.stdout ?? ''}${e.stderr ?? ''}`, code: e.status };
+  }
+}
+
+/** The `N § 63(c) and M § 63(f)` split the checker reports on every run. */
+function split(out) {
+  const hit = /(\d+) § 63\(c\) and (\d+) § 63\(f\)/.exec(out);
+  assert.ok(hit, `the summary no longer reports the § 63(c)/§ 63(f) split:\n${out}`);
+  return { standard: Number(hit[1]), aged: Number(hit[2]) };
+}
+
 /** Run the checker with one extra fixture file dropped into the state suite. */
 function withFixture(name, source, fn) {
   const file = join(TESTS, name);
@@ -81,6 +97,9 @@ export default FEDERAL_STD_2026;
 });
 
 test('the checker tells § 63(c) from § 63(f), which its first version did not', () => {
+  // Measured BEFORE the fixture lands, so the comparison is against the real
+  // tree rather than against a remembered total that every new state moves.
+  const baseline = split(run().out);
   // Written without this, the tool reported twenty-five disagreements on a clean
   // tree, every one a § 63(f) amount held against the § 63(c) column —
   // `aged 2025 single: 2,000, us-federal-tax says 15,750`. A cross-check that
@@ -101,8 +120,31 @@ const FEDERAL = {
 export default [FEDERAL_AGED_ADDITION, FEDERAL];
 `,
     ({ out, code }) => {
+      // The load-bearing half: misread as § 63(c), `single: 2,000` is held
+      // against `15,750` and the tool REFUSES. Exit 0 is the discrimination.
       assert.equal(code, 0, `the § 63(f) tables were misread as § 63(c):\n${out}`);
-      assert.match(out, /§ 63\(f\)/);
+
+      // ## AND THE VISIBLE HALF, WHICH THIS TEST DID NOT USED TO OWN
+      //
+      // This line was `assert.match(out, /§ 63\(f\)/)`, and until Day 85 it
+      // passed because NINETEEN figures in `south-carolina.test.js` and
+      // `survivor-retirement.test.js` carried no year, so the tool printed them
+      // — with their `§ 63(f)` labels — in its "checked only for membership"
+      // section. **This test was reading another file's defect.** The day those
+      // nineteen were given a year the section emptied, the words disappeared
+      // and this test failed with nothing whatever wrong.
+      //
+      // It now asserts on the fixture's OWN contribution: six figures, of which
+      // five are § 63(f) — four in the year-keyed aged table and one under
+      // `aged:` in the nested one — and one is § 63(c).
+      assert.match(out, /zz-federal-basis-probe\.test\.js \(6\)/);
+      const here = split(out);
+      assert.equal(
+        here.aged - baseline.aged,
+        5,
+        'the fixture contributes five § 63(f) figures and the tool must count them as such',
+      );
+      assert.equal(here.standard - baseline.standard, 1, 'and one § 63(c) figure');
     },
   );
 });

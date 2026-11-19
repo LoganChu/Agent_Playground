@@ -47,11 +47,14 @@ import { getStateDefinition, stateIncomeTax, SUPPORTED_STATES, SUPPORTED_YEARS, 
 const FEDERAL = {
   2025: { basic: 15_750, aged: 2_000 },
   2026: { basic: 16_100, aged: 2_050 },
-  // Rev. Proc. 2026-35, as shipped by `us-federal-tax`'s `data/2027.ts`. Only the
-  // nine states with no individual income tax serve 2027, so every probe below
-  // measures a zero move for it — which is the assertion worth having, not a row
-  // worth skipping: if a no-income-tax state ever reads a federal deduction, this
-  // is where it shows up.
+  // Rev. Proc. 2026-35, as shipped by `us-federal-tax`'s `data/2027.ts`. Twelve
+  // states serve 2027: the nine with no individual income tax, which read no
+  // federal figure at all, and Indiana, Mississippi and Pennsylvania. All three
+  // of those start from federal AGI or from a base of their own rather than
+  // from federal TAXABLE income, so none of them reads the standard deduction
+  // either, and every probe below still measures a zero move for 2027 — which
+  // is the assertion worth having, not a row worth skipping: the day a state
+  // serving 2027 reads a federal deduction, this is where it shows up.
   2027: { basic: 16_600, aged: 2_100 },
 };
 

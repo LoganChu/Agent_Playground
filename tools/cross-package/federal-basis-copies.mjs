@@ -170,6 +170,24 @@ const problems = [];
 const unanchored = [];
 const foreign = [];
 let checked = 0;
+/**
+ * How many of the checked figures belong to each of the two tables.
+ *
+ * ## THE DISCRIMINATION WAS ONLY VISIBLE WHEN SOMETHING WAS WRONG
+ *
+ * Telling § 63(c) from § 63(f) is this tool's hardest-won property: written
+ * without it, it reported twenty-five disagreements on a clean tree, every one
+ * a § 63(f) amount held against the § 63(c) column. Its test asserts the words
+ * `§ 63(f)` appear in the output — and until Day 85 they appeared because
+ * nineteen figures in two OTHER files carried no year and were listed, with
+ * their labels, in the "checked only for membership" section. **The test was
+ * reading another file's defect.** The day those nineteen got a year, the list
+ * emptied, the words vanished and the test failed with nothing wrong.
+ *
+ * So the split is reported on every run, passing or failing. A property worth
+ * a test is worth a number in the output.
+ */
+const byTable = { standard: 0, aged: 0 };
 const filesSeen = [];
 
 for (const file of readdirSync(TESTS).sort()) {
@@ -233,6 +251,7 @@ for (const file of readdirSync(TESTS).sort()) {
       hits += 1;
       const year = yearKey?.year ?? decl.year;
       const label = `${decl.name}${which === 'aged' ? ' § 63(f)' : ' § 63(c)'}`;
+      byTable[which] += 1;
       if (year && FEDERAL.has(year)) {
         checked += 1;
         const want = FEDERAL.get(year)[which][status];
@@ -277,7 +296,8 @@ for (const file of readdirSync(TESTS).sort()) {
 
 process.stdout.write(
   `[federal-basis] ${checked} figure(s) checked against us-federal-tax across ` +
-    `${filesSeen.length} file(s), over tax years ${[...FEDERAL.keys()].join(', ')}\n`,
+    `${filesSeen.length} file(s), over tax years ${[...FEDERAL.keys()].join(', ')} — ` +
+    `${byTable.standard} § 63(c) and ${byTable.aged} § 63(f)\n`,
 );
 for (const f of filesSeen) process.stdout.write(`                ${f}\n`);
 if (unanchored.length > 0) {

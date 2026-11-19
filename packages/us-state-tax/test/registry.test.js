@@ -56,14 +56,22 @@ test('every supported state resolves for every year IT serves, and the grid is n
 
   // And the shape itself, named rather than counted, so that the day Alabama
   // publishes its 2027 figures this line is what fails and says why.
+  //
+  // IT SAID SO ONCE ALREADY, WHICH IS THE POINT OF WRITING IT THIS WAY. The
+  // list below held the nine states with no individual income tax for exactly
+  // one day. Indiana, Mississippi and Pennsylvania joined it the day somebody
+  // asked which of the thirty-three TAXING states have a 2027 that is already
+  // law rather than already published — a different question, with a different
+  // and much shorter answer, and this assertion is what made the three of them
+  // visible as a change rather than an increment.
   assert.deepEqual(
     [...statesForYear(2027)],
-    ['AK', 'FL', 'NH', 'NV', 'SD', 'TN', 'TX', 'WA', 'WY'],
+    ['AK', 'FL', 'IN', 'MS', 'NH', 'NV', 'PA', 'SD', 'TN', 'TX', 'WA', 'WY'],
     'the states serving 2027 have changed — if a state has published, this is the gate saying so',
   );
   assert.equal(statesForYear(2025).length, 42);
   assert.equal(statesForYear(2026).length, 42);
-  assert.equal(SUPPORTED_STATE_YEARS.length, 42 + 42 + 9);
+  assert.equal(SUPPORTED_STATE_YEARS.length, 42 + 42 + 12);
 
   for (const [state, year] of SUPPORTED_STATE_YEARS) {
     const def = getStateDefinition(state, year);
@@ -78,6 +86,12 @@ test('an unsupported year is an error, not a silent fallback', () => {
   // Six of these states changed their rate between 2025 and 2026. A fallback to
   // the nearest year would return a number that looks right for all of them.
   assert.throws(() => getStateDefinition('NC', 2024), /tax year 2024 is not/);
+  // NORTH CAROLINA IS THE RIGHT STATE TO ASSERT THIS ON AND IT IS NO LONGER AN
+  // ARBITRARY ONE. Its 2027 rate is written in statute — G.S. 105-153.7(a2)
+  // steps below 3.99% — but only if revenue triggers are met, and no
+  // determination has been made. A rate in the code that may not apply is
+  // exactly the figure a nearest-year fallback would serve with confidence,
+  // and it is why three states ship 2027 today and the other thirty do not.
   assert.throws(() => getStateDefinition('NC', 2027), /Supported years: 2025, 2026/);
   assert.equal(isSupported('NC', 2024), false);
   assert.equal(isSupported('NC', 2025), true);

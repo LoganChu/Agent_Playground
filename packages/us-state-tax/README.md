@@ -1,11 +1,13 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025, 2026 and — for the nine states with no income tax — 2027**, across **42
+US **state and local** individual income tax for tax years **2025, 2026 and — for twelve states — 2027**, across **42
 states** including **NEW MEXICO**, **Kansas**, **Arkansas**, **Iowa**, **Oklahoma**, **North Dakota**, **Louisiana**, **South Carolina**, **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
 **Massachusetts**, **Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+
+New in 0.65.0: **THREE TAXING STATES NOW ANSWER FOR TAX YEAR 2027, AND THE INTERESTING NUMBER IS THAT IT IS THREE.** Indiana, Mississippi and Pennsylvania join the nine states with no individual income tax, so twelve of the forty-two serve 2027 and thirty do not. The question that produced them is not *"which states have published 2027?"* — none has — but **"which states' entire 2027 computation is already law?"**, and the answer has three different shapes. Indiana steps to **2.90%** because IC 6-3-2-1(a)(5) says so for taxable years beginning after December 31, 2026. Mississippi steps to **3.75%** because the Build Up Mississippi Act writes 2027 through 2030 into § 27-7-5 outright — **its revenue triggers reach only the years after 2030, and this package's own Mississippi note said otherwise until today**. Pennsylvania stays at **3.07%** because nothing in the Pennsylvania computation is indexed, scheduled or triggered: the rate has not moved since 2004 and the Special Tax Forgiveness table since 2003, so a 2027 this package refused would be refusing a figure the statute already supplies. Every other parameter in all three — Indiana's $1,000 exemptions and its three-band elderly credit, Mississippi's $10,000 zero bracket and its $2,300/$4,600/$3,400 deduction, Pennsylvania's whole return — is a statutory constant with no indexing mechanism, which is why all three ship as `published` rather than `provisional`: nothing was carried forward in hope. **The thirty that are refused are refused for a reason, not out of caution.** Georgia and North Carolina have their next rate step written in statute too, and it applies only on a revenue determination nobody has made; the rest are waiting on an indexed amount a department publishes between December and February. `getStateDefinition('NC', 2027)` throws and names the years North Carolina does serve, which is the behaviour a nearest-year fallback would replace with a confident wrong number.
 
 New in 0.64.0: **TAX YEAR 2027, FOR THE NINE STATES WITH NO INDIVIDUAL INCOME TAX — AND IT IS THE FIRST YEAR THIS PACKAGE HAS EVER SERVED THAT EVERY STATE DOES NOT.** The nine are the only states that can answer before a state publishes anything, because a state with no income tax has no figure that can arrive later; the other thirty-three publish their 2027 figures between December and February and arrive one at a time. The header of `states/index.ts` has said since it was written that *"support is per state **and** per year, not per state"* — and until now that had never once been true, because both supported years were served by all forty-two states, so the cross product was square and the refusal unreachable. Making it untrue broke the package's own suite in sixteen files, broke three `us-tax-mcp` tools for thirty-three states by redirecting a default year nobody had asked for, and turned up seven more `if (def === undefined)` guards sitting under a lookup that throws. `supportedYears(state)` and the new `statesForYear(year)` are the two directions a caller needs, and both are now shipped API rather than something each consumer rebuilds as a cross product.
 
@@ -896,7 +898,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.64.0/us-state-tax-0.64.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.65.0/us-state-tax-0.65.0.tgz
 ```
 
 ## The rate is the easy part
@@ -3091,7 +3093,7 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 2,396 of them, ceilings, floors, amounts, fractions
+staircase the package ships** — 2,411 of them, ceilings, floors, amounts, fractions
 and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
 Four rows are exempt, each with a written reason and a direct assertion in their
 place:
@@ -3124,7 +3126,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **979** notes every
+`test/notes.test.js` pins the first 72 characters of all **1,005** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -3149,17 +3151,17 @@ reads, and all 27 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 7,329 numeric
-figures over 93 state-years, against 643 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 7,406 numeric
+figures over 96 state-years, against 653 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
 
-Of those 7,329, **7,018 are mapped to a document and 311 are classified as sentinels** —
+Of those 7,406, **7,090 are mapped to a document and 316 are classified as sentinels** —
 a bracket with no ceiling, a cap meaning "the whole of it" — which no document states and
 which the ledger has to classify anyway. Both halves of that sentence are load-bearing:
-the ledger *covers* 7,329 figures and *maps* 7,018 of them, and a claim that it maps all
-7,329 **to the document each came from** overstates it by exactly the figures it
+the ledger *covers* 7,406 figures and *maps* 7,090 of them, and a claim that it maps all
+7,406 **to the document each came from** overstates it by exactly the figures it
 deliberately declares as documentless. Day 73 made that claim in `STRATEGY.md`, corrected
 it, and then overcorrected this section — which was right, and machine-checked, and is
 restored. **A list of sources beside a list of figures

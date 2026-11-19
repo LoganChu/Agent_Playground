@@ -2,51 +2,60 @@
 
 This is the whole list. It is short on purpose — see the bottom for why.
 
-**Item 0 is the one to do.** It was added yesterday, it takes under a minute,
-and unlike everything below it the work it unlocks is mine rather than yours.
-**Today it earned a second reason**, which is at the bottom of its section: the
-state half of the freshness product is now unblocked in code, so the only thing
-left between here and tax year 2027 for forty-two states is reading documents —
-and reading documents is the one thing this sandbox cannot do.
+**Item 0 is still the one to do, and today it got HONESTLY SMALLER.** Yesterday
+this page said reading forty-two documents was the only thing left between here
+and tax year 2027, and that reading documents is the one thing this sandbox
+cannot do. Today three taxing states — Indiana, Mississippi and Pennsylvania —
+shipped tax year 2027 **without `irs.gov` and without any state document**,
+because their 2027 is already written into statute and a statute can be
+cross-checked from two independent sources that this sandbox CAN reach. So the
+claim "only you can unblock 2027" was too strong. Twelve of forty-two states now
+serve 2027. The thirty that remain really do need documents — see item 0 — but
+the number is thirty rather than forty-two, and it came down by my work rather
+than by yours.
 
 Everything else in this repository is work I can do. These six are the ones I
 cannot: item 0 is a setting only you can change, and items 1 to 5 mean acting on
 the outside world — spending, transacting, creating accounts, or contacting
 people. Items 1 to 5 have been asked for, in various forms, since **Day 21**.
-Today is **Day 84**.
+Today is **Day 85**.
 
 Every path below is a **link**, because a path is a thing you have to be at a
 desk to follow and a link is a thing you can tap. Items 1 to 5 have now been
-correct and unread for **sixty-three days**, and the wording of those five is
-still not what varies. **What varies today is the evidence under two of them**,
-because for the first time this project has a measurement of its own reach
-instead of an argument about it — see the box immediately below.
+correct and unread for **sixty-four days**, and the wording of those five is
+still not what varies. **What varies today is item 0, which got weaker, and the
+reach measurement, which moved for the first time** — see the two boxes below.
 
 Ranked by what a dollar costs you in minutes.
 
 ---
 
-## The number this page has never had: **reach, measured**
+## **Reach, measured** — and today it moved off zero, barely
 
-Day 84. This repository's releases hold **565 downloads across 112 assets**, and
-until today nobody could say whether that was people or machinery. Day 80
-attached two **HTML pages** to a release beside the usual tarballs, which turned
-the question into a test:
+Day 80 attached two **HTML pages** to a release beside the usual tarballs, which
+turned "is anything reaching a person?" from an argument into a test. Day 84 took
+the reading and it was stark: every tarball fetched at least twice, neither page
+opened once. Today:
 
 ```text
-  .tgz    110 assets    565 downloads    minimum 2,  maximum 61
-  .html     2 assets      0 downloads    minimum 0,  maximum  0
+                      Day 84                     Day 85
+  .tgz    110 assets  565 downloads  min 2    112 assets  570 downloads  min 2
+  .html     2 assets    0 downloads           2 assets      2 downloads  1 and 1
 ```
 
-**Every tarball has been fetched at least twice. Neither page has been opened
-once.** The newest tarball is one day old and already has four; the two pages are
-one day old and have none. Whatever is fetching these takes the file shaped like
-a package-registry tarball and ignores everything else.
+**Both pages went from zero to exactly one, on the same day, after four days at
+zero.** I do not think that is a reader, and I would rather say so than claim a
+win: two different people finding two different pages on the same day and each
+opening it once is a stranger coincidence than one sweep that finally reached a
+file extension it had been skipping. And the shape has not reversed — every
+tarball is at two or more, both pages are at one.
 
-So: **565 downloads, and not one of them of the two things a person would look
-at.** This is the only instrument here that measures reach, and it now reads
-zero. Items 1 and 4 below are what change that number, and each of them now has
-this measurement under it rather than an argument.
+Also unchanged for the **third** day running: the two largest counts, 61 and 35,
+on superseded October versions. **No old asset has moved at all in seventy-two
+hours.** Whatever sweeps, sweeps once, on creation.
+
+So the instrument still reads about zero, and items 1 and 4 below are what change
+it. Each has this measurement under it rather than an argument.
 
 ---
 
@@ -74,36 +83,48 @@ year.
 | how often it pays | once | **every tax year, forever** |
 
 `OFFER.md` prices next year's parameters at **$6,000/yr** and the whole line
-rests on reading documents as agencies publish them. Forty-two states publish
-their 2027 figures between December and February. **With this one hostname that
-is transcription; without it, it is triangulation forty-two more times** — and
-the single `reconstructed` figure outstanding in the federal package since
-Day 36 gets settled on the next run instead of outliving another tax year.
+rests on reading documents as agencies publish them. **With this one hostname
+that is transcription; without it, it is triangulation.** Day 82 showed what
+triangulation costs: the federal head-of-household figure is `$24,925`, a
+multiple of `$25` and not of `$50` for the first time in four years, and at
+least one secondary transcription printed `$24,900` because it did the obvious
+arithmetic instead. The single `reconstructed` figure outstanding in the federal
+package since Day 36 also gets settled on the next run rather than outliving
+another tax year.
 
 It was deliberately *not* requested through the tool that pops an approval
 prompt, because nobody is watching a scheduled run and a prompt nobody answers
 is an ask spent. So it is here.
 
-**Day 84 made this item the ONLY thing in the way, and that is new.** For two
-days the obstacle to 2027 for the states was the documents *and* the code. The
-code half is now finished and shipped: `us-state-tax` serves **tax year 2027**
-today, for the nine states with no individual income tax — the only nine that can
-answer before a state publishes anything. The thirty-three that tax are now a
-parameter edit each.
+### **Day 84 called this the ONLY thing in the way. Day 85 shrank it, and the correction is mine**
 
-So nothing stands between this project and tax year 2027 for forty-two states
-except **reading forty-two documents** as the states publish them between
-December and February. With this hostname that is transcription. Without it, it
-is triangulation forty-two times — and Day 82 already showed what triangulation
-costs: the federal head-of-household figure is `$24,925`, a multiple of `$25` and
-not of `$50` for the first time in four years, and at least one secondary
-transcription printed `$24,900` because it did the obvious arithmetic instead.
+Yesterday this section said nothing stood between the project and tax year 2027
+for forty-two states except reading forty-two documents. **That was too strong,
+and today disproved it without the hostname.** Three taxing states — Indiana,
+Mississippi and Pennsylvania — now serve 2027, because their entire 2027
+computation is **already written into statute** rather than waiting on a
+publication:
+
+```text
+  IN  2.90%   IC 6-3-2-1(a)(5)             MS  3.75%   HB 1 (2025), § 27-7-5
+  PA  3.07%   no schedule at all — unchanged since 2004
+```
+
+A statute is not a Revenue Procedure. It can be cross-checked from two
+independent sources this sandbox already reaches, which is what Day 1's sourcing
+rule requires and what I did — and the first guess was wrong, which is the point:
+I assumed Mississippi carried 4.0% into 2027 and it is 3.75%.
+
+**So twelve of forty-two states serve 2027 today, and the remaining thirty are
+the honest size of this ask.** Those thirty genuinely do need documents: either an
+indexed amount a department publishes between December and February, or — Georgia
+and North Carolina — a rate step that exists in statute and applies only on a
+revenue determination nobody has made. Thirty transcriptions with this hostname;
+thirty triangulations without it.
 
 I re-tested the hostname today rather than assuming:
 `https://www.irs.gov/pub/irs-drop/rp-26-35.pdf` answers
-`CONNECT tunnel failed, response 403`, and the proxy's own status endpoint logs
-it as a policy denial against `www.irs.gov:443` at 16:11 UTC today. The allowlist
-is still empty.
+`CONNECT tunnel failed, response 403`. The allowlist is still empty.
 
 ---
 
@@ -119,6 +140,11 @@ These two render the actual product, on a phone, right now:
 > **The calculator — <https://claude.ai/artifact/TX2QPicDdf6dxysEoLhzeH>**
 > Type in what a household receives; it computes the federal return and ranks
 > all 42 states, in the page, with no network call.
+> **Updated today**, and it was two releases stale before that: it now offers
+> **tax year 2027** and ranks the twelve states whose 2027 figures are law,
+> saying in the heading that it is twelve of forty-two and why. The 2027 federal
+> column is labelled **provisional**, because those figures were reconstructed
+> rather than read from the IRS release — which is item 0.
 >
 > **The findings — <https://claude.ai/artifact/2226GeW9p7MprVij77LPW9>**
 > Ten households where tax software is wrong, each computed both ways with the
@@ -160,12 +186,15 @@ downloads, not pages. One dropdown creates the first one.
 > thing this item buys is being FINDABLE**, which is the half a shareable link
 > cannot do.
 
-**Day 84 gives this item a measurement instead of an argument.** The same two
-pages are attached to a GitHub Release, which is the nearest thing to publishing
-that needs no setting changed. In a day they have been opened **zero** times,
-while every tarball in the same releases has been fetched at least twice. A page
-attached to a release is not a published page; it is a file in a list that only
-robots read. One dropdown turns it into a URL.
+**This item has a measurement rather than an argument, and Day 85 updated it
+without weakening it.** The same two pages are attached to a GitHub Release,
+which is the nearest thing to publishing that needs no setting changed. In five
+days they have been opened **once each** — both moving from zero to one on the
+same day, which looks far more like a crawler reaching a new file extension than
+like two readers — while every tarball in the same releases has been fetched at
+least twice and the newest within a day. A page attached to a release is not a
+published page; it is a file in a list that only robots read. One dropdown turns
+it into a URL.
 
 The workflow has been built, tested and waiting since Day 21. It does not go red
 while Pages is off; it uploads the built site as an artifact instead.

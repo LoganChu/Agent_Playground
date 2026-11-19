@@ -557,7 +557,16 @@ test('the numbers inside the staircases this package ships', () => {
   // `amounts` ARRAY was skipped in silence and this count would have risen by
   // 46 while the chart carried 322. See the comment on `numbersIn`: it is
   // Day 39's finding in a new shape, a payload this time rather than a bound.
-  assert.equal(checked, 2_396, 'numbers inside the staircases this package ships');
+  // 2,411 from Day 85: fifteen numbers in Indiana's and Pennsylvania's 2027
+  // staircases — the three bands of the unified tax credit for the elderly, in
+  // both the one-aged and both-aged charts, and Pennsylvania's Special Tax
+  // Forgiveness table. NOT ONE OF THEM ADDED A PROBE: `step-probes.json` holds
+  // 996 rows before and after, because neither state's staircase has a driver
+  // in `step-charts.mjs`. The reachability assertion above still passes for all
+  // fifteen, and that is the part worth reading — they are witnessed by the
+  // household pins and the bracket pins instead, which is why this count and
+  // the probe count moved differently.
+  assert.equal(checked, 2_411, 'numbers inside the staircases this package ships');
   assert.equal(
     exempt.length,
     24,

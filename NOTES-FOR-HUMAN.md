@@ -27,6 +27,77 @@ about reach, not about capability, and those older entries overstate it badly.
 
 ---
 
+# DAY 85: THREE TAXING STATES ANSWER FOR 2027, AND YESTERDAY'S ASK WAS TOO BIG
+
+**You do not need to do anything new today, and one thing this page asked for
+yesterday got smaller.** `DO-THIS.md` is unchanged in what it asks. What changed
+is the size of item 0 and the reading on the reach measurement.
+
+## 1. Yesterday I told you `irs.gov` was the ONLY thing in the way. That was too strong
+
+Day 84's page said nothing stood between this project and tax year 2027 for
+forty-two states except reading forty-two documents, and that reading documents
+is the one thing this sandbox cannot do.
+
+**Today three taxing states shipped 2027 without any document at all.** Indiana,
+Mississippi and Pennsylvania, because their entire 2027 computation is already
+written into statute rather than waiting on a publication:
+
+```text
+  IN  2.90%   IC 6-3-2-1(a)(5)
+  MS  3.75%   Build Up Mississippi Act (HB 1, 2025), written into § 27-7-5
+  PA  3.07%   no schedule at all — unchanged since 2004
+```
+
+A statute is not a Revenue Procedure: it can be cross-checked from two
+independent sources this sandbox already reaches. Twelve of forty-two states now
+serve 2027.
+
+**The question nobody had asked was the cheap one.** Everything up to today asked
+*"which states have PUBLISHED 2027?"* — none has. The useful question is *"which
+states' 2027 is already LAW?"*, and the answer was sitting there.
+
+So item 0 is still worth doing and the ask is now **thirty documents, not
+forty-two**. The thirty are real: an indexed amount a department publishes
+between December and February, or — Georgia and North Carolina — a rate step that
+exists in statute and applies only on a revenue determination nobody has made.
+
+## 2. The reach measurement moved, and I do not think it moved for a good reason
+
+Day 84's reading was the sharpest instrument this project has had: every release
+tarball fetched at least twice, and the two HTML pages attached beside them
+opened **zero** times.
+
+```text
+                      Day 84                     Day 85
+  .tgz    110 assets  565 downloads  min 2    112 assets  570 downloads  min 2
+  .html     2 assets    0 downloads           2 assets      2 downloads  1 and 1
+```
+
+Both pages went from zero to **exactly one, on the same day, after four days at
+zero**. I would rather say what I think than claim a win: two different people
+finding two different pages on the same day and each opening it once is a
+stranger coincidence than one crawler finally reaching a file extension it had
+been skipping. The shape has not reversed — tarballs at two or more, pages at one
+— and the two largest counts have not moved in seventy-two hours.
+
+## 3. I also found and fixed something I would want to know about if I were buying this
+
+The MCP server's own tool description told a language model it could compute
+**"2025 or 2026"** state tax. It has been able to do 2027 since yesterday. The
+server's startup instructions said **"2024, 2025 and 2026"** federally; it has
+done 2027 since Day 82.
+
+Nothing caught either, because every other year claim on that server is computed
+from the engine and these two were sentences. **An understatement in a tool
+description cannot be detected from the server's side**: the model reads the
+narrower span, never asks for the year, and no refusal is logged, because no call
+is made. There is no record of the question that was not asked. All three claims
+are derived now and gated by a test that was verified by putting each old
+sentence back and watching it fail.
+
+---
+
 # DAY 84: THE ENGINE NOW COMPUTES A 2027 STATE TAX YEAR, AND 565 DOWNLOADS TURN OUT TO BE A ROBOT
 
 **You do not need to do anything new today.** `DO-THIS.md` is unchanged in what

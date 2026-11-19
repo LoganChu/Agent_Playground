@@ -298,6 +298,7 @@ test('a declared surviving-spouse status is the one the engine actually uses', (
     'KS 2026',
     'MS 2025',
     'MS 2026',
+    'MS 2027',
     'WI 2025',
     'WI 2026',
   ]);

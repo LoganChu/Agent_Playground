@@ -273,7 +273,23 @@ const PA_CITATIONS: readonly Citation[] = [
 ];
 
 function pennsylvania(year: number): StateIncomeTaxDefinition | undefined {
-  if (year !== 2025 && year !== 2026) return undefined;
+  // PENNSYLVANIA SERVES 2027 FOR THE OPPOSITE REASON TO INDIANA AND MISSISSIPPI,
+  // AND THE DIFFERENCE IS WORTH STATING. Those two have a scheduled rate written
+  // into statute for 2027. Pennsylvania has no schedule at all: § 7302 has read
+  // 3.07% since 2004, § 7304's forgiveness table since 2003, and neither carries
+  // an indexing clause, a sunset or a trigger. So 2027 is not a figure that was
+  // carried forward in hope — there is no mechanism by which it could differ
+  // from 2026, and a year this package declined would be declining a number the
+  // statute already supplies.
+  //
+  // **That is exactly the claim `status: 'published'` makes and the one a
+  // legislature can falsify.** If Pennsylvania enacts a rate for 2027, this line
+  // is wrong the day it is signed, and nothing in this sandbox would notice.
+  // The protection is that the figure is written where it is read rather than
+  // derived from 2026: `test/year-guard.test.js` holds the rate for each served
+  // year, so a change is a visible edit to a named year and not a silent
+  // fall-through.
+  if (year !== 2025 && year !== 2026 && year !== 2027) return undefined;
   return {
     code: 'PA',
     name: 'Pennsylvania',
@@ -299,6 +315,7 @@ function pennsylvania(year: number): StateIncomeTaxDefinition | undefined {
       reductionPerIncrement: 0.1,
     },
     notes: [
+      'Pennsylvania is one of three states this package serves for tax year 2027 and it is the only one of the three with no rate schedule at all. Indiana steps to 2.90% and Mississippi to 3.75% because statutes say so; Pennsylvania stays at 3.07% because nothing in the computation is indexed, scheduled or triggered — the rate has been 3.07% since 2004 and the Special Tax Forgiveness table since 2003. The other thirty taxing states are not refused for 2027 out of caution but because each has a figure that genuinely does not exist yet: an indexed amount a department publishes between December and February, or a rate step that applies only on a revenue determination nobody has made.',
       'Pennsylvania does not start from federal AGI. It taxes eight classes of income separately, with no standard deduction, no personal exemption, and no deduction for 401(k) or 403(b) elective deferrals — those are taxable in Pennsylvania in the year contributed. Passing federal AGI in as the Pennsylvania base understates the tax for anyone contributing to a retirement plan.',
       'Losses in one Pennsylvania income class cannot offset gains in another. A filer with a $20,000 business loss and $80,000 of wages pays Pennsylvania tax on the full $80,000.',
       'Special Tax Forgiveness is a staircase, not a phase-out: full forgiveness up to the allowance, then ten percentage points less for each $250 of eligibility income above it, reaching zero $2,500 later. Because each step forgives ten points less of the WHOLE tax, the cost of a step grows with the household. Across the band a single filer faces about 11% and a single parent of two about 34%, against a statutory 3.07%.',

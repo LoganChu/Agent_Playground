@@ -64,7 +64,7 @@ const creditNamed = (result, fragment) =>
 // a real federal figure, so nothing short of comparing them to the right YEAR
 // could tell. Nine hand-written copies of this table live in this suite and
 // none of them had been checked against the package that ships the real ones.
-const STANDARD_DEDUCTION = {
+const STANDARD_DEDUCTION_2026 = {
   single: 16_100,
   marriedFilingJointly: 32_200,
   marriedFilingSeparately: 16_100,
@@ -96,7 +96,7 @@ function family({
   taxExemptInterest = 0,
   subtractions = 0,
 }) {
-  const deduction = STANDARD_DEDUCTION[filingStatus];
+  const deduction = STANDARD_DEDUCTION_2026[filingStatus];
   return stateIncomeTax({
     state: 'UT',
     year,

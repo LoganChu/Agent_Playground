@@ -60,11 +60,13 @@ import {
 import {
   COUNTY_TAX_STATES,
   getStateDefinition,
+  NO_INCOME_TAX_STATES,
   isSentinelFigure,
   PERSON_RETIREMENT_FIELDS,
   stateFigureProvenance,
   stateName,
   SUPPORTED_LOCALITIES as LOCALITY_CODES,
+  SUPPORTED_LOCALITY_YEARS,
   SUPPORTED_STATES as STATE_CODES,
   SUPPORTED_YEARS as STATE_YEARS,
   stateIncomeTax,
@@ -981,6 +983,61 @@ const yearsTool: ToolDefinition = {
       );
       for (const source of params.sources) rows.push(`  - ${source.title} — ${source.url}`);
     }
+    // ## THE STATE HALF, WHICH THIS TOOL DID NOT HAVE
+    //
+    // Until Day 85 `list_supported_years` answered for the FEDERAL package only,
+    // and that was harmless while every state served every state year. It
+    // stopped being harmless the hour the grid went non-square: a model that
+    // wants to PLAN — "can I answer this for 2027?" — had to call a tool per
+    // state and find out one refusal at a time, or build the cross product and
+    // be wrong about thirty states.
+    //
+    // `statesForYear` has been shipped engine API since Day 84. The tool that
+    // should return it is this one.
+    rows.push('');
+    rows.push(
+      `State tax years: ${STATE_YEARS.join(', ')}. SUPPORT IS PER STATE — this is the union ` +
+        `across all ${STATE_CODES.length} states, and no single state need serve all of it.`,
+    );
+    for (const year of STATE_YEARS) {
+      const serving = statesForYear(year);
+      if (serving.length === STATE_CODES.length) {
+        rows.push(`  ${year}: all ${STATE_CODES.length} states`);
+        continue;
+      }
+      const noTax = serving.filter((code) => NO_INCOME_TAX_STATES.includes(code));
+      const taxing = serving.filter((code) => !NO_INCOME_TAX_STATES.includes(code));
+      rows.push(
+        `  ${year}: ${serving.length} of ${STATE_CODES.length} states — ${serving.join(', ')}`,
+      );
+      rows.push(
+        `         ${noTax.length} of those levy no individual income tax (${noTax.join(', ')}), so ` +
+          'they have no figure that can arrive later' +
+          (taxing.length > 0
+            ? `; ${taxing.join(', ')} tax income and their ${year} figures are already law`
+            : ''),
+      );
+      const missing = STATE_CODES.filter((code) => !serving.includes(code));
+      rows.push(
+        `         NOT yet served for ${year}: ${missing.join(', ')} — each publishes its own ` +
+          'figures, mostly between December and February. Omit `year` and you get the latest ' +
+          'year THAT state has.',
+      );
+    }
+    // NOT `LOCALITY_CODES.length`, which is 2. That array is the NAMED locality
+    // enum — New York City and Yonkers — and printing it as "2 localities"
+    // beside a README advertising 1,033 local income taxes would be a number
+    // that is accurate about the wrong thing. The counties, municipalities and
+    // school districts are reached through `county`, `municipality` and
+    // `schoolDistrict` instead, so what this line can honestly say is the YEARS,
+    // which is the question the tool is answering.
+    rows.push(
+      `  Local income taxes (${LOCALITY_CODES.join(' and ')}, every ${COUNTY_TAX_STATES.join(
+        ' and ',
+      )} county, and the Michigan and Ohio jurisdictions) serve: ` +
+        `${SUPPORTED_LOCALITY_YEARS.join(', ')}. A county, city or school district publishes its ` +
+        'rate separately from its state\u2019s, so a locality can lag the state it is in.',
+    );
     rows.push('');
     rows.push('Not modelled:');
     for (const gap of COVERAGE_GAPS) rows.push(`- ${gap}`);
@@ -994,6 +1051,21 @@ const yearsTool: ToolDefinition = {
         sourcesByYear: Object.fromEntries(
           SUPPORTED_YEARS.map((year) => [year, citations(getYearParameters(year))]),
         ),
+        // The state grid, in BOTH directions, because a caller asking "what can
+        // I ask about 2027" and a caller asking "what can I ask about Indiana"
+        // are the same lookup transposed and neither should rebuild it.
+        state: {
+          years: [...STATE_YEARS],
+          states: [...STATE_CODES],
+          statesByYear: Object.fromEntries(
+            STATE_YEARS.map((year) => [year, [...statesForYear(year)]]),
+          ),
+          yearsByState: Object.fromEntries(
+            STATE_CODES.map((code) => [code, [...supportedStateYears(code)]]),
+          ),
+          noIncomeTaxStates: [...NO_INCOME_TAX_STATES],
+          localityYears: [...SUPPORTED_LOCALITY_YEARS],
+        },
         notModelled: [...COVERAGE_GAPS],
       },
     };
@@ -1274,11 +1346,77 @@ function requireStateYear(state: StateCode, year: number): void {
   );
 }
 
+/**
+ * The three sentences every state tool description needs about years, derived
+ * from the registry rather than written down.
+ *
+ * ## WHY THESE ARE CONSTANTS AND NOT PROSE
+ *
+ * `state_income_tax`'s description opened with *"for 2025 or 2026"* from the day
+ * it was written. Tax year 2027 shipped for the nine states with no individual
+ * income tax one release before this one, and that sentence did not move —
+ * **so for a day the server computed a year its own tool description told the
+ * model it could not.** Nothing failed, because the sentence was the only claim
+ * on the tool that was prose rather than a checked number, which is the same
+ * defect this repository found on two READMEs in the two days before it.
+ *
+ * A tool description is not documentation. It is the entire contract a language
+ * model has before it makes a call, and a model that reads "2025 or 2026" will
+ * not offer 2027 and will not be corrected, because nothing refuses it — the
+ * call is simply never made. An under-claim in a tool description is invisible
+ * from the server side, forever.
+ */
+const LATEST_STATE_YEAR = Math.max(...STATE_YEARS);
+const SERVING_LATEST = statesForYear(LATEST_STATE_YEAR).length;
+const NO_TAX_IN_LATEST = statesForYear(LATEST_STATE_YEAR).filter((s) =>
+  NO_INCOME_TAX_STATES.includes(s),
+).length;
+const TAXING_IN_LATEST = SERVING_LATEST - NO_TAX_IN_LATEST;
+
+/**
+ * How many states serve the newest year, and — only while it is derivable —
+ * what distinguishes them.
+ *
+ * ## THE REASON HAS TO EXPIRE WITH THE CONDITION THAT MADE IT TRUE
+ *
+ * The first version of this read `N of 42 states serve 2027: the 9 with no
+ * individual income tax ... and 3 whose whole computation for that year is
+ * already written into statute`. Both counts were derived and the sentence was
+ * still a time bomb in two directions:
+ *
+ * - With no taxing state serving the latest year — which is where this was
+ *   yesterday and where it returns every time a year is added — it reads
+ *   "and **0** whose whole computation...".
+ * - Once the states actually PUBLISH, in February, it would tell a model that
+ *   thirty-three states' figures are "already written into statute". They would
+ *   not be. They would be published, which is a different and much stronger
+ *   thing, and the sentence would be confidently wrong about all of them.
+ *
+ * So the explanation is only offered while the registry can still support it:
+ * while SOME states are missing the year. Once every state serves it there is
+ * nothing to explain and the sentence says so.
+ */
+const LATEST_IN_WORDS =
+  SERVING_LATEST === STATE_CODES.length
+    ? `All ${STATE_CODES.length} states serve ${LATEST_STATE_YEAR}.`
+    : `${SERVING_LATEST} of ${STATE_CODES.length} states serve ${LATEST_STATE_YEAR}` +
+      (TAXING_IN_LATEST > 0
+        ? ` — ${NO_TAX_IN_LATEST} with no individual income tax, which have no figure that can ` +
+          `arrive later, and ${TAXING_IN_LATEST} whose whole computation for that year is already ` +
+          'written into statute'
+        : ' — the ones with no individual income tax, which have no figure that can arrive later') +
+      '. Every other state serves it once it publishes, between December and February.';
+/** `2025 or 2026` while the span is two years, `2025 to 2027` once it is more. */
+const STATE_YEAR_SPAN =
+  STATE_YEARS.length === 2
+    ? `${Math.min(...STATE_YEARS)} or ${LATEST_STATE_YEAR}`
+    : `${Math.min(...STATE_YEARS)} to ${LATEST_STATE_YEAR} (${LATEST_STATE_YEAR} for ${statesForYear(LATEST_STATE_YEAR).length} of the ${STATE_CODES.length} states)`;
+
 const stateTool: ToolDefinition = {
   name: 'state_income_tax',
   title: 'State income tax',
   description:
-    'Compute a US STATE and LOCAL individual income tax return for 2025 or 2026 — 30 states plus NEW YORK ' +
+    `Compute a US STATE and LOCAL individual income tax return for ${STATE_YEAR_SPAN} — 30 states plus NEW YORK ` +
     'CITY, YONKERS, all 24 MARYLAND jurisdictions, 92 INDIANA counties, 24 MICHIGAN cities, 679 OHIO ' +
     'municipalities and 214 taxing OHIO school districts. Call estimate_federal_tax FIRST and pass its ' +
     'adjustedGrossIncome, taxableIncome, deduction and earned income credit: which federal figure a ' +
@@ -1334,13 +1472,20 @@ const stateTool: ToolDefinition = {
         // offered, so the description carries the per-state rule and the
         // default states what it falls back to. `describe_state` and
         // `list_supported_years` give the exact per-state list.
+        // ## THE COUNT WAS DERIVED AND THE EXPLANATION BESIDE IT WAS A LITERAL
+        //
+        // This read "N of 42 states serve 2027 — **the ones with no individual
+        // income tax**, which have no figure that can arrive later". The count
+        // moved with the registry; the clause explaining it did not, and the
+        // day three TAXING states served 2027 the sentence became a correct
+        // number with a false reason attached — which is worse than a wrong
+        // number, because a model cannot check a reason. The clause is now
+        // derived too.
         description:
           'State tax year, and support is PER STATE: this enum is the union across all states. ' +
-          `${statesForYear(Math.max(...STATE_YEARS)).length} of ${STATE_CODES.length} states serve ` +
-          `${Math.max(...STATE_YEARS)} — the ones with no individual income tax, which have no figure ` +
-          'that can arrive later. Every other state serves it once it publishes, between December and ' +
-          'February. Omit this and you get the latest year THAT state has. Eight states cut their ' +
-          'rate for 2026; an unsupported state-year is an error naming that state\'s years, not a fallback.',
+          `${LATEST_IN_WORDS} Omit this and you get the latest year THAT state has. Eight states ` +
+          'cut their rate for 2026; an unsupported state-year is an error naming that state\'s ' +
+          'years, not a fallback.',
       },
       federalAdjustedGrossIncome: {
         type: 'number',

@@ -106,9 +106,9 @@ runtime dependencies**, so `npm pack` produces a self-contained tarball, and npm
 installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.64.0/us-state-tax-0.64.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.65.0/us-state-tax-0.65.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.18.0/us-federal-tax-0.18.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.66.0/us-tax-mcp-0.66.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.67.0/us-tax-mcp-0.67.0.tgz
 ```
 
 Every version is on the [releases page](https://github.com/LoganChu/Agent_Playground/releases)
@@ -137,7 +137,7 @@ The field is `w2Wages`. The engine took the unknown key, dropped it, and returne
 **Every figure in there is correct for a household with no income, and the
 marginal rate is the most convincing part.** There is no field out of place, no
 ratio that disagrees with another, and nothing anywhere saying that the one number
-the caller supplied is not in the answer. A suite of 1,854 tests cannot catch it,
+the caller supplied is not in the answer. A suite of 1,864 tests cannot catch it,
 because every one of them passes the right field name.
 
 As of v0.15.0 / v0.34.0 an unknown input key says so, in `result.notes` — which
@@ -1283,7 +1283,7 @@ through their `exports` maps, declare zero runtime dependencies in the installed
 `package.json`, and compute a Maryland joint return in Montgomery County —
 `$8,077.50` of state tax and `$5,443.20` of county tax — with the state engine taking
 the federal engine's own output as its basis. `npx -y` starts the MCP server, which
-answers `initialize` as `us-tax-mcp@0.66.0`, lists its ten tools and serves a
+answers `initialize` as `us-tax-mcp@0.67.0`, lists its ten tools and serves a
 `tools/call`.
 
 And the first call written against the installed package **returned a total tax of
@@ -1775,7 +1775,7 @@ tax figure instead of recalling one. Add it to any MCP client:
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.66.0/us-tax-mcp-0.66.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.67.0/us-tax-mcp-0.67.0.tgz"
       ]
     }
   }

@@ -23,8 +23,31 @@ const money = (actual, expected, msg) =>
     `${msg ?? 'amount'}: expected ${expected}, got ${actual}`,
   );
 
-/** The federal standard deductions a 2025 or 2026 filer actually takes (OBBBA). */
-const FEDERAL_DEDUCTION = {
+/**
+ * The federal standard deductions a **2025** filer actually takes (OBBBA).
+ *
+ * ## IT SAID "A 2025 OR 2026 FILER" AND THAT WAS FALSE, AND IT DID NOT MATTER
+ *
+ * Day 85. These are Rev. Proc. 2024-40's figures as OBBBA amended them. The
+ * 2026 amounts are `$16,100 / $32,200 / $24,150`, so the old sentence was wrong
+ * about half of what it claimed — and `sc()` below **defaults to year 2026**,
+ * which is exactly the Utah defect of Day 84: a table labelled for two years,
+ * holding one year's figures, read by default in the other.
+ *
+ * **Every 2026 assertion in this file is unaffected, and the reason is South
+ * Carolina's rather than this table's.** From 2026 South Carolina starts from
+ * federal ADJUSTED GROSS INCOME, not federal taxable income — its two supported
+ * years are two different laws, which is why this file exists — so the federal
+ * deduction is not read at all in 2026. Measured rather than assumed: every
+ * filing status at $30,000, $50,000, $60,000 and $120,000 produces the same
+ * South Carolina tax to the cent under both years' federal tables.
+ *
+ * So the name carries the year now, which turns this from one of the nineteen
+ * figures `tools/cross-package/federal-basis-copies.mjs` could only check for
+ * MEMBERSHIP in some year's table into five it checks against 2025 exactly.
+ * Membership is precisely the check that could not have caught Utah.
+ */
+const FEDERAL_DEDUCTION_2025 = {
   single: 15_750,
   marriedFilingSeparately: 15_750,
   headOfHousehold: 23_625,
@@ -34,7 +57,7 @@ const FEDERAL_DEDUCTION = {
 
 /**
  * § 63(f)'s additional standard deduction for 2025, per aged or blind person —
- * Rev. Proc. 2024-40 § 3.15, the same table `FEDERAL_DEDUCTION` above comes from.
+ * Rev. Proc. 2024-40 § 3.15, the same table `FEDERAL_DEDUCTION_2025` above comes from.
  *
  * **IT IS HERE BECAUSE A FEDERAL BLOCK WITHOUT IT IS A HOUSEHOLD THAT CANNOT
  * EXIST.** This file had eighteen households of 65 and over, every one of them
@@ -46,7 +69,7 @@ const FEDERAL_DEDUCTION = {
  * instrument that found it was `site/test/compute.test.js`, which cannot write
  * an impossible federal block because it runs the federal engine.
  */
-const FEDERAL_AGED_ADDITION = {
+const FEDERAL_AGED_ADDITION_2025 = {
   single: 2_000,
   headOfHousehold: 2_000,
   marriedFilingSeparately: 1_600,
@@ -66,8 +89,8 @@ const agedConditions = (filingStatus, filerAge, spouseAge) =>
 
 const federal = (agi, filingStatus = 'single', extra = {}, filerAge = 0, spouseAge = 0) => {
   const deduction =
-    FEDERAL_DEDUCTION[filingStatus] +
-    agedConditions(filingStatus, filerAge, spouseAge) * FEDERAL_AGED_ADDITION[filingStatus];
+    FEDERAL_DEDUCTION_2025[filingStatus] +
+    agedConditions(filingStatus, filerAge, spouseAge) * FEDERAL_AGED_ADDITION_2025[filingStatus];
   return {
     adjustedGrossIncome: agi,
     taxableIncome: Math.max(0, agi - deduction),
@@ -837,21 +860,21 @@ test('every dollar figure in a South Carolina note is accounted for, in one of F
   // FEDERAL parameter the note names because South Carolina's frozen Code allows
   // it in full and the standard deduction add-back must not reach it. There is no
   // fifth provenance for "a federal figure the sentence quotes", so it is
-  // declared here beside the derivations it feeds — and `FEDERAL_AGED_ADDITION`
+  // declared here beside the derivations it feeds — and `FEDERAL_AGED_ADDITION_2025`
   // at the top of this file is the copy the households are built from, so the
   // note and the fixture cannot disagree.
-  declare(FEDERAL_AGED_ADDITION.single, 'federal \u00a7 63(f) at 65, single, 2025');
+  declare(FEDERAL_AGED_ADDITION_2025.single, 'federal \u00a7 63(f) at 65, single, 2025');
   // What turning 65 is worth in DEDUCTION, state and federal together: the
   // $15,000 floor in place of the under-65 cap, plus § 63(f).
   const under65Cap = d2025.retirementIncomeSubtractions[0].capByAge[0].cap;
   declare(
-    d2025.agedIncomeSubtraction.maximum - under65Cap + FEDERAL_AGED_ADDITION.single,
+    d2025.agedIncomeSubtraction.maximum - under65Cap + FEDERAL_AGED_ADDITION_2025.single,
     'derivation the deduction turning 65 is worth, state and federal',
   );
   // And § 63(f) priced at the 2025 top rate, which is what the three days of the
   // add-back defect cost a South Carolina filer of 65.
   declare(
-    FEDERAL_AGED_ADDITION.single * bands2025[2].rate,
+    FEDERAL_AGED_ADDITION_2025.single * bands2025[2].rate,
     'derivation \u00a7 63(f) at the 2025 top rate',
   );
   // Where the $15,000 floor stops absorbing (C)(1): the senior deduction less

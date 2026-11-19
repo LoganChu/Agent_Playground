@@ -17,10 +17,10 @@
 import { writeFileSync } from 'node:fs';
 import {
   NO_INCOME_TAX_STATES,
-  SUPPORTED_STATES,
   SUPPORTED_YEARS,
   getStateDefinition,
   stateIncomeTax,
+  statesForYear,
 } from '../../packages/us-state-tax/dist/esm/index.js';
 import {
   DIGEST_COLUMNS,
@@ -34,9 +34,29 @@ import {
 import { DRIVERS } from '../../packages/us-state-tax/test/step-charts.mjs';
 import { FIGURE_SWEEP_OPTIONS } from '../../packages/us-state-tax/test/status-households.mjs';
 
+// ## `SUPPORTED_YEARS x SUPPORTED_STATES` WAS HERE, AND IT IS THE ELEVENTH
+// ## INSTANCE OF ONE DEFECT
+//
+// Day 84 replaced this cross product in sixteen test files and two repository
+// tools, because from tax year 2027 it is not a list of state-years: it is a
+// list of state-years plus the pairs `getStateDefinition` throws on. THIS file
+// was missed, and the reason is worth more than the fix — **it is not run by
+// the suite.** A regeneration tool runs on the day somebody regenerates, which
+// is the day a fixture is already expected to move, so its crash arrives with
+// the least context and the most pressure to work around it.
+//
+// It crashed on `AL ... tax year 2027`, which names a state that has nothing to
+// do with the change that broke it. `statesForYear(year)` is the registry's own
+// transpose and cannot drift from it.
+//
+// **THE YEAR STAYS THE OUTER LOOP, WHICH IS NOT COSMETIC.** The obvious
+// replacement is to walk `SUPPORTED_STATE_YEARS` directly, and it reorders the
+// fixture: 326 rows move and 326 rows arrive, and the diff a human is told to
+// read every line of becomes 652 lines of which 326 are noise. A regeneration
+// whose diff cannot be read is a regeneration nobody checked.
 const rows = [];
 for (const year of SUPPORTED_YEARS) {
-  for (const state of SUPPORTED_STATES) {
+  for (const state of statesForYear(year)) {
     if (NO_INCOME_TAX_STATES.includes(state)) continue;
     for (const { path, steps } of stepCharts(getStateDefinition(state, year))) {
       if (DRIVERS[driverKey(path)] === undefined) continue;

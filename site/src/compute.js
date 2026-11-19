@@ -21,17 +21,36 @@
  * reasoning attached, and the page prints it.
  */
 
-import { estimateFederalTax } from '../vendor/us-federal-tax/index.js';
+import { estimateFederalTax, isPrimaryVerified } from '../vendor/us-federal-tax/index.js';
 import {
   SUPPORTED_STATES,
+  SUPPORTED_YEARS,
   indianaCounties,
   marylandCounties,
   stateIncomeTax,
   stateName,
+  statesForYear,
 } from '../vendor/us-state-tax/index.js';
 
-/** Two figures that decide the whole answer and that nothing else supplies. */
-export const YEARS = [2026, 2025];
+/**
+ * The tax years this page offers, newest first.
+ *
+ * ## IT WAS `[2026, 2025]`, WRITTEN DOWN, AND THE ENGINE HAD MOVED PAST IT
+ *
+ * `us-state-tax` has served tax year 2027 since Day 84 — for the nine states
+ * with no individual income tax, and from Day 85 for Indiana, Mississippi and
+ * Pennsylvania as well. This literal meant **the only surface a person can
+ * actually look at could not show the newest year the engine computes**, and
+ * nothing failed, because a hardcoded list is never wrong about itself.
+ *
+ * That is the worst place in this repository for a year list to go stale. The
+ * READMEs are checked against the engine by eleven cross-package tools; this
+ * page is what `DO-THIS.md` sends a human to.
+ */
+export const YEARS = [...SUPPORTED_YEARS].sort((a, b) => b - a);
+
+/** Every state the engine knows, which is not every state served in a given year. */
+export const TOTAL_STATES = SUPPORTED_STATES.length;
 
 export const FILING_STATUSES = [
   ['single', 'Single'],
@@ -420,9 +439,24 @@ export function forState(state, input, fed) {
   };
 }
 
-/** Every state, cheapest first, with the ties broken by name so it is stable. */
+/**
+ * Every state that serves the chosen year, cheapest first, ties broken by name.
+ *
+ * ## `SUPPORTED_STATES` WAS HERE, AND IT IS THE CROSS PRODUCT ONE LAST TIME
+ *
+ * Day 84 replaced `SUPPORTED_STATES x SUPPORTED_YEARS` in sixteen test files and
+ * two tools; Day 85 found it in a regeneration script and here. This instance
+ * does not throw — `forState` catches and returns an `error` row — so widening
+ * the year list above would have produced **thirty rows reading "AL is
+ * supported but tax year 2027 is not"**, sorted to the bottom of a page whose
+ * headline is "all 42 states at once".
+ *
+ * A graceful degradation is still the wrong answer when the right one is
+ * available: the registry knows exactly which states serve a year, so the page
+ * ranks those and says how many there are.
+ */
 export function allStates(input, fed) {
-  const rows = SUPPORTED_STATES.map((state) => forState(state, input, fed));
+  const rows = statesForYear(input.year).map((state) => forState(state, input, fed));
   const rank = (row) =>
     row.error ? Number.POSITIVE_INFINITY : (row.localRange ? row.localRange.low.total : row.total);
   return rows.sort((a, b) => rank(a) - rank(b) || a.stateName.localeCompare(b.stateName));
@@ -487,6 +521,11 @@ export function compute(raw) {
   return {
     input,
     federal: fed,
+    // Whether the federal figures for this year were read from the IRS release
+    // or reconstructed from secondary sources. The page says so when they were
+    // not; `us-federal-tax` has exposed this since it first shipped a year it
+    // could not open the document for.
+    federalProvisional: !isPrimaryVerified(input.year),
     states,
     allocation: allocationSwing(input, fed, states),
     marginal: trueMarginalRate(input, fed),

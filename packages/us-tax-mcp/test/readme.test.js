@@ -1177,6 +1177,31 @@ test('the README states the tax years both engines actually serve', () => {
   // And the note under it must say the per-state rule, because the tool schema
   // physically cannot: a model reading `enum: [2025, 2026, 2027]` and no prose
   // will offer 2027 for California.
-  assert.match(README, /nine states with no individual income[\s>]+tax/);
+  // ## AND THIS LITERAL WAS THE SAME DEFECT ONE LEVEL DOWN
+  //
+  // It read `/nine states with no individual income tax/` — a count written into
+  // the gate that checks a count. It was exactly right for one day, and on the
+  // day three taxing states served 2027 the README had to say "twelve" and this
+  // line was what stopped it. **A test that pins a literal is not checking the
+  // page; it is requiring the page to repeat the test.** The number comes from
+  // the registry now, spelled the way the page spells it.
+  const NUMBERS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight',
+    'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen',
+    'seventeen', 'eighteen', 'nineteen', 'twenty'];
+  const latest = Math.max(...stateYears);
+  const serving = SUPPORTED_STATES.filter((code) => {
+    try {
+      return getStateDefinition(code, latest) !== undefined;
+    } catch {
+      return false;
+    }
+  }).length;
+  const spelled = NUMBERS[serving] ?? String(serving);
+  assert.match(
+    README,
+    new RegExp(`(\\*\\*)?${spelled} states(\\*\\*)?`, 'i'),
+    `${serving} states serve ${latest} and the README does not say so`,
+  );
+  assert.match(README, /no individual[\s>]+income tax|no individual income[\s>]+tax/);
   assert.match(README, /Omit `year` and you get the latest year that[\s>]+state has/);
 });

@@ -19,6 +19,35 @@ import {
 import type { RpcRequest, RpcResponse } from './jsonrpc.js';
 import { ToolInputError } from './schema.js';
 import { TOOLS, findTool } from './tools.js';
+import { PRIMARY_VERIFIED_YEARS, SUPPORTED_YEARS as FEDERAL_YEARS } from './engine/index.js';
+
+/**
+ * The federal years this server computes, as a sentence.
+ *
+ * ## IT SAID "2024, 2025 AND 2026" FOR THREE DAYS AFTER 2027 SHIPPED
+ *
+ * These instructions are what a client puts in front of the model before any
+ * tool is listed, so an understated span is the most expensive kind of stale
+ * prose here: the model never asks for the year, nothing refuses it, and no
+ * instrument on this side can see the call that was not made.
+ *
+ * The span is derived, and the distinction it has to carry is real —
+ * {@link PRIMARY_VERIFIED_YEARS} are the years read from a Revenue Procedure
+ * this sandbox could open, and 2027 was triangulated from secondary sources
+ * because `irs.gov` does not resolve here. Saying "2024 to 2027" and stopping
+ * would overclaim; naming 2027 as provisional is the honest version and is
+ * also the one a model can act on.
+ */
+const FEDERAL_YEAR_SPAN = (() => {
+  const provisional = FEDERAL_YEARS.filter((y) => !PRIMARY_VERIFIED_YEARS.includes(y));
+  const verified = FEDERAL_YEARS.filter((y) => PRIMARY_VERIFIED_YEARS.includes(y));
+  const list = (years: readonly number[]): string =>
+    years.length <= 1
+      ? String(years[0] ?? '')
+      : `${years.slice(0, -1).join(', ')} and ${years[years.length - 1]}`;
+  if (provisional.length === 0) return list(verified);
+  return `${list(verified)}, and PROVISIONALLY ${list(provisional)},`;
+})();
 
 /** Preferred version: the newest the shipping SDKs actually speak. */
 export const PREFERRED_PROTOCOL_VERSION = '2025-11-25';
@@ -43,11 +72,11 @@ export const SUPPORTED_PROTOCOL_VERSIONS: readonly string[] = [
 export const SERVER_INFO = {
   name: 'us-tax-mcp',
   title: 'US Federal Tax',
-  version: '0.66.0',
+  version: '0.67.0',
 } as const;
 
 const INSTRUCTIONS = [
-  'This server computes US federal tax for tax years 2024, 2025 and 2026 from published IRS',
+  `This server computes US federal tax for tax years ${FEDERAL_YEAR_SPAN} from published IRS`,
   'parameters, offline and deterministically. Every figure is cited to the Revenue Procedure it',
   'came from.',
   '',

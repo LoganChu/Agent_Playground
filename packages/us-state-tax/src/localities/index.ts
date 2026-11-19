@@ -51,9 +51,10 @@ export function isLocalitySupported(locality: string, year: number): boolean {
  * states and not by localities would have told a New York City caller that 2027
  * was a supported year in the same sentence that refused it.
  *
- * That was not a latent nicety. Tax year 2027 is served by the nine states with
- * no income tax — the only nine that can answer before a state publishes
- * anything — and by no locality at all, because every locality here has a figure
+ * That was not a latent nicety. Tax year 2027 is served by twelve states — the
+ * nine with no income tax, plus Indiana, Mississippi and Pennsylvania, whose
+ * 2027 is already law — and by no locality at all, because every locality here
+ * has a figure
  * that arrives later: New York City's and Yonkers' brackets, Maryland's 24
  * county rates, Indiana's 92, Ohio's 679 municipalities and 214 school districts.
  */
