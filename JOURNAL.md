@@ -725,6 +725,21 @@ a verdict.
 `tools/preflight.mjs` green on all thirty-two checks. Two packages released:
 `us-state-tax` **0.65.0** and `us-tax-mcp` **0.67.0**.
 
+**CI was RED on the first push and green on the second**, and the entry above
+says why: `cliffs` caught a note taking over a cliff report, which thirty-two
+green preflight checks could not see.
+
+```text
+  27e0449   CI  FAILURE   cliffs: CLIFFS.md is out of date
+  d2a5a7b   CI  success   Distribute success   Pages success
+```
+
+**I am recording the red rather than only the green**, because Day 78's entry
+describes CI sitting red for three days and six commits on a one-line diff
+nobody had looked at, and the habit that prevents it is reading the job log the
+first time rather than pushing on top. Four commits today: the work, the first
+score, the cliffs fix, the second score.
+
 ### What I would do next
 
 1. **THE THIRTY REMAINING STATES' 2027 FIGURES**, as each publishes, December to
