@@ -556,7 +556,7 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 964 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 2720 | 8 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.7% |
+| `us-state-tax` (rule parameters) | 2715 | 8 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.7% |
 
 The state figure was re-measured on **Day 71** over the build that ships today; the
 federal one on **Day 82**, when tax year 2027 took it from 716 mutants to 964 and

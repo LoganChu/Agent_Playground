@@ -288,35 +288,55 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // two missing year checks contributed no mutant at all — not a survivor, not a
   // kill. `packages/us-state-tax/test/year-guard.test.js` is the instrument for
   // that class, and it enumerates the input domain instead of the code.
-  // ## DAY 84: 2,718 -> 2,720, AND THE SPLIT IS WHAT MAKES IT READABLE
+  // ## DAY 84: 2,718 -> 2,720. DAY 85: 2,720 -> 2,715, AND IT WENT DOWN
   //
-  // Tax year 2027 went into `SUPPORTED_YEARS` and into the nine no-income-tax
-  // states' own `YEARS`, and both are year lists the enumerator mutates. The
-  // by-kind breakdown is the claim worth making, because it is the one a reader
-  // cannot check by eye:
+  // Day 84 put tax year 2027 into `SUPPORTED_YEARS` and into the nine
+  // no-income-tax states' own `YEARS`, and both are year lists the enumerator
+  // mutates. Day 85 gave 2027 to three TAXING states — Indiana, Mississippi and
+  // Pennsylvania, whose entire 2027 computation is already law — and the total
+  // FELL by five. The by-kind breakdown is the claim worth making, because it is
+  // the one a reader cannot check by eye:
   //
-  //   money  1,914 -> 1,914   UNMOVED
-  //   rate     492 ->   492   UNMOVED
-  //   year     312 ->   314   both of them
+  //   money  1,914 -> 1,914 -> 1,914   UNMOVED, BOTH DAYS
+  //   rate     492 ->   492 ->   486   -6 on Day 85
+  //   year     312 ->   314 ->   315
   //
-  // **`money` and `rate` both unmoved is the load-bearing half.** Adding a tax
-  // year for nine states moved no tax parameter in the package, which is exactly
-  // what adding a year for nine states with no income tax ought to do — and it
-  // is the thing a diff of this size cannot be read for.
-  assert.equal(mutants.length, 2_720, 'mutants the enumerator finds in the current tree');
+  // **`money` unmoved across both is the load-bearing half.** Three taxing
+  // states gained a tax year and not one figure a filer pays as an AMOUNT
+  // moved, because the only new parameter in any of the three is a rate:
+  // Indiana's exemptions, Mississippi's deduction, exemption and zero band, and
+  // the whole of Pennsylvania are statutory constants identical in 2027 to 2026.
+  //
+  // **AND `rate` FELL, WHICH IS NOT A LOSS OF COVERAGE.** Mississippi's rate was
+  // written into five filing-status schedules as five copies of
+  // `year === 2025 ? 0.044 : 0.04` — ten rate literals for two numbers — and is
+  // now resolved once behind the year gate. That is -7, against +1 for Indiana's
+  // new branch. Killing five copies of `0.044` is five tests of one number and
+  // it reports as five units of rigour; the score is a ratio, so consolidating
+  // duplication moves the denominator in the direction that looks worse.
+  assert.equal(mutants.length, 2_715, 'mutants the enumerator finds in the current tree');
   // The by-kind split itself is pinned at the bottom of this file.
-  // THE TWO FILES TODAY'S THREE CAME FROM, pinned separately so a future total
-  // that happens to land on 2,720 for different reasons cannot pass.
+  // THE FILES THE CHANGES CAME FROM, pinned separately so a future total that
+  // happens to land on 2,715 for different reasons cannot pass.
   assert.equal(
     mutants.filter((m) => m.rel === 'states/no-income-tax.js').length,
     3,
     'the nine no-income-tax states contribute exactly their year list and nothing else — ' +
-      'three years from Day 84, because the nine are the only states that can serve 2027',
+      'three years from Day 84, because the nine were the first states to serve 2027',
   );
   assert.equal(
     mutants.filter((m) => m.rel === 'states/flat-states.js').length,
-    187,
-    'flat-states after Arizona got the year guard the other seven already had',
+    181,
+    'flat-states: 187 on Day 84, 181 on Day 85 — Indiana and Mississippi each gained a year ' +
+      'gate and a rate branch, and Mississippi gave back seven rate literals by writing its ' +
+      'rate once instead of five times',
+  );
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/utah-pennsylvania.js').length,
+    48,
+    'Pennsylvania gained ONE mutant for tax year 2027 — the year in its gate — because nothing ' +
+      'in the Pennsylvania computation is indexed, scheduled or triggered and the 3.07% rate it ' +
+      'already had is the 2027 rate',
   );
   // THE NEW MEXICO FILE'S OWN COUNT, pinned for the reason the Louisiana and
   // Kansas anchors above are: the newest rule in the package is where the
@@ -759,5 +779,40 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // touched sixteen test files, five tools, two packages' sources and three
   // READMEs; `money` at 1,914 is the one line that says none of that reached a
   // figure a filer pays.
-  assert.deepEqual(byKind, { money: 1_914, rate: 492, year: 314 });
+  // DAY 85 — `year` 314 -> 315, `rate` 492 -> 486, `money` UNMOVED A THIRD TIME,
+  // AND THE TOTAL WENT DOWN FOR THE FIRST TIME A TAX YEAR HAS EVER ARRIVED HERE.
+  //
+  // Tax year 2027 went live for three TAXING states: Indiana at 2.90%,
+  // Mississippi at 3.75% and Pennsylvania at 3.07%, each because its entire
+  // 2027 computation is already written into statute. The total went
+  // 2,720 -> 2,715.
+  //
+  //   rate  -7  Mississippi's rate was five copies of
+  //             `year === 2025 ? 0.044 : 0.04`, one per filing-status schedule —
+  //             ten rate literals for two numbers. It is resolved once now, as
+  //             three: 0.044, 0.04, 0.0375.
+  //   rate  +1  Indiana's `0.03 : 0.0295` gained `: 0.029`.
+  //   year  +1  net, across three new year gates and the Mississippi
+  //             consolidation that took four `year === 2025` literals back out.
+  //
+  // **`money` unmoved at 1,914 for the third consecutive audit is the
+  // load-bearing half.** Three states that actually TAX income gained a tax year
+  // and not one figure a filer pays as an amount moved — because the only new
+  // parameter in any of the three is a rate. Indiana's $1,000 exemptions, its
+  // $1,500 child addition and the three bands of its elderly credit;
+  // Mississippi's $10,000 zero bracket, its $2,300/$4,600/$3,400 deduction and
+  // its $6,000/$12,000/$8,000 exemption; the whole of Pennsylvania — every one
+  // is a statutory constant with no indexing mechanism, identical in 2027 to
+  // 2026 because the law says so rather than because anything was carried
+  // forward.
+  //
+  // > **AND SIX FEWER `rate` MUTANTS IS NOT LESS COVERAGE.** Mississippi does
+  // > not vary its rate by filing status — only the zero bracket does any work
+  // > and it is per return — so the five schedules exist to be read, not to
+  // > differ. Killing five copies of `0.044` is five tests of one number and it
+  // > reports as five units of rigour. A mutation score is a ratio, so removing
+  // > duplication moves the denominator in the direction that looks worse, and
+  // > the score staying at 99.7% over a smaller and more honest denominator is
+  // > the better number rather than the same one.
+  assert.deepEqual(byKind, { money: 1_914, rate: 486, year: 315 });
 });

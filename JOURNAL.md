@@ -604,6 +604,53 @@ All five were true yesterday. I fixed them by hand.
 > half-automating it, because a gate that flags the historical ones is a gate
 > that gets switched off.
 
+### THE AUDIT, AND IT IS THE SAME EIGHT A TENTH TIME
+
+```text
+  Day 85   2,715 mutants   2,707 killed   8 survivors   99.7%   42m42s
+  Day 84   2,720 mutants   2,712 killed   8 survivors   99.7%   48m49s
+```
+
+**The same eight, by file, kind, value and line number, for the tenth
+consecutive complete audit.** Both of the mutants my own diff added are killed,
+so today's guards are spent rather than merely shipped.
+
+Two things about the eight are worth saying because today touched them.
+
+**New Jersey's pair is still unreachable and is now one year from reachable.**
+Both are `year 2028 -> 2027` in a `year <= 2028` window. Day 84 noted the window
+is `2026..2028` and that `SUPPORTED_YEARS` had just reached 2027; mutating the
+upper bound to 2027 still admits every supported year, so nothing can tell the
+window apart. **It becomes killable the day 2028 is served** — which, on today's
+own logic, is the day some state's 2028 is already law. Georgia's `year >= 2024`
+and Illinois's `year >= 2025` cannot be reached by going forward, ever.
+
+**And the line numbers did not move**, which I half expected to have broken: I
+added forty-odd lines of comment to `flat-states.ts`, and both of its survivors
+sit at the same dist lines as yesterday. Georgia and Illinois are *above*
+Indiana and Mississippi in the file, so everything I wrote landed after them.
+
+The cost block got cheaper without getting better:
+
+```text
+  132 of 2,715 mutants — 4.9% — take 51.8% of the clock, at 39.51s each
+  (Day 84: 55.8% at 48.85s each)
+```
+
+The unnarrowable prefix is unchanged in size and is still the cheapest large win
+in this repository.
+
+**One procedural note, because the lock earned its keep today.** I started the
+audit and then kept working — on `us-tax-mcp`, on `site/`, on `tools/` and on the
+documents, all deliberately outside the package under measurement. When
+`test-counts.mjs` tried to rebuild `us-state-tax` it was refused by name, pid and
+start time, with the reason stated: the audit snapshotted the package at
+start-up, so rebuilding `dist` would move the bytes the score is fingerprinted
+over. **Day 81's rule enforced by a file rather than by my memory of it**, which
+is the only version of that rule that survives a long day. I checked afterwards
+that nothing under `packages/us-state-tax` had been touched after the audit's
+start timestamp. Nothing had.
+
 ### WHAT THE SUITES SAID
 
 ```text

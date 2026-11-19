@@ -92,35 +92,44 @@ mechanism turned out to be broken. **Freshness is the half that is priced
 highest and the half with the least evidence behind it**, and that asymmetry is
 new information about where the remaining risk is.
 
-## THE PROOF HALF'S NUMBERS, RE-MEASURED BECAUSE TODAY CHANGED THE PARAMETERS
+## THE PROOF HALF'S NUMBERS, AND THE DAY THE DENOMINATOR WENT DOWN
 
 `us-federal-tax` mutation is at **100%** (964 mutants, 0 survivors) and
-`us-state-tax`'s rule parameters at **99.7%** (2720 mutants, 8 survivors) — both
-written by `check-scores.mjs` rather than copied by hand. The state figure was
-re-measured today because the enumerator found 2,720 where 2,718 were recorded:
-**both new mutants are years** — `2027` in `SUPPORTED_YEARS` and `2027` in the
-nine no-income-tax states' own list — and `money` and `rate` are unmoved at 1,914
-and 492.
+`us-state-tax`'s rule parameters at **99.7%** (2715 mutants, 8 survivors) — both
+written by `check-scores.mjs` rather than copied by hand. **The same eight
+survivors for a tenth consecutive audit**, by file, kind, value and line number.
 
-**That last sentence is the one claim in Day 84's diff a reader cannot check by
-eye, and it is the whole of why this instrument is kept.** The change touched
-sixteen test files, five tools, two packages' sources and three READMEs to add a
-tax year; `money` at 1,914 says none of it reached a figure a filer pays.
+**Day 85 is the first time a tax year arrived here and the mutant count FELL.**
+Three taxing states gained tax year 2027 and the by-kind split reads:
 
-**The audit was stopped and restarted once**, deliberately. It was twelve minutes
-in when `federal-basis-copies.mjs` found the Utah defect, and fixing a test file
-changes which mutants the suite kills — so the ten minutes were thrown away
-rather than record a score against a suite that no longer existed. Day 81's rule:
-a long measurement owns the build it is measuring.
+```text
+  money   1,914  ->  1,914     UNMOVED
+  rate      492  ->    486     -6
+  year      312  ->    315     +3
+```
+
+`money` unmoved is the one claim in the diff a reader cannot check by eye, and it
+is the whole of why this instrument is kept: **not one figure a filer pays as an
+amount moved**, because the only new parameter in any of the three states is a
+rate. `rate` fell because Mississippi's rate was written into five filing-status
+schedules as five copies of one ternary — ten rate literals for two numbers — and
+is now resolved once: −7 there, +1 for Indiana's new branch.
+
+> **Six fewer mutants is not less coverage when the six were copies of the same
+> fact.** Killing five copies of `0.044` is five tests of one number and it
+> reports as five units of rigour. A mutation score is a ratio, and consolidating
+> duplication moves the denominator in the direction that looks worse.
 
 ## WHAT HAS NOT MOVED
 
 `description null, topics [], homepage null, has_pages false, stars 0, forks 0`
-on Day 83 — day sixty-two of unread asks, unchanged. The release assets now read
-**519 downloads across 101 assets** since the Day 80 counter fix, and the shape
-says crawler rather than adopter: the two largest counts are on superseded
-October versions and the current federal release has three. A registry would
-answer it properly, which is item 4.
+on Day 85 — **day sixty-four** of unread asks, unchanged. The release assets read
+**570 downloads across 112 assets**, and Day 80's two HTML pages are the control
+group that settles what they are: every tarball has been fetched at least twice;
+both pages sat at **zero** for four days and both moved to **exactly one** on the
+same day, which is a crawler reaching a new file extension rather than two
+readers. The two largest counts have not moved in seventy-two hours. A registry
+would answer it properly, which is item 4.
 
 ---
 

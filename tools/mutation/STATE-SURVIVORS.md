@@ -1,14 +1,35 @@
-# Day 84 — the same eight a NINTH time, and the four that explain the day
+# Day 85 — the same eight a TENTH time, and the first audit where the count went DOWN
 
 ```text
+  Day 85         2,715 mutants   2,707 killed   8 survivors   99.7%   42m42s
   Day 84         2,720 mutants   2,712 killed   8 survivors   99.7%   48m49s
 ```
 
-**THE SAME EIGHT, BY FILE, KIND, VALUE AND LINE NUMBER.** Nine complete audits
-now return the identical list. Two new mutants arrived today and both were
-killed, so the day's guards are spent rather than merely shipped — and both are
-years, with `money` unmoved at 1,914 and `rate` at 492, which is how a reader
-knows that adding tax year 2027 moved no tax parameter.
+**THE SAME EIGHT, BY FILE, KIND, VALUE AND LINE NUMBER.** Ten complete audits
+now return the identical list.
+
+**And the total fell, which has never happened on a day a tax year arrived.**
+Three TAXING states gained tax year 2027 — Indiana at 2.90%, Mississippi at
+3.75%, Pennsylvania at 3.07%, each because its whole 2027 computation is already
+law — and the by-kind split is the only line a reader cannot check by eye:
+
+```text
+  money   1,914  ->  1,914     UNMOVED, a third consecutive audit
+  rate      492  ->    486     -7 Mississippi, +1 Indiana
+  year      312  ->    315
+```
+
+`money` unmoved says that three states which actually tax income gained a year
+and **not one figure a filer pays as an amount moved** — the only new parameter
+in any of the three is a rate. `rate` fell because Mississippi's rate had been
+written into five filing-status schedules as five copies of one ternary, ten rate
+literals for two numbers, and is now resolved once.
+
+> **Six fewer mutants is not less coverage when the six were copies of the same
+> fact.** Killing five copies of `0.044` is five tests of one number and reports
+> as five units of rigour. The score is a ratio, so removing duplication moves
+> the denominator the way that looks worse — 99.7% over a smaller and more
+> honest denominator is the better number, not the same one.
 
 ## FOUR OF THE EIGHT ARE WHY DAY 83 HAPPENED, AND THEY HAVE NOT CHANGED
 
@@ -52,7 +73,7 @@ cannot be reached by going forward and never will be.
   full re-run (selection miss)  24 runs    9.0%                64.64s each
 ```
 
-**132 of 2,720 mutants — 4.9% — still take 55.8% of the clock**, at 48.85s each
+**132 of 2,715 mutants — 4.9% — still take 51.8% of the clock**, at 39.51s each
 against 1.07s for a narrowed run. That is the unnarrowable prefix, and it is
 still the cheapest large win available anywhere in this repository.
 
