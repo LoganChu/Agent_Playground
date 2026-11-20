@@ -228,6 +228,103 @@ const pkg = await import(join(ROOT, 'packages', 'us-state-tax', 'dist', 'esm', '
 const { SUPPORTED_STATES, SUPPORTED_YEARS, getStateDefinition, supportedYears } = pkg;
 const testValues = valuesIn(testCorpus(join(ROOT, 'packages', 'us-state-tax')));
 
+/**
+ * DAY 86. WHAT ELSE CHECKS A FIGURE, BESIDES A TEST FILE — AND IT TURNS 93 INTO
+ * 27.
+ *
+ * `--check` has printed *"93 of them appear in no test file, in 21 state(s)"*
+ * on every push for weeks. `JOURNAL.md` has listed acting on it as a next step
+ * for days with the note *"nobody has priced it"*. **Ninety-three was the wrong
+ * price, by 3.4x, and that is why nobody paid it:** ninety-three unchecked
+ * figures is a week of work and twenty-seven is an afternoon.
+ *
+ * A test file is not the only thing in this repository that pins a number.
+ * Classifying the ninety-one distinct figures by what actually holds them:
+ *
+ * ```text
+ *   asserted by a CHECKER preflight and CI both run      13
+ *   inside a REGENERATED report CI pins byte-for-byte    50
+ *   somewhere else under tools/, prose only               1
+ *   NOWHERE outside the note itself                      27   <- the real gap
+ * ```
+ *
+ * **The 13 are genuinely checked and arguably better checked than by a test.**
+ * `indiana-frozen-eitc.mjs` carries six of them and asserts each against the
+ * engine on every push and in CI; so do `oklahoma-frozen-eitc.mjs`,
+ * `arkansas-bracket-adjustment.mjs`, `north-dakota-zero-band.mjs`,
+ * `in-eitc-conformity.mjs` and the cliff finder's self-check. Counting those as
+ * unchecked because the file does not end in `.test.mjs` is the denominator
+ * being wrong, not the coverage being absent.
+ *
+ * **The 50 are the interesting category and they are NOT safe.** They sit in a
+ * report — `tools/cliffs/CLIFFS.md`, `tools/anchors/out/ours.json`,
+ * `tools/differential/REPORT.md`, `tools/audit/out/REPORT.md` — that CI
+ * regenerates and compares byte for byte. So a figure moving in the ENGINE does
+ * go red. But nothing ties the note's string to the report's, so the red says
+ * *"CLIFFS.md is out of date"* and the fix is to regenerate the report, which
+ * leaves the note stale and the build green. **Day 85 lived exactly that**: CI
+ * went red with `CLIFFS.md is out of date` and the cause was a note.
+ *
+ * > **THE RULE: DRIFT-DETECTING IS NOT NOTE-PINNING. A report that regenerates
+ * > catches the engine moving and then blames the report.**
+ *
+ * So there are two ceilings now, and the second is the one that should ratchet.
+ */
+const RUN_BY_PREFLIGHT = (() => {
+  const pre = readFileSync(join(ROOT, 'tools', 'preflight.mjs'), 'utf8');
+  return [...new Set([...pre.matchAll(/node (tools\/[\w\-/]+\.mjs)/g)].map((m) => m[1]))];
+})();
+
+/** Files under `tools/` that are regenerated from the engine and pinned in CI. */
+const PINNED_REPORTS = [
+  'tools/cliffs/CLIFFS.md',
+  'tools/cliffs/out/cliffs.json',
+  'tools/anchors/out/ours.json',
+  'tools/anchors/REPORT.md',
+  'tools/differential/out/ours.json',
+  'tools/differential/REPORT.md',
+  'tools/differential/PREPARER-ANCHORS.md',
+  'tools/audit/out/REPORT.md',
+  'tools/audit/out/AGAINST-POLICYENGINE.md',
+  'tools/note-conditions.json',
+];
+
+/**
+ * Where a figure appears outside the note and outside the test corpus, as a
+ * category. `note-figures.mjs` itself is excluded, because this file's own
+ * header quotes figures it reports — an instrument must not count its own
+ * documentation as coverage.
+ */
+function heldBy(figure) {
+  const plain = figure.slice(1).replace(/,/g, '');
+  const commas = figure.slice(1);
+  const hits = (paths) =>
+    paths.filter((rel) => {
+      let text;
+      try {
+        text = readFileSync(join(ROOT, rel), 'utf8');
+      } catch {
+        return false;
+      }
+      return text.includes(commas) || text.includes(plain);
+    });
+  const checker = hits(RUN_BY_PREFLIGHT.filter((p) => p !== 'tools/note-figures.mjs'));
+  if (checker.length > 0) return { kind: 'checker', where: checker };
+  const report = hits(PINNED_REPORTS);
+  if (report.length > 0) return { kind: 'report', where: report };
+  return { kind: 'nowhere', where: [] };
+}
+
+/**
+ * The ceiling on the figures held by NOTHING, which is the number worth driving
+ * to zero. Measured at 27 on Day 86, the day the 93 was first decomposed.
+ *
+ * The raw `CEILING` above stays where it is and keeps its own job: it catches a
+ * new figure being written into a note without anything at all behind it, even
+ * one that lands in a report. This one catches the gap a reader should act on.
+ */
+const ACTIONABLE_CEILING = Number(process.env.NOTE_FIGURE_ACTIONABLE_CEILING ?? 27);
+
 const unchecked = new Map();
 let figures = 0;
 for (const state of SUPPORTED_STATES) {
@@ -259,10 +356,39 @@ if (!CHECK) {
   }
 }
 
+const held = { checker: [], report: [], nowhere: [] };
+for (const missing of unchecked.values()) {
+  for (const figure of missing) held[heldBy(figure).kind].push(figure);
+}
+const actionable = new Set(held.nowhere).size;
+
+if (!CHECK) {
+  console.log('\n--- what holds the ones no test file mentions ---');
+  console.log(`  asserted by a checker preflight and CI both run   ${String(held.checker.length).padStart(3)}`);
+  console.log(`  inside a report CI pins byte for byte             ${String(held.report.length).padStart(3)}   drift-detecting, NOT note-pinning`);
+  console.log(`  held by nothing at all                           ${String(held.nowhere.length).padStart(3)}   <- the gap worth closing`);
+  if (held.nowhere.length > 0) {
+    console.log('');
+    for (const f of [...new Set(held.nowhere)].sort()) console.log(`    ${f}`);
+  }
+}
+
 console.log(
   `\n${figures} distinct figures with cents in shipped prose across ${SUPPORTED_STATES.length} states; ` +
-    `${total} of them appear in no test file, in ${unchecked.size} state(s).`,
+    `${total} of them appear in no test file, in ${unchecked.size} state(s); ` +
+    `of those ${held.checker.length} are asserted by a checker CI runs, ${held.report.length} sit in a ` +
+    `report CI pins, and ${actionable} are held by nothing (ceiling ${ACTIONABLE_CEILING}).`,
 );
+
+if (CHECK && actionable > ACTIONABLE_CEILING) {
+  console.error(
+    `\n${actionable} figures with cents are in a shipped note and in NOTHING else — not a test, ` +
+      `not a checker, not a report CI regenerates — against a ceiling of ${ACTIONABLE_CEILING}. ` +
+      `This is the number worth driving to zero: compute it in that state's test file, or stop ` +
+      `printing it in the note.`,
+  );
+  process.exit(1);
+}
 
 if (CHECK && total > CEILING) {
   console.error(

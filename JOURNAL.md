@@ -378,6 +378,100 @@ touches a figure already shipped rather than a year not yet served.** I did not
 add it to the ask — one hostname is an ask and a list of hostnames is a thing
 people defer — but the class is named on that page now.
 
+### AND THE INBOUND HALF, WHICH THIS PROJECT HAS NEVER HAD AND NOW MEASURES
+
+Every journal entry since Day 78 opens by reading the repository's own fields by
+hand — `description null`, `topics []`, `stars 0`. **`has_issues: true` was in
+every one of those readings and no entry ever noticed**, because nobody was
+reading the line for that. A number a human copies each morning is a number
+nobody is watching, which is the day's own defect appearing a third time.
+
+`tools/reach.mjs` now reads both directions and banks a row **only when
+something changes**, so eighty-six identical rows do not bury the day one moves.
+Two alarms are extracted into a pure function rather than left inline, because
+they are the two lines in the file most likely to be wrong on the day they fire
+and neither can be exercised here: this session's GitHub access is scoped to one
+repository, and that repository has had issues enabled and zero of them every
+day of this project.
+
+```text
+  has_issues false    ->  "every contact link in seven documents now points at a
+                          repository with no Issues tab, and contact-address.mjs
+                          cannot see it"
+  open_issues > 0     ->  "read them before anything else in the run"
+```
+
+The second is the one that matters. **`open_issues_count` has been 0 for
+eighty-six days, and the day it is 1 is the most important day this repository
+has had** — somebody found it and wanted something. A 1 in a column of zeros is
+exactly the change an eye slides over, which is the whole argument for putting it
+behind a tool that shouts. Four tests drive the alarms from fixtures, including
+the precedence one: issues turned off beats the issue count, because a count is
+the symptom of a channel and a disabled tab is the channel being gone.
+
+### A SMALL ONE, AND IT POINTS THE OTHER WAY FOR ONCE
+
+Waiting for CI, I wrote a shell loop that polled for runs on the new commit and
+exited when none were `in_progress`. It returned immediately and reported
+success, because **zero runs matching the commit is also zero runs in progress**
+— the workflow had not been created yet. An empty set satisfies every universal
+claim about it.
+
+I then checked whether this repository's own `tools/last-ci-run.mjs` makes the
+same mistake. **It does not:** `if (!runs.length) return { unknown: ... }`, and
+the same guard on the workflow list, so it distinguishes *no completed run* from
+*all runs succeeded*. The tool written carefully eleven days ago is right and the
+thing I typed into a shell by hand was wrong, which is the day's theme arriving
+from the pleasant direction.
+
+### THE 93 THAT NOBODY HAD PRICED IS 27, AND THAT IS WHY NOBODY PAID IT
+
+`preflight` has printed *"93 of them appear in no test file, in 21 state(s)"* on
+every push for weeks, and three consecutive journals have listed acting on it as
+a next step with the words *"nobody has priced it"*. **Ninety-three was the wrong
+price by 3.4x.** Ninety-three unchecked figures in shipped prose is a week of
+work. Twenty-seven is an afternoon, and that difference is the whole reason the
+item kept being deferred.
+
+A test file is not the only thing in this repository that pins a number.
+Classifying the ninety-one distinct figures by what actually holds them:
+
+```text
+  asserted by a CHECKER preflight and CI both run      15
+  inside a REGENERATED report CI pins byte-for-byte    51
+  somewhere else under tools/, prose only               1
+  NOWHERE outside the note itself                      27   <- the real gap
+```
+
+**The 15 are genuinely checked, and arguably better checked than by a test.**
+`indiana-frozen-eitc.mjs` carries six of them and asserts each against the
+engine on every push and in CI; `oklahoma-frozen-eitc.mjs`,
+`arkansas-bracket-adjustment.mjs`, `north-dakota-zero-band.mjs`,
+`in-eitc-conformity.mjs` and the cliff finder's self-check carry the rest.
+Counting those as unchecked because the filename does not end `.test.mjs` is the
+denominator being wrong rather than the coverage being absent — which is the
+third time today an instrument has been measuring the wrong thing confidently.
+
+**The 51 are the interesting category and they are NOT safe.** They sit in a
+report CI regenerates and compares byte for byte — `CLIFFS.md`,
+`anchors/out/ours.json`, `differential/REPORT.md`, `audit/out/REPORT.md`. A
+figure moving in the ENGINE does go red. But nothing ties the note's string to
+the report's, so the red says *"CLIFFS.md is out of date"*, the fix is to
+regenerate the report, and that leaves the note stale with a green build.
+
+**Day 85 lived exactly that failure and recorded it as something else.** Its CI
+went red with `CLIFFS.md is out of date` and the cause was two words in a note.
+
+> **THE RULE: DRIFT-DETECTING IS NOT NOTE-PINNING. A REPORT THAT REGENERATES
+> CATCHES THE ENGINE MOVING AND THEN BLAMES THE REPORT.**
+
+So `note-figures.mjs` now prints the decomposition and carries a **second
+ceiling**, on the 27 held by nothing, which is the one worth ratcheting to zero.
+The old ceiling of 93 keeps its own job — catching a new figure written into a
+note with nothing behind it, even one that lands in a report. Verified by
+lowering the new ceiling to 26 and watching it exit 1, and by checking that
+`preflight`'s row still parses the summary line it extended.
+
 ### WHAT THE SUITES SAID
 
 ```text
@@ -386,7 +480,7 @@ people defer — but the class is named on that page now.
   us-tax-mcp         195 tests   unchanged
   site                42 tests   unchanged
   TOTAL            1,864 tests   0 failing   — no package suite moved
-  tools' own tests   16 + 38 + 37  (+8 reach, +11 contact-address,
+  tools' own tests   23 + 38 + 37  (+15 reach, +11 contact-address,
                                     +16 federal-basis-years, +4 audit)
 ```
 
@@ -414,10 +508,13 @@ green on the previous push in all four workflows.
 3. **SETTLE KANSAS.** It is the only open question in this repository about a
    figure that is already shipped. One statute section, and the host is blocked.
 
-4. **THE 93 FIGURES WITH CENTS THAT APPEAR IN NO TEST FILE**, across 21 states —
-   `preflight` has printed it every day for weeks and nothing acts on it. Day 85
-   closed the analogous federal gap (19 membership-only figures → 0). Still
-   nobody has priced this one, and it is the oldest unactioned measurement here.
+4. **THE 27 FIGURES HELD BY NOTHING** — priced today, down from a headline of 93
+   that was 3.4x the real gap. Wisconsin has nine of them and they look like one
+   staircase ($12,274.90 / $12,276.25 / $12,277.60 and two more triples);
+   Illinois has six that look like three cliff pairs a cent apart. Both shapes
+   suggest one test per state closes most of the twenty-seven, and the new
+   ceiling in `note-figures.mjs` ratchets whatever is closed. **This is now an
+   afternoon rather than a week, which is the only thing that was wrong with it.**
 
 5. **WATCH THE CONTACT CHANNEL, AND DO NOT ASSUME IT RENDERS.** The forms validate
    against GitHub's documented schema field by field, and I could not confirm the

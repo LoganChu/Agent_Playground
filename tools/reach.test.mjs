@@ -11,7 +11,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { bank, cohorts, cumulative, kind, COHORT_MINUTES, MATCH_TOLERANCE } from './reach.mjs';
+import { bank, cohorts, cumulative, inboundAlarms, kind, sameRepoState, WATCHED_REPO_FIELDS, COHORT_MINUTES, MATCH_TOLERANCE } from './reach.mjs';
 
 const empty = () => ({ firstRecorded: null, lastRecorded: null, runs: 0, generations: {} });
 const at = (iso) => new Date(iso).toISOString();
@@ -98,4 +98,63 @@ test('the matching tolerance is wide enough for the gap it exists to span', () =
   assert.ok(Math.abs(tarball - page) <= page * MATCH_TOLERANCE);
   // And narrow enough to exclude what Day 84 actually compared against.
   assert.ok(Math.abs(49 - page) > page * MATCH_TOLERANCE, '49-day-old assets are not a control group');
+});
+
+
+const STATE = {
+  description: 'null', topics: 0, homepage: 'null', hasIssues: true,
+  hasPages: false, stars: 0, forks: 0, openIssues: 0, watchers: 0,
+};
+
+test('the inbound series records one row per CHANGE, not one per run', () => {
+  assert.ok(sameRepoState(STATE, { ...STATE, firstSeen: 'x', lastSeen: 'y' }),
+    'the timestamps are not watched fields, or every run would be a new row');
+});
+
+test('EVERY watched field, moved on its own, creates a new row', () => {
+  // The one that matters is openIssues. It has been 0 for eighty-six days, and
+  // the day it is 1 somebody found this repository and wanted something — so a
+  // field that silently fails to register would lose the only event this series
+  // was built for.
+  const moved = {
+    stars: 1, forks: 1, openIssues: 1, watchers: 1, topics: 7,
+    hasIssues: false, hasPages: true,
+    description: 'US income tax engines', homepage: 'https://example.com',
+  };
+  for (const field of WATCHED_REPO_FIELDS) {
+    assert.ok(field in moved, `${field} is watched and this test does not move it`);
+    assert.equal(sameRepoState(STATE, { ...STATE, [field]: moved[field] }), false,
+      `moving ${field} did not register as a change`);
+  }
+});
+
+test('a first reading is never "the same as" nothing', () => {
+  assert.equal(sameRepoState(undefined, STATE), false);
+});
+
+
+test('today is quiet, and a quiet day says nothing', () => {
+  assert.deepEqual(inboundAlarms(STATE), []);
+});
+
+test('THE DAY SOMEBODY OPENS AN ISSUE, the run is told to read it first', () => {
+  const [alarm, ...rest] = inboundAlarms({ ...STATE, openIssues: 1 });
+  assert.deepEqual(rest, []);
+  assert.match(alarm, /^1 OPEN ISSUE\(S\)/);
+  assert.match(alarm, /Read them before anything else in the run/);
+});
+
+test('and the count is the real one, not a hardcoded 1', () => {
+  assert.match(inboundAlarms({ ...STATE, openIssues: 4 })[0], /^4 OPEN ISSUE\(S\)/);
+});
+
+test('issues turned off is the louder alarm, and it WINS over the issue count', () => {
+  // If issues are disabled, `open_issues_count` is not the interesting number —
+  // every contact link in seven documents is broken, and nothing else in this
+  // repository can see that. Reporting the count instead would be reporting the
+  // symptom of a channel that no longer exists.
+  const [alarm, ...rest] = inboundAlarms({ ...STATE, hasIssues: false, openIssues: 3 });
+  assert.deepEqual(rest, []);
+  assert.match(alarm, /^ISSUES ARE TURNED OFF/);
+  assert.match(alarm, /contact-address\.mjs cannot see/);
 });

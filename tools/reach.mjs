@@ -113,6 +113,95 @@ function live() {
     });
 }
 
+/**
+ * The INBOUND half, added the same day the repository first had an inbound
+ * channel to measure.
+ *
+ * Every journal entry since Day 78 opens by reading these fields by hand, and
+ * the ritual is the problem: `has_issues` was `true` in every one of those
+ * readings and no entry noticed, because nobody was reading the line for that.
+ * A number a human copies each morning is a number nobody is watching.
+ *
+ * `open_issues_count` is the one that matters now. It has been 0 for eighty-six
+ * days, and the day it is not is the most important day this repository has had
+ * — somebody found it and wanted something. The report says so in those words,
+ * because a 1 in a column of zeros is exactly the change an eye slides over.
+ */
+function repoFacts() {
+  const out = execFileSync(
+    'gh',
+    ['api', `repos/${REPO}`, '--jq',
+      '[.description // "null", (.topics|length|tostring), .homepage // "null", (.has_issues|tostring), ' +
+      '(.has_pages|tostring), (.stargazers_count|tostring), (.forks_count|tostring), ' +
+      '(.open_issues_count|tostring), (.subscribers_count|tostring)] | @tsv'],
+    { encoding: 'utf8' },
+  ).trim().split('\t');
+  const [description, topics, homepage, hasIssues, hasPages, stars, forks, openIssues, watchers] = out;
+  return {
+    description,
+    topics: Number(topics),
+    homepage,
+    hasIssues: hasIssues === 'true',
+    hasPages: hasPages === 'true',
+    stars: Number(stars),
+    forks: Number(forks),
+    openIssues: Number(openIssues),
+    watchers: Number(watchers),
+  };
+}
+
+/**
+ * The fields whose movement is the whole point of the inbound series. A field
+ * NOT on this list cannot create a row, so adding one here is how a future run
+ * starts watching something new.
+ */
+export const WATCHED_REPO_FIELDS = [
+  'stars',
+  'forks',
+  'openIssues',
+  'watchers',
+  'topics',
+  'hasIssues',
+  'hasPages',
+  'description',
+  'homepage',
+];
+
+/**
+ * The two inbound conditions worth interrupting a run for, as text.
+ *
+ * Extracted from the report so they can be tested, and they are the two lines
+ * in this file most likely to be WRONG ON THE DAY THEY FIRE, because neither
+ * can be exercised against the live repository: this session's GitHub access is
+ * scoped to one repo, and that repo has had issues enabled and zero of them for
+ * every day of this project. A branch that has never run is a claim — Day 84 —
+ * so these are driven from fixtures instead.
+ */
+export function inboundAlarms(facts) {
+  const alarms = [];
+  if (!facts.hasIssues) {
+    alarms.push(
+      'ISSUES ARE TURNED OFF. Every contact link in CONTACT.md, OFFER.md, the root ' +
+        'README and all three package READMEs now points at a repository with no Issues ' +
+        'tab. This is the one thing contact-address.mjs cannot see.',
+    );
+  } else if (facts.openIssues > 0) {
+    alarms.push(
+      `${facts.openIssues} OPEN ISSUE(S). This has been 0 for every day of this project. ` +
+        'Somebody found this repository and wanted something. Read them before anything ' +
+        'else in the run, and answer them: it is the first inbound contact there has ever ' +
+        'been, and nothing else measured here comes close in value.',
+    );
+  }
+  return alarms;
+}
+
+/** Two readings of the repository's own fields, same in every watched field. */
+export function sameRepoState(a, b) {
+  if (a === undefined || b === undefined) return false;
+  return WATCHED_REPO_FIELDS.every((k) => a[k] === b[k]);
+}
+
 function loadLedger() {
   if (!existsSync(LEDGER)) {
     return {
@@ -125,9 +214,12 @@ function loadLedger() {
       lastRecorded: null,
       runs: 0,
       generations: {},
+      repo: [],
     };
   }
-  return JSON.parse(readFileSync(LEDGER, 'utf8'));
+  const ledger = JSON.parse(readFileSync(LEDGER, 'utf8'));
+  ledger.repo ??= [];
+  return ledger;
 }
 
 function bank(ledger, assets, now) {
@@ -193,12 +285,30 @@ function main() {
   }
 
   const ledger = loadLedger();
+
+  // The inbound side. A failure here must not lose the asset reading, which is
+  // the more expensive of the two to retake.
+  let facts = null;
+  try {
+    facts = repoFacts();
+  } catch (err) {
+    console.error(`could not read ${REPO}'s own fields: ${String(err.message).split('\n')[0]}`);
+  }
+
   const liveIds = new Set(assets.map((a) => a.id));
   // Generations the API no longer lists: replaced by --clobber, counter gone.
   const resetToday = assets.filter((a) => days(a.createdAt, now) < 1.5 && kind(a.name) === 'page');
 
   if (record) {
     bank(ledger, assets, now);
+    if (facts !== null) {
+      const last = ledger.repo.at(-1);
+      // One row per CHANGE, not one per run. Eighty-six days of identical rows
+      // would bury the day one of them moves, which is the only day this series
+      // exists for.
+      if (sameRepoState(last, facts)) last.lastSeen = now;
+      else ledger.repo.push({ ...facts, firstSeen: now, lastSeen: now });
+    }
     writeFileSync(LEDGER, `${JSON.stringify(ledger, null, 1)}\n`);
   }
 
@@ -217,6 +327,23 @@ function main() {
   }
 
   console.log(`# Reach, ${now.slice(0, 10)}\n`);
+  if (facts !== null) {
+    console.log('## Has anybody found it — the inbound side\n');
+    console.log(
+      `  description ${facts.description}   topics ${facts.topics}   homepage ${facts.homepage}\n` +
+        `  stars ${facts.stars}   forks ${facts.forks}   watchers ${facts.watchers}\n` +
+        `  has_issues ${facts.hasIssues}   has_pages ${facts.hasPages}   OPEN ISSUES ${facts.openIssues}`,
+    );
+    for (const alarm of inboundAlarms(facts)) console.log(`\n  *** ${alarm} ***`);
+    const first = ledger.repo[0];
+    if (first !== undefined && record) {
+      console.log(
+        `\n  ${ledger.repo.length} distinct state(s) recorded since ${first.firstSeen.slice(0, 10)}` +
+          `${ledger.repo.length === 1 ? ' — nothing on the inbound side has moved since' : ''}`,
+      );
+    }
+    console.log('');
+  }
   console.log('## The matched comparison: equal exposure, not equal lifetimes\n');
   const youngestPage = assets
     .filter((a) => kind(a.name) === 'page')
