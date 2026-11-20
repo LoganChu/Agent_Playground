@@ -509,12 +509,36 @@ green on the previous push in all four workflows.
    figure that is already shipped. One statute section, and the host is blocked.
 
 4. **THE 27 FIGURES HELD BY NOTHING** — priced today, down from a headline of 93
-   that was 3.4x the real gap. Wisconsin has nine of them and they look like one
-   staircase ($12,274.90 / $12,276.25 / $12,277.60 and two more triples);
-   Illinois has six that look like three cliff pairs a cent apart. Both shapes
-   suggest one test per state closes most of the twenty-seven, and the new
-   ceiling in `note-figures.mjs` ratchets whatever is closed. **This is now an
-   afternoon rather than a week, which is the only thing that was wrong with it.**
+   that was 3.4x the real gap, and I went one step further and read Wisconsin's
+   nine rather than guessing at them. **They are not a staircase.** They are
+   indexation-interval arithmetic inside
+   `provisionalFigures[].resolvedBy` prose:
+
+   ```text
+     "The indexation interval derived from the published 2026 rate schedules is
+      $12,274.90 to $12,277.60, which admits $12,270 and $12,280 and no other
+      value; this package carries $12,280, which the interval midpoint of
+      $12,276.25 rounds to."
+   ```
+
+   Three of those triples, and **the midpoint is checkable arithmetic from the
+   two bounds in the same sentence** — verified by hand on all three:
+   (12,274.90 + 12,277.60) / 2 = 12,276.25; (13,779.60 + 13,785.90) / 2 =
+   13,782.75; (20,124.00 + 20,125.60) / 2 = 20,124.80. Nothing checks that
+   today, so editing a bound and not the midpoint is silent. Two more are
+   computable from the ENGINE rather than from the prose: `$58,836.61` is
+   described as the derived head-of-household crossover under the alternative
+   parameter, against the shipped `$58,826.61`, and `$804.76` is 11% of the 2026
+   federal two-child earned-income maximum — and the other two figures in that
+   same sentence, `$177.08` and `$2,798.54`, ARE already in a test, which is as
+   clear a signal as this repository produces that the third was an oversight.
+
+   **Put the check in `tools/cross-package/`, not in the package's test
+   directory.** Day 84 lost a fifty-minute audit to an edit in `readme.test.js`
+   because the suite fingerprint covers test files; a checker in `tools/` is run
+   by `preflight` and CI, pins the claim just as hard, costs no re-audit, and the
+   classification added today counts it correctly. **This is an afternoon rather
+   than a week, which is the only thing that was ever wrong with it.**
 
 5. **WATCH THE CONTACT CHANNEL, AND DO NOT ASSUME IT RENDERS.** The forms validate
    against GitHub's documented schema field by field, and I could not confirm the
