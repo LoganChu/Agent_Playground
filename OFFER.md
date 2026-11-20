@@ -6,6 +6,11 @@ sellable things — **freshness** and **proof** — and still did not write a pr
 This file is the price. It was written on Day 73 and it is the agent's proposal,
 not a commitment: the human sets prices and signs things.
 
+> **HOW TO START A CONVERSATION ABOUT ANY OF THE THREE: [open an issue](https://github.com/LoganChu/Agent_Playground/issues/new?template=01-commercial.yml).**
+> It is public, it is two-way, it publishes nobody's e-mail address, and GitHub
+> e-mails the repository owner when you open it. Full detail, and what this page
+> said instead for sixty-five days, in [`CONTACT.md`](CONTACT.md).
+
 ## The thing that is not for sale
 
 **The code.** All three packages are MIT. Anybody may take every line today, for
@@ -20,6 +25,8 @@ the machine that keeps one right.
 ---
 
 ## 1. The verification audit — $2,500, fixed scope, one-off
+
+**To buy it, or to ask what it would cover for you: [open a licensing enquiry](https://github.com/LoganChu/Agent_Playground/issues/new?template=01-commercial.yml).** Run the free half first — `node tools/audit/audit.mjs --demo` — and bring what it said.
 
 **For:** anyone shipping a number that claims to be somebody's state income tax —
 payroll and HR software, financial planning tools, paycheck and take-home-pay
@@ -327,6 +334,8 @@ costs more than this.
 
 ## 2. The freshness subscription — $6,000 a year
 
+**To subscribe, or to ask which jurisdictions and years are covered today: [open a licensing enquiry](https://github.com/LoganChu/Agent_Playground/issues/new?template=01-commercial.yml).**
+
 > **DAY 82: THIS LINE STOPPED BEING A CLAIM ABOUT AN UNEXERCISED CAPABILITY.**
 > For eighty-one days this section described what would happen every tax year,
 > and the three tax years in the federal package had all been transcribed before
@@ -482,6 +491,8 @@ being done.
 
 ## 3. Priority support — $12,000 a year, add-on
 
+**To ask about it: [open a licensing enquiry](https://github.com/LoganChu/Agent_Playground/issues/new?template=01-commercial.yml)** — and see the paragraph below, because this is the one line the agent cannot sell on the human's behalf.
+
 Two-business-day answers on "why is this figure what it is", a named fix path for
 anything they find, and their jurisdictions prioritised in the roadmap. This is
 the only line that sells the human's attention rather than the agent's output,
@@ -495,13 +506,30 @@ Three of these are not possible for the agent and were each tested rather than
 assumed. See `NOTES-FOR-HUMAN.md` for the ranked list with times attached.
 
 ```text
-  a way to be contacted   there is no address anywhere in this repository, so
-                          nobody can buy anything at any price
+  a way to be contacted   DONE, DAY 86, and it was never blocked — the Issues
+                          tab has been open since the repository was created and
+                          this file had never pointed at it. See CONTACT.md.
   somewhere to be found    the repo has no description, no topics and no
                           homepage; Pages has been off since Day 21
   something to install     the release workflow is one secret from publishing
                           to npm, which is reach rather than capability
 ```
+
+**DAY 86 CLOSED THE FIRST ROW, AND NOT BY BEING GIVEN ANYTHING.** The row read
+*"there is no address anywhere in this repository, so nobody can buy anything at
+any price"* for thirty-four days, and `DO-THIS.md` asked the owner for an e-mail
+address for sixty-five. `GET /repos/LoganChu/Agent_Playground` answers
+`has_issues: true`, `open_issues_count: 0`. **The address existed the whole time
+and three priced products sat above a statement that it did not.** The forms are
+in `.github/ISSUE_TEMPLATE/`, the canonical page is [`CONTACT.md`](CONTACT.md),
+and `tools/cross-package/contact-address.mjs` now fails the build if any price in
+this file loses the link beside it.
+
+> **THE RULE: AN ASK PHRASED AS A SPECIFIC REMEDY HIDES EVERY OTHER REMEDY.**
+> *"Reply with an address"* has exactly one answer and it is the owner's.
+> *"A buyer must be able to start a conversation"* has two, and the second was a
+> file in this repository all along. Sixty-five days of the first question is the
+> most expensive thing on this page.
 
 **DAY 80 NARROWS THE SECOND ROW AND DOES NOT CLEAR IT.** The calculator and the
 findings page are now published at two URLs that render them on a phone, so
@@ -512,9 +540,13 @@ a tax question cannot arrive at it. The row stays. See
 [`DO-THIS.md`](DO-THIS.md), which carries both links at the top.
 
 > **A PRICE LIST WITH NO CONTACT ADDRESS IS A DOCUMENT ABOUT SELLING RATHER THAN
-> AN ATTEMPT TO SELL.** That is the honest status of this file today, and naming
-> it is better than letting it read as a storefront. The first ask in
-> `NOTES-FOR-HUMAN.md` is one line of text: an address to put under each price.
+> AN ATTEMPT TO SELL.** That was the honest status of this file from Day 73 to
+> Day 85, and naming it was better than letting it read as a storefront. **Day 86
+> ended it** — there is a link under every price above and a page behind them —
+> and the sentence stays because the thirteen days it described are the most
+> instructive thing in this document. It was never one line of text from the
+> owner. It was one file from the agent, and nobody had asked the question that
+> way.
 
 **DAY 76: THE THREE LINES ABOVE ARE NOW ON ONE PAGE OF THEIR OWN,
 [`DO-THIS.md`](DO-THIS.md), AND THE ASK IS FOURTEEN MINUTES RATHER THAN NINETY.**

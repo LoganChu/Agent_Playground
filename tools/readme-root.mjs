@@ -368,6 +368,43 @@ CLAIMS.push({
   eq: (a, b) => a === b,
 });
 
+// DAY 86. THE SENTENCE THAT GOES STALE ONCE PER STATE, AND THIRTY STATES PUBLISH
+// IN THE NEXT THREE MONTHS.
+//
+// Day 85 fixed five present-tense claims that "the nine states with no income
+// tax serve 2027 and the other thirty-three do not", by hand and by one grep,
+// and left a gate for it as an open question because a regex cannot tell a
+// present-tense claim from the historical narrative beside it. **It missed two,
+// and both were on the front page** — one in the narrative block at the top and
+// one in the PRODUCT TABLE, which is the sentence a buyer reads before anything
+// else and which said the engine serves 2027 for nine states on the second day
+// it served twelve.
+//
+// The narrow version is this claim rather than a prose scanner. It does not try
+// to find every sentence about state counts; it requires the README to state
+// this one count in a fixed shape — `<latest year> for N of the 42 states` — and
+// checks N against the registry. The year comes out of SUPPORTED_YEARS, so the
+// pattern follows the engine into 2028 instead of pinning 2027 into a regex.
+//
+// It is a GATE and not a scanner, and the first version of it was weaker than
+// this comment originally said. `find()` returning nothing fails — but the front
+// page states this count TWICE, so rewording only the product table left the
+// gate green off the narrative block above it. That is the exact defect being
+// fixed, surviving its own fix, and it was found by reintroduction rather than
+// by reading. Hence `occurrences`: both sentences are required to be there.
+const LATEST_YEAR = state.SUPPORTED_YEARS.at(-1);
+CLAIMS.push({
+  label: `states serving ${LATEST_YEAR}, stated on the front page`,
+  want: state.statesForYear(LATEST_YEAR).length,
+  // The narrative block at the top and the row for `us-state-tax` in the product
+  // table. Raise this when a third place states it; do not lower it to make a
+  // reworded sentence pass.
+  occurrences: 2,
+  find: () =>
+    [...text.matchAll(new RegExp(`${LATEST_YEAR} for (\\d+) of the ${state.SUPPORTED_STATES.length} states`, 'g'))]
+      .map((m) => Number(m[1])),
+});
+
 const problems = [];
 const checked = [];
 for (const c of CLAIMS) {
@@ -375,6 +412,26 @@ for (const c of CLAIMS) {
   if (!found.length) {
     problems.push(`${c.label}: the README states it nowhere, so nothing was checked (expected ${c.want})`);
     continue;
+  }
+  // DAY 86. A PINNED OCCURRENCE COUNT, because "find() returned nothing" is not
+  // the failure a multi-place claim actually has.
+  //
+  // This was found by reintroducing the defect rather than by reasoning: the
+  // front page states the latest year's state count in TWO places, and
+  // rewording the one a buyer reads first — the product table — back to its
+  // stale form left the gate GREEN, because the narrative block above it still
+  // matched the shape. The comment under that claim said the opposite, and had
+  // been written ten minutes earlier.
+  //
+  // So a claim may pin how many times the README is required to state it. Then
+  // rewording ANY one of them out of the shape is red, which is what the
+  // emptiness guard was reaching for and could only manage for the last one.
+  if (c.occurrences !== undefined && found.length !== c.occurrences) {
+    problems.push(
+      `${c.label}: the README states it ${found.length} time(s) and this check requires ` +
+        `${c.occurrences} — a sentence was reworded out of the shape this claim can see, ` +
+        `which leaves it unchecked rather than wrong`,
+    );
   }
   for (const got of found) {
     const ok = c.eq ? c.eq(got, c.want) : got === c.want;

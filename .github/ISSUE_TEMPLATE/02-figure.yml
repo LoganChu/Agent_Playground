@@ -1,0 +1,61 @@
+name: A figure looks wrong
+description: A rate, bracket, deduction, exemption, credit or threshold disagrees with what you believe the law says.
+title: "[Figure] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This is the most valuable thing anybody can send this project**, and it
+        is the reason this form sits above the bug report rather than below it.
+        Every parameter here is meant to be traceable to a document: the ledger
+        maps 7,090 of 7,406 shipped figures to one, and the remaining 316 are
+        declared sentinels rather than gaps. A figure that disagrees with a
+        document is either a defect or a citation this project is missing.
+
+        If you can give the statute, revenue procedure or department bulletin,
+        that is the whole report. If you can only say "my software says $X and
+        yours says $Y", that is still worth opening — a disagreement in dollars
+        is where every finding in this repository started.
+  - type: input
+    id: where
+    attributes:
+      label: Jurisdiction and tax year
+      placeholder: Virginia, 2026 — or "federal, 2027"
+    validations:
+      required: true
+  - type: input
+    id: parameter
+    attributes:
+      label: Which figure
+      placeholder: Standard deduction, head of household
+    validations:
+      required: true
+  - type: input
+    id: ours
+    attributes:
+      label: What this engine says
+      placeholder: $8,500
+  - type: input
+    id: theirs
+    attributes:
+      label: What you believe it should be
+      placeholder: $8,000
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Where your figure comes from
+      description: A statute section, a revenue procedure, a department bulletin, a filled return, or the name of the software that disagrees. Any of the five is useful; the first three are conclusive.
+      placeholder: Va. Code § 58.1-322.03(2)(a), as amended by the 2026 Appropriation Act.
+  - type: markdown
+    attributes:
+      value: |
+        **A note on 2027.** Thirty of the forty-two states have not published
+        their 2027 figures and this engine refuses that year for them rather than
+        reusing 2026's — so "no figure" is the intended answer there, not a
+        defect. The federal 2027 figures ship marked **provisional**, because
+        they were reconstructed from secondary sources rather than transcribed
+        from Rev. Proc. 2026-35, which this sandbox cannot reach. If your
+        disagreement is with a provisional 2027 federal figure, say so: that is
+        exactly the disagreement most likely to be ours.

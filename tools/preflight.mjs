@@ -133,6 +133,18 @@ const CHECKS = [
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
   },
   {
+    // DAY 86. `OFFER.md` priced three products for thirty-four days above its
+    // own sentence saying "there is no address anywhere in this repository, so
+    // nobody can buy anything at any price", and `DO-THIS.md` asked the owner
+    // for an e-mail address for sixty-five days — while `has_issues` on this
+    // repository was `true` and `open_issues_count` was 0 the whole time. This
+    // row is what stops the link going missing again, and it caught one real
+    // gap on its first run: `DO-THIS.md`, the page the owner actually reads.
+    label: 'the address, under every price and in every document that quotes one',
+    cmd: 'node tools/cross-package/contact-address.mjs --check',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
     label: 'OBBBA and conformity claims in both READMEs',
     cmd: 'node tools/cross-package/obbba-claims.mjs --check',
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],

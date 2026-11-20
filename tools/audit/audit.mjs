@@ -26,11 +26,64 @@
  * security review can check in about a minute, and it is the reason this is a
  * CLI rather than a hosted form.
  */
-import { readFileSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { normaliseRow, readRows, COLUMNS, REQUIRED } from './household.mjs';
-import { diagnose, money } from './diagnose.mjs';
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+/**
+ * DAY 86. The engines, built — checked before they are imported rather than
+ * after, and this is the only tool here where the difference is worth five
+ * lines.
+ *
+ * `tools/readme-root.mjs` has caught an unbuilt engine and printed the two
+ * commands since Day 46, with the comment *"a raw import failure here reads
+ * like a bug in this tool, so it says what to run instead"*. That courtesy was
+ * paid to the tools only a maintainer runs. **This file is the only one in the
+ * repository a STRANGER runs** — `OFFER.md` prices it at $2,500, `CONTACT.md`
+ * sends a buyer to it before opening a commercial thread, and its own header
+ * calls it "the part of it that is arithmetic" — and on a fresh clone it
+ * answered
+ *
+ *     Error [ERR_MODULE_NOT_FOUND]: Cannot find module
+ *     '.../packages/us-state-tax/dist/esm/index.js'
+ *     imported from .../tools/audit/diagnose.mjs
+ *
+ * with a seven-frame node internals trace under it, naming a file the buyer
+ * did not run and a path they have no reason to know about. `--help` answered
+ * the same way, so the one command that could have told them what to do was
+ * also the one that could not run.
+ *
+ * It cannot be a static import with a friendly catch: `ERR_MODULE_NOT_FOUND`
+ * is raised while the module graph is LINKED, before any statement in any of
+ * these files evaluates, so a guard written above the imports would never be
+ * reached and a guard inside `diagnose.mjs` would be too late. The check has
+ * to happen before the import exists, which makes the import dynamic.
+ *
+ * > **THE RULE: THE WORST FIRST-RUN MESSAGE IN A REPOSITORY IS IN THE TOOL ITS
+ * > AUTHORS NEVER RUN COLD.** Every maintainer here has had `dist/` built for
+ * > eighty-five days, so the one failure every buyer meets first is the one
+ * > nobody has seen.
+ */
+const NEEDS_BUILD = [
+  ['packages/us-federal-tax/dist/esm/index.js', 'us-federal-tax'],
+  ['packages/us-state-tax/dist/esm/index.js', 'us-state-tax'],
+];
+const unbuilt = NEEDS_BUILD.filter(([rel]) => !existsSync(join(ROOT, rel)));
+if (unbuilt.length > 0) {
+  process.stderr.write(
+    `this audit reads the engines rather than their source, and ${
+      unbuilt.length === 1 ? `${unbuilt[0][1]} is not built` : 'neither engine is built'
+    } yet.\n\nRun this once, from the repository root:\n\n${NEEDS_BUILD.map(
+      ([, pkg]) => `  (cd packages/${pkg} && npm install && npm run build)\n`,
+    ).join('')}\nThen the same command again. Nothing is downloaded by the audit itself and\nnothing is sent anywhere; both packages are dependency-free.\n`,
+  );
+  process.exit(1);
+}
+
+const { normaliseRow, readRows, COLUMNS, REQUIRED } = await import('./household.mjs');
+const { diagnose, money } = await import('./diagnose.mjs');
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DEMO = resolve(HERE, 'demo-synthetic.csv');

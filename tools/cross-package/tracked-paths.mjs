@@ -138,6 +138,14 @@ const LICENCE_BASENAME = /^(licen[cs]e|copying|notice)([.-].*)?$/i;
 const ALLOWED_TOP_LEVEL = new Set([
   '.github',
   '.gitignore',
+  // Day 86. The address. `OFFER.md` priced three products above its own sentence
+  // saying "there is no address anywhere in this repository" for thirty-four
+  // days, and `DO-THIS.md` asked the owner for an e-mail address for sixty-five,
+  // while `has_issues` on this repository was `true` the entire time and
+  // `open_issues_count` was 0. This file is the channel that was already open,
+  // written down: the three issue forms in `.github/ISSUE_TEMPLATE/`, what each
+  // is for, and the measurement that says the Issues tab was never the blocker.
+  'CONTACT.md',
   'JOURNAL.md',
   'LICENSE',
   'NOTES-FOR-HUMAN.md',

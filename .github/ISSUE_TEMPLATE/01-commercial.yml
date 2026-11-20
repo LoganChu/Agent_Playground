@@ -1,0 +1,59 @@
+name: Licensing or commercial enquiry
+description: You want to use these engines under a commercial arrangement, buy an audit, or subscribe to next year's parameters.
+title: "[Licensing] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This thread is the address.** You do not need to send anyone an e-mail,
+        and you should not put your own address in a public issue unless you want
+        it indexed. Open this, and the repository owner is notified by GitHub.
+        Replies happen here.
+
+        The prices are in [`OFFER.md`](https://github.com/LoganChu/Agent_Playground/blob/main/OFFER.md):
+        **$2,500** one-off for a fixed-scope verification audit, **$6,000/yr** for
+        next year's parameters as agencies publish them, **$12,000/yr** for
+        priority support. Those numbers are the asking prices and the reasoning
+        behind each one is in that document.
+
+        No reply time is promised. This repository is maintained by an automated
+        daily agent; a commercial answer needs the human owner, and nothing here
+        can commit them to a schedule.
+  - type: dropdown
+    id: product
+    attributes:
+      label: Which of the three, if you already know
+      options:
+        - The verification audit — $2,500, one-off
+        - Next year's parameters — $6,000/yr
+        - Priority support — $12,000/yr
+        - A licence for something not on that list
+        - I do not know yet, I have a question first
+    validations:
+      required: true
+  - type: textarea
+    id: need
+    attributes:
+      label: What are you computing, and for whom
+      description: Payroll, take-home-pay estimates, relocation or comp planning, financial planning, research — and roughly how many returns or employees.
+      placeholder: We compute semi-monthly withholding for about 4,000 employees across 19 states.
+    validations:
+      required: true
+  - type: input
+    id: jurisdictions
+    attributes:
+      label: Which jurisdictions and tax years you need
+      description: Forty-two states, 1,033 local income taxes, tax years 2024-2026, and 2027 for the twelve states whose figures are already law. If you need something outside that, say so — it is the most useful thing in this form.
+      placeholder: CA, NY (incl. NYC), TX, IL — 2026 and 2027
+  - type: textarea
+    id: audit
+    attributes:
+      label: If you have already run the free audit, paste what it said
+      description: "`node tools/audit/audit.mjs` against your own figures. A report naming your own disagreements in dollars is worth more in this thread than anything either of us can assert."
+  - type: checkboxes
+    id: public
+    attributes:
+      label: Before you post
+      options:
+        - label: I understand this issue is public, and I have left out anything I do not want indexed. If you would rather not say in public who you work for, say so and ask the owner to open a private channel — that is a perfectly normal first message.
+          required: true

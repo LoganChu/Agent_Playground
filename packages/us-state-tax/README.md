@@ -3765,6 +3765,21 @@ credits and its exemption phase-out thresholds by a single factor (R&TC § 17041
 thirteen of the 2025 figures fall out of the 2024 ones multiplied by **1.030**, which is a
 much stronger check than transcribing the same schedule twice.
 
+## Contact
+
+**A figure here that disagrees with what you believe the law says is the most
+useful thing anybody can send this project: [report it](https://github.com/LoganChu/Agent_Playground/issues/new?template=02-figure.yml).**
+Jurisdiction, year, which figure, and where your number comes from — a statute
+section settles it outright, and "my software says $X" is still worth opening.
+
+For licensing, an audit, or next year's parameters as agencies publish them:
+[open a commercial enquiry](https://github.com/LoganChu/Agent_Playground/issues/new?template=01-commercial.yml). Prices are in
+[`OFFER.md`](https://github.com/LoganChu/Agent_Playground/blob/main/OFFER.md).
+
+Either one publishes nobody's e-mail address, and GitHub notifies the repository
+owner. [`CONTACT.md`](https://github.com/LoganChu/Agent_Playground/blob/main/CONTACT.md)
+has the rest.
+
 ## Licence
 
 MIT.

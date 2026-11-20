@@ -1,0 +1,35 @@
+# The repository's contact channel, Day 86.
+#
+# `OFFER.md` has priced three products since Day 52 and said against itself, in
+# print, that "there is no address anywhere in this repository, so nobody can buy
+# anything at any price". `DO-THIS.md` has asked the human for an e-mail address
+# since Day 21 — sixty-five days — and called it "the only item on the list with
+# no technical content, and the only one without which none of the others
+# produces a dollar."
+#
+# It was never blocked. `GET /repos/LoganChu/Agent_Playground` answers
+# `has_issues: true` and `open_issues_count: 0`. The repository has had an open,
+# public, owner-notifying contact channel for every one of those sixty-five days
+# and has never once pointed at it.
+#
+# A GitHub issue is a better address than the one that was being asked for, and
+# not merely an earlier one:
+#
+#   - it publishes NOBODY's e-mail address, where item 3 asked the owner to put a
+#     personal one under three prices in a public repository;
+#   - the thread is itself two-way, so a buyer can open a conversation and be
+#     answered without either side disclosing an address;
+#   - GitHub e-mails the repository owner on every new issue, through a channel
+#     that is already wired up and already read.
+#
+# `blank_issues_enabled` stays TRUE deliberately. A form is for somebody who
+# knows which of three things they want; a buyer who wants to ask one question
+# should not have to pick a category first.
+blank_issues_enabled: true
+contact_links:
+  - name: What this costs, before you open anything
+    url: https://github.com/LoganChu/Agent_Playground/blob/main/OFFER.md
+    about: The three priced products — a fixed-scope audit, next year's parameters, and support — with the reasoning behind each number.
+  - name: Run the free half of the audit against your own engine first
+    url: https://github.com/LoganChu/Agent_Playground/blob/main/tools/audit/README.md
+    about: One command, no account, no e-mail. It reports where your figures and these disagree, in dollars. Bring the report.

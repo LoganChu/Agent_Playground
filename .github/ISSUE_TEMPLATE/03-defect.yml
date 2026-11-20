@@ -1,0 +1,44 @@
+name: Software defect
+description: It crashes, refuses something it should accept, accepts something it should refuse, or the types are wrong.
+title: "[Defect] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For a figure that disagrees with the law, use *A figure looks wrong*
+        instead — it asks for the things that make a parameter dispute
+        settleable, which are different from the things that make a crash
+        reproducible.
+  - type: input
+    id: package
+    attributes:
+      label: Which package and version
+      placeholder: us-state-tax 0.65.0
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: The smallest call that does it
+      render: javascript
+      placeholder: |
+        import { stateIncomeTax } from 'us-state-tax';
+        stateIncomeTax({ state: 'NC', year: 2027, filingStatus: 'single', agi: 60000 });
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and what happened
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        **Two refusals here are deliberate and are not defects.** A state is
+        refused for a tax year it does not serve — support is per state *and* per
+        year, and `getStateDefinition('NC', 2027)` throws on purpose rather than
+        serving 2026's figures under a 2027 label. And the year enum is the union
+        across all forty-two states, so a year the schema offers is not a year
+        every state answers for. Both errors name the years the jurisdiction does
+        serve. If one of them did not, that is the defect — say so.

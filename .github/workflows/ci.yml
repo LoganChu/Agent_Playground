@@ -374,6 +374,12 @@ jobs:
             (cd "$dir" && npm install && npm run build)
             echo "::endgroup::"
           done
+      # DAY 86. The address, which this repository spent sixty-five days asking
+      # its owner for while its own Issues tab was open. Three priced products
+      # must each carry a link beside them and seven documents must carry one at
+      # all; see tools/cross-package/contact-address.mjs for why each is listed.
+      - name: The address, under every price and in every document that quotes one
+        run: node tools/cross-package/contact-address.mjs --check
       - name: Require every OBBBA and conformity claim to match both engines
         run: node tools/cross-package/obbba-claims.mjs --check
       # Arizona's standard deduction stopped being the federal one on 13 June 2026

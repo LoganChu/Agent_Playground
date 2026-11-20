@@ -1,0 +1,936 @@
+{
+ "note": "Release-asset downloads, banked per asset GENERATION because `dist.yml --clobber` replaces an asset object and resets its counter. Totals per NAME are a LOWER BOUND: a generation created and replaced between two runs of tools/reach.mjs is never seen. Written by tools/reach.mjs --record.",
+ "firstRecorded": "2026-11-20T16:27:03.416Z",
+ "lastRecorded": "2026-11-20T16:27:03.416Z",
+ "runs": 1,
+ "generations": {
+  "563740623": {
+   "name": "us-federal-tax-0.7.0.tgz",
+   "tag": "us-federal-tax-v0.7.0",
+   "createdAt": "2026-09-14T16:08:56Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "563740650": {
+   "name": "us-state-tax-0.15.0.tgz",
+   "tag": "us-state-tax-v0.15.0",
+   "createdAt": "2026-09-14T16:08:58Z",
+   "downloads": 6,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "563740693": {
+   "name": "us-tax-mcp-0.17.0.tgz",
+   "tag": "us-tax-mcp-v0.17.0",
+   "createdAt": "2026-09-14T16:09:00Z",
+   "downloads": 9,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "563767150": {
+   "name": "us-state-tax-0.16.0.tgz",
+   "tag": "us-state-tax-v0.16.0",
+   "createdAt": "2026-09-14T16:24:01Z",
+   "downloads": 4,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "563767214": {
+   "name": "us-tax-mcp-0.18.0.tgz",
+   "tag": "us-tax-mcp-v0.18.0",
+   "createdAt": "2026-09-14T16:24:04Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "566065602": {
+   "name": "us-federal-tax-0.8.0.tgz",
+   "tag": "us-federal-tax-v0.8.0",
+   "createdAt": "2026-09-15T16:26:00Z",
+   "downloads": 5,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "566065692": {
+   "name": "us-tax-mcp-0.19.0.tgz",
+   "tag": "us-tax-mcp-v0.19.0",
+   "createdAt": "2026-09-15T16:26:03Z",
+   "downloads": 7,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "568369703": {
+   "name": "us-state-tax-0.17.0.tgz",
+   "tag": "us-state-tax-v0.17.0",
+   "createdAt": "2026-09-16T16:39:58Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "568369775": {
+   "name": "us-tax-mcp-0.20.0.tgz",
+   "tag": "us-tax-mcp-v0.20.0",
+   "createdAt": "2026-09-16T16:40:00Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "570642689": {
+   "name": "us-federal-tax-0.9.0.tgz",
+   "tag": "us-federal-tax-v0.9.0",
+   "createdAt": "2026-09-17T16:37:05Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "570643623": {
+   "name": "us-state-tax-0.18.0.tgz",
+   "tag": "us-state-tax-v0.18.0",
+   "createdAt": "2026-09-17T16:37:44Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "570643690": {
+   "name": "us-tax-mcp-0.21.0.tgz",
+   "tag": "us-tax-mcp-v0.21.0",
+   "createdAt": "2026-09-17T16:37:46Z",
+   "downloads": 4,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "573012021": {
+   "name": "us-state-tax-0.19.0.tgz",
+   "tag": "us-state-tax-v0.19.0",
+   "createdAt": "2026-09-18T16:33:28Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "573012072": {
+   "name": "us-tax-mcp-0.22.0.tgz",
+   "tag": "us-tax-mcp-v0.22.0",
+   "createdAt": "2026-09-18T16:33:30Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "573030748": {
+   "name": "us-state-tax-0.20.0.tgz",
+   "tag": "us-state-tax-v0.20.0",
+   "createdAt": "2026-09-18T16:44:03Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "573030800": {
+   "name": "us-tax-mcp-0.23.0.tgz",
+   "tag": "us-tax-mcp-v0.23.0",
+   "createdAt": "2026-09-18T16:44:05Z",
+   "downloads": 4,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "575091938": {
+   "name": "us-state-tax-0.21.0.tgz",
+   "tag": "us-state-tax-v0.21.0",
+   "createdAt": "2026-09-19T16:30:54Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "575091979": {
+   "name": "us-tax-mcp-0.24.0.tgz",
+   "tag": "us-tax-mcp-v0.24.0",
+   "createdAt": "2026-09-19T16:30:56Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "577125382": {
+   "name": "us-state-tax-0.22.0.tgz",
+   "tag": "us-state-tax-v0.22.0",
+   "createdAt": "2026-09-20T16:17:13Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "577125476": {
+   "name": "us-tax-mcp-0.25.0.tgz",
+   "tag": "us-tax-mcp-v0.25.0",
+   "createdAt": "2026-09-20T16:17:15Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "577164585": {
+   "name": "us-federal-tax-0.10.0.tgz",
+   "tag": "us-federal-tax-v0.10.0",
+   "createdAt": "2026-09-20T16:42:37Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "577164646": {
+   "name": "us-state-tax-0.23.0.tgz",
+   "tag": "us-state-tax-v0.23.0",
+   "createdAt": "2026-09-20T16:42:39Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "577164725": {
+   "name": "us-tax-mcp-0.26.0.tgz",
+   "tag": "us-tax-mcp-v0.26.0",
+   "createdAt": "2026-09-20T16:42:41Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "579403882": {
+   "name": "us-federal-tax-0.11.0.tgz",
+   "tag": "us-federal-tax-v0.11.0",
+   "createdAt": "2026-09-21T16:22:27Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "579403932": {
+   "name": "us-tax-mcp-0.27.0.tgz",
+   "tag": "us-tax-mcp-v0.27.0",
+   "createdAt": "2026-09-21T16:22:29Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "579410654": {
+   "name": "us-state-tax-0.24.0.tgz",
+   "tag": "us-state-tax-v0.24.0",
+   "createdAt": "2026-09-21T16:26:36Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "579435217": {
+   "name": "us-state-tax-0.25.0.tgz",
+   "tag": "us-state-tax-v0.25.0",
+   "createdAt": "2026-09-21T16:41:19Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "581777059": {
+   "name": "us-state-tax-0.26.0.tgz",
+   "tag": "us-state-tax-v0.26.0",
+   "createdAt": "2026-09-22T16:24:10Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "581777117": {
+   "name": "us-tax-mcp-0.28.0.tgz",
+   "tag": "us-tax-mcp-v0.28.0",
+   "createdAt": "2026-09-22T16:24:12Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "584172247": {
+   "name": "us-state-tax-0.27.0.tgz",
+   "tag": "us-state-tax-v0.27.0",
+   "createdAt": "2026-09-23T16:38:16Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "584172324": {
+   "name": "us-tax-mcp-0.29.0.tgz",
+   "tag": "us-tax-mcp-v0.29.0",
+   "createdAt": "2026-09-23T16:38:18Z",
+   "downloads": 4,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "586398099": {
+   "name": "us-federal-tax-0.12.0.tgz",
+   "tag": "us-federal-tax-v0.12.0",
+   "createdAt": "2026-09-24T16:56:13Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "586398183": {
+   "name": "us-tax-mcp-0.30.0.tgz",
+   "tag": "us-tax-mcp-v0.30.0",
+   "createdAt": "2026-09-24T16:56:16Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "588760390": {
+   "name": "us-state-tax-0.28.0.tgz",
+   "tag": "us-state-tax-v0.28.0",
+   "createdAt": "2026-09-25T16:30:47Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "588760456": {
+   "name": "us-tax-mcp-0.31.0.tgz",
+   "tag": "us-tax-mcp-v0.31.0",
+   "createdAt": "2026-09-25T16:30:50Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "591031269": {
+   "name": "us-state-tax-0.29.0.tgz",
+   "tag": "us-state-tax-v0.29.0",
+   "createdAt": "2026-09-26T16:42:58Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "591031332": {
+   "name": "us-tax-mcp-0.32.0.tgz",
+   "tag": "us-tax-mcp-v0.32.0",
+   "createdAt": "2026-09-26T16:43:01Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "593473229": {
+   "name": "us-federal-tax-0.13.0.tgz",
+   "tag": "us-federal-tax-v0.13.0",
+   "createdAt": "2026-09-27T18:07:51Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "593473274": {
+   "name": "us-state-tax-0.30.0.tgz",
+   "tag": "us-state-tax-v0.30.0",
+   "createdAt": "2026-09-27T18:07:53Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "593473325": {
+   "name": "us-tax-mcp-0.33.0.tgz",
+   "tag": "us-tax-mcp-v0.33.0",
+   "createdAt": "2026-09-27T18:07:55Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "595875902": {
+   "name": "us-state-tax-0.31.0.tgz",
+   "tag": "us-state-tax-v0.31.0",
+   "createdAt": "2026-09-28T16:35:59Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "595912549": {
+   "name": "us-tax-mcp-0.34.0.tgz",
+   "tag": "us-tax-mcp-v0.34.0",
+   "createdAt": "2026-09-28T16:53:32Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "598690831": {
+   "name": "us-state-tax-0.32.0.tgz",
+   "tag": "us-state-tax-v0.32.0",
+   "createdAt": "2026-09-29T16:37:09Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "601373815": {
+   "name": "us-federal-tax-0.14.0.tgz",
+   "tag": "us-federal-tax-v0.14.0",
+   "createdAt": "2026-09-30T16:44:29Z",
+   "downloads": 11,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "601373917": {
+   "name": "us-tax-mcp-0.35.0.tgz",
+   "tag": "us-tax-mcp-v0.35.0",
+   "createdAt": "2026-09-30T16:44:32Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "603694581": {
+   "name": "us-state-tax-0.33.0.tgz",
+   "tag": "us-state-tax-v0.33.0",
+   "createdAt": "2026-10-01T16:48:50Z",
+   "downloads": 11,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "603694614": {
+   "name": "us-tax-mcp-0.36.0.tgz",
+   "tag": "us-tax-mcp-v0.36.0",
+   "createdAt": "2026-10-01T16:48:52Z",
+   "downloads": 9,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "606074601": {
+   "name": "us-federal-tax-0.15.0.tgz",
+   "tag": "us-federal-tax-v0.15.0",
+   "createdAt": "2026-10-02T17:03:19Z",
+   "downloads": 61,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "606074661": {
+   "name": "us-state-tax-0.34.0.tgz",
+   "tag": "us-state-tax-v0.34.0",
+   "createdAt": "2026-10-02T17:03:22Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "606074725": {
+   "name": "us-tax-mcp-0.37.0.tgz",
+   "tag": "us-tax-mcp-v0.37.0",
+   "createdAt": "2026-10-02T17:03:25Z",
+   "downloads": 5,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "608168728": {
+   "name": "us-state-tax-0.35.0.tgz",
+   "tag": "us-state-tax-v0.35.0",
+   "createdAt": "2026-10-03T16:53:31Z",
+   "downloads": 6,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "608218833": {
+   "name": "us-tax-mcp-0.38.0.tgz",
+   "tag": "us-tax-mcp-v0.38.0",
+   "createdAt": "2026-10-03T17:24:57Z",
+   "downloads": 4,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "610248374": {
+   "name": "us-state-tax-0.36.0.tgz",
+   "tag": "us-state-tax-v0.36.0",
+   "createdAt": "2026-10-04T17:11:40Z",
+   "downloads": 6,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "610248432": {
+   "name": "us-tax-mcp-0.39.0.tgz",
+   "tag": "us-tax-mcp-v0.39.0",
+   "createdAt": "2026-10-04T17:11:42Z",
+   "downloads": 5,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "613127452": {
+   "name": "us-state-tax-0.37.0.tgz",
+   "tag": "us-state-tax-v0.37.0",
+   "createdAt": "2026-10-05T16:46:32Z",
+   "downloads": 8,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "613127530": {
+   "name": "us-tax-mcp-0.40.0.tgz",
+   "tag": "us-tax-mcp-v0.40.0",
+   "createdAt": "2026-10-05T16:46:34Z",
+   "downloads": 8,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "616219108": {
+   "name": "us-state-tax-0.38.0.tgz",
+   "tag": "us-state-tax-v0.38.0",
+   "createdAt": "2026-10-06T17:46:25Z",
+   "downloads": 4,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "616219238": {
+   "name": "us-tax-mcp-0.41.0.tgz",
+   "tag": "us-tax-mcp-v0.41.0",
+   "createdAt": "2026-10-06T17:46:28Z",
+   "downloads": 4,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "619297046": {
+   "name": "us-state-tax-0.39.0.tgz",
+   "tag": "us-state-tax-v0.39.0",
+   "createdAt": "2026-10-07T17:14:56Z",
+   "downloads": 11,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "619297168": {
+   "name": "us-tax-mcp-0.42.0.tgz",
+   "tag": "us-tax-mcp-v0.42.0",
+   "createdAt": "2026-10-07T17:14:59Z",
+   "downloads": 9,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "622415825": {
+   "name": "us-state-tax-0.40.0.tgz",
+   "tag": "us-state-tax-v0.40.0",
+   "createdAt": "2026-10-08T16:48:47Z",
+   "downloads": 8,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "622415962": {
+   "name": "us-tax-mcp-0.43.0.tgz",
+   "tag": "us-tax-mcp-v0.43.0",
+   "createdAt": "2026-10-08T16:48:50Z",
+   "downloads": 8,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "625688278": {
+   "name": "us-state-tax-0.41.0.tgz",
+   "tag": "us-state-tax-v0.41.0",
+   "createdAt": "2026-10-09T17:37:53Z",
+   "downloads": 4,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "625688402": {
+   "name": "us-tax-mcp-0.44.0.tgz",
+   "tag": "us-tax-mcp-v0.44.0",
+   "createdAt": "2026-10-09T17:37:56Z",
+   "downloads": 4,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "631292003": {
+   "name": "us-state-tax-0.42.0.tgz",
+   "tag": "us-state-tax-v0.42.0",
+   "createdAt": "2026-10-11T17:00:48Z",
+   "downloads": 4,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "631292173": {
+   "name": "us-tax-mcp-0.45.0.tgz",
+   "tag": "us-tax-mcp-v0.45.0",
+   "createdAt": "2026-10-11T17:00:51Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "634367062": {
+   "name": "us-state-tax-0.43.0.tgz",
+   "tag": "us-state-tax-v0.43.0",
+   "createdAt": "2026-10-12T16:46:12Z",
+   "downloads": 8,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "634367175": {
+   "name": "us-tax-mcp-0.46.0.tgz",
+   "tag": "us-tax-mcp-v0.46.0",
+   "createdAt": "2026-10-12T16:46:15Z",
+   "downloads": 7,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "637763143": {
+   "name": "us-state-tax-0.44.0.tgz",
+   "tag": "us-state-tax-v0.44.0",
+   "createdAt": "2026-10-13T17:34:43Z",
+   "downloads": 7,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "637763227": {
+   "name": "us-tax-mcp-0.47.0.tgz",
+   "tag": "us-tax-mcp-v0.47.0",
+   "createdAt": "2026-10-13T17:34:46Z",
+   "downloads": 6,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "640990046": {
+   "name": "us-state-tax-0.45.0.tgz",
+   "tag": "us-state-tax-v0.45.0",
+   "createdAt": "2026-10-14T16:42:03Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "640990170": {
+   "name": "us-tax-mcp-0.48.0.tgz",
+   "tag": "us-tax-mcp-v0.48.0",
+   "createdAt": "2026-10-14T16:42:06Z",
+   "downloads": 4,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "644512653": {
+   "name": "us-state-tax-0.46.0.tgz",
+   "tag": "us-state-tax-v0.46.0",
+   "createdAt": "2026-10-15T16:47:50Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "644512802": {
+   "name": "us-tax-mcp-0.49.0.tgz",
+   "tag": "us-tax-mcp-v0.49.0",
+   "createdAt": "2026-10-15T16:47:54Z",
+   "downloads": 5,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "647923366": {
+   "name": "us-state-tax-0.47.0.tgz",
+   "tag": "us-state-tax-v0.47.0",
+   "createdAt": "2026-10-16T16:35:34Z",
+   "downloads": 10,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "647923490": {
+   "name": "us-tax-mcp-0.50.0.tgz",
+   "tag": "us-tax-mcp-v0.50.0",
+   "createdAt": "2026-10-16T16:35:37Z",
+   "downloads": 7,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "651089861": {
+   "name": "us-tax-mcp-0.51.0.tgz",
+   "tag": "us-tax-mcp-v0.51.0",
+   "createdAt": "2026-10-17T17:22:18Z",
+   "downloads": 6,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "657101229": {
+   "name": "us-state-tax-0.48.0.tgz",
+   "tag": "us-state-tax-v0.48.0",
+   "createdAt": "2026-10-19T18:37:45Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "657101395": {
+   "name": "us-tax-mcp-0.52.0.tgz",
+   "tag": "us-tax-mcp-v0.52.0",
+   "createdAt": "2026-10-19T18:37:48Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "659967305": {
+   "name": "us-state-tax-0.49.0.tgz",
+   "tag": "us-state-tax-v0.49.0",
+   "createdAt": "2026-10-20T17:16:44Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "659967437": {
+   "name": "us-tax-mcp-0.53.0.tgz",
+   "tag": "us-tax-mcp-v0.53.0",
+   "createdAt": "2026-10-20T17:16:47Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "663334567": {
+   "name": "us-state-tax-0.50.0.tgz",
+   "tag": "us-state-tax-v0.50.0",
+   "createdAt": "2026-10-21T17:53:33Z",
+   "downloads": 5,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "663334684": {
+   "name": "us-tax-mcp-0.54.0.tgz",
+   "tag": "us-tax-mcp-v0.54.0",
+   "createdAt": "2026-10-21T17:53:37Z",
+   "downloads": 5,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "669790686": {
+   "name": "us-federal-tax-0.16.0.tgz",
+   "tag": "us-federal-tax-v0.16.0",
+   "createdAt": "2026-10-23T17:02:06Z",
+   "downloads": 35,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "669790818": {
+   "name": "us-state-tax-0.51.0.tgz",
+   "tag": "us-state-tax-v0.51.0",
+   "createdAt": "2026-10-23T17:02:09Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "669790987": {
+   "name": "us-tax-mcp-0.55.0.tgz",
+   "tag": "us-tax-mcp-v0.55.0",
+   "createdAt": "2026-10-23T17:02:12Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "672929133": {
+   "name": "us-state-tax-0.52.0.tgz",
+   "tag": "us-state-tax-v0.52.0",
+   "createdAt": "2026-10-24T17:58:40Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "672929246": {
+   "name": "us-tax-mcp-0.56.0.tgz",
+   "tag": "us-tax-mcp-v0.56.0",
+   "createdAt": "2026-10-24T17:58:43Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "675699412": {
+   "name": "us-state-tax-0.53.0.tgz",
+   "tag": "us-state-tax-v0.53.0",
+   "createdAt": "2026-10-25T17:44:24Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "675699481": {
+   "name": "us-tax-mcp-0.57.0.tgz",
+   "tag": "us-tax-mcp-v0.57.0",
+   "createdAt": "2026-10-25T17:44:26Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "679023313": {
+   "name": "us-state-tax-0.54.0.tgz",
+   "tag": "us-state-tax-v0.54.0",
+   "createdAt": "2026-10-26T18:09:16Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "679023426": {
+   "name": "us-tax-mcp-0.58.0.tgz",
+   "tag": "us-tax-mcp-v0.58.0",
+   "createdAt": "2026-10-26T18:09:18Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "682399725": {
+   "name": "us-state-tax-0.55.0.tgz",
+   "tag": "us-state-tax-v0.55.0",
+   "createdAt": "2026-10-27T17:54:34Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "682399834": {
+   "name": "us-tax-mcp-0.59.0.tgz",
+   "tag": "us-tax-mcp-v0.59.0",
+   "createdAt": "2026-10-27T17:54:37Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "686149227": {
+   "name": "us-state-tax-0.56.0.tgz",
+   "tag": "us-state-tax-v0.56.0",
+   "createdAt": "2026-10-28T19:49:55Z",
+   "downloads": 4,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "686149304": {
+   "name": "us-tax-mcp-0.60.0.tgz",
+   "tag": "us-tax-mcp-v0.60.0",
+   "createdAt": "2026-10-28T19:49:58Z",
+   "downloads": 4,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "689354194": {
+   "name": "us-state-tax-0.57.0.tgz",
+   "tag": "us-state-tax-v0.57.0",
+   "createdAt": "2026-10-29T17:34:18Z",
+   "downloads": 8,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "689354316": {
+   "name": "us-tax-mcp-0.61.0.tgz",
+   "tag": "us-tax-mcp-v0.61.0",
+   "createdAt": "2026-10-29T17:34:21Z",
+   "downloads": 8,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "692892197": {
+   "name": "us-state-tax-0.58.0.tgz",
+   "tag": "us-state-tax-v0.58.0",
+   "createdAt": "2026-10-30T17:36:28Z",
+   "downloads": 5,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "692892338": {
+   "name": "us-tax-mcp-0.62.0.tgz",
+   "tag": "us-tax-mcp-v0.62.0",
+   "createdAt": "2026-10-30T17:36:32Z",
+   "downloads": 5,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "696013891": {
+   "name": "us-state-tax-0.59.0.tgz",
+   "tag": "us-state-tax-v0.59.0",
+   "createdAt": "2026-10-31T17:30:34Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "696013960": {
+   "name": "us-tax-mcp-0.63.0.tgz",
+   "tag": "us-tax-mcp-v0.63.0",
+   "createdAt": "2026-10-31T17:30:37Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "699084882": {
+   "name": "us-state-tax-0.60.0.tgz",
+   "tag": "us-state-tax-v0.60.0",
+   "createdAt": "2026-11-01T18:01:12Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "699084949": {
+   "name": "us-tax-mcp-0.64.0.tgz",
+   "tag": "us-tax-mcp-v0.64.0",
+   "createdAt": "2026-11-01T18:01:14Z",
+   "downloads": 6,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "706418319": {
+   "name": "us-state-tax-0.61.0.tgz",
+   "tag": "us-state-tax-v0.61.0",
+   "createdAt": "2026-11-03T17:11:45Z",
+   "downloads": 4,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "710485692": {
+   "name": "us-state-tax-0.62.0.tgz",
+   "tag": "us-state-tax-v0.62.0",
+   "createdAt": "2026-11-04T18:28:10Z",
+   "downloads": 5,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "710485830": {
+   "name": "us-tax-mcp-0.65.0.tgz",
+   "tag": "us-tax-mcp-v0.65.0",
+   "createdAt": "2026-11-04T18:28:13Z",
+   "downloads": 15,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "740635123": {
+   "name": "us-federal-tax-0.17.0.tgz",
+   "tag": "us-federal-tax-v0.17.0",
+   "createdAt": "2026-11-12T18:38:07Z",
+   "downloads": 8,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "740635267": {
+   "name": "us-state-tax-0.63.0.tgz",
+   "tag": "us-state-tax-v0.63.0",
+   "createdAt": "2026-11-12T18:38:10Z",
+   "downloads": 11,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "755667114": {
+   "name": "us-federal-tax-0.18.0.tgz",
+   "tag": "us-federal-tax-v0.18.0",
+   "createdAt": "2026-11-16T16:58:53Z",
+   "downloads": 7,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "764869199": {
+   "name": "us-state-tax-0.64.0.tgz",
+   "tag": "us-state-tax-v0.64.0",
+   "createdAt": "2026-11-18T20:23:26Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "764869371": {
+   "name": "us-tax-mcp-0.66.0.tgz",
+   "tag": "us-tax-mcp-v0.66.0",
+   "createdAt": "2026-11-18T20:23:29Z",
+   "downloads": 2,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "768833754": {
+   "name": "us-state-tax-0.65.0.tgz",
+   "tag": "us-state-tax-v0.65.0",
+   "createdAt": "2026-11-19T18:43:03Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "768833881": {
+   "name": "us-tax-mcp-0.67.0.tgz",
+   "tag": "us-tax-mcp-v0.67.0",
+   "createdAt": "2026-11-19T18:43:05Z",
+   "downloads": 3,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "769199818": {
+   "name": "state-tax-checks.html",
+   "tag": "calculator",
+   "createdAt": "2026-11-19T20:44:25Z",
+   "downloads": 0,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  },
+  "769199819": {
+   "name": "retirement-tax-calculator.html",
+   "tag": "calculator",
+   "createdAt": "2026-11-19T20:44:25Z",
+   "downloads": 0,
+   "firstSeen": "2026-11-20T16:27:03.416Z",
+   "lastSeen": "2026-11-20T16:27:03.416Z"
+  }
+ }
+}
