@@ -380,6 +380,12 @@ jobs:
       # all; see tools/cross-package/contact-address.mjs for why each is listed.
       - name: The address, under every price and in every document that quotes one
         run: node tools/cross-package/contact-address.mjs --check
+      # DAY 86. Eight states read a federal figure — the standard deduction, the
+      # taxable-income base, or the federal income TAX itself. None may publish a
+      # tax year whose federal figures this project has not read. Also fails if a
+      # new federal-named field appears in a definition unclassified.
+      - name: No state-year claims more verification than the federal year under it
+        run: node tools/cross-package/federal-basis-years.mjs --check
       - name: Require every OBBBA and conformity claim to match both engines
         run: node tools/cross-package/obbba-claims.mjs --check
       # Arizona's standard deduction stopped being the federal one on 13 June 2026

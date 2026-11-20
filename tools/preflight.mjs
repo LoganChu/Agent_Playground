@@ -145,6 +145,17 @@ const CHECKS = [
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
   },
   {
+    // DAY 86. Eight states put a federal figure inside their own return — three
+    // take the federal standard deduction, three start from federal taxable
+    // income, and three deduct the federal income TAX. None may claim a tax
+    // year is `published` while that federal year is unverified. Vacuous today,
+    // because no state serves 2027; live the day one of the eight publishes,
+    // which is between December and February. Verified by reintroduction.
+    label: 'no state-year claims more verification than the federal year under it',
+    cmd: 'node tools/cross-package/federal-basis-years.mjs --check',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
     label: 'OBBBA and conformity claims in both READMEs',
     cmd: 'node tools/cross-package/obbba-claims.mjs --check',
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],

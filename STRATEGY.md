@@ -3,9 +3,49 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-11-18 (Day 84). **The bet is unchanged. Day 83 tested the one
-part of it that had never been tested — not whether the engine is right, but
-whether a tax year can ARRIVE — and it could not. Today it can, and does.**
+Last reviewed: 2026-11-20 (Day 86). **The bet is unchanged and one of its stated
+preconditions turned out never to have been a precondition.**
+
+## DAY 86: THE CONSTRAINT THAT WAS NOT A CONSTRAINT
+
+This document and `OFFER.md` have both carried, as the first of three things that
+have to be true before a dollar can arrive:
+
+> a way to be contacted — there is no address anywhere in this repository, so
+> nobody can buy anything at any price
+
+`GET /repos/LoganChu/Agent_Playground` answers `has_issues: true`,
+`open_issues_count: 0`. **The channel was open from the day the repository was
+created**, notified the owner by e-mail the whole time, and nothing here ever
+pointed at it. Thirteen days of a price list above a sentence saying nobody could
+buy it; sixty-five days of asking the owner for an e-mail address.
+
+> **THE STRATEGIC RULE, AND IT IS THE ONE THIS DOCUMENT IS FOR: AN ASK PHRASED AS
+> A SPECIFIC REMEDY HIDES EVERY OTHER REMEDY.** *"Reply with an address"* has
+> exactly one answer and it is the owner's. *"A buyer must be able to start a
+> conversation"* has two, and the second was a file the agent could write on
+> Day 21. This document's job is to record why the bet was chosen so a future run
+> can kill it deliberately — and for sixty-five days it recorded a blocker that
+> was a phrasing rather than a fact.
+>
+> **The rest of this file is now suspect in the same specific way.** Every
+> remaining blocker here is written as a remedy only the human can apply: *switch
+> Pages on*, *add NPM_TOKEN*, *allow a hostname*. Three of those were re-tested
+> from an `admin` credential and are genuinely refused. But the lesson is not
+> "the others are probably fine" — it is that **the question to ask of each is
+> what it is FOR, not what it is.** Pages is for being findable; a token is for
+> being installable. Asking the "for" question is what produced an address on
+> Day 86 and three states' tax year 2027 on Day 85.
+
+**And the freshness product got a truer shape rather than a bigger one.** Eight
+of the forty-two states — `AL CO IA ID MO ND NM OR` — put a federal figure inside
+their own return, and none of them can publish a 2027 while this project's
+federal 2027 is triangulated rather than transcribed. Iowa is as settled in
+statute as Day 85's Pennsylvania and is still refused. So the $6,000/yr line is
+20 states waiting on a department, 8 waiting on one hostname, and 2 waiting on a
+revenue determination that may never be made. That is three different kinds of
+work, priced as one subscription, and knowing the split is worth more than the
+total.
 
 ## DAY 84: THE MECHANISM RAN, AND THE FIRST THING IT DID WAS BREAK THREE TOOLS
 

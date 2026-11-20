@@ -158,7 +158,7 @@ function reportFor(rows, source) {
 
   p('# Verification audit');
   p();
-  p(`Input: \`${source}\` — **${rows.length} households**.`);
+  p(`Input: \`${source}\` — **${rows.length} household${rows.length === 1 ? '' : 's'}**.`);
   p();
   p(
     'Produced by `tools/audit/audit.mjs` in the `us-state-tax` repository. Every figure ' +
@@ -405,7 +405,18 @@ if (process.argv[1] && process.argv[1].endsWith('audit.mjs')) {
     process.exit(args.help ? 0 : 1);
   }
   const path = args.demo ? DEMO : resolve(args.in);
-  const rows = auditFile(path);
+  // DAY 86. A buyer's first run with their OWN data is the one call in this
+  // repository most likely to fail, because a CSV's column names come from
+  // whatever exported it. `normaliseRow` already says what is wrong and, since
+  // today, what to rename — and an uncaught throw buries that under four frames
+  // of node internals and a source line from a file the buyer never ran.
+  let rows;
+  try {
+    rows = auditFile(path);
+  } catch (err) {
+    process.stderr.write(`${err.message}\n`);
+    process.exit(1);
+  }
   const label = args.demo ? 'tools/audit/demo-synthetic.csv' : args.in;
   const body = args.json
     ? `${JSON.stringify(

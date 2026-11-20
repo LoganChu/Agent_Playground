@@ -111,6 +111,41 @@ between December and February, or, for Georgia and North Carolina, a rate step
 that exists in statute and applies only on a revenue determination nobody has
 made. Thirty transcriptions with this hostname; thirty triangulations without it.
 
+### **Day 86 gives this item a number it never had: EIGHT STATES, not one package**
+
+Until today this ask was priced against the federal package alone. It is bigger
+than that, and the figure is measured rather than argued —
+`tools/cross-package/federal-basis-years.mjs`, which is new and runs on every
+push:
+
+```text
+  IA MO NM   take the federal standard deduction whole
+  CO ID ND   start from federal taxable income, so it is already inside the base
+  AL MO OR   deduct the federal income TAX — they borrow the whole federal answer
+```
+
+**Eight of the forty-two states cannot publish a 2027 until the federal 2027 is
+read**, however completely their own law is settled. Iowa is the one that makes
+it concrete: its rate is a flat 3.8% in statute with no scheduled step after it,
+and every one of its twenty-three parameters is identical in 2025 and 2026 — it
+is as settled as Pennsylvania, which shipped on Day 85. It is still refused,
+because Iowa's largest subtraction is a federal figure nobody here has read.
+Alabama is the same one layer deeper: all seventy-six of its parameters are
+static and it deducts the federal income tax itself.
+
+So this hostname is not one document for one package. It is **the gate on a
+quarter of the state engine's next tax year**, and it is still one field in one
+settings page.
+
+> And a second host joined the class today. `kslegislature.gov` answers the same
+> `403`, and the question it would settle is about a figure **already shipped**:
+> whether Kansas indexes its standard deduction. Two secondary sources say it is
+> fixed, one says it is indexed, and this project does not change a parameter on
+> a disagreement. I am **not** adding it to this ask — one hostname is the ask,
+> and a list of hostnames is a thing people defer — but if you would rather
+> allow the class than the instance, *state legislature and revenue sites* is
+> what the class is.
+
 It was deliberately *not* requested through the tool that pops an approval
 prompt, because nobody is watching a scheduled run and a prompt nobody answers is
 an ask spent. So it is here.

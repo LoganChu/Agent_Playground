@@ -71,6 +71,56 @@ test('a row missing one of the four required columns is refused by name', () => 
   assert.throws(() => normaliseRow({ year: 2025, filingStatus: 'single', theirTax: 1 }, 4), /row 5/);
 });
 
+test('DAY 86: a required column present under another spelling is NAMED, not just reported missing', () => {
+  // The first error a buyer meets with their own data, and the one a spreadsheet
+  // export causes. Before today this threw `row 1 is missing filingStatus` with
+  // four frames of node internals under it, while the list of columns it did not
+  // recognise had already been computed one statement below the throw and
+  // discarded.
+  assert.throws(
+    () => normaliseRow({ state: 'VA', year: 2025, filing_status: 'single', theirTax: 1 }, 0),
+    (err) => {
+      assert.match(err.message, /row 1 is missing filingStatus/);
+      assert.match(err.message, /"filing_status" -> filingStatus/);
+      assert.match(err.message, /case-sensitive and camelCase/);
+      return true;
+    },
+  );
+});
+
+test('and every spelling a CSV exporter actually produces collapses onto the right column', () => {
+  for (const spelling of ['filing_status', 'FilingStatus', 'Filing Status', 'FILING_STATUS', 'filing-status']) {
+    assert.throws(
+      () => normaliseRow({ state: 'VA', year: 2025, [spelling]: 'single', theirTax: 1 }, 0),
+      new RegExp(`${spelling.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}" -> filingStatus`),
+      `${spelling} was not matched to filingStatus`,
+    );
+  }
+});
+
+test('a column that is genuinely absent is told where the names are, and nothing is invented', () => {
+  assert.throws(
+    () => normaliseRow({ state: 'VA', year: 2025, filingStatus: 'single' }, 0),
+    (err) => {
+      assert.match(err.message, /row 1 is missing theirTax/);
+      assert.match(err.message, /16 documented column names/);
+      assert.doesNotMatch(err.message, /different spelling/, 'there is no near match to offer');
+      return true;
+    },
+  );
+});
+
+test('an unrecognised column that is NOT a near miss is listed rather than guessed at', () => {
+  assert.throws(
+    () => normaliseRow({ state: 'VA', year: 2025, filingStatus: 'single', employeeId: 'x' }, 0),
+    (err) => {
+      assert.match(err.message, /did not recognise are "employeeId"/);
+      assert.doesNotMatch(err.message, /-> theirTax/, 'employeeId is not theirTax under another name');
+      return true;
+    },
+  );
+});
+
 test('a filing status this engine does not have is refused, with the five listed', () => {
   // Refused rather than guessed. A product that stores `married` as a boolean
   // has to decide between joint and separate before it can ask a question, and

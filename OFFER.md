@@ -397,6 +397,29 @@ costs more than this.
 > serves with confidence, so `getStateDefinition('NC', 2027)` throws and names
 > the years North Carolina does serve.
 >
+> **DAY 86 PRICES THE REST OF THAT THIRTY, AND EIGHT OF THEM ARE NOT WAITING ON
+> A STATE AT ALL.** `tools/cross-package/federal-basis-years.mjs` measures it on
+> every push: `IA MO NM` take the federal standard deduction whole, `CO ID ND`
+> start from federal taxable income, and `AL MO OR` deduct the federal income
+> **tax** — so they borrow the whole federal answer rather than one figure. None
+> of the eight can publish a 2027 while this project's federal 2027 is
+> triangulated instead of transcribed, however completely its own law is settled.
+>
+> Iowa is the one a buyer should look at, because it is the case this document
+> would otherwise overstate. Iowa's rate is a flat 3.8% in statute with no
+> scheduled step after it, and all twenty-three of its parameters are identical
+> in 2025 and 2026 — by every test that admitted Indiana, Mississippi and
+> Pennsylvania, Iowa qualifies. It is refused, and `tools/next-year-candidates.mjs`
+> is the screen that found it and the check that disqualified it.
+>
+> **So the subscription's honest shape is three groups and not one:** **20**
+> states waiting on a department to publish an indexed amount, **8** waiting on a
+> document this sandbox cannot reach (`DO-THIS.md` item 0), and **2** — Georgia
+> and North Carolina — waiting on a revenue determination that may never be made.
+> 20 + 8 + 2 = 30, with no state in two groups, counted from the registry rather
+> than by hand: the first draft of this paragraph said twenty-two and did not add
+> up, which is the reason every other count in this repository is derived.
+>
 > Two things went wrong on the way to those three, and both are the product
 > rather than embarrassments. **This project's own Mississippi note said the 2027
 > step was conditional on revenue triggers. It is not** — the act writes 2027

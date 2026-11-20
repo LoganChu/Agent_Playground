@@ -76,6 +76,45 @@ function readIntegerList(raw) {
 }
 
 /**
+ * The same column name with the punctuation and capitalisation taken out, so
+ * that `filing_status`, `FilingStatus` and `filing status` all collapse onto
+ * `filingstatus`. Every CSV exporter in the world disagrees about which of
+ * those it writes, and the documented names are camelCase.
+ */
+const squash = (key) => key.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/**
+ * Why a required column is missing, in the terms the buyer can act on.
+ *
+ * Three cases, and the first is overwhelmingly the common one: the column IS in
+ * their file under a different spelling. Saying so, by name, is the difference
+ * between a two-second fix and giving up on the audit — and it is the only
+ * error a buyer meets before this tool has computed anything for them.
+ */
+function explain(missing, unknown) {
+  const near = [];
+  for (const want of missing) {
+    const match = unknown.find((had) => squash(had) === squash(want));
+    if (match !== undefined) near.push(`${JSON.stringify(match)} -> ${want}`);
+  }
+  if (near.length > 0) {
+    return (
+      `. Your file has ${near.length === 1 ? 'a column' : 'columns'} this tool does not ` +
+      `recognise, and ${near.length === 1 ? 'it looks like the same thing' : 'they look like the same things'} ` +
+      `under a different spelling: ${near.join(', ')}. The column names are case-sensitive ` +
+      `and camelCase — rename and run it again`
+    );
+  }
+  if (unknown.length > 0) {
+    return (
+      `. The columns this tool did not recognise are ${unknown.map((u) => JSON.stringify(u)).join(', ')}. ` +
+      `Run \`node tools/audit/audit.mjs\` with no arguments for the 16 documented names`
+    );
+  }
+  return `. Run \`node tools/audit/audit.mjs\` with no arguments for the 16 documented column names`;
+}
+
+/**
  * One row, normalised — and a list of what was defaulted.
  *
  * The `defaulted` list is the honest half. A missing `earnedIncome` in
@@ -85,12 +124,26 @@ function readIntegerList(raw) {
  * they affected instead of being averaged into a headline.
  */
 export function normaliseRow(raw, index) {
+  // DAY 86. COMPUTED BEFORE THE THROW, AND THAT IS THE WHOLE FIX.
+  //
+  // This line used to sit thirteen lines further down, after the
+  // missing-required check. So the tool worked out which of the buyer's columns
+  // it did not recognise, and then threw before it could say so — in the one
+  // situation where that list IS the answer. A buyer whose spreadsheet exports
+  // `filing_status` got `row 1 is missing filingStatus` and a four-frame node
+  // stack trace, while the information that would have fixed it had already
+  // been computed and discarded.
+  //
+  // > **THE RULE: THE DIAGNOSTIC A FAILURE NEEDS IS OFTEN ALREADY IN SCOPE, ONE
+  // > STATEMENT BELOW THE THROW.**
+  const unknown = Object.keys(raw).filter((key) => !(key in COLUMNS));
+
   const missing = REQUIRED.filter((key) => {
     const value = raw[key];
     return value === undefined || value === null || String(value).trim() === '';
   });
   if (missing.length > 0) {
-    throw new Error(`row ${index + 1} is missing ${missing.join(', ')}`);
+    throw new Error(`row ${index + 1} is missing ${missing.join(', ')}${explain(missing, unknown)}`);
   }
   const filingStatus = String(raw.filingStatus).trim();
   if (!FILING_STATUSES.has(filingStatus)) {
@@ -99,8 +152,6 @@ export function normaliseRow(raw, index) {
         [...FILING_STATUSES].join(', '),
     );
   }
-  const unknown = Object.keys(raw).filter((key) => !(key in COLUMNS));
-
   const defaulted = [];
   const money = (key) => {
     const value = raw[key];

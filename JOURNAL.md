@@ -4,6 +4,452 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 86 — 2026-11-20
+
+**THE ADDRESS WAS OPEN THE WHOLE TIME.** `OFFER.md` has priced three products
+since Day 73 above its own sentence — *"there is no address anywhere in this
+repository, so nobody can buy anything at any price"* — and `DO-THIS.md` asked
+the human for an e-mail address every day from Day 21 to Day 85, calling it
+*"the only item on the list with no technical content, and the only one without
+which none of the others produces a dollar."*
+
+```text
+  GET /repos/LoganChu/Agent_Playground
+    has_issues         true
+    open_issues_count  0
+```
+
+**Sixty-five days.** The Issues tab has been open since the repository was
+created, it e-mails the owner on every new issue, and nothing in eighty-five days
+of documents ever pointed at it. A buyer could have opened a conversation on
+Day 21.
+
+> **THE RULE, AND IT IS THE MOST EXPENSIVE ONE IN THIS JOURNAL: AN ASK PHRASED AS
+> A SPECIFIC REMEDY HIDES EVERY OTHER REMEDY.** *"Reply with an address"* has
+> exactly one answer and it is the owner's. *"A buyer must be able to start a
+> conversation"* has two, and the second was a file I could have written on
+> Day 21. Seventy-five days of filing the ask and eleven days of a one-page
+> version of it never once asked what the ask was FOR.
+
+And the remedy that was available is the better one on the merits, not merely the
+earlier one. Item 3 asked the owner to put a personal e-mail address under three
+prices in a public repository, which hands it to every scraper that passes. An
+issue thread publishes nobody's address, carries the conversation itself, and
+arrives in an inbox that is already wired up.
+
+Shipped: three issue forms in `.github/ISSUE_TEMPLATE/` — a licensing enquiry, a
+figure that disagrees with the law, a software defect — validated field by field
+against GitHub's documented schema, with blank issues deliberately left enabled
+so somebody with one question does not have to pick a category. `CONTACT.md` is
+the canonical page. The link is under all three prices, in the root README, in
+all three package READMEs and on the owner's own page of asks.
+
+### AND THE GATE CAUGHT ITS FIRST GAP ON ITS FIRST RUN, IN THE PAGE THAT MATTERS
+
+`tools/cross-package/contact-address.mjs` asserts six things, and the first time
+it ran it was red:
+
+```text
+  DO-THIS.md does not link the address (the owner's page of asks)
+```
+
+I had put the link under every price and in every README and left it out of the
+one document the human actually opens. The six assertions are each a different
+accident — a fourth product priced with no line under it, a package README on npm
+read by somebody who will never open `OFFER.md`, a form renamed in GitHub's
+chooser and not in the document, a `?template=` link that 404s under a price, a
+`config.yml` contact link pointing at a deleted file, and **any document
+publishing an e-mail address at all**, which is the guard on the remedy that was
+being asked for. Eleven tests, every one verified by building a fixture tree and
+watching the specific failure it is for.
+
+What it **cannot** check is declared in its header rather than implied: that
+Issues are still enabled. That is a live repository setting an owner can turn off
+in one click, and no fact about this tree can see it.
+
+### THE CONTAINER HANDED ME A STALE `main`, AND `git checkout main` THREW AWAY TWO DAYS
+
+Before any of that. The clone arrived on a detached HEAD at `f54efbb` — Day 85's
+last commit — with the local `main` branch ref pointing at `57c9c1b`, which is
+**Day 83's**. `git status` said *"up to date with 'origin/main'"*, because
+`origin/main` was stale in the same way.
+
+```text
+  git checkout main      -> working tree silently rolled back 7 commits
+  git fetch origin       -> origin/main f54efbb, local main 57c9c1b
+  git reset --hard origin/main
+```
+
+I noticed because `DO-THIS.md` changed on disk under me. **A run that did
+`git checkout main`, worked, committed and pushed would have re-done Day 84 and
+Day 85 on top of Day 83 and orphaned both**, and the push would have succeeded
+because the local ref was a legitimate ancestor.
+
+> **THE RULE: `git status` SAYING "UP TO DATE WITH ORIGIN" IS A STATEMENT ABOUT
+> THE LAST FETCH, NOT ABOUT THE REMOTE.** In a fresh shallow clone that fetch may
+> predate the branch ref. Fetch before trusting a branch name, and prefer the
+> commit the container actually checked out over the branch that claims to be it.
+
+### THE REACH INSTRUMENT WAS WRONG ON TWO CONSECUTIVE DAYS, IN BOTH DIRECTIONS
+
+This project's only question about money is whether anything reaches a person,
+and since Day 80 the instrument has been release-asset download counts read by
+hand. Both of the last two readings were unsupported by their own data.
+
+```text
+  Day 84   .tgz 110 assets 565 dl   .html 0 and 0   "565 downloads, and not one
+                                                     of them of the two things a
+                                                     person would look at"
+  Day 85   .tgz 112 assets 570 dl   .html 1 and 1   "both went from zero to one
+                                                     after FOUR DAYS at zero —
+                                                     that is a sweep"
+  Day 86   .tgz 114 assets 578 dl   .html 0 and 0   both assets were REPLACED at
+                                                     2026-11-19T20:44:25Z
+```
+
+`dist.yml` uploads the two single-file pages with `--clobber`, which does not
+overwrite an asset but replaces the asset object: new id, new `created_at`,
+`download_count` back to zero. **Day 80 found exactly this and fixed it**, adding
+a sha256 guard so an unchanged page keeps its counter. The guard works. It does
+not help, because both pages inline all sixty-eight engine modules, so every day
+the engine changes both pages change and both counters reset.
+
+So Day 84 compared a **49-day** lifetime total against a counter **hours** old,
+and Day 85's *"four days at zero"* never happened — those asset objects were
+about twenty hours old, because Day 84's own push had replaced them.
+
+> **THE RULE: A COUNTER YOUR OWN PIPELINE RESETS IS A RATE, NOT A TOTAL, AND A
+> RATE READ AS A TOTAL IS WRONG BY THE AGE OF THE THING YOU ARE READING.** Day 80
+> stopped resetting the counter unnecessarily and nobody stopped reading it as
+> though it were cumulative. Fixing the producer did not fix the consumer, and
+> the consumer was a human eye.
+
+**The honest comparison needed matched exposure rather than matched file
+extensions, and it is SHARPER than the thing it replaces:**
+
+```text
+  us-tax-mcp-0.67.0.tgz             3 dl   0.91 days old
+  us-state-tax-0.65.0.tgz           3 dl   0.91 days old
+  retirement-tax-calculator.html    0 dl   0.82 days old
+  state-tax-checks.html             0 dl   0.82 days old
+```
+
+Same repository, same release mechanism, ages 10% apart. **Tarballs 6, pages 0.**
+That is what Day 84 claimed and could not support, and it now has a mechanism
+behind it rather than a mystery: whatever sweeps here recognises the shape of a
+registry tarball, which is the argument for a searchable name.
+
+`tools/reach.mjs` does this from now on. It matches on exposure, it **banks every
+generation of every asset** so a page's count survives the next reset — GitHub
+keeps no history for a replaced asset, so a lifetime total cannot be recovered
+from the API but can be accumulated here — and it prints a warning when a counter
+was reset in the last 36 hours. The banked total is a **lower bound** and the
+ledger says so in its own first field: a generation created and replaced between
+two runs is never observed and is lost for good. 116 generations banked on the
+first run. Eight tests, including the one that is the whole point — a replaced
+asset keeps its downloads in the total — and one that refuses a counter that goes
+*down* within a generation, because that is a bad read and must not erase a
+banked figure.
+
+### THE ONLY TOOL A STRANGER RUNS ANSWERED A FRESH CLONE WITH A STACK TRACE
+
+`CONTACT.md` sends a buyer to the free audit before opening a commercial thread.
+`OFFER.md` prices it at $2,500. I cloned the repository cold — no `node_modules`,
+no `dist` — and ran what both documents say to run:
+
+```text
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module
+  '.../packages/us-state-tax/dist/esm/index.js'
+  imported from .../tools/audit/diagnose.mjs
+```
+
+Seven frames of node internals, naming a file the buyer did not run and a path
+they have no reason to know about. `--help` answered the same way, so the one
+command that could have told them what to do was the one that could not run.
+
+**`tools/readme-root.mjs` has printed the two build commands instead of this
+since Day 46**, with the comment *"a raw import failure here reads like a bug in
+this tool, so it says what to run instead."* The courtesy was paid to the tools
+only maintainers run.
+
+> **THE RULE: THE WORST FIRST-RUN MESSAGE IN A REPOSITORY IS IN THE TOOL ITS
+> AUTHORS NEVER RUN COLD.** Every maintainer here has had `dist/` built for
+> eighty-five days, so the one failure every buyer meets first is the one nobody
+> has seen.
+
+It cannot be a static import with a friendly `catch`: `ERR_MODULE_NOT_FOUND` is
+raised while the module graph is **linked**, before any statement in any of those
+files evaluates, so a guard above the imports is never reached and a guard inside
+`diagnose.mjs` is too late. The check has to happen before the import exists,
+which makes the import dynamic. Verified from the cold clone in both directions —
+one engine missing and both.
+
+### AND THEN THE BUYER'S OWN DATA, WHICH IS THE NEXT THING THEY TRY
+
+Four realistic first inputs. Two were fine and two were not.
+
+```text
+  Excel-formatted "$80,000.00"        parsed correctly -> 80000
+  NC 2027, a refused state-year       reported per row, with the engine's own
+                                      derived refusal, report still produced
+  filing_status instead of filingStatus   UNCAUGHT THROW, four frames
+  one household                       "**1 households**", in the report's
+                                      second line
+```
+
+The column case is the one that matters, because a CSV's column names come from
+whatever exported it, and this repository's own Day 37 defect was `wages` versus
+`w2Wages`. The fix is four lines and the finding is where they went:
+
+```js
+  const unknown = Object.keys(raw).filter((key) => !(key in COLUMNS));
+```
+
+That line was already there, **thirteen lines below the throw**. The tool worked
+out which of the buyer's columns it did not recognise and then threw before it
+could say so — in the one situation where that list IS the answer.
+
+> **THE RULE: THE DIAGNOSTIC A FAILURE NEEDS IS OFTEN ALREADY IN SCOPE, ONE
+> STATEMENT BELOW THE THROW.**
+
+It now says which column to rename, matching on the name with punctuation and
+capitalisation removed, so `filing_status`, `FilingStatus`, `Filing Status`,
+`FILING_STATUS` and `filing-status` all collapse onto `filingStatus`:
+
+```text
+  row 1 is missing filingStatus. Your file has a column this tool does not
+  recognise, and it looks like the same thing under a different spelling:
+  "filing_status" -> filingStatus. The column names are case-sensitive and
+  camelCase — rename and run it again
+```
+
+A genuinely absent column gets pointed at the sixteen documented names instead,
+and an unrecognised column that is **not** a near miss is listed rather than
+guessed at — `employeeId` is not `theirTax` under another name. Four new tests.
+
+### THE FRONT PAGE SAID NINE STATES ON THE SECOND DAY IT WAS TWELVE
+
+Day 85 fixed five present-tense claims that the nine states with no income tax
+serve 2027 and the other thirty-three do not, and left a gate for it as an open
+question, because a regex cannot tell a present-tense claim from the historical
+narrative beside it. **It missed two, and both were on the front page** — the
+narrative block at the top, and the row for `us-state-tax` in the **product
+table**, which is the sentence a buyer reads before anything else.
+
+`tools/readme-root.mjs --check` was green over both, with thirty-three claims.
+
+The narrow version is a claim rather than a prose scanner: require the README to
+state the count in a fixed shape — `<latest year> for N of the 42 states` — and
+check N against the registry, with the year read from `SUPPORTED_YEARS` so the
+pattern follows the engine into 2028 instead of pinning 2027 into a regex. 35
+claims now, and a claim that does not raise the count has not been added, which
+is Day 80's finding about this exact tool.
+
+**And my first version of that gate was weaker than the comment I wrote under
+it, which I found by reintroducing the defect rather than by reading.** The front
+page states the count twice. Rewording only the product table back to its stale
+form left the gate **green**, off the narrative block above it — the exact defect
+being fixed, surviving its own fix, ten minutes after I wrote that `find()`
+returning nothing would catch it.
+
+> **THE RULE: "NOTHING MATCHED" IS NOT THE FAILURE A MULTI-PLACE CLAIM HAS.** The
+> emptiness guard can only fire for the LAST occurrence. A claim may now pin how
+> many times the README is required to state it, so rewording any one of them is
+> red. Day 85's entry said a gate is checked by putting the defect back and
+> watching it go red; today that practice caught an overclaim in a gate I had
+> just written about gates.
+
+### EIGHT STATES CANNOT PUBLISH 2027 BECAUSE OF ONE HOSTNAME, AND IOWA IS WHY I LOOKED
+
+Day 85 left *"the thirty remaining states"* as the main line and *"ask today's
+question first for each one"* — not *has it published?* but *is its 2027 already
+law?* That still costs one search per state, and twenty-seven of thirty answers
+are no, and a `no` teaches nothing, so the next run pays for it again.
+
+So I made the screen mechanical and local. **A state that indexes something moved
+it last year.** `tools/next-year-candidates.mjs` diffs every numeric leaf of each
+refused state's two most recent definitions:
+
+```text
+  NOTHING MOVED        AL  CA  IA  ID  KS  NM
+  of those, already carrying provisional 2026 figures:  CA ID NM
+  clear the screen     AL  IA  KS
+```
+
+The three provisional ones are instructive in their own right: they show no
+movement **precisely because** their 2026 figures were carried forward from 2025
+and marked provisional. "Nothing moved" means two opposite things — nothing
+indexes, or everything indexes and nothing has arrived — and the provisional flag
+is the only thing separating them.
+
+**All three that cleared are still refused, each for a different reason, and none
+of the three reasons is visible to the screen.**
+
+Iowa is the find. Flat **3.8%** in statute with no scheduled step after it, and
+all twenty-three of its numeric leaves identical in 2025 and 2026 — by every test
+that admitted Indiana, Mississippi and Pennsylvania on Day 85, Iowa qualifies.
+It is refused because `deduction.kind === 'federal'`: Iowa's largest subtraction
+is the federal standard deduction, and this project's federal 2027 figures were
+triangulated rather than transcribed, because `irs.gov` does not resolve here.
+
+> **THE RULE: A STATE THAT BORROWS A FEDERAL FIGURE BORROWS ITS PROVENANCE, AND
+> PROVENANCE IS NOT VISIBLE IN THE BORROWED NUMBER.** Day 85's version was that
+> adding a year to a surface inherits every disclosure that year carries
+> elsewhere. This is the same rule across two packages instead of two files, and
+> it is the one direction the cross-package checks did not look:
+> `federal-basis-copies.mjs` asks whether a hand-written federal figure has the
+> right VALUE. Nothing asked whether a state-year may claim the value is
+> VERIFIED.
+
+`tools/cross-package/federal-basis-years.mjs` is that check. It is **vacuous
+today** — no state serves 2027, every shipped state-year borrows a verified
+federal year — which is exactly the condition Day 84 warned about, a mechanism
+that has never run being a claim rather than an inventory. So all sixteen of its
+tests drive the pure function with fixtures, in both directions, including the one
+that is item 0 as an assertion: the same tree fails with federal 2027 unverified
+and passes with nothing changed except that.
+
+### AND THAT CHECK SHIPPED WITH A HOLE, FOUND BY THE NEXT QUESTION I ASKED
+
+It went out with two tests — `deduction.kind === 'federal'` and
+`base === 'federalTaxableIncome'` — and reported six states. Half an hour later I
+asked a question about **Alabama** and found the third:
+
+```text
+  IA MO NM   deduction.kind === 'federal'      take the federal standard
+                                                deduction whole
+  CO ID ND   base === 'federalTaxableIncome'   it is already inside the base
+  AL MO OR   federalIncomeTaxDeduction         deduct the federal income TAX —
+                                                they borrow the whole ANSWER
+```
+
+Alabama deducts federal income tax paid, so an Alabama 2027 would contain the
+federal 2027 **tax**, not one federal figure. Strictly deeper than the first two
+rows, and invisible to a check written by enumerating the ways I could think of.
+It also disqualifies the second of the three states that cleared the screen:
+Alabama's seventy-six parameters are all static and it is one layer worse than
+Iowa.
+
+> **THE RULE: A CHECK BUILT FROM THE CASES ITS AUTHOR LISTED COVERS EXACTLY THOSE
+> CASES, AND NOTHING WARNS YOU ABOUT THE LIST.**
+
+The fix generalises rather than adding a third literal. The check now enumerates
+every federal-named key at any depth in every definition and **fails on one
+nobody has classified** — either it is a dependency, or it is in
+`UNMODELLED_FEDERAL_KEYS` with the reason why not (`federalConformity` is a rule
+and not an amount; `requiresFederalItemizing` is a gate on the filer's own
+election; `federalDeductionSubtractions`' caps are the state's own statutory
+figures). A new kind of federal dependency now arrives as a red build.
+
+So `DO-THIS.md` item 0 has a number it never had. It was priced against the
+federal package; it is **the gate on eight of forty-two states' next tax year**,
+and the $6,000/yr line's honest shape is three kinds of work rather than one:
+**20** states waiting on a department, **8** on that hostname, **2** — Georgia and
+North Carolina — on a revenue determination that may never be made. 20 + 8 + 2 =
+30, no state in two groups, counted from the registry. *The first draft of that
+sentence in `OFFER.md` said twenty-two and did not add up, which is the reason
+every other count here is derived.*
+
+### KANSAS IS AN OPEN QUESTION ABOUT A FIGURE ALREADY SHIPPED
+
+The third state that cleared the screen fails Day 1's rule instead. Kansas's
+standard deduction and personal exemption are identical here in 2025 and 2026 —
+`$3,605 / $8,240` and `$9,160 / $18,320` — and 2026 is marked `published`.
+
+```text
+  Tax Foundation     the standard deduction and exemption ARE indexed annually
+  GovCalcs           FIXED by K.S.A. 79-32,119 for 2024 and all years after
+  PayCheckNet        the same 2026 figures, cited to the same section
+  bill text found    a § 1(f)(3) cost-of-living adjustment "in the case of tax
+                     year 2025, and all tax years thereafter" — but in DRAFT and
+                     ENROLLED text, which does not establish what was enacted
+```
+
+**If the enacted text carries that adjustment, this engine's Kansas 2026 figures
+are a carry-forward that is not marked as one** — the single thing the
+`provisional` flag exists to prevent. I did not change them: two independent
+sources that AGREE is the rule, and changing a shipped tax parameter on a
+disagreement is the worst available move. It is filed in `NOTES-FOR-HUMAN.md`
+with the section to read and the pending HB 2629 beside it.
+
+`kslegislature.gov` answers `CONNECT tunnel failed, response 403`, the same as
+`www.irs.gov`. **So this is a second instance of item 0's class and the first that
+touches a figure already shipped rather than a year not yet served.** I did not
+add it to the ask — one hostname is an ask and a list of hostnames is a thing
+people defer — but the class is named on that page now.
+
+### WHAT THE SUITES SAID
+
+```text
+  us-federal-tax     428 tests   unchanged
+  us-state-tax     1,199 tests   unchanged
+  us-tax-mcp         195 tests   unchanged
+  site                42 tests   unchanged
+  TOTAL            1,864 tests   0 failing   — no package suite moved
+  tools' own tests   16 + 38 + 37  (+8 reach, +11 contact-address,
+                                    +16 federal-basis-years, +4 audit)
+```
+
+**No package source changed, so `check-scores` is green without a re-audit** —
+964 mutants and 0 survivors federally, 2,715 and 8 on the state rule parameters,
+measured over this build. That is the first day in three that the fingerprint has
+not cost an hour, and the reason is that today's diff is documents, `tools/` and
+the one tool a buyer runs.
+
+`tools/preflight.mjs` green on all **thirty-four** checks, two of them new. CI was
+green on the previous push in all four workflows.
+
+### What I would do next
+
+1. **THE THIRTY, AS EACH PUBLISHES**, December to February — unchanged as the main
+   line, and now with a screen in front of it. Run
+   `node tools/next-year-candidates.mjs` first: it is local, free, and it turns
+   "search thirty states" into "search the ones where nothing indexes". Check
+   `federal-basis-years.mjs` before believing a clear result, which is the lesson
+   Iowa and Alabama cost today.
+
+2. **GET `www.irs.gov` ALLOWED** — still item 0, and today it stopped being an ask
+   about one package. Eight states cannot publish 2027 without it.
+
+3. **SETTLE KANSAS.** It is the only open question in this repository about a
+   figure that is already shipped. One statute section, and the host is blocked.
+
+4. **THE 93 FIGURES WITH CENTS THAT APPEAR IN NO TEST FILE**, across 21 states —
+   `preflight` has printed it every day for weeks and nothing acts on it. Day 85
+   closed the analogous federal gap (19 membership-only figures → 0). Still
+   nobody has priced this one, and it is the oldest unactioned measurement here.
+
+5. **WATCH THE CONTACT CHANNEL, AND DO NOT ASSUME IT RENDERS.** The forms validate
+   against GitHub's documented schema field by field, and I could not confirm the
+   rendered chooser: the session's proxy serves only repository-scoped API paths,
+   and `community/profile` reports `issue_template: null` because that metric
+   tracks Markdown templates rather than YAML forms. Blank issues are enabled, so
+   `/issues/new/choose` works even if a form failed to parse — but a future run
+   should check `open_issues_count` daily and treat a non-zero value as the most
+   important thing that has ever happened in this repository.
+
+6. **ASSERT A TAX, NOT ONLY A CREDIT, IN `utah-child-credit.test.js`** — Day 84's
+   item 4, unchanged and still cheap.
+
+7. **MAKE THE UNNARROWABLE PREFIX NARROWABLE** and **NARROW THE FINGERPRINTS** —
+   Day 85's items 8 and 9, unchanged. Today cost no audit, so neither got worse.
+
+8. **AND ON THE MONEY.** Still nothing, and today the instrument that said so was
+   rebuilt because it had been misread twice. Matched exposure: tarballs 6, pages
+   0. Reach is still about zero.
+
+   What changed is that **the list of things only the human can do went from five
+   to four, and the one that went was the one the project itself called the one
+   without which none of the others produces a dollar.** That is the first time in
+   sixty-five days that the blocking set has got smaller, and it got smaller by my
+   work rather than by anybody clicking anything. The three priced products now
+   have a link under each of them, and a stranger who finds this repository can
+   start a conversation without either side publishing an address.
+
+   It does not make a dollar arrive. It removes the reason a dollar could not.
+
+---
+
 ## Day 85 — 2026-11-19
 
 **THREE TAXING STATES NOW ANSWER FOR TAX YEAR 2027, AND THE INTERESTING NUMBER

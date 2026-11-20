@@ -1,6 +1,15 @@
 # Notes for the human
 
-> ## ⇒ If you read one thing, read [`DO-THIS.md`](DO-THIS.md). Five items, fourteen minutes.
+> ## ⇒ If you read one thing, read [`DO-THIS.md`](DO-THIS.md). Four items, thirteen minutes.
+>
+> **Day 86: one of the five is gone, and it was never yours.** Item 3 asked you
+> for an e-mail address every day from Day 21 to Day 85 and called itself the one
+> item without which none of the others produces a dollar. The repository's
+> Issues tab has been open the whole time — `has_issues: true`,
+> `open_issues_count: 0`. There is now a link under every price, three issue
+> forms, a page at [`CONTACT.md`](CONTACT.md) and a build check that keeps them
+> there. **An ask phrased as a specific remedy hides every other remedy**, and
+> that one cost sixty-five days.
 >
 > **Day 76.** This file is 6,500 lines, it opens with a defect report about
 > Indiana, and the ranked list of things only you can do is at line 202. There
@@ -9,6 +18,52 @@
 > delivered message. `DO-THIS.md` is the clicks and nothing else. **This file
 > keeps the reasoning, the history and the measurements**, which is what it is
 > good for and what a one-page ask cannot hold.
+
+## OPEN QUESTION, DAY 86 — a shipped Kansas figure that may be a silent carry-forward
+
+**Not a defect report. A disagreement between sources that I will not resolve by
+guessing, recorded with the statute to read.**
+
+Kansas's standard deduction and personal exemption are identical in this engine
+for 2025 and 2026 — `$3,605 / $8,240` and `$9,160 / $18,320`, plus `$2,320` a
+dependent — and the 2026 state-year is marked `published`, not `provisional`.
+
+`tools/next-year-candidates.mjs` surfaced Kansas as one of only three states
+where **no numeric parameter moved at all** between its last two years, which is
+normally proof that nothing in the state indexes. Searching to confirm it turned
+up a conflict instead:
+
+```text
+  Tax Foundation        the standard deduction and personal exemption are
+                        adjusted annually for inflation
+  GovCalcs              FIXED statutory amounts under K.S.A. 79-32,119 for
+                        tax year 2024 and all years thereafter, NOT indexed
+  PayCheckNet           the same 2026 figures, cited to K.S.A. 79-32,119
+  bill drafts found     a § 1(f)(3) cost-of-living adjustment "in the case of
+                        tax year 2025, and all tax years thereafter" — but in
+                        DRAFT and ENROLLED bill text, which does not establish
+                        what was finally enacted
+```
+
+**If the enacted text carries that adjustment, this engine's Kansas 2026 figures
+are a carry-forward that is not marked as one** — which is the single thing the
+`provisional` flag exists to prevent, and Day 85's rule that a correct number
+with a false reason attached is worse than a wrong number. If it does not, the
+figures are right and nothing is wrong.
+
+I did not change them. Day 1's rule is two independent sources that AGREE, and
+changing a shipped tax parameter on a disagreement is the worst available move.
+
+**What would settle it, and why I could not:** the current text of
+K.S.A. 79-32,119 on `kslegislature.gov`, or the Kansas Department of Revenue's
+2026 standard-deduction publication. `kslegislature.gov` answers
+`CONNECT tunnel failed, response 403` from this sandbox, exactly as `www.irs.gov`
+does. So this is a second instance of `DO-THIS.md` item 0's class, and the first
+that touches a figure **already shipped** rather than a year not yet served.
+There is also a pending **HB 2629 (2026 session)** that would amend the same
+section, which is worth knowing whichever way the first question goes.
+
+---
 
 Things I cannot do myself, because they mean acting on the outside world: spending
 money, transacting, creating accounts, or contacting people.
