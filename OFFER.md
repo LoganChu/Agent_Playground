@@ -397,8 +397,10 @@ costs more than this.
 > serves with confidence, so `getStateDefinition('NC', 2027)` throws and names
 > the years North Carolina does serve.
 >
-> **DAY 86 PRICES THE REST OF THAT THIRTY, AND EIGHT OF THEM ARE NOT WAITING ON
-> A STATE AT ALL.** `tools/cross-package/federal-basis-years.mjs` measures it on
+> **DAY 86 PRICED THE REST OF THAT THIRTY, AND FOUND THAT EIGHT OF THEM ARE NOT
+> WAITING ON A STATE AT ALL. DAY 87 MAKES IT ELEVEN** — the three it adds are at
+> the end of this section, and they wait on a different federal agency in a
+> different month.** `tools/cross-package/federal-basis-years.mjs` measures it on
 > every push: `IA MO NM` take the federal standard deduction whole, `CO ID ND`
 > start from federal taxable income, and `AL MO OR` deduct the federal income
 > **tax** — so they borrow the whole federal answer rather than one figure. None
@@ -412,13 +414,68 @@ costs more than this.
 > Pennsylvania, Iowa qualifies. It is refused, and `tools/next-year-candidates.mjs`
 > is the screen that found it and the check that disqualified it.
 >
-> **So the subscription's honest shape is three groups and not one:** **20**
-> states waiting on a department to publish an indexed amount, **8** waiting on a
-> document this sandbox cannot reach (`DO-THIS.md` item 0), and **2** — Georgia
-> and North Carolina — waiting on a revenue determination that may never be made.
-> 20 + 8 + 2 = 30, with no state in two groups, counted from the registry rather
-> than by hand: the first draft of this paragraph said twenty-two and did not add
-> up, which is the reason every other count in this repository is derived.
+> **DAY 87 CORRECTS THIS PARAGRAPH TWICE, AND BOTH CORRECTIONS MATTER TO A
+> BUYER.** Yesterday it read: *"20 states waiting on a department, 8 waiting on a
+> document this sandbox cannot reach, and 2 waiting on a revenue determination.
+> 20 + 8 + 2 = 30, with no state in two groups."* The **count** was wrong and the
+> claim that the groups do not overlap was wrong, and the second error is the
+> worse one, because a partition is a stronger statement than a tally.
+>
+> `tools/cross-package/external-basis-years.mjs` reads this engine's own
+> 478-record provenance ledger instead of inferring a figure's source from its
+> variable name, and the shape it reports is:
+>
+> ```text
+>    8  wait on the IRS       Rev. Proc. 2026-35, PUBLISHED 2026-11-05 — blocked
+>       AL CO IA ID MO ND     by a hostname, and readable the day it is allowed
+>       NM OR
+>    3  wait on HHS           the poverty guidelines, NOT PUBLISHED until
+>       KY MD VA              January 2027 — blocked by the calendar, and no
+>                             setting anybody changes today unblocks them
+>    2  wait on a revenue determination that may never be made      GA NC
+>   16  wait on their own state department to publish an INDEXED amount
+>    5  wait on a reading of their own STATUTE, not on anybody's
+>       CT GA NC NJ NY        publication — the figures are scheduled in law
+>    4  have nothing that moves at all        AZ KS LA OK
+>   --
+>   38  dependencies across 30 states, because EIGHT states wait on two things
+>       at once: GA ID KY MD MO NC NM OR.  38 - 8 = 30.
+> ```
+>
+> **The last two rows are the ones that change what this subscription is.** Seven
+> of the thirty — **AZ CT KS LA NJ NY OK** — are not waiting on any publication
+> in this engine's ledger at all. Their next tax year is a question about statute,
+> which is the kind Indiana, Mississippi and Pennsylvania were answered with on
+> Day 85, and it needs no hostname from anybody.
+>
+> **Two caveats, because this table is derived and its author is not.** Kansas's
+> row may be understated — whether K.S.A. 79-32,119 indexes its standard
+> deduction is the open question of Day 86, recorded in `NOTES-FOR-HUMAN.md` and
+> unresolved because `kslegislature.gov` is refused here. And **Arizona's row is
+> understated for certain**: A.R.S. § 43-1041(H) indexes Arizona's own amounts
+> *"in the same manner in which the federal basic standard deduction is adjusted"*,
+> so Arizona borrows the federal **method**, and `tools/cross-package/arizona-deduction.mjs`
+> pins its table to the federal one. A figure that borrows a method does not
+> declare it in any key, which is the same blind spot this whole section is about.
+>
+> **Kentucky, Maryland and Virginia were in the wrong group, and in the wrong
+> government.** All three read the **HHS poverty guidelines** — a federal
+> publication — and yesterday's check could not see them, because it matched
+> `/federal/i` against key names and theirs are spelled
+> `familySizeTaxCredit.povertyGuideline`, `povertyLevelCredit.povertyGuideline`
+> and `lowIncomeCredit.povertyGuideline`. This project's ledger has recorded
+> `document: 'HHS poverty guidelines'` for each of them since the day it was
+> added.
+>
+> **Virginia is the single closest state in this table to publishable, and it is
+> the one a buyer should ask about.** It waits on *nothing else* in this engine's
+> ledger — not on Richmond, not on a trigger, not on the IRS. **One cited source
+> this project has not yet been able to corroborate** puts Virginia's 2027
+> standard deduction at $9,200 / $18,400, enacted in the 2026 Appropriation Act;
+> that is recorded as a lead rather than shipped as a figure, and the reason is in
+> `NOTES-FOR-HUMAN.md` under Day 87. If it holds, what stands between this engine
+> and a Virginia 2027 is one table of two numbers that HHS publishes every
+> January.
 >
 > Two things went wrong on the way to those three, and both are the product
 > rather than embarrassments. **This project's own Mississippi note said the 2027

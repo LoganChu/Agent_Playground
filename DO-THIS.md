@@ -30,7 +30,10 @@ transacting, creating accounts, or contacting people.
 
 Every path below is a **link**, because a path is a thing you have to be at a
 desk to follow and a link is a thing you can tap. Items 1 to 3 have now been
-correct and unread for **sixty-five days**. Today is **Day 86**.
+correct and unread for **sixty-six days**. Today is **Day 87**, and today's
+addition to this page is the one thing on it that grants no permission and
+reveals no address: **one number, in the Reach section above, that takes fifteen
+seconds to read and decides whether items 1 to 3 are the right work at all.**
 
 Ranked by what a dollar costs you in minutes.
 
@@ -76,6 +79,41 @@ generation of every asset so the page count survives the next reset. It also
 prints a warning when a counter was reset in the last 36 hours, because the
 reading I am correcting was made twice by two careful days in a row.
 
+### **Day 87: there is one number only you can see, and it is 15 seconds**
+
+> **<https://github.com/LoganChu/Agent_Playground/graphs/traffic>**
+> — read the **Unique visitors** figure for the last 14 days. That is all.
+> Paste it in an issue, or just remember it.
+
+**Eighty-seven days of this project have measured reach by counting downloads of
+release assets, because that is the only number I can read.** GitHub keeps the
+number that actually answers the question — how many distinct people opened this
+repository — and all four of its endpoints are refused to this routine's token,
+tested today rather than assumed:
+
+```text
+  GET /repos/LoganChu/Agent_Playground/traffic/views              403
+  GET /repos/LoganChu/Agent_Playground/traffic/clones             403
+  GET /repos/LoganChu/Agent_Playground/traffic/popular/referrers  403
+  GET /repos/LoganChu/Agent_Playground/traffic/popular/paths      403
+      "Resource not accessible by integration"
+```
+
+**Why this is worth more than any of the four items below.** They are all bets on
+a diagnosis nobody has tested: that nothing sells because nobody finds it. That
+number tests it.
+
+- **If unique visitors is ~0**, the diagnosis is right, and items 1 to 3 are
+  exactly the correct work — being findable is the whole problem.
+- **If it is not 0**, the diagnosis is wrong. People arrive and leave, and the
+  problem is what they read when they get here, which is a thing *I* can fix and
+  have never had a reason to look at.
+
+Those two have **nothing in common as remedies**, and I have been assuming the
+first for eighty-seven days with no evidence either way. This is not another
+permission to grant — it is one number you can read and I cannot, and it decides
+what the next month of this project should be.
+
 ---
 
 ## 0 · The only item that compounds
@@ -86,10 +124,21 @@ In the Claude app: **Settings → Claude Code → Environments →** the environ
 this routine runs on (*Default*) **→ Network access → add `www.irs.gov`**. One
 field, one hostname, no secret, no branch, no file.
 
-The environment's network allowlist is empty, so every outbound fetch fails.
-Re-tested this morning rather than assumed:
-`https://www.irs.gov/pub/irs-drop/rp-26-35.pdf` answers
-`CONNECT tunnel failed, response 403`.
+The environment's host allowlist is empty. Re-tested this morning rather than
+assumed: `https://www.irs.gov/pub/irs-drop/rp-26-35.pdf` answers `403`, and so
+does every state revenue department and state legislature this project has ever
+tried — `law.lis.virginia.gov`, `budget.lis.virginia.gov`, `kslegislature.gov`,
+`dor.georgia.gov`, `www.nysenate.gov`.
+
+> **Day 87 corrects this item's own sentence.** It used to say *"so every
+> outbound fetch fails"*, and that is false. `pypi.org` and
+> `registry.npmjs.org` answer `200`, because package managers are a separate
+> setting from the host allowlist. That is not a substitute for the ask below —
+> a package registry does not serve a Revenue Procedure — but it is the reason
+> Day 87 could screen all thirty states' next tax year for published figures
+> *with citations* without any setting changing. See
+> [`tools/next-year-sources/`](tools/next-year-sources/). **The ask is smaller
+> than it was, not bigger.**
 
 | | items 1–3 | this item |
 | --- | --- | --- |
@@ -136,6 +185,37 @@ static and it deducts the federal income tax itself.
 So this hostname is not one document for one package. It is **the gate on a
 quarter of the state engine's next tax year**, and it is still one field in one
 settings page.
+
+### Day 87 checked that number against the ledger, and it is exactly eight
+
+Yesterday's count came from scanning every key in every state definition whose
+**name** contains "federal". Today the same question was asked of the engine's
+own 478-record provenance ledger, which records the document each figure came
+from. **Three more states read a federal figure** — Kentucky, Maryland and
+Virginia all use the **HHS poverty guidelines** — and no name-based scan could
+ever have seen them, because the keys are spelled `povertyGuideline`.
+
+**That does not make this ask bigger. It makes it exact.**
+
+```text
+  8 states   IRS, Rev. Proc. 2026-35     published 2026-11-05 — it EXISTS, and
+                                         one hostname is all that is in the way
+  3 states   HHS, poverty guidelines     not published until January 2027 —
+             (KY, MD, VA)                blocked by the calendar, not by you
+```
+
+So the click buys **eight states, now**. The other three cannot be bought at any
+price this month, by anybody. When January comes they will need
+`aspe.hhs.gov`, and I am **not** adding it to this ask for the same reason Day 86
+did not add Kansas's: one hostname is an ask and a list of hostnames is a thing
+people defer. It is written down here so that it is not a surprise in January.
+
+**And Virginia is the one worth knowing about**, because it waits on *nothing
+else* in this engine's ledger — not on Richmond, not on a trigger, not on the
+IRS. One cited source, which I have not been able to corroborate from here, puts
+its 2027 standard deduction at $9,200 / $18,400 already enacted in the 2026
+Appropriation Act. If that holds, one table of two numbers every January is the
+whole remaining distance. `NOTES-FOR-HUMAN.md` has the page to read.
 
 > And a second host joined the class today. `kslegislature.gov` answers the same
 > `403`, and the question it would settle is about a figure **already shipped**:

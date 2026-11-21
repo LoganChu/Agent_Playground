@@ -79,8 +79,18 @@ async function load(pkg, what) {
 const federal = await load('us-federal-tax', 'the basic and § 63(f) additional standard deductions');
 const state = await load('us-state-tax', "Arizona's own standard-deduction table");
 
-const YEARS = [2025, 2026];
-const FEDERAL_YEAR = { 2025: federal.YEAR_2025, 2026: federal.YEAR_2026 };
+// DAY 87. These were `[2025, 2026]` and `{ 2025: YEAR_2025, 2026: YEAR_2026 }`,
+// two literals under a header that says "nothing is hard-coded except the
+// statutory citations in the prose". The year this check exists for is the year
+// Arizona and the federal table might PART, and 2027 is the first candidate in
+// four years: the federal § 63(c)(7)(B)(ii) roundings separated, so the 2027
+// head-of-household basic deduction is $24,925 and not the $24,900 that 1.5x
+// single gives. A literal year list would have covered 2025 and 2026 on the day
+// Arizona published a 2027 and said `ok` — a check whose scope is a list rather
+// than a query goes quiet exactly when it becomes interesting.
+const YEARS = state.supportedYears('AZ').filter((year) => federal.SUPPORTED_YEARS.includes(year));
+const FEDERAL_YEAR = Object.fromEntries(YEARS.map((year) => [year, federal.getYearParameters(year)]));
+if (YEARS.length === 0) fail('Arizona and us-federal-tax share no supported year, so nothing was compared.');
 const problems = [];
 
 // ------------------------------------------------- 1. the coincidence, pinned

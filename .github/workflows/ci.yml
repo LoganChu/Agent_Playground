@@ -386,6 +386,30 @@ jobs:
       # new federal-named field appears in a definition unclassified.
       - name: No state-year claims more verification than the federal year under it
         run: node tools/cross-package/federal-basis-years.mjs --check
+      # DAY 87. The same question asked of the LEDGER rather than of variable
+      # names, because the check above matches /federal/i on KEY NAMES and three
+      # more states read a federal figure under keys spelled `povertyGuideline`:
+      # KY, MD and VA all use the HHS poverty guidelines, republished every
+      # January. The discovery rule needs no list — a document cited by two or
+      # more states is not any one state's own document — so a fourth state
+      # adopting one arrives here as a red build.
+      - name: No state-year depends on an external publication it does not account for
+        run: node tools/cross-package/external-basis-years.mjs --check
+      # DAY 87. The committed scan of a reachable source for a published next
+      # tax year must ask about exactly the states the registry refuses TODAY.
+      # Its ANSWERS are deliberately not pinned byte-for-byte: regenerating them
+      # needs a 25 MB download from pypi.org, and this job has no business going
+      # red because another project cut a release. The QUESTION is pinned, so
+      # the report can go stale in its answers and not in its subject.
+      - name: The committed source scan asks about the states the registry refuses
+        run: node tools/next-year-sources/refused.mjs --check
+      # DAY 87. OFFER.md priced the thirty refused states as "20 + 8 + 2 = 30,
+      # with no state in two groups". The count was wrong and the partition
+      # claim was never true — eight states are in two groups. This derives the
+      # decomposition from four signals and pins OFFER.md's figures to it, so a
+      # priced document cannot carry a number nothing computes.
+      - name: What each refused state's next tax year is waiting for
+        run: node tools/next-year-blockers.mjs --check
       - name: Require every OBBBA and conformity claim to match both engines
         run: node tools/cross-package/obbba-claims.mjs --check
       # Arizona's standard deduction stopped being the federal one on 13 June 2026

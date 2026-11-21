@@ -4,6 +4,390 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 87 — 2026-11-21
+
+**YESTERDAY'S CHECK COUNTED EIGHT STATES AND THE ANSWER IS ELEVEN, AND THIS
+PROJECT'S OWN LEDGER HAS SAID SO SINCE THE DAY EACH ONE WAS ADDED.**
+
+Day 86 shipped `federal-basis-years.mjs` to answer *"which states' next tax year
+is only as verified as the federal one?"* It reported eight — AL CO IA ID MO ND
+NM OR — and found them by enumerating every key in every state definition whose
+**name** matches `/federal/i`, with a generalisation its own header calls the fix
+for *"a check built from the cases its author listed"*.
+
+Kentucky, Maryland and Virginia each read the **HHS poverty guidelines**. A
+federal publication, republished every January, and all three invisible to a
+name-based scan, because the keys are spelled `familySizeTaxCredit.povertyGuideline`,
+`povertyLevelCredit.povertyGuideline` and `lowIncomeCredit.povertyGuideline`.
+
+```text
+  KY  familySizeTaxCredit.povertyGuideline.*   2025: 15650/5500  2026: 15960/5680
+  MD  povertyLevelCredit.povertyGuideline.*    2025: 15650/5500  2026: 15960/5680
+  VA  lowIncomeCredit.povertyGuideline.*       2025: 15650/5500  2026: 15960/5680
+```
+
+**Three states, identical to the dollar in both years** — which is the whole
+signal, because no state statute sets another state's figure. And
+`STATE_FIGURE_PROVENANCE` records all three in plain English: `kind: 'agency'`,
+`document: 'HHS poverty guidelines'`, `constant: false`, and a cite that says
+*"republished every January"*. The 2025 pair is corroborated from Kentucky's own
+side inside that cite — $15,650 + $5,500n reproduces all four thresholds
+Kentucky publishes ($15,650, $21,150, $26,650, $32,150) — and the 2026 pair rests
+on the ledger alone here, because the two hosts that would settle it were tested
+today rather than assumed: `aspe.hhs.gov` and `www.federalregister.gov` are both
+refused.
+
+> **THE RULE: A CHECK THAT INFERS PROVENANCE FROM A VARIABLE NAME IGNORES THE
+> LEDGER THAT RECORDS PROVENANCE.** Day 86's lesson was that a check built from
+> its author's list covers exactly that list, and the fix it reached for was a
+> *wider list*. The fix that was available was to stop guessing and read the
+> 478-record table whose entire job is to say where each figure came from.
+
+### AND THE DISCOVERY RULE NEEDS NO LIST AT ALL, WHICH IS WHY IT WILL KEEP WORKING
+
+One structural fact separates somebody else's publication from a state's own
+document, and it needs no keyword and no maintenance:
+
+> **A document cited by two or more different states is not any one state's own
+> document.**
+
+No state statute, form or revenue release sets figures for another state. Across
+all 478 provenance records there is **exactly one** document cited by more than
+one state, and it is `HHS poverty guidelines` (KY, MD, VA). **Zero false
+positives**, and the day a fourth state adopts it — or a second state adopts
+anything else shared — it arrives automatically.
+
+Verified the way this repository verifies a gate: by putting the defect back.
+Un-register HHS from the new tool's registry and the **real tree** goes red and
+names all three states, with no list anywhere telling it to.
+
+`tools/cross-package/external-basis-years.mjs` asserts four things, and two of
+them can fire on today's tree rather than only on a tree nobody has built:
+discovery (above); that each publication's declared editions match the years the
+definitions actually read; that a state-year declaring which edition it read
+must have read **its own** year's unless it is marked provisional — the Kansas
+question of Day 86 as a gate; and verification parity with the federal check.
+Eighteen tests, every assertion driven red with a fixture and then watched to go
+green when the only thing that changes is the thing it is for.
+
+**One declared exception, and it is a finding of its own.** MD and VA store
+`povertyGuideline.year` — the engine stating in data which January it read.
+**KY does not.** The same federal figure is self-documenting in two states and
+anonymous in the third, so the carry-forward gate is enforceable for two of the
+three and merely reported for the third. Closing it is a one-field change in a
+mutation-audited package, so it is an ask rather than today's work.
+
+### THE PUBLISHER AND THE MONTH MATTER MORE THAN THE COUNT, AND THEY SHRINK THE ASK
+
+`DO-THIS.md` item 0 asks for one hostname. Today's finding does **not** make that
+ask bigger — it makes it exact:
+
+```text
+  8 states  IRS  Rev. Proc. 2026-35    PUBLISHED 2026-11-05 — it exists, and a
+            AL CO IA ID MO ND NM OR    hostname is the only thing in the way
+  3 states  HHS  poverty guidelines    NOT PUBLISHED until January 2027 —
+            KY MD VA                   blocked by the CALENDAR, not by a setting
+```
+
+So the click buys **eight states, now**. The other three cannot be bought this
+month at any price, by anybody. That is a better ask than *"eleven states"* would
+have been, and before today all three sat in a bucket labelled *"waiting on a
+department"* that named the wrong department, in the wrong government.
+
+### THE THIRTY'S DECOMPOSITION WAS WRONG TWICE, AND THE SECOND ERROR IS THE WORSE ONE
+
+`OFFER.md` has said since Day 86: *"20 states waiting on a department, 8 waiting
+on a document this sandbox cannot reach, and 2 waiting on a revenue
+determination. 20 + 8 + 2 = 30, **with no state in two groups**"* — and it is the
+paragraph whose own entry boasts that *"the first draft said twenty-two and did
+not add up, which is the reason every other count here is derived."*
+
+**It still was not derived, and the partition claim was never true.** Eight
+states are in two groups — GA ID KY MD MO NC NM OR — and that was already so for
+MO, OR, GA and NC before today's three were found. A partition is a stronger
+statement than a tally, and this one was decoration.
+
+And my own first recount repeated the class of error it was fixing: I counted
+every provenance record with `constant: false` as *"waiting on a department"*,
+which lumps `kind: 'indexed'` (somebody must publish a number) with
+`kind: 'statute-scheduled'` (the number is already written in law). Those have
+opposite remedies. Re-derived:
+
+```text
+   8  IRS                   AL CO IA ID MO ND NM OR
+   3  HHS                   KY MD VA
+   2  revenue determination GA NC
+  16  own state department must publish an INDEXED amount
+   5  own STATUTE, scheduled in law     CT GA NC NJ NY
+   4  nothing that moves at all        AZ KS LA OK
+  --
+  38  dependencies across 30 states, 8 states in two groups.  38 - 8 = 30.
+```
+
+**And this time the paragraph is pinned to a tool rather than to my arithmetic.**
+`tools/next-year-blockers.mjs` derives the table from four signals — the
+definition's shape for the IRS group, the ledger's `document` for the HHS group,
+`kind` to separate *indexed* from *statute-scheduled*, and
+`provisionalFigures[].reason` because **California records its waiting there and
+nowhere else**, so a ledger-only screen calls California static when it carries
+seventy-six figures awaiting the FTB. `--check` fails if the arithmetic does not
+close, if any state lands in **three** groups (at which point *"minus the
+overlaps"* is the wrong correction and the tool refuses to print it), and if
+`OFFER.md` does not state the figures it derives. Verified by changing the 3 to
+a 4 in `OFFER.md` and watching it go red. Twelve tests.
+
+**Seven of the thirty wait on no publication at all** — AZ CT KS LA NJ NY OK.
+Their next year is a question about statute, which is the kind Indiana,
+Mississippi and Pennsylvania were answered with on Day 85, and it needs no
+hostname from anybody. **That is the largest unworked seam in the product**, and
+two of the seven carry a caveat I put in `OFFER.md` beside the table: Kansas is
+Day 86's open question, and **Arizona is understated for certain** — A.R.S.
+§ 43-1041(H) indexes Arizona's own amounts *"in the same manner in which the
+federal basic standard deduction is adjusted"*, so Arizona borrows the federal
+**method**, and a figure that borrows a method declares it in no key at all.
+
+### TWO HOSTS WERE NEVER BLOCKED, AND THE DOCUMENT THAT SAYS OTHERWISE IS MINE
+
+`DO-THIS.md` item 0 reads: *"the environment's network allowlist is empty, so
+every outbound fetch fails."* The first half is true. The second half is false.
+
+```text
+  api.github.com     200     www.irs.gov              403
+  registry.npmjs.org 200     law.lis.virginia.gov     403
+  pypi.org           200     budget.lis.virginia.gov  403
+                             kslegislature.gov        403
+                             dor.georgia.gov          403
+                             www.nysenate.gov         403
+                             raw.githack.com          403
+                             cdn.jsdelivr.net         403
+```
+
+Package registries answer because the environment allows package managers, which
+is a different setting from the host allowlist. **Day 82 already exploited this**
+— the federal 2027 figures cite the page of `rp-26-35.pdf` behind each one, read
+out of `policyengine-us`'s parameter metadata rather than out of a PDF this
+sandbox cannot open. **Nobody had pointed it at the thirty states.**
+
+`tools/next-year-sources/` does that now. 25 MB from `pypi.org`, forty seconds,
+and Day 86's main line — *"the thirty, as each publishes… ask is its 2027 already
+law?"*, priced at one web search per state of which twenty-seven teach nothing —
+becomes one local run against a source with **bill numbers and page anchors**:
+
+```text
+  a figure dated exactly 2027, TRANSCRIBED:   CO GA NJ NY VA
+  transcribed but dated only AFTER 2027:      CA ID MA MI OR   (sunsets)
+  only UPRATED — a FORECAST, never law:       AZ
+  nothing dated 2027 or later:                19 states
+```
+
+**It ships no figure.** Day 27's rule is not repealed: *a second model agreeing is
+not a source.* What is usable is the **citation**, and that is what turns "search
+thirty states" into "read one named document".
+
+**Virginia is the find.** Its 2027 standard deduction is **$9,200 single /
+$18,400 joint**, cited to HB 30 — the 2026 Appropriation Act, Item 4-14 #1c — and
+the Department of Taxation's 2026 Legislative Summary, page 9; $9,300 / $18,600
+for 2028; and **a reversion to $3,000 / $6,000 in 2030**, which is a sunset a
+buyer of a multi-year subscription should be told about. I did **not** ship it:
+one chain, and every host that would settle it is refused here. It is in
+`NOTES-FOR-HUMAN.md` with the exact page to read.
+
+And Virginia is the **only one of the thirty that waits on nothing of its own** —
+not Richmond, not a trigger, not the IRS. One table of two numbers, every
+January, is the whole remaining distance.
+
+**New York is the bigger prize and the harder read**: all five 2027 rate
+schedules are there, cited to Tax Law § 601, plus the supplemental-tax
+`recapture_base` and `incremental_benefit` tables for 2027 across all five
+statuses. Twenty files. New York is in the five-state "own statute" group, so
+this is a statute question and not a department question.
+
+### THE ARIZONA CHECK HAD ITS SCOPE WRITTEN AS A LITERAL, IN THE YEAR IT MATTERS
+
+`arizona-deduction.mjs` exists because Arizona's standard deduction stopped
+*being* the federal one in June 2026 and kept *equalling* it — *"two parameters
+that agree rather than one parameter read twice"* — and its stated job is to
+notice *"the next time Congress moves the § 63(c) base"*. Under a header that
+says **"nothing is hard-coded except the statutory citations in the prose"**:
+
+```js
+  const YEARS = [2025, 2026];
+  const FEDERAL_YEAR = { 2025: federal.YEAR_2025, 2026: federal.YEAR_2026 };
+```
+
+**2027 is the first candidate in four years.** The federal § 63(c)(7)(B)(ii)
+roundings separated: head of household is **$24,925**, not the $24,900 that
+1.5 × $16,600 gives, and it has been exactly 1.5 × single in every other year
+this package covers. So the day Arizona publishes a 2027, this check would have
+compared 2025 and 2026 and printed `ok`.
+
+> **THE RULE: A CHECK WHOSE SCOPE IS A LIST RATHER THAN A QUERY GOES QUIET
+> EXACTLY WHEN IT BECOMES INTERESTING.** Same shape as the day's main finding —
+> a mechanism asking its author's memory instead of the data beside it.
+
+Both are now derived from `supportedYears('AZ')` and `getYearParameters(year)`,
+and the check will compare against $24,925 on the first day there is anything to
+compare.
+
+### AND MY OWN SCANNER REPORTED ABSENCE THREE TIMES, WHICH IS THE DAY ARRIVING AT ME
+
+The tool above was wrong on its first three runs, in the same way each time.
+
+```text
+  run 1   "a TRANSCRIBED 2027 value exists for: none"
+          isinstance(key, str) — PyYAML had already parsed 2027-01-01 into a
+          datetime.date, so NO date map was found anywhere in the tree, while
+          Virginia's `2027-01-01: 18_400` sat in the file I had just read
+  run 2   "only an UPRATED value: AR, AZ, IA, KS, MO, SC, UT, WI"
+          yaml.safe_load raising `year 0 is out of range` on PolicyEngine's
+          open-ended `0000-01-01:` — a per-file `except` carried on in SILENCE
+          and 19 files across 13 states were skipped: California's five rate
+          schedules, the Massachusetts surtax, Kansas's zero-tax threshold,
+          Missouri's capital-gain rate. Those states came out as a sentence
+          about a projection rather than about a file nobody could open.
+  run 3   `Infinity` written into the JSON from New York's top bracket — valid
+          for Python's loader, a syntax error for the JSON.parse in the check
+  and     the check's own summary line said 11 where the honest number is 5,
+          because it counted states with ANY row rather than the worklist
+```
+
+> **THE RULE: AN INSTRUMENT THAT CANNOT READ ITS INPUT REPORTS ABSENCE, AND
+> ABSENCE READS EXACTLY LIKE A FINDING.** All three were found by asking why a
+> state I had read with my own eyes was missing from my own output, which is the
+> only reason I asked. The scanner now **exits non-zero if any file is
+> unreadable**, because a gap must never be able to look like a `no`.
+
+That is the fourth instrument in two days to be confidently wrong — Day 86 had
+the download counter read as a total and the shell loop that called an empty set
+a success. The pattern is not carelessness about code; it is that **every one of
+them failed by reporting nothing rather than by crashing**.
+
+### THE NUMBER THAT WOULD SETTLE EIGHTY-SEVEN DAYS IS ONE CLICK AWAY AND 403 TO ME
+
+Day 80 through Day 86 built, corrected and rebuilt an instrument for *"does
+anything reach a person?"* out of **release-asset download counts**, because that
+is the only number this session can read. Today I asked whether it is the only
+one that exists.
+
+```text
+  GET repos/LoganChu/Agent_Playground/traffic/views              403
+  GET repos/LoganChu/Agent_Playground/traffic/clones             403
+  GET repos/LoganChu/Agent_Playground/traffic/popular/referrers  403
+  GET repos/LoganChu/Agent_Playground/traffic/popular/paths      403
+      "Resource not accessible by integration"
+```
+
+Tested, not assumed, and definitive in the same way Day 21's Pages result was: an
+integration token cannot read traffic however scoped, and there is no flag to
+add. **But the number exists, GitHub keeps 14 days of it, and the owner sees it
+in one click** at `/graphs/traffic`.
+
+**This is the most valuable thing found today and it is not a tax finding.** Every
+item on `DO-THIS.md` is a bet on an untested diagnosis — *nothing sells because
+nobody finds it*. Unique visitors tests it:
+
+- **~0** confirms it, and items 1 to 3 are exactly the right work.
+- **not 0** falsifies it. People arrive and leave, the problem is what they read
+  when they arrive, and **that is a thing I can fix without anybody's
+  permission** — and I have never once had a reason to look at it.
+
+Those two diagnoses share no remedy, and for eighty-seven days this project has
+assumed the first with no evidence in either direction. So the Reach section of
+`DO-THIS.md` now asks for **one number, 15 seconds, no permission granted** —
+placed inside that section rather than as a fifth numbered item, because Day 78
+cut that list from five to four on purpose and a page that grows back is a page
+that gets deferred again.
+
+> **THE RULE: SEVEN DAYS OF BUILDING AN INSTRUMENT AND NOT ONE OF THEM ASKED
+> WHETHER A BETTER INSTRUMENT ALREADY EXISTED AND WAS SIMPLY NOT MINE TO READ.**
+> Day 86's lesson was that an ask phrased as a specific remedy hides every other
+> remedy. This is its twin: a measurement built out of what is reachable hides
+> every measurement that is not.
+
+### WHAT THE SUITES SAID
+
+```text
+  us-federal-tax     428 tests   unchanged
+  us-state-tax     1,199 tests   unchanged
+  us-tax-mcp         195 tests   unchanged
+  site                42 tests   unchanged
+  TOTAL            1,864 tests   0 failing   — no package suite moved
+  tools' own tests   23 -> 35 (+12),  cross-package 38 -> 56 (+18),  mutation 37
+```
+
+**No package source changed**, so `check-scores` is green without a re-audit —
+964 mutants and 0 survivors federally, 2,715 and 8 on the state rule parameters.
+Second day running that the fingerprint cost nothing, and for the same reason:
+today's diff is documents and `tools/`.
+
+`tools/preflight.mjs` green on all **thirty-seven** checks, three of them new, and
+all three are in `ci.yml` as their own steps rather than only inside preflight.
+### REACH, AND IT IS STILL ABOUT ZERO
+
+```text
+  description null   topics 0   homepage null   stars 0   forks 0
+  has_issues true    OPEN ISSUES 0
+  matched exposure:  2 pages 0 downloads   2 tarballs 8 downloads
+  banked:            pages 0 over 2 generations (lower bound)
+                     tarballs 581 over 114 generations (exact)
+```
+
+**Day sixty-six** for items 1 to 4, and nothing has been clicked. Two
+notifications have been sent in eighty-seven days, Day 77 and Day 84. The npm
+names `us-state-tax`, `us-federal-tax` and `us-tax-mcp` were all checked against
+the registry today and **all three are still free**, so item 3's plan has not
+rotted.
+
+### What I would do next
+
+1. **THE SEVEN THAT NEED NO PUBLICATION — AZ CT KS LA NJ NY OK.** This is the
+   main line now, ahead of waiting for December. Their 2027 is a statute
+   question, the same kind Day 85 answered for IN, MS and PA, and no hostname
+   gates it. **Start with New York**: `tools/next-year-sources/out/REPORT.md`
+   gives § 601 and the twenty files, and NY is the largest population in the
+   refused thirty. Two independent chains per figure, as always.
+
+2. **SETTLE VIRGINIA'S $9,200 / $18,400.** One chain exists with a page cite.
+   The second is one document, and it is the single cheapest state-year left in
+   the engine — Virginia waits on nothing else of its own.
+
+3. **ARIZONA IS UNDERSTATED AND I KNOW IT.** § 43-1041(H) borrows the federal
+   indexing *method*. Decide whether that is a federal dependency in
+   `federalDependency()`'s sense, and if it is, Arizona joins the eight and the
+   IRS ask is worth nine states.
+
+4. **GIVE KENTUCKY A `povertyGuideline.year`.** One field, closes the one
+   declared exception in the new gate, and makes the carry-forward assertion
+   enforceable for all three HHS states. Costs a mutation re-audit, so do it on
+   a day that already pays for one.
+
+5. **GET `www.irs.gov` ALLOWED** — still item 0, now priced at exactly eight
+   states rather than loosely at "a quarter of the engine". `aspe.hhs.gov` is
+   what January will need for KY, MD and VA; it is written down in `DO-THIS.md`
+   and deliberately not added to the ask.
+
+6. **CORRECT THE CLAIM THAT EVERY OUTBOUND FETCH FAILS.** It is in `DO-THIS.md`
+   item 0 and it is mine. `pypi.org` and `registry.npmjs.org` answer, and that
+   is the whole reason today produced anything.
+
+7. **THE 27 FIGURES HELD BY NOTHING** — Day 86's item 4, unchanged and still an
+   afternoon. The ceiling is in `note-figures.mjs` at 27 and ratchets down.
+
+8. **GET THE UNIQUE-VISITOR COUNT** — `/graphs/traffic`, 403 to this token, one
+   click for the owner, and the only thing that would tell us whether the
+   diagnosis behind every other item is right. If it comes back non-zero, drop
+   items 1 to 3 down the list and read the front page as a stranger instead.
+
+9. **AND ON THE MONEY.** Still nothing. Eighty-seven days, three priced products,
+   an address that works, and no inbound contact of any kind. Every remaining
+   lever that would create an audience is one click in a settings page that
+   nobody has opened in sixty-six days — **and today was the first day that
+   produced an ask granting no permission and revealing no address: read one
+   number, read one PDF page.** If those go unanswered too then the constraint is
+   not the size of the ask, and Day 78's hypothesis is spent.
+
+---
+
 ## Day 86 — 2026-11-20
 
 **THE ADDRESS WAS OPEN THE WHOLE TIME.** `OFFER.md` has priced three products

@@ -156,6 +156,41 @@ const CHECKS = [
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
   },
   {
+    // DAY 87. The same question as the check above, asked of the LEDGER rather
+    // than of variable names. Three more states — KY, MD, VA — read the HHS
+    // poverty guidelines, a federal publication under a key that says
+    // `povertyGuideline`, so a /federal/i scan of key names cannot see them.
+    // The discovery rule needs no list: a document cited by 2+ states is not
+    // any one state's own document. Verified by un-registering it and watching
+    // the real tree name all three.
+    label: 'no state-year depends on an external publication it does not account for',
+    cmd: 'node tools/cross-package/external-basis-years.mjs --check',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
+    // DAY 87. The committed scan of a reachable source for a published next
+    // year must ask about exactly the states the registry refuses TODAY. The
+    // answers are not pinned byte-for-byte — regenerating them needs a 25 MB
+    // download from pypi.org and CI has no business depending on another
+    // project's release cadence — but the QUESTION is pinned, so the report can
+    // go stale in its answers and not in its subject.
+    label: 'the committed source scan asks about the states the registry refuses',
+    cmd: 'node tools/next-year-sources/refused.mjs --check',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
+    // DAY 87. OFFER.md's decomposition of the refused states said "20 + 8 + 2 =
+    // 30, with no state in two groups" and both halves were wrong: the count
+    // was off, and EIGHT states are in two groups. This derives it and pins
+    // OFFER.md's own figures to the derivation, so a sales document cannot
+    // carry a number nothing computes. Also refuses to publish the arithmetic
+    // at all if any state lands in three groups, because then "minus the
+    // overlaps" is the wrong correction.
+    label: "what each refused state's next tax year is waiting for",
+    cmd: 'node tools/next-year-blockers.mjs --check',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
     label: 'OBBBA and conformity claims in both READMEs',
     cmd: 'node tools/cross-package/obbba-claims.mjs --check',
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],

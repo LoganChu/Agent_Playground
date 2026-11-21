@@ -1,0 +1,2069 @@
+{
+ "asked_about": [
+  "AL",
+  "AR",
+  "AZ",
+  "CA",
+  "CO",
+  "CT",
+  "GA",
+  "IA",
+  "ID",
+  "IL",
+  "KS",
+  "KY",
+  "LA",
+  "MA",
+  "MD",
+  "MI",
+  "MN",
+  "MO",
+  "NC",
+  "ND",
+  "NJ",
+  "NM",
+  "NY",
+  "OH",
+  "OK",
+  "OR",
+  "SC",
+  "UT",
+  "VA",
+  "WI"
+ ],
+ "source": "policyengine-us",
+ "states": {
+  "AZ": [
+   {
+    "description": "Arizona provides filers a standard deduction of this amount, depending on their filing status.",
+    "file": "az/tax/income/deductions/standard/amount.yaml",
+    "future": {
+     "HEAD_OF_HOUSEHOLD.values": {
+      "2027-01-01": 24925
+     },
+     "JOINT.values": {
+      "2027-01-01": 33200
+     },
+     "SEPARATE.values": {
+      "2027-01-01": 16600
+     },
+     "SINGLE.values": {
+      "2027-01-01": 16600
+     }
+    },
+    "references": [
+     {
+      "href": "https://azdor.gov/sites/default/files/document/FORMS_INDIVIDUAL_2025_140i.pdf#page=21",
+      "title": "2025 Arizona Form 140 Resident Personal Income Tax Instructions"
+     },
+     {
+      "href": "https://azdor.gov/forms/individual/form-140a-arizona-resident-personal-income-tax-booklet",
+      "title": "2024 Arizona Form 140A - Arizona Resident Personal Income Tax Booklet"
+     },
+     {
+      "href": "https://azdor.gov/forms/individual/form-140a-arizona-resident-personal-income-tax-booklet",
+      "title": "2023 Arizona Form 140A - Arizona Resident Personal Income Tax Booklet"
+     },
+     {
+      "href": "https://azdor.gov/forms/individual/form-140-arizona-resident-personal-income-tax-booklet",
+      "title": "2022 Arizona Form 140 Resident Personal Income Tax Booklet"
+     },
+     {
+      "href": "https://azdor.gov/sites/default/files/2023-03/FORMS_INDIVIDUAL_2021_140BOOKLET.pdf#page=43",
+      "title": "2021 Arizona Form 140 Resident Personal Income Tax Booklet"
+     },
+     {
+      "href": "https://www.azleg.gov/ars/43/01041.htm",
+      "title": "A.R.S. 43-1041(A) and (H)"
+     },
+     {
+      "href": "https://www.azleg.gov/legtext/57leg/2R/laws/0140.htm",
+      "title": "Laws 2026, ch. 140 (HB 4168), secs. 16 and 35(A)"
+     },
+     {
+      "href": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf#page=18",
+      "title": "Rev. Proc. 2025-32, sec. 4.14(1) (2026 federal standard deduction)"
+     },
+     {
+      "href": "https://www.irs.gov/pub/irs-drop/rp-26-35.pdf#page=13",
+      "title": "Rev. Proc. 2026-35, sec. 3.15(1) (2027 federal standard deduction)"
+     }
+    ],
+    "uprated": true
+   },
+   {
+    "description": "Arizona caps the credit for contributions to a qualifying foster care charitable organization at this amount.",
+    "file": "az/tax/income/credits/charitable_contribution/ceiling/qualifying_foster.yaml",
+    "future": {
+     "HEAD_OF_HOUSEHOLD": {
+      "2027-01-01": 640
+     },
+     "JOINT": {
+      "2027-01-01": 1278
+     },
+     "SEPARATE": {
+      "2027-01-01": 640
+     },
+     "SINGLE": {
+      "2027-01-01": 640
+     },
+     "SURVIVING_SPOUSE": {
+      "2027-01-01": 640
+     }
+    },
+    "references": [
+     {
+      "href": "https://azdor.gov/tax-credits/credits-contributions-qcos-and-qfcos",
+      "title": "Credits for Contributions to QCOs and QFCOs"
+     },
+     {
+      "href": "https://azdor.gov/sites/default/files/document/FORMS_INDIVIDUAL_2025_140i.pdf#page=24",
+      "title": "2025 Arizona Form 140 Resident Personal Income Tax Instructions"
+     },
+     {
+      "href": "https://www.azleg.gov/ars/43/01088.htm",
+      "title": "Ariz. Rev. Stat. 43-1088 (B)"
+     },
+     {
+      "href": "https://azdor.gov/forms/individual/itemized-deduction-adjustments-form",
+      "title": "Arizona Schedule A"
+     },
+     {
+      "href": "https://azdor.gov/forms/tax-credits-forms/credit-contributions-qualifying-foster-care-charitable-organizations",
+      "title": "Credit for Contributions to Qualifying Charitable Foster"
+     }
+    ],
+    "uprated": true
+   },
+   {
+    "description": "Arizona caps its credit for contributions to Arizona-based organizations at this amount.",
+    "file": "az/tax/income/credits/charitable_contribution/ceiling/qualifying_organization.yaml",
+    "future": {
+     "HEAD_OF_HOUSEHOLD": {
+      "2027-01-01": 513
+     },
+     "JOINT": {
+      "2027-01-01": 1022
+     },
+     "SEPARATE": {
+      "2027-01-01": 513
+     },
+     "SINGLE": {
+      "2027-01-01": 513
+     },
+     "SURVIVING_SPOUSE": {
+      "2027-01-01": 513
+     }
+    },
+    "references": [
+     {
+      "href": "https://azdor.gov/tax-credits/credits-contributions-qcos-and-qfcos",
+      "title": "Credits for Contributions to QCOs and QFCOs"
+     },
+     {
+      "href": "https://azdor.gov/sites/default/files/document/FORMS_INDIVIDUAL_2025_140i.pdf#page=24",
+      "title": "2025 Arizona Form 140 Resident Personal Income Tax Instructions"
+     },
+     {
+      "href": "https://www.azleg.gov/ars/43/01088.htm",
+      "title": "Ariz. Rev. Stat. 43-1088 (A)"
+     },
+     {
+      "href": "https://azdor.gov/forms/individual/itemized-deduction-adjustments-form#page=1",
+      "title": "Arizona Schedule A Year 2022"
+     },
+     {
+      "href": "https://azdor.gov/forms/tax-credits-forms/credit-contributions-qualifying-charitable-organizations",
+      "title": "Credit for Contributions to Qualifying Charitable Organizations"
+     }
+    ],
+    "uprated": true
+   }
+  ],
+  "CA": [
+   {
+    "description": "California taxes income at these rates for head of household filers.",
+    "file": "ca/tax/income/rates/head_of_household.yaml",
+    "future": {
+     "brackets[6].rate": {
+      "2031-01-01": 0.093
+     },
+     "brackets[7].rate": {
+      "2031-01-01": 0.093
+     },
+     "brackets[8].rate": {
+      "2031-01-01": 0.093
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.ftb.ca.gov/forms/2021/2021-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2021"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2022/2022-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2022"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2023/2023-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2023"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2024/2024-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2024"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2025/2025-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2025"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/about-ftb/newsroom/tax-news/2026/10.html#article1",
+      "title": "California Income Tax Rate Schedules for 2026 (FTB Tax News, October 2026, 2026 Indexing)"
+     },
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CONS&sectionNum=SEC.%2036.&article=XIII",
+      "title": "Cal. Const. art. XIII, \u00a7 36(f)(3) (rates above 9.3% apply to taxable years before January 1, 2031)"
+     },
+     {
+      "href": "https://vig.cdn.sos.ca.gov/2016/general/en/pdf/text-proposed-laws.pdf#page=16",
+      "title": "Proposition 55 (2016), Text of Proposed Law, SEC. 4, amending Cal. Const. art. XIII, \u00a7 36(f)(3) to end the rates above 9.3% before January 1, 2031"
+     },
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=17041.&lawCode=RTC",
+      "title": "Cal. Rev. & Tax. Code \u00a7 17041(c)(1), (h)"
+     }
+    ],
+    "uprated": true
+   },
+   {
+    "description": "California taxes income at these rates for joint filers.",
+    "file": "ca/tax/income/rates/joint.yaml",
+    "future": {
+     "brackets[6].rate": {
+      "2031-01-01": 0.093
+     },
+     "brackets[7].rate": {
+      "2031-01-01": 0.093
+     },
+     "brackets[8].rate": {
+      "2031-01-01": 0.093
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.ftb.ca.gov/forms/2021/2021-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2021"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2022/2022-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2022"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2023/2023-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2023"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2024/2024-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2024"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2025/2025-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2025"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/about-ftb/newsroom/tax-news/2026/10.html#article1",
+      "title": "California Income Tax Rate Schedules for 2026 (FTB Tax News, October 2026, 2026 Indexing)"
+     },
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CONS&sectionNum=SEC.%2036.&article=XIII",
+      "title": "Cal. Const. art. XIII, \u00a7 36(f)(2) (rates above 9.3% apply to taxable years before January 1, 2031)"
+     },
+     {
+      "href": "https://vig.cdn.sos.ca.gov/2016/general/en/pdf/text-proposed-laws.pdf#page=16",
+      "title": "Proposition 55 (2016), Text of Proposed Law, SEC. 4, amending Cal. Const. art. XIII, \u00a7 36(f)(2) to end the rates above 9.3% before January 1, 2031"
+     },
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=17041.&lawCode=RTC",
+      "title": "Cal. Rev. & Tax. Code \u00a7 17041(a)(1), (h)"
+     },
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=17045.&lawCode=RTC",
+      "title": "Cal. Rev. & Tax. Code \u00a7 17045 (joint and surviving spouse tax is twice the tax on one-half of taxable income)"
+     }
+    ],
+    "uprated": true
+   },
+   {
+    "description": "California taxes income at these rates for separate filers.",
+    "file": "ca/tax/income/rates/separate.yaml",
+    "future": {
+     "brackets[6].rate": {
+      "2031-01-01": 0.093
+     },
+     "brackets[7].rate": {
+      "2031-01-01": 0.093
+     },
+     "brackets[8].rate": {
+      "2031-01-01": 0.093
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.ftb.ca.gov/forms/2021/2021-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2021"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2022/2022-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2022"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2023/2023-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2023"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2024/2024-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2024"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2025/2025-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2025"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/about-ftb/newsroom/tax-news/2026/10.html#article1",
+      "title": "California Income Tax Rate Schedules for 2026 (FTB Tax News, October 2026, 2026 Indexing)"
+     },
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CONS&sectionNum=SEC.%2036.&article=XIII",
+      "title": "Cal. Const. art. XIII, \u00a7 36(f)(2) (rates above 9.3% apply to taxable years before January 1, 2031)"
+     },
+     {
+      "href": "https://vig.cdn.sos.ca.gov/2016/general/en/pdf/text-proposed-laws.pdf#page=16",
+      "title": "Proposition 55 (2016), Text of Proposed Law, SEC. 4, amending Cal. Const. art. XIII, \u00a7 36(f)(2) to end the rates above 9.3% before January 1, 2031"
+     },
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=17041.&lawCode=RTC",
+      "title": "Cal. Rev. & Tax. Code \u00a7 17041(a)(1), (h)"
+     }
+    ],
+    "uprated": true
+   },
+   {
+    "description": "California taxes income at these rates for single filers.",
+    "file": "ca/tax/income/rates/single.yaml",
+    "future": {
+     "brackets[6].rate": {
+      "2031-01-01": 0.093
+     },
+     "brackets[7].rate": {
+      "2031-01-01": 0.093
+     },
+     "brackets[8].rate": {
+      "2031-01-01": 0.093
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.ftb.ca.gov/forms/2021/2021-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2021"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2022/2022-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2022"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2023/2023-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2023"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2024/2024-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2024"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2025/2025-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2025"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/about-ftb/newsroom/tax-news/2026/10.html#article1",
+      "title": "California Income Tax Rate Schedules for 2026 (FTB Tax News, October 2026, 2026 Indexing)"
+     },
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CONS&sectionNum=SEC.%2036.&article=XIII",
+      "title": "Cal. Const. art. XIII, \u00a7 36(f)(2) (rates above 9.3% apply to taxable years before January 1, 2031)"
+     },
+     {
+      "href": "https://vig.cdn.sos.ca.gov/2016/general/en/pdf/text-proposed-laws.pdf#page=16",
+      "title": "Proposition 55 (2016), Text of Proposed Law, SEC. 4, amending Cal. Const. art. XIII, \u00a7 36(f)(2) to end the rates above 9.3% before January 1, 2031"
+     },
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=17041.&lawCode=RTC",
+      "title": "Cal. Rev. & Tax. Code \u00a7 17041(a)(1), (h)"
+     }
+    ],
+    "uprated": true
+   },
+   {
+    "description": "California taxes income at these rates for surviving spouse filers.",
+    "file": "ca/tax/income/rates/surviving_spouse.yaml",
+    "future": {
+     "brackets[6].rate": {
+      "2031-01-01": 0.093
+     },
+     "brackets[7].rate": {
+      "2031-01-01": 0.093
+     },
+     "brackets[8].rate": {
+      "2031-01-01": 0.093
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.ftb.ca.gov/forms/2021/2021-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2021"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2022/2022-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2022"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2023/2023-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2023"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2024/2024-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2024"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/forms/2025/2025-540-tax-rate-schedules.pdf",
+      "title": "California Income Tax Rate Schedules for 2025"
+     },
+     {
+      "href": "https://www.ftb.ca.gov/about-ftb/newsroom/tax-news/2026/10.html#article1",
+      "title": "California Income Tax Rate Schedules for 2026 (FTB Tax News, October 2026, 2026 Indexing)"
+     },
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CONS&sectionNum=SEC.%2036.&article=XIII",
+      "title": "Cal. Const. art. XIII, \u00a7 36(f)(2) (rates above 9.3% apply to taxable years before January 1, 2031)"
+     },
+     {
+      "href": "https://vig.cdn.sos.ca.gov/2016/general/en/pdf/text-proposed-laws.pdf#page=16",
+      "title": "Proposition 55 (2016), Text of Proposed Law, SEC. 4, amending Cal. Const. art. XIII, \u00a7 36(f)(2) to end the rates above 9.3% before January 1, 2031"
+     },
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=17041.&lawCode=RTC",
+      "title": "Cal. Rev. & Tax. Code \u00a7 17041(a)(1), (h)"
+     },
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=17045.&lawCode=RTC",
+      "title": "Cal. Rev. & Tax. Code \u00a7 17045 (joint and surviving spouse tax is twice the tax on one-half of taxable income)"
+     }
+    ],
+    "uprated": true
+   },
+   {
+    "description": "California limits the military retirement and survivor benefit exclusion to filers with federal adjusted gross income at or below this amount, by filing status.",
+    "file": "ca/tax/income/agi/military_retirement/agi_limit.yaml",
+    "future": {
+     "HEAD_OF_HOUSEHOLD.values": {
+      "2030-01-01": 0
+     },
+     "JOINT.values": {
+      "2030-01-01": 0
+     },
+     "SEPARATE.values": {
+      "2030-01-01": 0
+     },
+     "SINGLE.values": {
+      "2030-01-01": 0
+     },
+     "SURVIVING_SPOUSE.values": {
+      "2030-01-01": 0
+     }
+    },
+    "references": [
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=17132.9.&lawCode=RTC",
+      "title": "Cal. Rev. & Tax. Code \u00a7 17132.9"
+     },
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=17132.10.&lawCode=RTC",
+      "title": "Cal. Rev. & Tax. Code \u00a7 17132.10"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "California caps the military retirement and survivor benefit exclusion at this amount per benefit category per return.",
+    "file": "ca/tax/income/agi/military_retirement/cap.yaml",
+    "future": {
+     "values": {
+      "2030-01-01": 0
+     }
+    },
+    "references": [
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=17132.9.&lawCode=RTC",
+      "title": "Cal. Rev. & Tax. Code \u00a7 17132.9"
+     },
+     {
+      "href": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=17132.10.&lawCode=RTC",
+      "title": "Cal. Rev. & Tax. Code \u00a7 17132.10"
+     }
+    ],
+    "uprated": false
+   }
+  ],
+  "CO": [
+   {
+    "description": "Colorado matches this fraction of the federal Earned Income Tax Credit.",
+    "file": "co/tax/income/credits/eitc/match.yaml",
+    "future": {
+     "values": {
+      "2034-01-01": 0.1
+     }
+    },
+    "references": [
+     {
+      "href": "https://advance.lexis.com/documentpage/?pdmfid=1000516&crid=ad7daeaa-b9cd-4f50-9c62-7bddb226d77c&nodeid=ABPAACAACAABAACABH&nodepath=%2FROOT%2FABP%2FABPAAC%2FABPAACAAC%2FABPAACAACAAB%2FABPAACAACAABAAC%2FABPAACAACAABAACABH&level=6&haschildren=&populated=false&title=39-22-123.5.+Earned+income+tax+credit+-+legislative+declaration+-+repeal.&config=014FJAAyNGJkY2Y4Zi1mNjgyLTRkN2YtYmE4OS03NTYzNzYzOTg0OGEKAFBvZENhdGFsb2d592qv2Kywlf8caKqYROP5&pddocfullpath=%2Fshared%2Fdocument%2Fstatutes-legislation%2Furn%3AcontentItem%3A6B7G-SG43-RTYH-3036-00008-00&ecomp=6gf59kk&prid=22d89c10-a7eb-48af-90ff-837a5559904e",
+      "title": "C.R.S. 39-22-123.5"
+     },
+     {
+      "href": "https://tax.colorado.gov/sites/tax/files/documents/DR_0104EP_2022_0.pdf",
+      "title": "Individual Estimated Income Tax"
+     },
+     {
+      "href": "https://leg.colorado.gov/bills/hb24-1134",
+      "title": "HB24-1134"
+     },
+     {
+      "href": "https://tax.colorado.gov/sites/tax/files/documents/DR_104_Book_2022.pdf#page=16",
+      "title": "2022 Colorado Individual Income Tax Filing Guide, Line 5"
+     },
+     {
+      "href": "https://tax.colorado.gov/sites/tax/files/documents/Book0104_2023.pdf#page=18",
+      "title": "2023 Colorado Individual Tax Filing Guide 104 Book, Line 5"
+     },
+     {
+      "href": "https://tax.colorado.gov/sites/tax/files/documents/DR0104_book_2024.pdf#page=25",
+      "title": "2024 Colorado Individual Tax Filing Guide 104 Book, Instructions for Select Credits from the DR 0104CR, Line 5"
+     },
+     {
+      "href": "https://tax.colorado.gov/sites/tax/files/documents/Book104_2025.pdf#page=25",
+      "title": "2025 Colorado Individual Tax Filing Guide 104 Book, Line 5"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "Colorado pays the state sales tax refund for a tax year if this is true, which requires excess state revenues for the state fiscal year ending in that tax year. The refund is attributed to the modeled eligibility tax year, even when the return and payment occur later. This is the residual sales tax refund mechanism, separate from Colorado Cash Back; in_effect controls whether the refund is available.",
+    "file": "co/tax/income/credits/sales_tax_refund/in_effect.yaml",
+    "future": {
+     "values": {
+      "2027-01-01": true
+     }
+    },
+    "references": [
+     {
+      "href": "https://colorado.public.law/statutes/crs_39-22-2003",
+      "title": "C.R.S. 39-22-2003(2)"
+     },
+     {
+      "href": "https://content.leg.colorado.gov/sites/default/files/june-2026-forecast-for-posting-accessible_0.pdf#page=30",
+      "title": "Colorado Legislative Council Staff, Economic and Revenue Forecast, June 2026 (six-tier refund expected for tax years 2027 and 2028; Table 9, tax year 2026 refunds $0 in every tier) #page 30-31"
+     },
+     {
+      "href": "https://content.leg.colorado.gov/sites/default/files/2026-09/sept2026-forecast-with-cover-for-remediation-and-posting-accessible.pdf#page=9",
+      "title": "Colorado Legislative Council Staff, Economic and Revenue Forecast, September 2026 (State Controller certification of FY 2025-26; six-tier refund expected for tax years 2027 to 2029) #page 9,34"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "Colorado provides this base sales tax refund amount, based on modified adjusted gross income. The refund is attributed to the modeled eligibility tax year, even when the return and payment occur later. This is the residual sales tax refund mechanism, separate from Colorado Cash Back; in_effect controls whether the refund is available.",
+    "file": "co/tax/income/credits/sales_tax_refund/amount/scale.yaml",
+    "future": {
+     "brackets[0].amount": {
+      "2027-01-01": 43,
+      "2028-01-01": 47,
+      "2029-01-01": 48
+     },
+     "brackets[1].amount": {
+      "2027-01-01": 58,
+      "2028-01-01": 62,
+      "2029-01-01": 65
+     },
+     "brackets[1].threshold": {
+      "2027-01-01": 57001,
+      "2028-01-01": 59001,
+      "2029-01-01": 60001
+     },
+     "brackets[2].amount": {
+      "2027-01-01": 67,
+      "2028-01-01": 71,
+      "2029-01-01": 74
+     },
+     "brackets[2].threshold": {
+      "2027-01-01": 117001,
+      "2028-01-01": 120001,
+      "2029-01-01": 123001
+     },
+     "brackets[3].amount": {
+      "2027-01-01": 79,
+      "2028-01-01": 85,
+      "2029-01-01": 88
+     },
+     "brackets[3].threshold": {
+      "2027-01-01": 187001,
+      "2028-01-01": 192001,
+      "2029-01-01": 197001
+     },
+     "brackets[4].amount": {
+      "2027-01-01": 85,
+      "2028-01-01": 91,
+      "2029-01-01": 95
+     },
+     "brackets[4].threshold": {
+      "2027-01-01": 265001,
+      "2028-01-01": 272001,
+      "2029-01-01": 278001
+     },
+     "brackets[5].amount": {
+      "2027-01-01": 137,
+      "2028-01-01": 147,
+      "2029-01-01": 153
+     },
+     "brackets[5].threshold": {
+      "2027-01-01": 349001,
+      "2028-01-01": 358001,
+      "2029-01-01": 367001
+     }
+    },
+    "references": [
+     {
+      "href": "https://leg.colorado.gov/sites/default/files/images/olls/crs2023-title-39.pdf",
+      "title": "C.R.S. 39-22-2003(3)"
+     },
+     {
+      "href": "https://colorado.public.law/statutes/crs_39-22-2003",
+      "title": "C.R.S. 39-22-2003(4)"
+     },
+     {
+      "href": "https://tax.colorado.gov/sites/tax/files/DR0104Book_2015.pdf#page=6",
+      "title": "2015 Colorado Individual Income Tax Filing Guide (DR 0104), Form 104 line 46 table"
+     },
+     {
+      "href": "https://tax.colorado.gov/sites/tax/files/documents/DR_104_Book_2021.pdf#page=21",
+      "title": "2021 Colorado Individual Income Tax Filing Guide"
+     },
+     {
+      "href": "https://tax.colorado.gov/sites/tax/files/documents/DR_104_Book_2022.pdf#page=23",
+      "title": "2022 Colorado Individual Income Tax Filing Guide"
+     },
+     {
+      "href": "https://leg.colorado.gov/sites/default/files/documents/2023A/bills/fn/2023a_hb1311_00.pdf#page=3",
+      "title": "2023 Colorado Individual Income Tax Filing Guide"
+     },
+     {
+      "href": "https://leg.colorado.gov/bills/hb23-1311#:~:text=The%20act%20creates%20a%20new,2022%2D23%20state%20fiscal%20year",
+      "title": "Colorado General Assembly HB23-1311 Identical Temporary TABOR Refund"
+     },
+     {
+      "href": "https://tax.colorado.gov/income-tax-topics-state-sales-tax-refund",
+      "title": "2024 Colorado State Sales Tax Refund"
+     },
+     {
+      "href": "https://tax.colorado.gov/sites/tax/files/documents/Book104_2025.pdf#page=42",
+      "title": "2025 Colorado Individual Tax Filing Guide 104 Book"
+     },
+     {
+      "href": "https://content.leg.colorado.gov/sites/default/files/2026-09/sept2026-forecast-with-cover-for-remediation-and-posting-accessible.pdf#page=35",
+      "title": "Colorado Legislative Council Staff, Economic and Revenue Forecast, September 2026, Table 9 (projected tax year 2027 to 2029 refunds)"
+     }
+    ],
+    "uprated": false
+   }
+  ],
+  "GA": [
+   {
+    "description": "Georgia subtracts these sources from adjusted gross income.",
+    "file": "ga/tax/income/subtractions/subtractions.yaml",
+    "future": {
+     "values": {
+      "2029-01-01": [
+       "us_govt_interest",
+       "ga_retirement_exclusion",
+       "ga_military_retirement_exclusion",
+       "taxable_social_security",
+       "ga_investment_in_529_plan_deduction",
+       "ga_other_subtractions"
+      ]
+     }
+    },
+    "references": [
+     {
+      "href": "https://apps.dor.ga.gov/FillableForms/PDFViewer/Index?form=2022GA500",
+      "title": "2022 Form 500 Instructions"
+     },
+     {
+      "href": "https://www.zillionforms.com/2021/I2122607361.PDF",
+      "title": "2021 Form 500 Instructions"
+     },
+     {
+      "href": "https://law.justia.com/codes/georgia/2022/title-48/chapter-7/article-2/section-48-7-27/",
+      "title": "2022 Official Code of Georgia Annotated | CH7 Income Taxes | \u00a7 48-7-27"
+     },
+     {
+      "href": "https://dor.georgia.gov/document/document/2025-it-511-individual-income-tax-booklet/download#page=21",
+      "title": "2025 IT-511 Individual Income Tax Booklet - Subtractions"
+     },
+     {
+      "href": "https://www.legis.ga.gov/api/legislation/document/20252026/249080#page=6",
+      "title": "Georgia HB463 (2025-2026), Section 2-4 adding O.C.G.A. \u00a7 48-7-27(a)(16) - qualified overtime exclusion"
+     },
+     {
+      "href": "https://www.legis.ga.gov/api/legislation/document/20252026/249080#page=7",
+      "title": "Georgia HB463 (2025-2026), Section 2-4 adding O.C.G.A. \u00a7 48-7-27(a)(17) - cash tips exclusion"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "Georgia subtracts this higher retirement income amount for filers meeting the older age threshold.",
+    "file": "ga/tax/income/agi/exclusions/retirement/cap/older.yaml",
+    "future": {
+     "values": {
+      "2027-01-01": 70000
+     }
+    },
+    "references": [
+     {
+      "href": "https://dor.georgia.gov/document/booklet/2021-it-511-individual-income-tax-booklet/download#page=15",
+      "title": "2021 IT-511 Individual Income Tax Booklet - Subtractions(1)"
+     },
+     {
+      "href": "https://dor.georgia.gov/document/document/2022-it-511-individual-income-tax-booklet/download#page=15",
+      "title": "2022 IT-511 Individual Income Tax Booklet - Subtractions(1)"
+     },
+     {
+      "href": "https://dor.georgia.gov/document/document/2023-it-511-individual-income-tax-booklet/download#page=15",
+      "title": "2023 IT-511 Individual Income Tax Booklet - Subtractions(1)"
+     },
+     {
+      "href": "https://advance.lexis.com/documentpage/?pdmfid=1000516&crid=fb5db531-a80f-4790-bddb-eefc8327ef60&config=00JAA1MDBlYzczZi1lYjFlLTQxMTgtYWE3OS02YTgyOGM2NWJlMDYKAFBvZENhdGFsb2feed0oM9qoQOMCSJFX5qkd&pddocfullpath=%2Fshared%2Fdocument%2Fstatutes-legislation%2Furn%3AcontentItem%3A65D2-CDH3-CGX8-044N-00008-00&pdcontentcomponentid=234186&pdteaserkey=sr1&pditab=allpods&ecomp=8s65kkk&earg=sr1&prid=66f02b0a-c5ae-4162-9535-127751546807",
+      "title": "Official Code of Georgia Annotated | Chapter 7 Income Taxes | O.C.G.A. \u00a7 48-7-27 | (a)-(5)-(A)-(xiii)"
+     },
+     {
+      "href": "https://dor.georgia.gov/document/document/2025-it-511-individual-income-tax-booklet/download#page=21",
+      "title": "2025 IT-511 Individual Income Tax Booklet - Subtractions(1)"
+     },
+     {
+      "href": "https://www.legis.ga.gov/api/legislation/document/20252026/249080#page=5",
+      "title": "Georgia HB463 (2025-2026), Section 2-3 amending O.C.G.A. \u00a7 48-7-27(a)(5)(A) and adding (xiv)"
+     }
+    ],
+    "uprated": false
+   }
+  ],
+  "ID": [
+   {
+    "description": "Idaho allows these qualified business income and federal Schedule 1-A deductions.",
+    "file": "id/tax/income/deductions/qualified_business_income_and_federal_schedule_1a_deductions.yaml",
+    "future": {
+     "values": {
+      "2029-01-01": [
+       "qualified_business_income_deduction"
+      ]
+     }
+    },
+    "references": [
+     {
+      "href": "https://tax.idaho.gov/pressrelease/update-on-filing-2025-idaho-income-taxes-now-that-conformity-is-law/",
+      "title": "Idaho Tax Commission - Update on filing 2025 Idaho income taxes now that conformity is law"
+     },
+     {
+      "href": "https://www.congress.gov/bill/119th-congress/house-bill/1/text",
+      "title": "H.R.1 - One Big Beautiful Bill Act"
+     }
+    ],
+    "uprated": false
+   }
+  ],
+  "MA": [
+   {
+    "description": "Massachusetts adds the excess business loss back to 5.0% income if this is true.",
+    "file": "ma/tax/income/excess_business_loss/in_effect.yaml",
+    "future": {
+     "values": {
+      "2029-01-01": false
+     }
+    },
+    "references": [
+     {
+      "href": "https://malegislature.gov/Laws/GeneralLaws/PartI/TitleIX/Chapter62/Section1",
+      "title": "M.G.L. c. 62, s. 1(c), definition of Code"
+     },
+     {
+      "href": "https://www.mass.gov/technical-information-release/working-draft-tir-tax-provisions-in-the-fiscal-year-2023-budget-including-massachusetts-personal-income-tax-code-update",
+      "title": "TIR 23-1, Tax Provisions in the Fiscal Year 2023 Budget, Including Massachusetts Personal Income Tax Code Update (Code section 461(l))"
+     },
+     {
+      "href": "https://www.mass.gov/technical-information-release/tir-23-5-chapter-62-conformity-to-select-provisions-of-the-2022-internal-revenue-code",
+      "title": "TIR 23-5, Chapter 62 Conformity to Select Provisions of the 2022 Internal Revenue Code (Code section 461(l))"
+     },
+     {
+      "href": "https://www.mass.gov/technical-information-release/tir-24-14-tax-provisions-in-the-fiscal-year-2025-budget",
+      "title": "TIR 24-14, Tax Provisions in the Fiscal Year 2025 Budget, II.A.1 Limitation on Noncorporate Excess Business Losses"
+     },
+     {
+      "href": "https://www.mass.gov/technical-information-release/tir-26-4-massachusetts-conformity-to-certain-provisions-in-public-law-no-119-21",
+      "title": "TIR 26-4, Massachusetts Conformity to Certain Provisions in Public Law No. 119-21 (Sec. 70601)"
+     },
+     {
+      "href": "https://web.archive.org/web/20230616200742/https://www.mass.gov/doc/2022-form-1-instructions/download#page=4",
+      "title": "2022 Form 1 instructions, Updated IRC Conformity Date (\"Code Update\")"
+     },
+     {
+      "href": "https://web.archive.org/web/20230616200742/https://www.mass.gov/doc/2022-form-1-instructions/download#page=20",
+      "title": "2022 Form 1 instructions, Schedule X, line 6 Excess Business Loss Adjustment"
+     },
+     {
+      "href": "https://www.mass.gov/doc/2023-form-1-instructions/download#page=20",
+      "title": "2023 Form 1 instructions, Schedule X, line 6 Excess Business Loss Adjustment"
+     },
+     {
+      "href": "https://www.mass.gov/doc/2024-form-1-instructions/download#page=20",
+      "title": "2024 Form 1 instructions, Schedule X, line 6 Excess Business Loss Adjustment"
+     },
+     {
+      "href": "https://www.mass.gov/doc/2025-form-1-instructions/download#page=21",
+      "title": "2025 Form 1 instructions, Schedule X, line 6 Excess Business Loss Adjustment"
+     }
+    ],
+    "uprated": false
+   }
+  ],
+  "MI": [
+   {
+    "description": "Michigan allows a deduction for federally qualified tips and overtime compensation in these years.",
+    "file": "mi/tax/income/deductions/qualified_tips_and_overtime/in_effect.yaml",
+    "future": {
+     "values": {
+      "2029-01-01": false
+     }
+    },
+    "references": [
+     {
+      "href": "https://legislature.mi.gov/Bills/Bill?ObjectName=2025-HB-4961",
+      "title": "House Bill 4961 of 2025 (Public Act 24 of 2025) - amends MCL 206.30 to allow the qualified tips and overtime deductions for tax years 2026, 2027, and 2028"
+     },
+     {
+      "href": "https://www.legislature.mi.gov/Laws/MCL?objectName=mcl-206-30",
+      "title": "MCL 206.30 (as amended by PA 24 of 2025) - subtractions for qualified tips (IRC 224) and qualified overtime (IRC 225) for tax years beginning after December 31, 2025 and before January 1, 2029"
+     },
+     {
+      "href": "https://www.michigan.gov/treasury/reference/taxpayer-notices/2026/01/06/new-deductions-for-qualified-overtime-compensation-and-qualified-tips",
+      "title": "Michigan Department of Treasury - Notice Regarding New Deductions for Qualified Overtime Compensation and Qualified Tips"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "Michigan requires filers to reduce the tier three standard deduction by taxable Social Security benefits included in adjusted gross income.",
+    "file": "mi/tax/income/deductions/standard/tier_three/taxable_social_security_offset_applies.yaml",
+    "future": {
+     "values": {
+      "2029-01-01": true
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.legislature.mi.gov/Laws/MCL?objectName=mcl-206-30",
+      "title": "Michigan Legal Code Section 206.30 - (9)(e)"
+     },
+     {
+      "href": "https://www.michigan.gov/treasury/reference/taxpayer-notices/2025/11/17/social-security-taxation-changes-in-public-act-24-of-2025",
+      "title": "Social Security Taxation Changes in Public Act 24 of 2025"
+     },
+     {
+      "href": "https://www.michigan.gov/taxes/rep-legal/rab/2026-revenue-administrative-bulletins/revenue-administrative-bulletin-2026-1",
+      "title": "Revenue Administrative Bulletin 2026-1"
+     }
+    ],
+    "uprated": false
+   }
+  ],
+  "NJ": [
+   {
+    "description": "New Jersey limits the Stay NJ Property Tax Credit program to filers with gross income below this amount.",
+    "file": "nj/tax/income/credits/staynj/income_limit.yaml",
+    "future": {
+     "values": {
+      "2027-01-01": 200000.01
+     }
+    },
+    "references": [
+     {
+      "href": "https://pub.njleg.state.nj.us/Bills/2022/PL23/75_.PDF#page=3",
+      "title": "P.L. 2023, c.75, Section 3(b) - Stay NJ Act"
+     },
+     {
+      "href": "https://pub.njleg.state.nj.us/Bills/2024/PL24/88_.PDF",
+      "title": "P.L. 2024, c.88 - Stay NJ Amendment"
+     },
+     {
+      "href": "https://pub.njleg.state.nj.us/Bills/2026/AL26/27_.PDF#page=261",
+      "title": "P.L.2026, c.27 (A-5327), FY2027 Appropriations Act - claimants with income over $200,000 (tax year 2025) are ineligible for the calendar-year 2027 benefit"
+     },
+     {
+      "href": "https://www.nj.gov/treasury/taxation/staynj/index.shtml",
+      "title": "NJ Division of Taxation - Stay NJ Program"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New Jersey limits the Stay NJ Property Tax Credit program benefit to this maximum amount, which varies by gross income from tax year 2027.",
+    "file": "nj/tax/income/credits/staynj/max_benefit.yaml",
+    "future": {
+     "brackets[0].amount": {
+      "2027-01-01": 6500
+     },
+     "brackets[1].amount": {
+      "2027-01-01": 5000
+     },
+     "brackets[2].amount": {
+      "2027-01-01": 4000
+     }
+    },
+    "references": [
+     {
+      "href": "https://pub.njleg.state.nj.us/Bills/2022/PL23/75_.PDF#page=3",
+      "title": "P.L. 2023, c.75, Section 3(c) - Stay NJ Act"
+     },
+     {
+      "href": "https://pub.njleg.state.nj.us/Bills/2024/PL24/88_.PDF",
+      "title": "P.L. 2024, c.88 - Stay NJ Amendment"
+     },
+     {
+      "href": "https://pub.njleg.state.nj.us/Bills/2026/AL26/27_.PDF#page=261",
+      "title": "P.L.2026, c.27 (A-5327), FY2027 Appropriations Act - Stay NJ income-tiered benefit caps"
+     },
+     {
+      "href": "https://www.nj.gov/treasury/taxation/staynj/index.shtml",
+      "title": "NJ Division of Taxation - Stay NJ Program"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New Jersey provides this child credit amount for each qualifying dependent, depending on taxable income.",
+    "file": "nj/tax/income/credits/ctc/amount.yaml",
+    "future": {
+     "brackets[0].amount": {
+      "2029-01-01": 1000
+     },
+     "brackets[1].amount": {
+      "2029-01-01": 800
+     },
+     "brackets[2].amount": {
+      "2029-01-01": 600
+     },
+     "brackets[3].amount": {
+      "2029-01-01": 400
+     },
+     "brackets[4].amount": {
+      "2029-01-01": 200
+     }
+    },
+    "references": [
+     {
+      "href": "https://law.justia.com/codes/new-jersey/2022/title-54a/section-54a-4-17-1/",
+      "title": "New Jersey Statutes Title 54A:4-17.1(1)(a) Child tax credit, income limit."
+     },
+     {
+      "href": "https://www.nj.gov/treasury/taxation/pdf/other_forms/tgi-ee/2022/1040i.pdf#page=3",
+      "title": "2022 Instructions for Form NJ-1040 #page 3,44"
+     },
+     {
+      "href": "https://www.state.nj.us/treasury/taxation/pdf/current/1040i.pdf#page=46",
+      "title": "2023 NJ-1040 Instructions (line 65)"
+     },
+     {
+      "href": "https://www.nj.gov/treasury/taxation/pdf/current/1040i.pdf#page=46",
+      "title": "2024 NJ-1040 Instructions (line 65)"
+     },
+     {
+      "href": "https://www.nj.gov/treasury/taxation/pdf/current/1040i.pdf#page=46",
+      "title": "2025 NJ-1040 Instructions (Line 65)"
+     },
+     {
+      "href": "https://pub.njleg.state.nj.us/Bills/2026/S5000/4531_I1.HTM",
+      "title": "P.L.2026, c.26 (S-4531), enacted 2026-06-30 - increases the child tax credit 25% for tax years 2026-2028 (bill passed unamended; introduced text linked as the chaptered PDF is not yet posted)"
+     }
+    ],
+    "uprated": false
+   }
+  ],
+  "NY": [
+   {
+    "description": "New York taxes the income of head of household filers at this rate.",
+    "file": "ny/tax/income/main/head_of_household.yaml",
+    "future": {
+     "brackets[0].rate": {
+      "2027-01-01": 0.038
+     },
+     "brackets[1].rate": {
+      "2027-01-01": 0.043
+     },
+     "brackets[2].rate": {
+      "2027-01-01": 0.0505
+     },
+     "brackets[3].rate": {
+      "2027-01-01": 0.053
+     },
+     "brackets[4].rate": {
+      "2027-01-01": 0.058
+     },
+     "brackets[6].rate": {
+      "2033-01-01": 0.0882
+     },
+     "brackets[7].threshold": {
+      "2033-01-01": "Infinity"
+     },
+     "brackets[8].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=51",
+      "title": "2021 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=45",
+      "title": "2022 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#nys-tax-rate-schedule",
+      "title": "2023 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=33",
+      "title": "2024 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=33",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax (b)(1)(B), (IV) for 2021, (V) for 2022, and (VI) for 2023"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York taxes the income of joint filers at this rate.",
+    "file": "ny/tax/income/main/joint.yaml",
+    "future": {
+     "brackets[0].rate": {
+      "2027-01-01": 0.038
+     },
+     "brackets[1].rate": {
+      "2027-01-01": 0.043
+     },
+     "brackets[2].rate": {
+      "2027-01-01": 0.0505
+     },
+     "brackets[3].rate": {
+      "2027-01-01": 0.053
+     },
+     "brackets[4].rate": {
+      "2027-01-01": 0.058
+     },
+     "brackets[6].rate": {
+      "2033-01-01": 0.0882
+     },
+     "brackets[7].threshold": {
+      "2033-01-01": "Infinity"
+     },
+     "brackets[8].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=51",
+      "title": "2021 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=43",
+      "title": "2022 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#nys-tax-rate-schedule",
+      "title": "2023 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=33",
+      "title": "2024 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=33",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax (a)(1)(B), (IV) for 2021, (V) for 2022, and (VI) for 2023"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York taxes the income of separate filers at this rate.",
+    "file": "ny/tax/income/main/separate.yaml",
+    "future": {
+     "brackets[0].rate": {
+      "2027-01-01": 0.038
+     },
+     "brackets[1].rate": {
+      "2027-01-01": 0.043
+     },
+     "brackets[2].rate": {
+      "2027-01-01": 0.0505
+     },
+     "brackets[3].rate": {
+      "2027-01-01": 0.053
+     },
+     "brackets[4].rate": {
+      "2027-01-01": 0.058
+     },
+     "brackets[6].rate": {
+      "2033-01-01": 0.0882
+     },
+     "brackets[7].threshold": {
+      "2033-01-01": "Infinity"
+     },
+     "brackets[8].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=51",
+      "title": "2021 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=44",
+      "title": "2022 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#nys-tax-rate-schedule",
+      "title": "2023 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=33",
+      "title": "2024 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=33",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax (c)(1)(B), (IV) for 2021, (V) for 2022, and (VI) for 2023"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York taxes the income of single filers at this rate.",
+    "file": "ny/tax/income/main/single.yaml",
+    "future": {
+     "brackets[0].rate": {
+      "2027-01-01": 0.038
+     },
+     "brackets[1].rate": {
+      "2027-01-01": 0.043
+     },
+     "brackets[2].rate": {
+      "2027-01-01": 0.0505
+     },
+     "brackets[3].rate": {
+      "2027-01-01": 0.053
+     },
+     "brackets[4].rate": {
+      "2027-01-01": 0.058
+     },
+     "brackets[6].rate": {
+      "2033-01-01": 0.0882
+     },
+     "brackets[7].threshold": {
+      "2033-01-01": "Infinity"
+     },
+     "brackets[8].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=51",
+      "title": "2021 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=44",
+      "title": "2022 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#nys-tax-rate-schedule",
+      "title": "2023 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=33",
+      "title": "2024 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=33",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax (c)(1)(B), (IV) for 2021, (V) for 2022, and (VI) for 2023"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York taxes the income of surviving spouse filers at this rate.",
+    "file": "ny/tax/income/main/surviving_spouse.yaml",
+    "future": {
+     "brackets[0].rate": {
+      "2027-01-01": 0.038
+     },
+     "brackets[1].rate": {
+      "2027-01-01": 0.043
+     },
+     "brackets[2].rate": {
+      "2027-01-01": 0.0505
+     },
+     "brackets[3].rate": {
+      "2027-01-01": 0.053
+     },
+     "brackets[4].rate": {
+      "2027-01-01": 0.058
+     },
+     "brackets[6].rate": {
+      "2033-01-01": 0.0882
+     },
+     "brackets[7].threshold": {
+      "2033-01-01": "Infinity"
+     },
+     "brackets[8].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=51",
+      "title": "2021 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=43",
+      "title": "2022 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#nys-tax-rate-schedule",
+      "title": "2023 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=33",
+      "title": "2024 NY Form IT-201 Instructions"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=33",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax (a)(1)(B), (IV) for 2021, (V) for 2022, and (VI) for 2023"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York provides these Child Tax Credit amounts by child age.",
+    "file": "ny/tax/income/credits/ctc/post_2024/amount.yaml",
+    "future": {
+     "brackets[0].amount": {
+      "2028-01-01": 0
+     },
+     "brackets[1].amount": {
+      "2028-01-01": 0
+     }
+    },
+    "references": [
+     {
+      "href": "https://assembly.state.ny.us/leg/?Text=Y&bn=S3009&default_fld=&leg_video=&term=2025",
+      "title": "New York Senate Bill S.3009-C, Part C, Section 2, Tax Law Section 606(c-1)(1-a)"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it213i.pdf#page=1",
+      "title": "2025 Instructions for Form IT-213"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York applies an updated Child Tax Credit structure, if this is true.",
+    "file": "ny/tax/income/credits/ctc/post_2024/in_effect.yaml",
+    "future": {
+     "values": {
+      "2028-01-01": false
+     }
+    },
+    "references": [
+     {
+      "href": "https://assembly.state.ny.us/leg/?Text=Y&bn=S3009&default_fld=&leg_video=&term=2025",
+      "title": "New York Senate Bill S.3009-C, Empire State Child Credit updates"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it213i.pdf#page=1",
+      "title": "2025 Instructions for Form IT-213"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York reduces the Child Tax Credit by a certain amount for each increment by which adjusted gross income exceeds the phase-out thresholds.",
+    "file": "ny/tax/income/credits/ctc/post_2024/phase_out/increment.yaml",
+    "future": {
+     "values": {
+      "2028-01-01": 1
+     }
+    },
+    "references": [
+     {
+      "href": "https://assembly.state.ny.us/leg/?Text=Y&bn=S3009&default_fld=&leg_video=&term=2025",
+      "title": "New York Senate Bill S.3009-C (Chapter 59 of 2025), Part C Section 2, Tax Law Section 606(c-1)(1-a)(C)"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it213i.pdf#page=1",
+      "title": "2025 Instructions for Form IT-213"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York reduces the Child Tax Credit by this percentage of each increment above the adjusted gross income threshold.",
+    "file": "ny/tax/income/credits/ctc/post_2024/phase_out/rate.yaml",
+    "future": {
+     "values": {
+      "2028-01-01": 0
+     }
+    },
+    "references": [
+     {
+      "href": "https://assembly.state.ny.us/leg/?Text=Y&bn=S3009&default_fld=&leg_video=&term=2025",
+      "title": "New York Senate Bill S.3009-C (Chapter 59 of 2025), Part C Section 2, Tax Law Section 606(c-1)(1-a)(C)"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it213i.pdf#page=1",
+      "title": "2025 Instructions for Form IT-213"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York applies the Child Tax Credit phase-out above these adjusted gross income thresholds by filing status.",
+    "file": "ny/tax/income/credits/ctc/post_2024/phase_out/threshold.yaml",
+    "future": {
+     "HEAD_OF_HOUSEHOLD": {
+      "2028-01-01": 0
+     },
+     "JOINT": {
+      "2028-01-01": 0
+     },
+     "SEPARATE": {
+      "2028-01-01": 0
+     },
+     "SINGLE": {
+      "2028-01-01": 0
+     },
+     "SURVIVING_SPOUSE": {
+      "2028-01-01": 0
+     }
+    },
+    "references": [
+     {
+      "href": "https://assembly.state.ny.us/leg/?Text=Y&bn=S3009&default_fld=&leg_video=&term=2025",
+      "title": "New York Senate Bill S.3009-C (Chapter 59 of 2025), Part C Section 2, Tax Law Section 606(c-1)(1-a)(C)"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it213i.pdf#page=1",
+      "title": "2025 Instructions for Form IT-213"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York recaptures this base amount for head of household filers under the supplemental tax.",
+    "file": "ny/tax/income/supplemental/recapture_base/head_of_household.yaml",
+    "future": {
+     "brackets[2].amount": {
+      "2027-01-01": 3614
+     },
+     "brackets[3].amount": {
+      "2027-01-01": 48874
+     },
+     "brackets[3].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax, (d-2) for 2021, (d-3) for 2022, and (d-4) for 2023"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=56",
+      "title": "2021 NY Form IT-201 Instructions - Head of household"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=49",
+      "title": "2022 NY Form IT-201 Instructions - Head of household"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#tax-computation",
+      "title": "2023 NY Form IT-201 Instructions - Head of household"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=38",
+      "title": "2024 NY Form IT-201 Instructions - Head of Household"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=39",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://legislation.nysenate.gov/pdf/bills/2025/S3009C#page=12",
+      "title": "New York FY2026 Budget Agreement (Senate Bill S3009C)"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York recaptures this base amount for joint filers under the supplemental tax.",
+    "file": "ny/tax/income/supplemental/recapture_base/joint.yaml",
+    "future": {
+     "brackets[2].amount": {
+      "2027-01-01": 1141
+     },
+     "brackets[3].amount": {
+      "2027-01-01": 4534
+     },
+     "brackets[4].amount": {
+      "2027-01-01": 64884
+     },
+     "brackets[4].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax, (d-2) for 2021, (d-3) for 2022, and (d-4) for 2023"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=52",
+      "title": "2021 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=45",
+      "title": "2022 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#tax-computation",
+      "title": "2023 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=34",
+      "title": "2024 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=35",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://legislation.nysenate.gov/pdf/bills/2025/S3009C#page=12",
+      "title": "New York FY2026 Budget Agreement (Senate Bill S3009C)"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York recaptures this base amount for separate filers under the supplemental tax.",
+    "file": "ny/tax/income/supplemental/recapture_base/separate.yaml",
+    "future": {
+     "brackets[1].amount": {
+      "2027-01-01": 568
+     },
+     "brackets[2].amount": {
+      "2027-01-01": 2829
+     },
+     "brackets[3].amount": {
+      "2027-01-01": 33001
+     },
+     "brackets[3].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax, (d-2) for 2021, (d-3) for 2022, and (d-4) for 2023"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=54",
+      "title": "2021 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=47",
+      "title": "2022 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#tax-computation",
+      "title": "2023 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=36",
+      "title": "2024 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=37",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://legislation.nysenate.gov/pdf/bills/2025/S3009C#page=12",
+      "title": "New York FY2026 Budget Agreement (Senate Bill S3009C)"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York recaptures this base amount for single filers under the supplemental tax.",
+    "file": "ny/tax/income/supplemental/recapture_base/single.yaml",
+    "future": {
+     "brackets[1].amount": {
+      "2027-01-01": 568
+     },
+     "brackets[2].amount": {
+      "2027-01-01": 2829
+     },
+     "brackets[3].amount": {
+      "2027-01-01": 33001
+     },
+     "brackets[3].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax, (d-2) for 2021, (d-3) for 2022, and (d-4) for 2023"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=54",
+      "title": "2021 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=47",
+      "title": "2022 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#tax-computation",
+      "title": "2023 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=36",
+      "title": "2024 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=37",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://legislation.nysenate.gov/pdf/bills/2025/S3009C#page=12",
+      "title": "New York FY2026 Budget Agreement (Senate Bill S3009C)"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York recaptures this base amount for surviving spouse filers under the supplemental tax.",
+    "file": "ny/tax/income/supplemental/recapture_base/surviving_spouse.yaml",
+    "future": {
+     "brackets[2].amount": {
+      "2027-01-01": 1141
+     },
+     "brackets[3].amount": {
+      "2027-01-01": 4534
+     },
+     "brackets[4].amount": {
+      "2027-01-01": 64884
+     },
+     "brackets[4].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax, (d-2) for 2021, (d-3) for 2022, and (d-4) for 2023"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=52",
+      "title": "2021 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=45",
+      "title": "2022 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#tax-computation",
+      "title": "2023 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=34",
+      "title": "2024 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=35",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://legislation.nysenate.gov/pdf/bills/2025/S3009C#page=12",
+      "title": "New York FY2026 Budget Agreement (Senate Bill S3009C)"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York provides this supplemental tax incremental benefit amount for head of household filers.",
+    "file": "ny/tax/income/supplemental/incremental_benefit/head_of_household.yaml",
+    "future": {
+     "brackets[1].amount": {
+      "2027-01-01": 2827
+     },
+     "brackets[2].amount": {
+      "2033-01-01": 31844
+     },
+     "brackets[3].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax, (d-2) for 2021, (d-3) for 2022, and (d-4) for 2023"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=56",
+      "title": "2021 NY Form IT-201 Instructions - Head of household"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=49",
+      "title": "2022 NY Form IT-201 Instructions - Head of household"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#tax-computation",
+      "title": "2023 NY Form IT-201 Instructions - Head of household"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=38",
+      "title": "2024 NY Form IT-201 Instructions - Head of Household"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=39",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://legislation.nysenate.gov/pdf/bills/2025/S3009C#page=12",
+      "title": "New York FY2026 Budget Agreement (Senate Bill S3009C)"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York provides this supplemental tax incremental benefit amount for joint filers.",
+    "file": "ny/tax/income/supplemental/incremental_benefit/joint.yaml",
+    "future": {
+     "brackets[1].amount": {
+      "2027-01-01": 808
+     },
+     "brackets[2].amount": {
+      "2027-01-01": 3393
+     },
+     "brackets[3].amount": {
+      "2033-01-01": 42461
+     },
+     "brackets[4].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax, (d-2) for 2021, (d-3) for 2022, and (d-4) for 2023"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=52",
+      "title": "2021 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=45",
+      "title": "2022 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#tax-computation",
+      "title": "2023 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=34",
+      "title": "2024 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=35",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://legislation.nysenate.gov/pdf/bills/2025/S3009C#page=11",
+      "title": "New York FY2026 Budget Agreement (Senate Bill S3009C)"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York provides this supplemental tax incremental benefit amount for separate filers.",
+    "file": "ny/tax/income/supplemental/incremental_benefit/separate.yaml",
+    "future": {
+     "brackets[0].amount": {
+      "2027-01-01": 568
+     },
+     "brackets[1].amount": {
+      "2027-01-01": 2261
+     },
+     "brackets[2].amount": {
+      "2033-01-01": 21228
+     },
+     "brackets[3].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax, (d-2) for 2021, (d-3) for 2022, and (d-4) for 2023"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=54",
+      "title": "2021 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=47",
+      "title": "2022 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#tax-computation",
+      "title": "2023 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=36",
+      "title": "2024 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=37",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://legislation.nysenate.gov/pdf/bills/2025/S3009C#page=12",
+      "title": "New York FY2026 Budget Agreement (Senate Bill S3009C)"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York provides this supplemental tax incremental benefit amount for single filers.",
+    "file": "ny/tax/income/supplemental/incremental_benefit/single.yaml",
+    "future": {
+     "brackets[0].amount": {
+      "2027-01-01": 568
+     },
+     "brackets[1].amount": {
+      "2027-01-01": 2261
+     },
+     "brackets[2].amount": {
+      "2033-01-01": 21228
+     },
+     "brackets[3].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax, (d-2) for 2021, (d-3) for 2022, and (d-4) for 2023"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=54",
+      "title": "2021 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=47",
+      "title": "2022 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#tax-computation",
+      "title": "2023 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=36",
+      "title": "2024 NY Form IT-201 Instructions - Single and married filing separately"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=37",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://legislation.nysenate.gov/pdf/bills/2025/S3009C#page=12",
+      "title": "New York FY2026 Budget Agreement (Senate Bill S3009C)"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "New York provides this supplemental tax incremental benefit amount for surviving spouse filers.",
+    "file": "ny/tax/income/supplemental/incremental_benefit/surviving_spouse.yaml",
+    "future": {
+     "brackets[1].amount": {
+      "2027-01-01": 808
+     },
+     "brackets[2].amount": {
+      "2027-01-01": 3393
+     },
+     "brackets[3].amount": {
+      "2033-01-01": 42461
+     },
+     "brackets[4].threshold": {
+      "2033-01-01": "Infinity"
+     }
+    },
+    "references": [
+     {
+      "href": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "title": "Section 601 Imposition of tax, (d-2) for 2021, (d-3) for 2022, and (d-4) for 2023"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2021/inc/it201i_2021.pdf#page=52",
+      "title": "2021 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2022/printable-pdfs/inc/it201i-2022.pdf#page=45",
+      "title": "2022 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/forms/html-instructions/2023/it/it201i-2023.htm#tax-computation",
+      "title": "2023 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/2024/inc/it201i_2024.pdf#page=34",
+      "title": "2024 NY Form IT-201 Instructions - Married filing jointly and qualifying surviving spouse"
+     },
+     {
+      "href": "https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf#page=35",
+      "title": "2025 Form IT-201-I Instructions"
+     },
+     {
+      "href": "https://legislation.nysenate.gov/pdf/bills/2025/S3009C#page=11",
+      "title": "New York FY2026 Budget Agreement (Senate Bill S3009C)"
+     }
+    ],
+    "uprated": false
+   }
+  ],
+  "OR": [
+   {
+    "description": "Oregon caps the childcare expenses under the working family household and dependent care at this amount, for each dependent.",
+    "file": "or/tax/income/credits/wfhdc/cap.yaml",
+    "future": {
+     "values": {
+      "2028-01-01": 0
+     }
+    },
+    "references": [
+     {
+      "href": "https://law.justia.com/codes/oregon/2021/volume-08/chapter-315/section-315-264/",
+      "title": "OR Rev Stat \u00a7 315.264 (1)(c)(C)"
+     },
+     {
+      "href": "https://www.oregon.gov/dor/forms/FormsPubs/schedule-or-wfhdc-inst_101-195-1_2021.pdf#page=1",
+      "title": "2021 Schedule OR-WFHDC Oregon Working Family Household and Dependent Care Credit Instructions"
+     },
+     {
+      "href": "https://www.oregon.gov/dor/forms/FormsPubs/schedule-or-wfhdc-inst_101-195-1_2023.pdf#page=1",
+      "title": "2023 Schedule OR-WFHDC Oregon Working Family Household and Dependent Care Credit Instructions"
+     },
+     {
+      "href": "https://www.oregon.gov/dor/forms/FormsPubs/form-or-40-inst_101-040-1_2025.pdf#page=18",
+      "title": "2025 Oregon Income Tax Form OR-40 Instructions"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "Oregon provides its Child Tax Credit when this is true.",
+    "file": "or/tax/income/credits/ctc/in_effect.yaml",
+    "future": {
+     "values": {
+      "2029-01-01": false
+     }
+    },
+    "references": [
+     {
+      "href": "https://olis.oregonlegislature.gov/liz/2023R1/Downloads/MeasureDocument/HB3235/Enrolled#page=9",
+      "title": "2023R1 House Bill 3235 Section 11"
+     },
+     {
+      "href": "https://oregon.public.law/statutes/ors_315.273",
+      "title": "Oregon Revised Statutes Section 315.273 (2023 c.538 \u00a72)"
+     }
+    ],
+    "uprated": false
+   }
+  ],
+  "VA": [
+   {
+    "description": "Virginia provides a standard deduction of this amount.",
+    "file": "va/tax/income/deductions/standard.yaml",
+    "future": {
+     "HEAD_OF_HOUSEHOLD": {
+      "2027-01-01": 9200,
+      "2028-01-01": 9300,
+      "2030-01-01": 3000
+     },
+     "JOINT": {
+      "2027-01-01": 18400,
+      "2028-01-01": 18600,
+      "2030-01-01": 6000
+     },
+     "SEPARATE": {
+      "2027-01-01": 9200,
+      "2028-01-01": 9300,
+      "2030-01-01": 3000
+     },
+     "SINGLE": {
+      "2027-01-01": 9200,
+      "2028-01-01": 9300,
+      "2030-01-01": 3000
+     },
+     "SURVIVING_SPOUSE": {
+      "2027-01-01": 9200,
+      "2028-01-01": 9300,
+      "2030-01-01": 3000
+     }
+    },
+    "references": [
+     {
+      "href": "https://law.lis.virginia.gov/vacode/title58.1/section58.1-322.03/",
+      "title": "Code of Virginia \u00a7 58.1-322.03.(1)(b)"
+     },
+     {
+      "href": "https://www.tax.virginia.gov/sites/default/files/vatax-pdf/2025-760-instructions.pdf#page=17",
+      "title": "Virginia 2025 Form 760 Resident Individual Income Tax Instructions"
+     },
+     {
+      "href": "https://www.tax.virginia.gov/sites/default/files/vatax-pdf/2024-760-instructions.pdf#page=17",
+      "title": "Virginia 2024 Form 760 Resident Individual Income Tax Instructions"
+     },
+     {
+      "href": "https://www.tax.virginia.gov/sites/default/files/vatax-pdf/2023-760-instructions.pdf#page=18",
+      "title": "Virginia 2023 Form 760 Resident Individual Income Tax Instructions"
+     },
+     {
+      "href": "https://www.tax.virginia.gov/sites/default/files/vatax-pdf/2022-760-instructions.pdf#page=18",
+      "title": "Virginia 2022 Form 760 Resident Individual Income Tax Booklet"
+     },
+     {
+      "href": "https://www.tax.virginia.gov/sites/default/files/vatax-pdf/2021-760-instructions.pdf#page=18",
+      "title": "Virginia 2021 Form 760 Resident Individual Income Tax Booklet"
+     },
+     {
+      "href": "https://www.tax.virginia.gov/sites/default/files/inline-files/2023-legislative-summary.pdf#page=10",
+      "title": "Virginia 2023 legislative summary"
+     },
+     {
+      "href": "https://legiscan.com/VA/text/HB1600/id/3262750/Virginia-2025-HB1600-Chaptered.pdf#page=780",
+      "title": "House Bill 1600 (2025 Appropriations Act)"
+     },
+     {
+      "href": "https://budget.lis.virginia.gov/amendment/2026/2/HB30/Introduced/CR/4-14/1c",
+      "title": "House Bill 30 (2026 Appropriation Act, Special Session I, Chapter 1), Item 4-14"
+     },
+     {
+      "href": "https://www.tax.virginia.gov/sites/default/files/inline-files/2026-legislative-summary.pdf#page=9",
+      "title": "Virginia Department of Taxation 2026 Legislative Summary - standard deduction"
+     }
+    ],
+    "uprated": false
+   },
+   {
+    "description": "Virginia matches this percent of the federal earned income tax credit as a refundable credit.",
+    "file": "va/tax/income/credits/eitc/match/refundable.yaml",
+    "future": {
+     "values": {
+      "2030-01-01": 0
+     }
+    },
+    "references": [
+     {
+      "href": "https://law.lis.virginia.gov/vacode/title58.1/chapter3/section58.1-339.8/",
+      "title": "Code of Virginia \u00a7 58.1-339.8.B.3"
+     },
+     {
+      "href": "https://www.tax.virginia.gov/sites/default/files/vatax-pdf/2025-760-instructions.pdf#page=31",
+      "title": "Virginia 2025 Form 760 Resident Individual Income Tax Instructions"
+     },
+     {
+      "href": "https://www.tax.virginia.gov/sites/default/files/vatax-pdf/2024-760-instructions.pdf#page=31",
+      "title": "Virginia 2024 Form 760 Resident Individual Income Tax Instructions"
+     },
+     {
+      "href": "https://www.tax.virginia.gov/sites/default/files/vatax-pdf/2023-760-instructions.pdf#page=31",
+      "title": "Virginia 2023 Form 760 Resident Individual Income Tax Instructions"
+     },
+     {
+      "href": "https://www.tax.virginia.gov/sites/default/files/vatax-pdf/2022-760-instructions.pdf#page=32",
+      "title": "Virginia 2022 Form 760 Resident Individual Income Tax Booklet"
+     },
+     {
+      "href": "https://www.tax.virginia.gov/sites/default/files/vatax-pdf/2021-760-instructions.pdf#page=32",
+      "title": "Virginia 2021 Form 760 Resident Individual Income Tax Booklet"
+     },
+     {
+      "href": "https://legiscan.com/VA/text/HB1600/id/3262750/Virginia-2025-HB1600-Chaptered.pdf#page=783",
+      "title": "House Bill 1600 (2025 Appropriations Act)"
+     },
+     {
+      "href": "https://budget.lis.virginia.gov/amendment/2026/2/HB30/Introduced/CR/4-14/1c",
+      "title": "House Bill 30 (2026 Appropriation Act, Special Session I, Chapter 1), Item 4-14"
+     },
+     {
+      "href": "https://www.tax.virginia.gov/sites/default/files/inline-files/2026-legislative-summary.pdf#page=9",
+      "title": "Virginia Department of Taxation 2026 Legislative Summary - refundable EITC"
+     }
+    ],
+    "uprated": false
+   }
+  ]
+ },
+ "version": "2.152.13",
+ "year": 2027
+}

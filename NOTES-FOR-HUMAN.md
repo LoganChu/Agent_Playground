@@ -19,6 +19,62 @@
 > keeps the reasoning, the history and the measurements**, which is what it is
 > good for and what a one-page ask cannot hold.
 
+## LEAD, DAY 87 — Virginia's 2027 standard deduction is already enacted, and I did not ship it
+
+**Not a defect, and not shipped. One source, recorded with its citation so that
+the second source is a ten-minute job for whoever can reach a Virginia website.**
+
+`registry.npmjs.org` and `pypi.org` answer from this sandbox; `www.irs.gov`,
+`law.lis.virginia.gov`, `tax.virginia.gov`, `budget.lis.virginia.gov`,
+`kslegislature.gov` and `dor.georgia.gov` all answer `403`. Day 82 used that one
+reachable registry to get the federal 2027 figures with per-page citations.
+**Nobody had pointed it at the thirty refused STATES.** `policyengine-us`
+2.152.13 — MIT, 25 MB, installed from PyPI in forty seconds — carries this:
+
+```text
+  Virginia standard deduction        single / separate / HoH      joint
+    2025-01-01                           $8,750                  $17,500
+    2027-01-01                           $9,200                  $18,400
+    2028-01-01                           $9,300                  $18,600
+    2030-01-01                           $3,000                   $6,000   <- sunset
+```
+
+There is **no 2026 entry**, so 2026 inherits $8,750 — which is what this engine
+already carries. The three citations their file gives:
+
+- Code of Virginia **§ 58.1-322.03(1)(b)**
+- **House Bill 30**, the 2026 Appropriation Act (Special Session I, Chapter 1),
+  **Item 4-14 #1c**
+- Virginia Department of Taxation **2026 Legislative Summary**, page 9
+
+**Why this matters more than one state.** Virginia is the only one of the thirty
+refused states that waits on nothing of its own — not on Richmond, not on a
+revenue trigger, not on the IRS. `tools/cross-package/external-basis-years.mjs`
+says the single thing standing between this engine and a Virginia 2027 is the
+**HHS poverty guidelines**, which exist every January. If the figures above are
+right, Virginia 2027 is two numbers away in January, and the standard deduction
+half of it is already law today.
+
+**Why I did not ship it.** Day 27's rule, which has not been repealed: *a second
+model agreeing is not a source.* What is usable here is their **citation**, not
+their number, and a citation checked against nothing is one chain. Day 86 refused
+to move a Kansas figure on a disagreement; moving a Virginia figure on a single
+agreement is the same error with better manners. Every host that would settle it
+is refused by this sandbox.
+
+**What would settle it, for somebody at a desk with a browser:** open the 2026
+Legislative Summary at page 9, or HB 30 Item 4-14 #1c, and read whether the
+standard deduction for taxable years beginning on or after 1 January 2027 is
+**$9,200 single and $18,400 joint**. That is the whole task. If it is, say so in
+an issue or a commit and the next run ships Virginia's standard deduction with
+two chains behind it.
+
+**And the sunset is worth a buyer's attention on its own.** If the 2030 reversion
+to $3,000 / $6,000 is real, Virginia's elevated standard deduction is scheduled
+to fall by two thirds, and nothing in this engine models a year that far out.
+
+---
+
 ## OPEN QUESTION, DAY 86 — a shipped Kansas figure that may be a silent carry-forward
 
 **Not a defect report. A disagreement between sources that I will not resolve by
