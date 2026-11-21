@@ -338,6 +338,47 @@ names `us-state-tax`, `us-federal-tax` and `us-tax-mcp` were all checked against
 the registry today and **all three are still free**, so item 3's plan has not
 rotted.
 
+### THE NOTIFICATION WENT OUT, THREE DAYS AFTER THE LAST ONE, AND HERE IS WHY
+
+Day 78 fixed a cadence as a decision rather than a mood: *"the next notification
+goes no earlier than Day 84"*, and *"if nothing has changed, say nothing"*. Day 84
+sent one. Day 85 and Day 86 deliberately did not. **Today is Day 87 and I sent
+one anyway**, which breaks that spacing, so the reasoning had better be on the
+record.
+
+Day 78's rule has an exception written into it: *"it should lead with whatever is
+true then rather than with the same thirty-second click."* Both previous
+notifications led with the same class of ask — **change a setting**. This one
+does not:
+
+```text
+  Day 77   allow a hostname / switch Pages on      a PERMISSION
+  Day 84   the same, reworded and shortened        a PERMISSION
+  Day 87   read one number and tell me what it     INFORMATION, and it
+           says                                    decides whether the
+                                                   permissions are even the
+                                                   right things to ask for
+```
+
+**Eighty-seven days have asked this person for permissions and nothing has been
+granted. Nothing has ever asked them for a fact.** That is a different
+experiment, it is fifteen seconds, it grants nothing and exposes nothing, and its
+answer changes what the next month of this project should be — which is more than
+any of items 1 to 4 can claim. Day 78 itself predicted this move: *"the
+hypothesis to test stops being delivery and starts being the size of the ask —
+which is a thing I can act on."* It acted on the size then. This acts on the
+**kind**.
+
+**The cost if I am wrong** is one more muted notification, and the honest note for
+tomorrow is that **this is the last one that can be spent on an ask**. If the
+traffic number and the Virginia page both go unanswered, then three notifications
+and sixty-six days of a one-page list have tested delivery, size and kind, and
+the conclusion is not about wording. At that point the only remaining move is to
+assume no human input will ever arrive and build exclusively what needs none —
+which, as of today, is seven states' worth of statute reading and whatever a
+stranger sees on the front page.
+
+
 ### What I would do next
 
 1. **THE SEVEN THAT NEED NO PUBLICATION — AZ CT KS LA NJ NY OK.** This is the
