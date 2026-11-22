@@ -314,7 +314,30 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // new branch. Killing five copies of `0.044` is five tests of one number and
   // it reports as five units of rigour; the score is a ratio, so consolidating
   // duplication moves the denominator in the direction that looks worse.
-  assert.equal(mutants.length, 2_715, 'mutants the enumerator finds in the current tree');
+  // ## DAY 88: 2,715 -> 2,722, AND `money` IS UNMOVED A FOURTH TIME
+  //
+  // New York's tax year 2027 adds **exactly seven** mutants and the split says
+  // what kind of year it is:
+  //
+  //   money  1,914 -> 1,914   UNMOVED, a FOURTH consecutive tax-year addition
+  //   rate     486 ->   491   +5, the second step of S.3009-C's rate cut
+  //   year     315 ->   317   +2, the two comparisons in `lowerRates`
+  //
+  // **Seven mutants for the most complicated return in the package**, and the
+  // reason is the one the state module's header is about: New York indexes
+  // nothing, so a new tax year moves five rates and not one amount. The nine
+  // brackets' ceilings, the standard deduction, the $1,000 dependent exemption,
+  // the household credit's two step charts, the child credit and the $20,000
+  // pension exclusion are all identical in 2027 to 2026 because § 601, § 614 and
+  // § 616 print them as fixed dollars.
+  //
+  // And the recapture ladder adds nothing at all, because this package stores
+  // none of the forty dollar amounts the statute prints for it — § 601(d) is
+  // derived from the rate schedule, so the five new rate literals ARE the new
+  // recapture table. A package that transcribed the table instead would have
+  // added forty `money` mutants here and forty figures to re-read every time
+  // Albany moves a rate.
+  assert.equal(mutants.length, 2_722, 'mutants the enumerator finds in the current tree');
   // The by-kind split itself is pinned at the bottom of this file.
   // THE FILES THE CHANGES CAME FROM, pinned separately so a future total that
   // happens to land on 2,715 for different reasons cannot pass.
@@ -337,6 +360,13 @@ test('the state engine enumerates what the recorded audit measured', () => {
     'Pennsylvania gained ONE mutant for tax year 2027 — the year in its gate — because nothing ' +
       'in the Pennsylvania computation is indexed, scheduled or triggered and the 3.07% rate it ' +
       'already had is the 2027 rate',
+  );
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/new-york.js').length,
+    80,
+    'New York: 73 before tax year 2027 and 80 after — five rates and two year comparisons, ' +
+      'and NOTHING ELSE, because New York indexes nothing and the recapture ladder is derived ' +
+      'from the rate schedule rather than transcribed from § 601(d)',
   );
   // THE NEW MEXICO FILE'S OWN COUNT, pinned for the reason the Louisiana and
   // Kansas anchors above are: the newest rule in the package is where the
@@ -814,5 +844,5 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // > duplication moves the denominator in the direction that looks worse, and
   // > the score staying at 99.7% over a smaller and more honest denominator is
   // > the better number rather than the same one.
-  assert.deepEqual(byKind, { money: 1_914, rate: 486, year: 315 });
+  assert.deepEqual(byKind, { money: 1_914, rate: 491, year: 317 });
 });

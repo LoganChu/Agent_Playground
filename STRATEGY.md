@@ -190,7 +190,7 @@ new information about where the remaining risk is.
 ## THE PROOF HALF'S NUMBERS, AND THE DAY THE DENOMINATOR WENT DOWN
 
 `us-federal-tax` mutation is at **100%** (964 mutants, 0 survivors) and
-`us-state-tax`'s rule parameters at **99.7%** (2715 mutants, 8 survivors) — both
+`us-state-tax`'s rule parameters at **99.7%** (2722 mutants, 8 survivors) — both
 written by `check-scores.mjs` rather than copied by hand. **The same eight
 survivors for a tenth consecutive audit**, by file, kind, value and line number.
 

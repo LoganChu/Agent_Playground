@@ -216,9 +216,27 @@ probe across a step.
   TOTAL            1,873 tests   0 failing
 ```
 
-`tools/preflight.mjs` green on all thirty-seven checks. The mutation audit was
-re-run because the parameters changed: 2,722 mutants, up from 2,715, the seven new
-ones being New York's 2027 rates.
+`tools/preflight.mjs` green on all thirty-seven checks.
+
+**The re-audit, because the parameters changed, and the split is the finding:**
+
+```text
+  2,722 mutants   2,714 killed   8 survived   99.7%   37 minutes on 4 workers
+  the same eight survivors an ELEVENTH time: flat-states x2, new-jersey x2,
+  new-mexico x2, ohio x2 — New York's seven new mutants were all killed
+
+  money  1,914 -> 1,914   UNMOVED, a FOURTH consecutive tax-year addition
+  rate     486 ->   491   +5, the second step of S.3009-C's cut
+  year     315 ->   317   +2, the two comparisons in `lowerRates`
+```
+
+**Seven mutants for the most complicated return in the package.** New York
+indexes nothing, so a tax year moves five rates and not one amount — and the
+recapture ladder adds nothing at all, because this package stores none of the
+forty dollar amounts § 601(d) prints. The five new rate literals *are* the new
+recapture table. A package that transcribed the table would have added forty
+`money` mutants and forty figures to re-read every time Albany moves a rate.
+That is Day 5's rule, priced, eighty-three days later.
 
 ### REACH
 
