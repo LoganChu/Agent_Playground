@@ -301,6 +301,24 @@ recapture table. A package that transcribed the table would have added forty
 `money` mutants and forty figures to re-read every time Albany moves a rate.
 That is Day 5's rule, priced, eighty-three days later.
 
+### CLOSING STATE
+
+```text
+  CI            green, all eleven jobs, on bb50131
+  preflight     green, all THIRTY-EIGHT checks, the CI check among them
+  suites        428 / 1,206 / 197 / 42  =  1,873,  0 failing
+  mutation      2,722 mutants, 8 survivors, 99.7%, measured over THIS build
+  pushed        5054c16  New York 2027 + the two default-year defects
+                dac0b3a  the re-audit
+                e3c2cd0  the branch this sandbox cannot delete
+                bb50131  the gate Day 80 predicted and did not write
+```
+
+**Three pushes to get one day green**, and the two extra are both the same
+mistake: I treated a local gate as a prediction about a remote one. Day 78 built
+the instrument that says not to, and it told me so in this session, in writing,
+before the first push.
+
 ### REACH
 
 ```text
