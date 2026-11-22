@@ -280,10 +280,16 @@ function renderRanking(model) {
   // ## A SHORT LIST HAS TO SAY THAT IT IS SHORT
   //
   // This page's own title is "all 42 states at once", and from tax year 2027 the
-  // engine serves twelve. Ranking twelve states under that headline and saying
-  // nothing is the kind of quiet wrongness this project spends its days hunting
+  // engine serves fewer. Ranking a subset under that headline and saying nothing
+  // is the kind of quiet wrongness this project spends its days hunting
   // elsewhere — so the heading counts them and this sentence says why, for
   // exactly the years where it is true.
+  //
+  // THE COUNT IS NOT WRITTEN HERE AND THAT IS DELIBERATE. An earlier version of
+  // this comment said "the engine serves twelve", and it was wrong one day
+  // later when New York shipped its 2027. A number in a comment is a claim
+  // nothing checks, which is the one kind of claim this repository does not
+  // allow in prose a reader might trust.
   if (model.states.length < TOTAL_STATES) {
     card.append(
       el(

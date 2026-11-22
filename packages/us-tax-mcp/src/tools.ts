@@ -62,6 +62,7 @@ import {
   getStateDefinition,
   NO_INCOME_TAX_STATES,
   isSentinelFigure,
+  localTaxYears,
   PERSON_RETIREMENT_FIELDS,
   stateFigureProvenance,
   stateName,
@@ -1327,6 +1328,95 @@ function latestYearFor(state: StateCode): number {
 }
 
 /**
+ * The arguments that name a LOCAL jurisdiction, and therefore narrow which years
+ * the whole request can be answered for.
+ *
+ * `yonkersNonresidentEarnings` is in the list because it resolves the Yonkers
+ * definition even though it names no jurisdiction: a non-zero amount is a
+ * request for a Yonkers computation.
+ */
+const LOCAL_JURISDICTION_ARGS = [
+  'locality',
+  'yonkersNonresidentEarnings',
+  'county',
+  'city',
+  'schoolDistrict',
+] as const;
+
+const localJurisdictionArgsIn = (source: Record<string, unknown>): readonly string[] =>
+  LOCAL_JURISDICTION_ARGS.filter((name) => source[name] !== undefined);
+
+/**
+ * THE DEFAULT YEAR, NARROWED BY THE WHOLE REQUEST AND NOT BY THE STATE ALONE.
+ *
+ * ## The same defect as Day 84's, one jurisdiction level down, and shipped
+ *
+ * Day 84 found that defaulting to `STATE_YEARS[last]` refused thirty-three
+ * states, because the union of years is wider than any one state's. The fix was
+ * {@link latestYearFor}: default to the latest year THAT STATE serves.
+ *
+ * That fix carried the same bug into the layer beneath it. From Day 85 Indiana
+ * served 2027 and its ninety-two COUNTY taxes did not, so:
+ *
+ * ```text
+ *   state_income_tax({ state: 'IN', county: 'Marion', ... })   // no year named
+ *     -> RangeError: IN county income tax is supported for 2025 and 2026, not 2027
+ * ```
+ *
+ * A caller who named no year was refused with a sentence about a year they never
+ * asked for — and every Indiana resident owes a county tax, so that is close to
+ * the most likely Indiana call there is. It shipped in 0.67.0 and it was live for
+ * three days. New York joined it today: `locality: 'NYC'` with no year, which is
+ * the most likely New York call, for the largest local income tax in the country.
+ *
+ * **THE RULE: A DEFAULT MUST BE A VALUE THE WHOLE REQUEST CAN BE ANSWERED FOR.**
+ * Defaulting one axis of a request from one axis of the data is the shape of
+ * this error, and it has now appeared at two levels of the same grid.
+ *
+ * So: when the request names no local jurisdiction, the default is the state's
+ * latest year, unchanged. When it names one, the default is the latest year the
+ * state AND its local taxes both serve. If they intersect nowhere — a state with
+ * no local income tax at all — the state's latest year is returned and the field
+ * validator produces the right refusal, which is about the field rather than
+ * about the year.
+ */
+function defaultYearFor(state: StateCode, source: Record<string, unknown>): number {
+  if (localJurisdictionArgsIn(source).length === 0) return latestYearFor(state);
+  const local = localTaxYears(state);
+  const both = supportedStateYears(state).filter((year) => local.includes(year));
+  return both[both.length - 1] ?? latestYearFor(state);
+}
+
+/**
+ * Refuse a local jurisdiction in a year it is not served for, as an argument
+ * error rather than as an engine throw.
+ *
+ * The engine's own `RangeError` is correct and well worded; what it is not is a
+ * `ToolInputError`, so it escaped the server as an unhandled exception rather
+ * than as arguments the caller can fix. Called only when the year was named
+ * explicitly, because {@link defaultYearFor} has already made the default a year
+ * that works.
+ */
+function requireLocalYear(state: StateCode, year: number, source: Record<string, unknown>): void {
+  const asked = localJurisdictionArgsIn(source);
+  if (asked.length === 0) return;
+  const local = localTaxYears(state);
+  if (local.includes(year)) return;
+  const named = asked.map((name) => `\`${name}\``).join(', ');
+  throw new ToolInputError(
+    local.length === 0
+      ? `${state} has no local income tax in this package, so ${named} cannot be answered for ` +
+          `any year.`
+      : `${named} needs a tax year ${state}'s local income taxes are served for — ` +
+          `${local.join(' and ')}, not ${year}. Local rates are set jurisdiction by ` +
+          `jurisdiction and revised every year, so there is no fallback to the nearer one. ` +
+          `${state} itself is served for ${supportedStateYears(state).join(', ')}: ask for ` +
+          `${year} without ${named} to get the state tax alone, or for ` +
+          `${local[local.length - 1]} to get both.`,
+  );
+}
+
+/**
  * Refuse a state-year the engine does not hold, naming the years THAT STATE has.
  *
  * The engine's own `RangeError` says this correctly already. What this adds is
@@ -1556,7 +1646,12 @@ const stateTool: ToolDefinition = {
       );
     }
     const filingStatus = readFilingStatus(source) as unknown as StateFilingStatus;
-    const year = readNumber(source, 'year', { integer: true }) ?? latestYearFor(state as StateCode);
+    const namedYear = readNumber(source, 'year', { integer: true });
+    // `defaultYearFor` rather than `latestYearFor`: a request that names a
+    // county, a city, a school district or a New York locality can only be
+    // answered for a year that jurisdiction serves, and its header says what
+    // defaulting from the state alone cost.
+    const year = namedYear ?? defaultYearFor(state as StateCode, source);
     requireStateYear(state as StateCode, year);
 
     const agi = readNumber(source, 'federalAdjustedGrossIncome');
@@ -2000,6 +2095,12 @@ const stateTool: ToolDefinition = {
           (field.refusal ?? `Call describe_state for ${state} to see what it does read.`),
       );
     }
+
+    // Last, and only for a year the caller named: by now every field has been
+    // checked against the state, so a refusal here is about the YEAR and can say
+    // so without having to guess whether the field belonged on this return at
+    // all. A default year never reaches this, because it was narrowed already.
+    if (namedYear !== undefined) requireLocalYear(state as StateCode, namedYear, source);
 
     const result = stateIncomeTax({
       state: state as StateCode,

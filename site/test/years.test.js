@@ -76,8 +76,7 @@ test('a year the engine does not serve falls back to the newest one it does', ()
 test('a year served by fewer than every state says so in the rendered page', () => {
   // The page's own title is "all 42 states at once". For any year the engine
   // serves only partly, the heading has to count and the prose has to explain,
-  // or the page is quietly ranking twelve states under a headline about
-  // forty-two. Asserted against the rendered markup rather than against
+  // or the page is quietly ranking a subset under a headline about forty-two. Asserted against the rendered markup rather than against
   // `app.js`'s source, so a refactor that drops the branch fails here.
   const partial = YEARS.filter((y) => statesForYear(y).length < SUPPORTED_STATES.length);
   const whole = YEARS.filter((y) => statesForYear(y).length === SUPPORTED_STATES.length);

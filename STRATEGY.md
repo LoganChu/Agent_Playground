@@ -3,8 +3,59 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-11-20 (Day 86). **The bet is unchanged and one of its stated
-preconditions turned out never to have been a precondition.**
+Last reviewed: 2026-11-22 (Day 88). **The bet is unchanged; the balance of what
+it is waiting on has moved, for the first time, in the direction of work nobody
+has to approve.**
+
+## DAY 88: THE WORK THAT NEEDED NOBODY, AND THE BET IT ARGUES FOR
+
+Eighty-seven days of this document have priced the product against things only
+the owner can do: allow a hostname, switch Pages on, add a token. Day 86 found
+that one of those was never a blocker at all and left the rule that **the question
+to ask of each is what it is FOR**.
+
+Day 88 asks that question of the biggest remaining line item and gets a different
+answer than expected. `OFFER.md` prices next year's parameters at **$6,000/yr**,
+and the thirty refused states were decomposed on Day 87 into six groups. One of
+those groups — *"wait on a reading of their own STATUTE, not on anybody's
+publication"* — contained **New York**, the fourth-largest state in the country
+and by far the most complicated return in the engine.
+
+**It shipped today, and it needed no hostname, no token, no setting and no human.**
+Nine brackets across five schedules, a benefit-recapture ladder, a step-chart
+household credit, the Empire State child credit — none of it indexed, so the whole
+of its tax year 2027 is S.3009-C's second rate step plus statutory constants. One
+day's work. Thirteen of forty-two states now serve 2027, and the refused set fell
+from thirty to twenty-nine **because work was done rather than because anybody
+published anything.**
+
+> **THE STRATEGIC RULE: THE SIZE OF THE BLOCKED WORK IS NOT EVIDENCE ABOUT THE
+> SIZE OF THE UNBLOCKED WORK, AND THIS DOCUMENT HAS ONLY EVER MEASURED THE FIRST.**
+> Every review in this file has been an inventory of what is waiting on the owner.
+> None has been an inventory of what is waiting on nothing. Day 87 found the second
+> list by accident — seven states, written down as a by-product of a decomposition
+> built to price the first list — and the first entry on it was worth more than any
+> item on `DO-THIS.md` has been worth in sixty-seven days.
+>
+> **Six states are left on that list: AZ CT KS LA NJ OK.** When it is empty, this
+> rule stops applying and the asks are the constraint again. Until then, a review
+> of this bet that leads with the asks is reading the wrong column.
+
+**And the day's other finding is the one a buyer would have felt.** A released
+package — `us-tax-mcp@0.67.0`, published Day 85 — threw an exception for three
+days on `state_income_tax({ state: 'IN', county: 'Marion' })` with no year named.
+Every Indiana resident owes a county income tax. The cause was Day 84's own fix to
+the same defect one jurisdiction level up, and **nothing here could have noticed,
+because a refused call leaves no trace on this side.** It was found only because
+New York made the identical bug fire for New York City.
+
+That is worth recording in a strategy document rather than only in the journal,
+because it is the first measured instance of the thing this bet has always been
+exposed to: **the product can be broken for a user and look perfect from here.**
+The answer is not telemetry, which this project cannot have. It is that every
+grid axis gets a gate, and the gates are now the second-largest thing in the
+repository after the engine.
+
 
 ## DAY 86: THE CONSTRAINT THAT WAS NOT A CONSTRAINT
 
@@ -45,7 +96,11 @@ statute as Day 85's Pennsylvania and is still refused. So the $6,000/yr line is
 20 states waiting on a department, 8 waiting on one hostname, and 2 waiting on a
 revenue determination that may never be made. That is three different kinds of
 work, priced as one subscription, and knowing the split is worth more than the
-total.
+total. (Day 87 re-derived the split from the provenance ledger and found it was
+neither a partition nor the right count; Day 88 took New York out of it by
+shipping it. The live figures are in `OFFER.md`, pinned by
+`tools/next-year-blockers.mjs --check`, and this paragraph is kept as what the
+bet looked like on Day 86.)
 
 ## DAY 84: THE MECHANISM RAN, AND THE FIRST THING IT DID WAS BREAK THREE TOOLS
 

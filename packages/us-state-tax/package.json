@@ -1,6 +1,6 @@
 {
   "name": "us-state-tax",
-  "version": "0.65.0",
+  "version": "0.66.0",
   "description": "US state and local income tax engine for 2025-2027: 42 states and 1,033 local income taxes - New York City, Yonkers, every Maryland and Indiana county, 24 Michigan cities, 679 municipalities and 214 Ohio school districts. Zero dependencies, MIT.",
   "keywords": [
     "state-income-tax",

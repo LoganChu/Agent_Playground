@@ -36,7 +36,12 @@ import {
   nonresidentTaxableEarnings,
 } from './localities/engine.js';
 import type { StateFigures } from './localities/engine.js';
-import { getLocalityDefinition, localityState } from './localities/index.js';
+import {
+  getLocalityDefinition,
+  isLocalitySupported,
+  localityState,
+  supportedLocalityYears,
+} from './localities/index.js';
 import {
   citiesFor,
   cityDefinition,
@@ -5918,22 +5923,58 @@ function computeWholeReturn(
     );
   }
   if (input.state === 'NY' && input.locality === undefined) {
-    // Quantified rather than hedged: the city tax this exact filer would owe, run
-    // through the same engine, so a caller who left `locality` out learns what it
-    // is worth for them rather than being told that it exists.
-    const nyc = getLocalityDefinition('NYC', input.year);
-    const cost = roundCents(computeLocalResidentTax(nyc, input, stateFigures(here, input)).tax);
-    const shown = cost.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-    dynamic.push(
-      `No locality was supplied, so this is the New York State tax alone. A New York City ` +
-        `resident with these figures owes a further $${shown} of city income tax — ` +
-        `pass locality: 'NYC'. A Yonkers resident owes a surcharge of 16.75% of the state tax ` +
-        `above; pass locality: 'YONKERS'. Roughly 43% of New York State filers live in one of ` +
-        `the two.`,
-    );
+    // THE YEAR GATE IS LOAD-BEARING, AND IT WAS MISSING UNTIL THE DAY IT FIRED.
+    //
+    // This note quantifies the city tax by running the city through the same
+    // engine, which is the whole point of it — a caller who left `locality` out
+    // learns what it is worth for THEM rather than being told that it exists.
+    // But it ran on every New York return for every year, and
+    // `getLocalityDefinition` THROWS for a year the locality does not serve. So
+    // the first tax year New York State served and New York City did not,
+    // `stateIncomeTax({ state: 'NY', year: 2027 })` raised a RangeError out of a
+    // NOTE: the whole return lost to the helpful sentence attached to it.
+    //
+    // Day 83's defect one layer in — a surface derived from the cross product of
+    // states and years, latent and unreachable until the grid stopped being
+    // square. A state's years are not its localities' years, and from tax year
+    // 2027 New York is the first state here where the two differ.
+    if (isLocalitySupported('NYC', input.year)) {
+      const nyc = getLocalityDefinition('NYC', input.year);
+      const cost = roundCents(computeLocalResidentTax(nyc, input, stateFigures(here, input)).tax);
+      const shown = cost.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+      dynamic.push(
+        `No locality was supplied, so this is the New York State tax alone. A New York City ` +
+          `resident with these figures owes a further $${shown} of city income tax — ` +
+          `pass locality: 'NYC'. A Yonkers resident owes a surcharge of 16.75% of the state tax ` +
+          `above; pass locality: 'YONKERS'. Roughly 43% of New York State filers live in one of ` +
+          `the two.`,
+      );
+    } else {
+      // Not a hedge, and not merely "unpublished". New York City's higher
+      // § 11-1701 schedule rests on a State authorisation renewed on a rolling
+      // basis that currently LAPSES for tax years beginning on or after
+      // 1 January 2027. So the city figure for such a year is not a number
+      // waiting on a printer, it is a number waiting on Albany, and the two
+      // candidates are 3.876% and 1.48% apart at the top. Saying that is worth
+      // more than a crash and more than silence, because the cheap mistake here
+      // is carrying 2026 forward.
+      dynamic.push(
+        `No locality was supplied, so this is the New York State tax alone — and for ` +
+          `${input.year} that is all this package will give you: New York City and Yonkers are ` +
+          `served for ${supportedLocalityYears('NYC').join(' and ')} only. The city's higher ` +
+          `§ 11-1701 rate schedule rests on a State authorisation that is renewed on a rolling ` +
+          `basis and currently lapses for tax years beginning on or after 1 January 2027; the ` +
+          `permanent schedule underneath it tops out at 1.48% against 3.876%. It has been ` +
+          `renewed every time since 1991, so the likely answer is the 2026 schedule again — but ` +
+          `a package that carried it forward would be asserting an act of the Legislature that ` +
+          `has not happened. Roughly 43% of New York State filers live in one of the two, so a ` +
+          `${input.year} New York answer from here is incomplete for them by the largest local ` +
+          `income tax in the United States.`,
+      );
+    }
   }
 
   const localTax = localTaxes.reduce((s, l) => s + l.tax, 0);

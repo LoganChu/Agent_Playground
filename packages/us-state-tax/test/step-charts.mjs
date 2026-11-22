@@ -229,6 +229,25 @@ const FEDERAL_STANDARD_DEDUCTION = {
     headOfHousehold: 24_150,
     qualifyingSurvivingSpouse: 32_200,
   },
+  //   Rev. Proc. 2026-35, as shipped by `us-federal-tax`'s `data/2027.ts`. This
+  //   row was missing until New York became the first state to serve 2027 with a
+  //   STAIRCASE in it — the twelve states that served 2027 before it were the
+  //   nine with no income tax plus three flat rates, and none of them drives a
+  //   step chart. So this table went from "a probe input for every year probed"
+  //   to a `TypeError` on `undefined`, in a regeneration script rather than in a
+  //   test, which is the quiet half of the same failure.
+  //
+  //   Head of household is $24,925 and NOT 1.5 x $16,600 = $24,900: § 63(c)(7)
+  //   rounds the two amounts separately and for 2027 they separate for the first
+  //   time in four years. A probe input copied from the obvious arithmetic would
+  //   be $25 wrong, which is enough to move a staircase probe across a step.
+  2027: {
+    single: 16_600,
+    marriedFilingJointly: 33_200,
+    marriedFilingSeparately: 16_600,
+    headOfHousehold: 24_925,
+    qualifyingSurvivingSpouse: 33_200,
+  },
 };
 
 /**

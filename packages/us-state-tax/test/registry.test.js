@@ -64,14 +64,22 @@ test('every supported state resolves for every year IT serves, and the grid is n
   // law rather than already published — a different question, with a different
   // and much shorter answer, and this assertion is what made the three of them
   // visible as a change rather than an increment.
+  //
+  // NEW YORK IS THE FOURTH AND IT IS A DIFFERENT KIND OF ENTRY. The three
+  // before it were flat rates with nothing indexed behind them. New York has
+  // nine brackets, five schedules, a recapture ladder, a household credit, a
+  // child credit and a pension exclusion — and not one of those figures is
+  // indexed, so the whole of its 2027 is settled by S.3009-C's second rate step
+  // plus statutory constants. It is also the first state here to serve a year
+  // its own LOCALITIES do not, which crashed a note before it was noticed.
   assert.deepEqual(
     [...statesForYear(2027)],
-    ['AK', 'FL', 'IN', 'MS', 'NH', 'NV', 'PA', 'SD', 'TN', 'TX', 'WA', 'WY'],
+    ['AK', 'FL', 'IN', 'MS', 'NH', 'NV', 'NY', 'PA', 'SD', 'TN', 'TX', 'WA', 'WY'],
     'the states serving 2027 have changed — if a state has published, this is the gate saying so',
   );
   assert.equal(statesForYear(2025).length, 42);
   assert.equal(statesForYear(2026).length, 42);
-  assert.equal(SUPPORTED_STATE_YEARS.length, 42 + 42 + 12);
+  assert.equal(SUPPORTED_STATE_YEARS.length, 42 + 42 + 13);
 
   for (const [state, year] of SUPPORTED_STATE_YEARS) {
     const def = getStateDefinition(state, year);

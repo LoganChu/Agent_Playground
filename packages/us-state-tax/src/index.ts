@@ -33,6 +33,7 @@ export {
   SUPPORTED_LOCALITY_YEARS,
   getLocalityDefinition,
   isLocalitySupported,
+  localTaxYears,
   localityState,
   supportedLocalityYears,
 } from './localities/index.js';

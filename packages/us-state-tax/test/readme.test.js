@@ -89,11 +89,11 @@ test('README: 39 states, 2025 to 2027, nine with no income tax', () => {
   // any of them published, but because their entire 2027 computation is already
   // law — so the headline now counts the states instead of describing them, and
   // the count is asserted against the registry rather than written here twice.
-  assert.match(headline, /2025, 2026 and — for twelve states — 2027/);
-  assert.equal(statesForYear(2027).length, 12);
+  assert.match(headline, /2025, 2026 and — for thirteen states — 2027/);
+  assert.equal(statesForYear(2027).length, 13);
   assert.deepEqual(
     [...statesForYear(2027)],
-    [...new Set([...NO_INCOME_TAX_STATES, 'IN', 'MS', 'PA'])].sort(),
+    [...new Set([...NO_INCOME_TAX_STATES, 'IN', 'MS', 'NY', 'PA'])].sort(),
   );
   assert.equal(statesForYear(2025).length, 42);
   assert.equal(statesForYear(2026).length, 42);
@@ -2181,6 +2181,12 @@ const RELEASE_HEADLINES = [
   // unreachable, and every list derived across years quietly correct. Making
   // the grid lopsided broke sixteen test files in this package and three
   // `us-tax-mcp` tools for thirty-three states.
+  // 0.66.0 is the second year-entry and the first one with a RETURN in it. The
+  // three taxing states that reached 2027 before New York are flat rates; New
+  // York is nine brackets, five schedules and a recapture ladder, with nothing
+  // indexed anywhere in it — and it is the first state here to serve a year its
+  // own localities do not, which crashed a note before anything noticed.
+  ['0.66.0', /NEW YORK ANSWERS FOR TAX YEAR 2027/],
   ['0.65.0', /THREE TAXING STATES NOW ANSWER FOR TAX YEAR 2027/],
   ['0.64.0', /TAX YEAR 2027, FOR THE NINE STATES/],
   // 0.63.0 is the first entry in this table that is not about a state at all.

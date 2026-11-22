@@ -1,11 +1,13 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025, 2026 and — for twelve states — 2027**, across **42
+US **state and local** individual income tax for tax years **2025, 2026 and — for thirteen states — 2027**, across **42
 states** including **NEW MEXICO**, **Kansas**, **Arkansas**, **Iowa**, **Oklahoma**, **North Dakota**, **Louisiana**, **South Carolina**, **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
 **Massachusetts**, **Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+
+New in 0.66.0: **NEW YORK ANSWERS FOR TAX YEAR 2027 — THE FIRST STATE WITH A REAL RETURN IN IT TO DO SO, AND THE FIRST TO SERVE A YEAR ITS OWN CITIES DO NOT.** The three taxing states that reached 2027 before it are flat rates with nothing indexed. New York has nine brackets across five schedules, a benefit-recapture ladder, a household credit that is a step chart, the Empire State child credit and a $20,000 pension exclusion — and not one figure in any of it is indexed, so its entire 2027 is **the second of S.3009-C's two rate steps** plus statutory constants. The bottom five rates fall 0.1 of a point for the second year running, to **3.80% / 4.30% / 5.05% / 5.30% / 5.80%**, and the top four do not move. **A single filer on $2,000,000 pays $192,228.00 in 2025, in 2026 and in 2027 — the same figure to the cent, three years running, through two rate cuts.** The recapture is defined as the benefit of the lower brackets, so cutting them raises it by exactly what they gave away: $32,570.55, then $32,785.95, then $33,001.35. A middle-income household does keep the cut — a joint return with two children on $150,000 of AGI pays $131.95 less in 2027 than in 2026. **AND THE 2027 RATES WERE VERIFIED AGAINST THE STATUTE'S OTHER TABLE.** § 601(d) prints the recapture as dollar amounts on different pages of the same bill, and those amounts are determined by the rates; all seventeen of them reproduce from the five 2027 rates to within $1.13, while a one-step error in any one rate would have disagreed by at least $1.95. The margin is thin for exactly one of the five — the $2,200-wide 5.05% band — and the test says so rather than rounding the claim up. **NEW YORK CITY AND YONKERS DO NOT SERVE 2027**, because the city's higher § 11-1701 schedule rests on a State authorisation that currently lapses for years beginning on or after 1 January 2027; the permanent schedule under it tops out at 1.48% against 3.876%, so carrying 2026 forward would be asserting an act of the Legislature that has not happened. A 2027 New York return says that in a note and refuses the city rather than approximating it. **AND THE FIRST STATE-YEAR ITS LOCALITIES DID NOT SERVE CRASHED A NOTE.** The helpful sentence that quantifies the city tax for a caller who omitted `locality` resolved New York City unconditionally, so `stateIncomeTax({ state: 'NY', year: 2027 })` threw a RangeError out of a note and lost the whole return. Fixed, and gated by the eleven existing sweeps that caught it.
 
 New in 0.65.0: **THREE TAXING STATES NOW ANSWER FOR TAX YEAR 2027, AND THE INTERESTING NUMBER IS THAT IT IS THREE.** Indiana, Mississippi and Pennsylvania join the nine states with no individual income tax, so twelve of the forty-two serve 2027 and thirty do not. The question that produced them is not *"which states have published 2027?"* — none has — but **"which states' entire 2027 computation is already law?"**, and the answer has three different shapes. Indiana steps to **2.90%** because IC 6-3-2-1(a)(5) says so for taxable years beginning after December 31, 2026. Mississippi steps to **3.75%** because the Build Up Mississippi Act writes 2027 through 2030 into § 27-7-5 outright — **its revenue triggers reach only the years after 2030, and this package's own Mississippi note said otherwise until today**. Pennsylvania stays at **3.07%** because nothing in the Pennsylvania computation is indexed, scheduled or triggered: the rate has not moved since 2004 and the Special Tax Forgiveness table since 2003, so a 2027 this package refused would be refusing a figure the statute already supplies. Every other parameter in all three — Indiana's $1,000 exemptions and its three-band elderly credit, Mississippi's $10,000 zero bracket and its $2,300/$4,600/$3,400 deduction, Pennsylvania's whole return — is a statutory constant with no indexing mechanism, which is why all three ship as `published` rather than `provisional`: nothing was carried forward in hope. **The thirty that are refused are refused for a reason, not out of caution.** Georgia and North Carolina have their next rate step written in statute too, and it applies only on a revenue determination nobody has made; the rest are waiting on an indexed amount a department publishes between December and February. `getStateDefinition('NC', 2027)` throws and names the years North Carolina does serve, which is the behaviour a nearest-year fallback would replace with a confident wrong number.
 
@@ -898,7 +900,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.65.0/us-state-tax-0.65.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.66.0/us-state-tax-0.66.0.tgz
 ```
 
 ## The rate is the easy part
@@ -3093,7 +3095,7 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 2,411 of them, ceilings, floors, amounts, fractions
+staircase the package ships** — 2,501 of them, ceilings, floors, amounts, fractions
 and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
 Four rows are exempt, each with a written reason and a direct assertion in their
 place:
@@ -3126,7 +3128,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **1,005** notes every
+`test/notes.test.js` pins the first 72 characters of all **1,024** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -3151,17 +3153,17 @@ reads, and all 27 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 7,406 numeric
-figures over 96 state-years, against 653 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 7,610 numeric
+figures over 97 state-years, against 662 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
 
-Of those 7,406, **7,090 are mapped to a document and 316 are classified as sentinels** —
+Of those 7,610, **7,283 are mapped to a document and 327 are classified as sentinels** —
 a bracket with no ceiling, a cap meaning "the whole of it" — which no document states and
 which the ledger has to classify anyway. Both halves of that sentence are load-bearing:
-the ledger *covers* 7,406 figures and *maps* 7,090 of them, and a claim that it maps all
-7,406 **to the document each came from** overstates it by exactly the figures it
+the ledger *covers* 7,610 figures and *maps* 7,283 of them, and a claim that it maps all
+7,610 **to the document each came from** overstates it by exactly the figures it
 deliberately declares as documentless. Day 73 made that claim in `STRATEGY.md`, corrected
 it, and then overcorrected this section — which was right, and machine-checked, and is
 restored. **A list of sources beside a list of figures
@@ -3457,7 +3459,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **1,199 tests**. Turning it on, when there were 618 of them, is what
+from all **1,206 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

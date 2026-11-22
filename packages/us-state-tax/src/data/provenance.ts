@@ -2831,7 +2831,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'rate.byStatus.*.*.rate',
     kind: 'statute-scheduled',
     document: 'New York FY2026 Enacted Budget, S.3009-C',
-    cite: 'the FY2026 enacted budget cut the bottom five rates for 2026 and cuts them again for 2027; the top four are unchanged, so the recapture owed by high earners RISES in 2026 — there is more graduated-rate benefit below the top bracket to claw back',
+    cite: 'S.3009-C, Part A cuts the bottom five rates in TWO steps of 0.1pp each — 2026 and 2027 — and leaves the top four alone, so the recapture owed by high earners RISES in both years: there is more graduated-rate benefit below the 6.85% bracket to claw back each time a lower bracket is cut. The 2027 step is in the bill, which is why 2027 ships as published a year before New York prints a 2027 form',
     constant: false,
   },
   {
@@ -2887,7 +2887,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'childCredit.amountByAge.*.amount',
     kind: 'statute-scheduled',
     document: '§ 606(c-1)',
-    cite: 'S.3009-C, Part C, § 2, adding N.Y. Tax Law § 606(c-1)(1-A) — $1,000 for each child under 4 in both years, and $330 for 2025 against $500 for 2026 for a child aged 4 to 16',
+    cite: 'S.3009-C, Part C, § 2, adding N.Y. Tax Law § 606(c-1)(1-A) — $1,000 for each child under 4 in all three years, and $330 for 2025 against $500 for 2026 and 2027 for a child aged 4 to 16. The flat amounts expire after 2027',
     constant: false,
   },
   {

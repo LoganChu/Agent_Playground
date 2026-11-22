@@ -12,14 +12,37 @@ it came from.
 
 > **TAX YEARS ARE PER JURISDICTION HERE, AND THE TOOL SCHEMAS CANNOT SAY SO.** Federal
 > 2027 is Rev. Proc. 2026-35, shipped eleven days after the IRS published it and flagged
-> **provisional**. State 2027 is served by **twelve states**: the nine with no individual
-> income tax, which have no figure that can arrive later, and **Indiana, Mississippi and
-> Pennsylvania**, whose whole 2027 computation is already written into statute. No
-> locality serves it. The other thirty states publish between December and February. JSON
-> Schema cannot make one property's `enum` depend on another's value, so
-> `state_income_tax`'s `year` is advertised as the union across all states and its
-> **description** carries the per-state rule. Omit `year` and you get the latest year that
-> state has. Name one it does not have and the refusal lists that state's own years.
+> **provisional**. State 2027 is served by **thirteen states**: the nine with no individual
+> income tax, which have no figure that can arrive later, and **Indiana,
+> Mississippi, New York and Pennsylvania**, whose whole 2027 computation is already
+> written into statute. **No locality serves it** — not New York City, not Yonkers, not
+> Indiana's ninety-two counties — so a request that names one is answered for the latest
+> year the state AND that jurisdiction both have. The other twenty-nine states publish
+> between December and February. JSON Schema cannot make one property's `enum` depend on
+> another's value, so `state_income_tax`'s `year` is advertised as the union across all
+> states and its **description** carries the per-state rule.
+> Omit `year` and you get the latest year that
+> state has — or, if you named a county, city, school district or New York locality, the
+> latest year that answers the whole request. Name one it does not have and the refusal
+> lists the years that jurisdiction does.
+
+> **0.68.0 FIXES A DEFAULT YEAR THAT REFUSED THE MOST LIKELY INDIANA CALL, AND IT HAD
+> SHIPPED.** `state_income_tax({ state: 'IN', county: 'Marion', ... })` with no `year`
+> threw a bare `RangeError` for three days: the default became *the latest year that
+> STATE serves* the day Indiana served 2027, and Indiana's ninety-two county taxes do
+> not serve it. Every Indiana resident owes a county tax, and the refusal named a year
+> the caller had never asked for. **This is Day 84's defect reproduced by Day 84's own
+> fix, one jurisdiction level down** — that fix replaced the union of years with the
+> state's years, and the layer below the state has years of its own. New York joined it
+> today with `locality: 'NYC'`.
+>
+> The default is now the latest year **the whole request** can be answered for: the
+> state's latest year when nothing local is named, and otherwise the latest year the
+> state and that county, city, school district or New York locality all serve. When the
+> caller names the year themselves the refusal arrives as a `ToolInputError` listing the
+> years that jurisdiction does serve, instead of an engine exception escaping the tool.
+> Gated by a sweep over every local-jurisdiction argument of every state, driven from the
+> engine's own jurisdiction lists rather than from names typed into a test.
 
 > **AND IN 0.67.0 `list_supported_years` FINALLY ANSWERS FOR THE STATES.** It
 > described the federal years only, which was harmless while every state served
@@ -55,7 +78,7 @@ it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.67.0/us-tax-mcp-0.67.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.68.0/us-tax-mcp-0.68.0.tgz"
       ]
     }
   }
@@ -1245,8 +1268,8 @@ EITC withdrawal at the § 32 phase-out rate.
 
 The engines underneath live in the same repository. `packages/us-federal-tax`: **428 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **1,199 tests**, every state figure cited to its statute.
-This package adds **195 more** covering the protocol and the tool layer. Those three
+sources. `packages/us-state-tax`: **1,206 tests**, every state figure cited to its statute.
+This package adds **197 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the
 assertion that was supposed to keep them honest turned out to be comparing the README

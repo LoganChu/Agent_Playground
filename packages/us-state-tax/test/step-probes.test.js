@@ -566,7 +566,14 @@ test('the numbers inside the staircases this package ships', () => {
   // fifteen, and that is the part worth reading — they are witnessed by the
   // household pins and the bracket pins instead, which is why this count and
   // the probe count moved differently.
-  assert.equal(checked, 2_411, 'numbers inside the staircases this package ships');
+  // 2,501 FROM DAY 88, AND NEW YORK'S 2027 IS THE FIRST 2027 THAT MOVED THIS
+  // COUNT PROPERLY. The three years before it added fifteen numbers between
+  // them and no probes at all, because Indiana's and Pennsylvania's staircases
+  // have no driver here. New York's do: ninety numbers — the household credit's
+  // five base step charts and its per-person addition, both of which step on
+  // their own grid, and the Empire State child credit's age bands and $16.50
+  // phase-out staircase — and `step-probes.json` grew with them.
+  assert.equal(checked, 2_501, 'numbers inside the staircases this package ships');
   assert.equal(
     exempt.length,
     24,

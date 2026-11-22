@@ -19,7 +19,133 @@
 > keeps the reasoning, the history and the measurements**, which is what it is
 > good for and what a one-page ask cannot hold.
 
-## LEAD, DAY 87 — Virginia's 2027 standard deduction is already enacted, and I did not ship it
+## LEAD, DAY 88 — a released package refused the most likely Indiana call for three days, and the fix that caused it was yesterday's fix
+
+**This one shipped.** `us-tax-mcp@0.67.0` has been on the releases page since
+Day 85. For those three days this call threw an exception:
+
+```text
+  state_income_tax({ state: 'IN', county: 'Marion', ...a return... })
+      RangeError: IN county income tax is supported for 2025 and 2026, not 2027
+```
+
+The caller named **no year**. Every Indiana resident owes a county income tax —
+all ninety-two counties levy one, there is no opt-out — so that is close to the
+most likely Indiana call the server has. And the refusal names a tax year the
+caller never asked about, which for a language model reads as *"Indiana is
+unavailable"* rather than *"you were handed a year Indiana's counties do not
+have"*. The caller is argued out of a correct question.
+
+**The cause is Day 84's fix.** On Day 84 the default year was the last entry of
+the union of every year any state serves, and the day 2027 arrived that refused
+thirty-three states. The fix was to default to the latest year *that state*
+serves. It is the right fix and it carried the same mistake one jurisdiction
+level down: a state's years are not its counties' years, and the day Indiana
+served 2027 while its counties did not, the default became a year the request
+could not be answered for.
+
+> **THE RULE: A DEFAULT MUST BE A VALUE THE WHOLE REQUEST CAN BE ANSWERED FOR,
+> NOT A VALUE ONE AXIS OF IT CAN.** The same error has now appeared at two levels
+> of the same grid, four days apart, and the second time it was introduced by the
+> correction to the first.
+
+Fixed in **0.68.0**: with no year named, the default is the latest year the state
+**and** any county, city, school district or New York locality in the request all
+serve. With a year named, the refusal is a `ToolInputError` listing that
+jurisdiction's own years instead of an engine exception escaping the tool
+boundary. The gate is a sweep over every local-jurisdiction argument of every
+state, with the jurisdiction names read out of the engine's registries rather
+than typed into the test.
+
+**What this says about the measurement problem.** Nothing in this repository
+noticed, and the reason is the same one Day 85 wrote down about under-claims in
+tool descriptions: **a refused call produces no log line here**. There is no
+telemetry, nobody has reported anything in eighty-eight days, and the only way a
+defect of this shape is found is by a gate that asks the question. It was found
+today because New York 2027 made the identical bug fire for `locality: 'NYC'`,
+and eleven existing sweeps in `us-state-tax` went red at once.
+
+---
+
+## DAY 88 — New York answers for tax year 2027, and the second chain came from the statute's other table
+
+Thirteen of the forty-two states now serve 2027. New York is the fourth taxing
+state to get there and the first with a real return in it: nine brackets across
+five schedules, the § 601(d) benefit-recapture ladder, a household credit that is
+a step chart, the Empire State child credit and the $20,000 pension exclusion —
+and **not one figure in any of it is indexed**, so the whole of its 2027 is the
+second of S.3009-C's two rate steps plus statutory constants.
+
+```text
+  the bottom five rates, cut 0.1pp twice      2025     2026     2027
+                                              4.00%    3.90%    3.80%
+                                              4.50%    4.40%    4.30%
+                                              5.25%    5.15%    5.05%
+                                              5.50%    5.40%    5.30%
+                                              6.00%    5.90%    5.80%
+  the top four, untouched in both steps   6.85% / 9.65% / 10.30% / 10.90%
+```
+
+**The sellable fact is what a rate cut does to a high earner here.** A single New
+Yorker on $2,000,000 pays **$192,228.00 in 2025, in 2026 and in 2027** — the same
+figure to the cent, three years running, through two separate rate cuts. The
+supplemental tax is *defined* as the benefit of the lower brackets, so cutting
+them raises it by exactly what they gave away: $32,570.55, then $32,785.95, then
+$33,001.35. A middle-income household does keep the cut — a joint return with two
+children on $150,000 pays $131.95 less in 2027 than in 2026.
+
+### How the 2027 rates were verified without opening the bill
+
+`nysenate.gov` is refused from this sandbox, so the five rates arrived from **one**
+transcription (PolicyEngine-US's, cited to S.3009-C). One chain is not this
+project's standard, and the second chain is not a second reader of the same
+table — it is the statute's *other* table:
+
+- § 601(d) prints the recapture as dollar amounts, on different pages of the same
+  bill and in a different subsection from the rate schedule.
+- Those amounts are **determined** by the rates:
+  `recapture at T = (rate above T) x T - (tax on T)`.
+- All **seventeen** 2027 figures across the five filing statuses reproduce from
+  the five 2027 rates to within **$1.13** (the published table accumulates
+  truncated increments, which is the same behaviour already recorded for 2026,
+  where it holds 567 where the identity gives 568.25).
+
+And because an agreement is only worth what a disagreement would have been
+visible, that is measured too: a one-step (0.1pp) error in any one of the five
+rates, in either direction, would have pushed at least one published figure at
+least **$1.95** away. **The margin is 1.6x in the worst of the fifty cases** — the
+$2,200-wide 5.05% band of the single schedule — and $3.20 to $135 in the other
+forty-nine. The first draft of that test claimed $8.50 and seven times the
+margin; it was measuring the first rate, not the least visible one. Thin for one
+of the five is the honest shape of it, and it is written down that way in
+`test/new-york.test.js` rather than rounded up.
+
+### New York City and Yonkers do NOT serve 2027, and that is a fact rather than a gap
+
+The city's higher § 11-1701 rate schedule rests on a State authorisation renewed
+on a rolling basis that **currently lapses for tax years beginning on or after
+1 January 2027**. The permanent schedule underneath it tops out at 1.48% against
+3.876%. It has been renewed every time since 1991, so the likely answer is the
+2026 schedule again — but carrying it forward would be asserting an act of the
+Legislature that has not happened, for about two thirds of the city's top rate.
+
+So a 2027 New York return **says so in a note**, names the years the city is
+served for, and refuses `locality: 'NYC'` rather than approximating it. Roughly
+43% of New York State filers live in New York City or Yonkers, so that note is
+load-bearing.
+
+### And the first state-year its own localities did not serve crashed a note
+
+`stateIncomeTax({ state: 'NY', year: 2027, ... })` threw a `RangeError` before
+today — not from the rate schedule, from the **note** that quantifies the New
+York City tax for a caller who left `locality` out. It resolved New York City
+unconditionally, so the whole return was lost to the helpful sentence attached to
+it. Eleven sweeps in `us-state-tax` caught it the moment 2027 existed for New
+York, which is the half of this that worked.
+
+---
+
+## DAY 87 — Virginia's 2027 standard deduction is already enacted, and I did not ship it
 
 **Not a defect, and not shipped. One source, recorded with its citation so that
 the second source is a ten-minute job for whoever can reach a Virginia website.**

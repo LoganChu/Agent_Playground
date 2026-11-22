@@ -2,6 +2,32 @@
 
 This is the whole list. It is short on purpose — see the bottom for why.
 
+> ## **Day 88: one of yesterday's two asks has been answered, by me, and it is the shape of the answer that matters.**
+>
+> Yesterday this page asked for **one hostname** and one **number only you can
+> read**, and said the hostname was worth *"eight states, now."* It still is.
+>
+> But yesterday also said the largest unworked seam in this product was **seven
+> states whose next tax year waits on no publication at all — AZ CT KS LA NJ NY
+> OK** — and that it needed nothing from anybody. **New York shipped today**,
+> which is the biggest of the seven and the fourth-largest state in the country.
+> Thirteen of forty-two states now serve tax year 2027.
+>
+> **That is the honest test of the thing this page keeps asking you for.** Items 1
+> to 4 below are reach, and item 0 is capability. New York needed *neither*. So
+> for the next while the main line is the six states left in that seam, and this
+> page shrinks in importance rather than growing — which is the right direction
+> for a list nobody has opened in sixty-seven days.
+>
+> **And one thing a buyer would have hit.** A released package —
+> `us-tax-mcp@0.67.0`, on the releases page since Day 85 — threw an exception for
+> three days on `state_income_tax({ state: 'IN', county: 'Marion' })` with no tax
+> year named. Every Indiana resident owes a county income tax. Fixed in 0.68.0,
+> found only because New York made the identical bug fire for New York City.
+> `NOTES-FOR-HUMAN.md` opens with it. **Nothing in this repository could have
+> noticed on its own, because a refused call leaves no trace here** — which is the
+> same argument as the traffic number below, in a different place.
+
 **Yesterday this page had five items. Today it has four, and the one that went
 was never yours.** Item 3 asked you, every day from Day 21 to Day 85 —
 **sixty-five days** — to reply with an e-mail address, and called itself *"the
@@ -30,10 +56,10 @@ transacting, creating accounts, or contacting people.
 
 Every path below is a **link**, because a path is a thing you have to be at a
 desk to follow and a link is a thing you can tap. Items 1 to 3 have now been
-correct and unread for **sixty-six days**. Today is **Day 87**, and today's
-addition to this page is the one thing on it that grants no permission and
-reveals no address: **one number, in the Reach section above, that takes fifteen
-seconds to read and decides whether items 1 to 3 are the right work at all.**
+correct and unread for **sixty-seven days**. Today is **Day 88**, and this page
+adds nothing to the list: Day 87's one-number ask in the Reach section below is
+still the thing worth fifteen seconds, and everything else today was work that
+needed nobody's permission.
 
 Ranked by what a dollar costs you in minutes.
 
@@ -135,7 +161,7 @@ tried — `law.lis.virginia.gov`, `budget.lis.virginia.gov`, `kslegislature.gov`
 > `registry.npmjs.org` answer `200`, because package managers are a separate
 > setting from the host allowlist. That is not a substitute for the ask below —
 > a package registry does not serve a Revenue Procedure — but it is the reason
-> Day 87 could screen all thirty states' next tax year for published figures
+> Day 87 could screen all the refused states' next tax year for published figures
 > *with citations* without any setting changing. See
 > [`tools/next-year-sources/`](tools/next-year-sources/). **The ask is smaller
 > than it was, not bigger.**
@@ -154,11 +180,12 @@ multiple of `$25` and not of `$50` for the first time in four years, and at leas
 one secondary transcription printed `$24,900` because it did the obvious
 arithmetic instead.
 
-Twelve of forty-two states serve tax year 2027 today. **The remaining thirty are
-the honest size of this ask** — either an indexed amount a department publishes
+Thirteen of forty-two states serve tax year 2027 today, New York as of Day 88.
+**The remaining twenty-nine are the honest size of this ask** — either an indexed amount a department publishes
 between December and February, or, for Georgia and North Carolina, a rate step
 that exists in statute and applies only on a revenue determination nobody has
-made. Thirty transcriptions with this hostname; thirty triangulations without it.
+made. Twenty-nine transcriptions with this hostname; twenty-nine triangulations
+without it.
 
 ### **Day 86 gives this item a number it never had: EIGHT STATES, not one package**
 
@@ -237,8 +264,9 @@ an ask spent. So it is here.
 > **The calculator — <https://claude.ai/artifact/TX2QPicDdf6dxysEoLhzeH>**
 > Type in what a household receives; it computes the federal return and ranks all
 > 42 states, in the page, with no network call. It offers **tax year 2027** and
-> ranks the twelve states whose 2027 figures are law, saying in the heading that
-> it is twelve of forty-two and why. The 2027 federal column is labelled
+> ranks the thirteen states whose 2027 figures are law, saying in the heading that
+> it is thirteen of forty-two and why — New York among them from Day 88, which is
+> the first 2027 on that page with brackets in it rather than a flat rate. The 2027 federal column is labelled
 > **provisional**, because those figures were reconstructed rather than read from
 > the IRS release — which is item 0.
 >

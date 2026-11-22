@@ -364,11 +364,12 @@ costs more than this.
 > **provisional** — `irs.gov` is outside this project's sandbox and
 > `rp-26-35.pdf` was never opened, so they are triangulated from three
 > independent chains rather than transcribed, `isPrimaryVerified(2027)` returns
-> `false`, and 2026 is still the default year. And on the state side, **thirty of
-> the forty-two have no 2027 figures**; those states publish theirs from
-> December, and that is the two months of analyst work this `$6,000` is actually
-> priced against. One hostname on an allowlist fixes the first — see item 0 of
-> [`DO-THIS.md`](DO-THIS.md).
+> `false`, and 2026 is still the default year. And on the state side,
+> **twenty-nine of the forty-two have no 2027 figures** (thirty until Day 88, when
+> New York's was read out of statute rather than waited for); those states publish
+> theirs from December, and that is the two months of analyst work this `$6,000` is
+> actually priced against. One hostname on an allowlist fixes the first — see
+> item 0 of [`DO-THIS.md`](DO-THIS.md).
 
 > **DAY 85: THE SECOND NUMBER WAS FORTY-TWO AND IT IS NOW THIRTY, AND THE
 > DIFFERENCE IS A QUESTION NOBODY HAD ASKED.**
@@ -434,19 +435,28 @@ costs more than this.
 >                             setting anybody changes today unblocks them
 >    2  wait on a revenue determination that may never be made      GA NC
 >   16  wait on their own state department to publish an INDEXED amount
->    5  wait on a reading of their own STATUTE, not on anybody's
->       CT GA NC NJ NY        publication — the figures are scheduled in law
+>    4  wait on a reading of their own STATUTE, not on anybody's
+>       CT GA NC NJ            publication — the figures are scheduled in law
 >    4  have nothing that moves at all        AZ KS LA OK
 >   --
->   38  dependencies across 30 states, because EIGHT states wait on two things
->       at once: GA ID KY MD MO NC NM OR.  38 - 8 = 30.
+>   37  dependencies across 29 states, because EIGHT states wait on two things
+>       at once: GA ID KY MD MO NC NM OR.  37 - 8 = 29.
 > ```
 >
-> **The last two rows are the ones that change what this subscription is.** Seven
-> of the thirty — **AZ CT KS LA NJ NY OK** — are not waiting on any publication
+> **DAY 88 TOOK ONE STATE OUT OF THIS TABLE BY DOING THE WORK IT DESCRIBES, AND
+> IT WAS THE LARGEST ONE.** New York was in the "own statute" row yesterday and
+> is shipped today: nine brackets, five schedules, a recapture ladder, a household
+> credit, a child credit and a pension exclusion, none of it indexed, so its whole
+> 2027 is S.3009-C's second rate step plus statutory constants. That is what this
+> row of the table is a promise about, discharged once — and it is the reason the
+> count fell from thirty to twenty-nine rather than because anybody published
+> anything.
+>
+> **The last two rows are the ones that change what this subscription is.** Six
+> of the twenty-nine — **AZ CT KS LA NJ OK** — are not waiting on any publication
 > in this engine's ledger at all. Their next tax year is a question about statute,
 > which is the kind Indiana, Mississippi and Pennsylvania were answered with on
-> Day 85, and it needs no hostname from anybody.
+> Day 85 and New York on Day 88, and it needs no hostname from anybody.
 >
 > **Two caveats, because this table is derived and its author is not.** Kansas's
 > row may be understated — whether K.S.A. 79-32,119 indexes its standard

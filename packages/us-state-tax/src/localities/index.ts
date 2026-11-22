@@ -5,6 +5,8 @@
  * unsupported year is an error rather than a silent fall back to the nearest one.
  */
 import { newYorkCity, yonkers } from './new-york.js';
+import { citiesFor, countiesFor } from './counties.js';
+import { ohioSchoolDistricts } from './ohio-school-districts.js';
 import type { LocalIncomeTaxDefinition } from './definition.js';
 import type { LocalityCode, StateCode } from '../types.js';
 import { SUPPORTED_YEARS } from '../states/index.js';
@@ -76,6 +78,46 @@ export const SUPPORTED_LOCALITY_YEARS: readonly number[] = SUPPORTED_YEARS.filte
 export const SUPPORTED_LOCALITIES: readonly LocalityCode[] = [...new Set(STATE_OF.keys())]
   .sort()
   .map((c) => c as LocalityCode);
+
+/**
+ * The tax years ONE STATE's local income taxes are served for — every kind of
+ * them, in one answer.
+ *
+ * ## Why this exists, and why `SUPPORTED_LOCALITY_YEARS` was not enough
+ *
+ * There are five kinds of local income tax here and they are in five registries:
+ * the two named localities (New York City and Yonkers), Maryland's and Indiana's
+ * counties, Michigan's and Ohio's cities, and Ohio's school districts. Each one
+ * refuses an unsupported year correctly and on its own.
+ *
+ * What nothing could answer was the question a CALLER has: *given this state,
+ * which years can I ask about and get the local tax too?* `SUPPORTED_YEARS` is
+ * every year any state has, `supportedYears(state)` is every year this state
+ * has, and both are wider than this the moment a state's own figures outrun its
+ * localities' — which happened for Indiana on Day 85 and for New York today.
+ *
+ * It cost an outright defect in the MCP server, where the default year became
+ * "the latest year this STATE serves" and a caller who asked for Indiana with a
+ * county and no year was refused with a sentence about a year they never named.
+ * Every Indiana resident owes a county tax; it was the most likely Indiana call
+ * there is.
+ *
+ * **THE RULE: a surface that defaults a year must default it to a year the WHOLE
+ * request can be answered for, not a year one axis of it can.**
+ *
+ * Empty for a state with no local income tax at all, which is most of them, and
+ * the empty array is the answer rather than an error: "which years does Oregon's
+ * local income tax cover" has an answer and it is "none, there isn't one".
+ */
+export function localTaxYears(state: StateCode): readonly number[] {
+  return SUPPORTED_YEARS.filter(
+    (year) =>
+      definitionsForYear(year).some((def) => def.state === state) ||
+      countiesFor(state, year).length > 0 ||
+      citiesFor(state, year).length > 0 ||
+      (state === 'OH' && ohioSchoolDistricts(year).length > 0),
+  );
+}
 
 /** The state a locality sits in. */
 export function localityState(locality: LocalityCode): StateCode {

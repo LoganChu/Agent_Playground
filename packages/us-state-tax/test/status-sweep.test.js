@@ -655,7 +655,10 @@ test('the byStatus cells the package ships, and the numbers inside them', () => 
   // numbers is invisible to the instrument that counts by-status cells. That is
   // the right answer and not a gap, and it is the reason this count moved by
   // less than a third of a year's worth.
-  assert.equal(checked, 1287, 'byStatus cells with a parameter the harness would mutate');
+  // 1,307 from Day 88: New York's 2027 adds twenty — five rate schedules, the
+  // standard deduction table, the dependent exemption and the child credit's
+  // by-status phase-out thresholds, each one a cell a mutation must be seen in.
+  assert.equal(checked, 1307, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -716,7 +719,7 @@ test('the byStatus cells the package ships, and the numbers inside them', () => 
   // than amounts, and a schedule cell holds more than one number — the zero
   // band's ceiling and the 3.75% rate on the excess. This is exactly the gap
   // the two counts exist to keep visible.
-  assert.equal(inside, 5_073, 'numbers inside those cells');
+  assert.equal(inside, 5_202, 'numbers inside those cells');
   // Connecticut held this record from Day 20 to Day 63 with 1,020 — nearly a
   // third of 3,192, because its three staircases and its 2% add-back table are
   // all by-status and all four columns wide. Minnesota's arrival added 170;

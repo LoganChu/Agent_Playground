@@ -151,10 +151,17 @@ test('the derived state lists are the same under a non-uniform year', async () =
 // call.
 import { findTool, handleMessage } from '../dist/index.js';
 import {
+  INDIANA_COUNTIES,
+  MARYLAND_COUNTIES,
+  MICHIGAN_CITIES,
+  OHIO_MUNICIPALITIES,
+  OHIO_SCHOOL_DISTRICTS,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
+  localTaxYears,
   statesForYear,
   supportedYears,
+  supportedYears as supportedStateYears,
 } from '../dist/state-engine/index.js';
 
 const callTool = (name, args) =>
@@ -253,4 +260,109 @@ test("the state year enum is a union, and the schema says which states serve the
     ),
     `the schema no longer counts the states serving ${widest}: ${schema.description}`,
   );
+});
+
+// ---------------------------------------------------------------------------
+// THE DEFAULT YEAR MUST ANSWER THE WHOLE REQUEST, NOT ONE AXIS OF IT
+// ---------------------------------------------------------------------------
+
+/**
+ * A real value for every argument that names a local jurisdiction, taken from
+ * the engine's own registries rather than written here.
+ *
+ * Written from the lists so that the day a jurisdiction is renamed this test
+ * follows it, and so that a state gaining a local tax is covered without anybody
+ * remembering to extend a literal. The alternative — 'Marion', 'Detroit', '0203'
+ * typed into a test — is the shape of defect this whole file exists about.
+ */
+function localArgsFor(state) {
+  const out = [];
+  if (state === 'NY') {
+    out.push({ locality: 'NYC' }, { locality: 'YONKERS' }, { yonkersNonresidentEarnings: 25_000 });
+  }
+  if (state === 'MD') out.push({ county: MARYLAND_COUNTIES[0] });
+  if (state === 'IN') out.push({ county: INDIANA_COUNTIES[0] });
+  if (state === 'MI') out.push({ city: MICHIGAN_CITIES[0] });
+  if (state === 'OH') {
+    out.push(
+      { city: OHIO_MUNICIPALITIES[0], qualifyingWages: 60_000 },
+      { schoolDistrict: OHIO_SCHOOL_DISTRICTS[0] },
+    );
+  }
+  return out;
+}
+
+const RETURN = {
+  filingStatus: 'single',
+  federalAdjustedGrossIncome: 60_000,
+  federalTaxableIncome: 44_250,
+  federalDeduction: 15_750,
+};
+
+test('A LOCAL JURISDICTION WITH NO YEAR NAMED IS ANSWERED, NOT REFUSED', () => {
+  //   THIS SHIPPED. `state_income_tax({ state: 'IN', county: 'Marion', ... })`
+  //   with no `year` threw a bare RangeError in 0.67.0 for three days, because
+  //   the default year became "the latest year INDIANA serves" the day Indiana
+  //   served 2027 — and Indiana's ninety-two county taxes do not. Every Indiana
+  //   resident owes one, so that was close to the most likely Indiana call
+  //   there is, and the refusal named a year the caller had not asked for.
+  //
+  //   Day 84 fixed exactly this defect one level up, where the default was the
+  //   latest year ANY state served. The fix defaulted from the state instead of
+  //   from the union and reproduced the bug against the layer below. So the gate
+  //   is not "the default is the state's latest year" — it is this: a request
+  //   the server accepts must be answerable with the year the server chose.
+  let checked = 0;
+  for (const state of SUPPORTED_STATES) {
+    for (const extra of localArgsFor(state)) {
+      const args = { ...RETURN, state, ...extra };
+      const result = findTool('state_income_tax').run(args);
+      checked += 1;
+      const year = result.structured.state.year;
+      assert.ok(
+        localTaxYears(state).includes(year),
+        `${state} ${JSON.stringify(extra)} was answered for ${year}, which its local taxes ` +
+          'do not serve',
+      );
+      //   And the local tax is actually IN the answer. A default that merely
+      //   stopped throwing — by dropping the jurisdiction — would pass the line
+      //   above and be worse than the refusal it replaced.
+      assert.ok(
+        result.structured.state.localTaxes.length > 0,
+        `${state} ${JSON.stringify(extra)} returned no local tax at all`,
+      );
+    }
+  }
+  assert.equal(checked, 8, 'local-jurisdiction arguments exercised with no year named');
+});
+
+test('and a local jurisdiction in a year it does not serve is an ARGUMENT error', () => {
+  //   The other half. When the caller names the year themselves there is nothing
+  //   to narrow, so the refusal has to arrive as a `ToolInputError` — arguments
+  //   the caller can fix — rather than as an engine `RangeError` escaping the
+  //   tool boundary. The engine's message was already right; what it was not was
+  //   catchable as bad input.
+  const widest = Math.max(...SUPPORTED_YEARS);
+  let refused = 0;
+  for (const state of SUPPORTED_STATES) {
+    if (!supportedStateYears(state).includes(widest)) continue;
+    if (localTaxYears(state).includes(widest)) continue;
+    for (const extra of localArgsFor(state)) {
+      assert.throws(
+        () => findTool('state_income_tax').run({ ...RETURN, state, year: widest, ...extra }),
+        (error) => {
+          assert.equal(error.name, 'ToolInputError', `${state}: ${error.name} escaped the tool`);
+          //   The message has to carry three things a model can act on: the
+          //   years that DO work, the state's own wider list, and which argument
+          //   to drop.
+          assert.match(error.message, new RegExp(String(localTaxYears(state)[0])));
+          assert.match(error.message, new RegExp(String(widest)));
+          assert.match(error.message, /`(locality|county|city|schoolDistrict|yonkersNonresidentEarnings)`/);
+          refused += 1;
+          return true;
+        },
+      );
+    }
+  }
+  assert.ok(refused > 0, `no state serves ${widest} while its localities do not — gate is idle`);
 });

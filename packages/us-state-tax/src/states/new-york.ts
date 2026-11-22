@@ -34,18 +34,55 @@
  * This is the Day 5 rule of this project applied to a state: prefer the
  * representation the tables were derived from, not the tables.
  *
- * ## What changed for 2026
+ * ## What changed for 2026, and again for 2027
  *
- * The FY2026 enacted budget (S.3009-C, Part A) cut the bottom five rates —
- * 4.0%→3.9%, 4.5%→4.4%, 5.25%→5.15%, 5.5%→5.4%, 6.0%→5.9% — with a further cut
- * scheduled for 2027. The top four rates are untouched, so the *recapture rises*
- * for high earners in 2026 even though nobody's rate went up: there is more
- * graduated-rate benefit below the top bracket to claw back. A single filer over
- * $1,127,550 sees the recapture go from $32,571 to $32,786.
+ * The FY2026 enacted budget (S.3009-C, Part A) cuts the bottom five rates in
+ * **two steps of 0.1 of a percentage point each** — 2026 and 2027 — and leaves
+ * the top four untouched:
+ *
+ * ```text
+ *   4.00% -> 3.90% -> 3.80%      5.50% -> 5.40% -> 5.30%
+ *   4.50% -> 4.40% -> 4.30%      6.00% -> 5.90% -> 5.80%
+ *   5.25% -> 5.15% -> 5.05%
+ * ```
+ *
+ * So the *recapture rises* for high earners in both years even though nobody's
+ * rate went up: the supplemental tax claws back the benefit of the lower
+ * brackets, and there is more of that benefit to claw back every time a lower
+ * bracket is cut while 6.85% stands still. A single filer over $1,127,550 goes
+ * $32,571 (2025) -> $32,786 (2026) -> $33,001 (2027), and the same filer's
+ * bracket tax falls by exactly as much, both times, to the cent.
  *
  * New York does not index its brackets, its standard deduction or its dependent
- * exemption; all three are fixed in statute. So unlike most states here, the 2026
- * figures are published rather than carried forward.
+ * exemption; all three are fixed in statute. So unlike most states here, all
+ * three years are published rather than carried forward — and 2027 is published
+ * **a full year before New York prints a 2027 form**, because nothing in the
+ * computation waits on a document: the rate step is in the bill, and every other
+ * figure is a statutory constant.
+ *
+ * ## How the 2027 rates were verified without opening the bill
+ *
+ * This sandbox cannot reach `nysenate.gov`, so the five 2027 rates arrived from
+ * one transcription of S.3009-C. One chain is not this package's standard, and
+ * the second chain came from the statute's *other* table rather than from a
+ * second reader of the same one.
+ *
+ * § 601(d) prints the recapture as dollar amounts, on different pages of the
+ * same bill from the rate schedule, and those amounts are **determined** by the
+ * rates: `recapture at T = (rate above T) x T - (tax on T)`. All seventeen 2027
+ * figures across the five filing statuses reproduce from the five 2027 rates to
+ * within **$1.13** — the published table accumulates truncated increments, which
+ * is the same sub-dollar behaviour already recorded for 2026, where it holds 567
+ * against 568.25.
+ *
+ * And the agreement is worth only as much as a *dis*agreement would have been
+ * visible, so that is measured too: a one-step (0.1pp) error in any one of the
+ * five rates, in either direction, would have pushed at least one published
+ * figure at least **$1.95** away. That is a 1.6x margin in the worst of the
+ * fifty cases — the $2,200-wide 5.05% band of the single schedule, one step too
+ * high — and $3.20 to $135 in the other forty-nine. Thin for one rate rather
+ * than comfortable for all five, which is the honest shape of it. See
+ * `test/new-york.test.js`.
  */
 import type { CreditStep, StateIncomeTaxDefinition } from '../definition.js';
 import { byStatusOf, uniform } from './helpers.js';
@@ -93,19 +130,41 @@ const CITATIONS: readonly Citation[] = [
 ];
 
 /**
+ * The bottom five rates, and the only part of the New York schedule that moves.
+ *
+ * S.3009-C, Part A cuts them in **two steps**, not one: once for 2026 and again
+ * for 2027. Each step is exactly 0.1 of a percentage point on every one of the
+ * five, which is worth writing down because it is the reason a single `cut`
+ * boolean was enough until the second step arrived — and the reason it was
+ * silently wrong for 2027 rather than loudly wrong.
+ *
+ * ```text
+ *          2025     2026     2027
+ *   r1     4.00%    3.90%    3.80%
+ *   r2     4.50%    4.40%    4.30%
+ *   r3     5.25%    5.15%    5.05%
+ *   r4     5.50%    5.40%    5.30%
+ *   r5     6.00%    5.90%    5.80%
+ * ```
+ *
+ * There is no third step. The bill schedules these two and stops, so 2028 and
+ * after hold the 2027 figures until the legislature moves them.
+ */
+function lowerRates(year: number): readonly [number, number, number, number, number] {
+  if (year >= 2027) return [0.038, 0.043, 0.0505, 0.053, 0.058];
+  if (year >= 2026) return [0.039, 0.044, 0.0515, 0.054, 0.059];
+  return [0.04, 0.045, 0.0525, 0.055, 0.06];
+}
+
+/**
  * The rate schedule, N.Y. Tax Law § 601(a)–(c).
  *
- * Only the first five rates move between 2025 and 2026. The 9.65% / 10.30% /
- * 10.90% top rates were enacted in 2021 and are scheduled to expire after 2032,
- * at which point the top rate reverts to 8.82%.
+ * Only the first five rates move, and they move twice — see {@link lowerRates}.
+ * The 9.65% / 10.30% / 10.90% top rates were enacted in 2021 and are scheduled
+ * to expire after 2032, at which point the top rate reverts to 8.82%.
  */
 function brackets(year: number) {
-  const cut = year >= 2026;
-  const r1 = cut ? 0.039 : 0.04;
-  const r2 = cut ? 0.044 : 0.045;
-  const r3 = cut ? 0.0515 : 0.0525;
-  const r4 = cut ? 0.054 : 0.055;
-  const r5 = cut ? 0.059 : 0.06;
+  const [r1, r2, r3, r4, r5] = lowerRates(year);
   const top = (from: number, next: number): readonly Bracket[] => [
     { rate: 0.0685, upTo: from },
     { rate: 0.0965, upTo: next },
@@ -189,16 +248,16 @@ const NOTES: readonly string[] = [
   'A pension from the federal government, New York State or a New York local government is exempt IN FULL and at ANY AGE — § 612(c)(3)(i) and (ii) — over and above the $20,000. Military retired pay is federal service and belongs there too. So a retired New York City teacher with a $90,000 pension pays New York nothing, and a retired private-sector worker on the same $90,000 pays on $70,000 of it; and a police officer who retired at 45 pays nothing fourteen years before the $20,000 is available to anyone else. Pass it as `retirement.filer.governmentPension` — NOT as `employerPlanPension`, which is read as private. PolicyEngine-US does not model this exclusion at all, so the two engines disagree by the whole of a government pension.',
   'NOT MODELLED — the § 612(c)(3-a) exclusion is also available to a BENEFICIARY of a deceased person who would have qualified, on the decedent\'s age rather than the beneficiary\'s, and the $20,000 is then shared among the beneficiaries. This package reads the age of the person on the return.',
   'New York adds a supplemental tax above $107,650 of New York AGI (Tax Law § 601(d)) that recaptures the benefit of the lower brackets, so a high earner pays their top rate on their whole income. Walking the rate schedule alone understates a $300,000 single filer by $2,399 and a $6,000,000 one by $65,071. This package derives the recapture from the rate schedule rather than storing the statutory table.',
-  'The FY2026 enacted budget cut the bottom five rates for 2026 and cuts them again for 2027. The top four rates are unchanged, so the recapture owed by high earners RISES in 2026 — there is more graduated-rate benefit below the top bracket to claw back.',
+  'The FY2026 enacted budget (S.3009-C, Part A) cuts the bottom five rates in TWO steps of 0.1 of a percentage point each — 4.00/4.50/5.25/5.50/6.00% for 2025, 3.90/4.40/5.15/5.40/5.90% for 2026, 3.80/4.30/5.05/5.30/5.80% for 2027 — and leaves the top four alone. So the recapture owed by high earners RISES in both years even though nobody\u2019s rate went up: there is more graduated-rate benefit below the 6.85% bracket to claw back each time a lower bracket is cut. A single filer past the second phase-in goes $32,571 to $32,786 to $33,001, and the bracket tax falls by exactly as much, both times.',
   'The recapture also claws back the benefit of the filing-status schedules. Past the first phase-in — above $157,650 of New York AGI — a head of household and a single filer with the same New York taxable income in the 6% band pay exactly the same tax, because both schedules have been undone. The head-of-household schedule is worth $120.37 at $88,000 of taxable income and nothing at all above $157,650 of AGI.',
-  'New York does not index its brackets, standard deduction or dependent exemption. All three are fixed in statute, which is why the 2026 figures here are published rather than carried forward.',
+  'New York does not index its brackets, standard deduction or dependent exemption. All three are fixed in statute, which is why all three years here are published rather than carried forward — including 2027, a full year before New York prints a 2027 form. Nothing in the New York computation waits on a document: the rate step is written into S.3009-C and every other figure is a statutory constant.',
   'New York City and Yonkers are modelled, but only when asked for: pass locality: "NYC" or "YONKERS" and the city tax appears in localTaxes, with totalTax and totalMarginalRate covering both levels. Neither is a state tax and neither is in the state figures above.',
-  'The Empire State child credit is computed from dependentAges: $1,000 for each child under 4 and $330 (2025) or $500 (2026) for each child aged 4 to 16, refundable. Supply an age for every dependent — a count cannot tell a toddler from a nineteen-year-old, and the two are worth $1,000 and nothing.',
+  'The Empire State child credit is computed from dependentAges: $1,000 for each child under 4 and $330 (2025) or $500 (2026 and 2027) for each child aged 4 to 16, refundable. Supply an age for every dependent — a count cannot tell a toddler from a nineteen-year-old, and the two are worth $1,000 and nothing.',
   'The Empire State child credit\'s phase-out reduces the WHOLE credit by $16.50 for each $1,000 of AGI above the threshold, or fraction thereof — not each child\u2019s share of it. So a bigger family does not phase out faster, it phases out later: a joint return with one child under 4 keeps some credit through $170,000 of AGI and one with three keeps some through $291,000, from a credit described everywhere as phasing out above $110,000.',
   'That $16.50 is exactly one third of the federal § 24 phase-out of $50 per $1,000. New York\u2019s credit was 33% of the federal child tax credit from 2018 to 2024; the FY2026 budget replaced the amount with flat dollar figures and left the phase-out at a third of the federal rate, so the old credit is still visible in the one parameter nobody quotes.',
   'The Empire State child credit\'s phase-out counts each $1,000 increment "or fraction thereof", so it is a staircase: the dollar that crosses each $1,000 boundary of AGI costs $16.50 at once, and every other dollar in the band costs nothing.',
-  'NOT MODELLED — the ADDITIONAL Empire State child credit, a supplemental payment of 25% to 100% of the credit that New York legislated as a one-off in 2021 and again in 2023. Nothing has been enacted for 2025 or 2026. Also not modelled: the 2025 inflation refund (Tax Law § 606(qqq)), a one-time $150-$400 cheque computed from the filer\u2019s 2023 return rather than this one, so it cannot be derived from the figures here.',
-  'NOT MODELLED — the Empire State child credit reverts after 2027 to its pre-2025 form, the greater of 33% of the federal child tax credit computed under pre-TCJA rules or $100 per child. This package covers 2025 and 2026, where the flat amounts apply.',
+  'NOT MODELLED — the ADDITIONAL Empire State child credit, a supplemental payment of 25% to 100% of the credit that New York legislated as a one-off in 2021 and again in 2023. Nothing has been enacted for 2025, 2026 or 2027. Also not modelled: the 2025 inflation refund (Tax Law § 606(qqq)), a one-time $150-$400 cheque computed from the filer\u2019s 2023 return rather than this one, so it cannot be derived from the figures here.',
+  'THE EMPIRE STATE CHILD CREDIT REVERTS AFTER 2027 and this package covers 2025 to 2027, every year of the window in which the flat amounts apply. From 2028 the credit is the greater of 33% of the federal child tax credit computed under pre-TCJA rules or $100 per child — NOT MODELLED, and a reason not to carry a 2027 figure forward. A joint filer with one three-year-old and $60,000 of AGI has $1,000 in 2027 and roughly $330 in 2028 under a rule nobody here has coded.',
   'NOT MODELLED — the New York itemized deduction limitation, which reduces itemized deductions above $100,000 of AGI and, above $10,000,000, allows only 25% of charitable contributions. A high-income New York itemizer computed here is too low.',
   "NOT MODELLED — the college tuition credit, the real property tax credit, the child and dependent care credit, and the noncustodial parent earned income credit. New York's credit list is long; only the household credit and the earned income credit are computed here.",
   'THE HOUSEHOLD CREDIT IS A STEP CHART AND NOT A TAPER. Tax Law § 606(b) gives a flat amount per income ROW of New York adjusted gross income, so the credit does not slide — the dollar that crosses a row boundary costs the whole difference between the two rows at once. A single filer goes $75 / $60 / $50 / $45 / $40 / $20 / nothing, stepping at $5,000, $6,000, $7,000, $20,000, $25,000 and $28,000. Every other filing status starts from $90 / $75 / $65 / $60 / $50 / $40 / $20 / nothing, stepping at $5,000, $6,000, $7,000, $22,000, $25,000, $28,000 and $32,000, and adds for each household member after the first an amount that steps on its own: $15 / $10 / $5 / nothing at $20,000, $25,000 and $32,000. So the steps run $5 to $25 for a one- or two-person household and grow with household size. It is the same shape as the Empire State child credit\'s $16.50 staircase and it is written into the same section, but no table prints it as a percentage of anything, so a caller who reads the credit as a phase-out of the $90 will be wrong at every boundary.',
@@ -207,7 +266,7 @@ const NOTES: readonly string[] = [
 ];
 
 export function newYork(year: number): StateIncomeTaxDefinition | undefined {
-  if (year !== 2025 && year !== 2026) return undefined;
+  if (year !== 2025 && year !== 2026 && year !== 2027) return undefined;
   return {
     code: 'NY',
     subtractsTaxableSocialSecurity: true,

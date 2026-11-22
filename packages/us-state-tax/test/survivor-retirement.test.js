@@ -174,7 +174,7 @@ test('exactly one state reads survivor retirement income differently from the fi
   // The count is pinned rather than floored so that a year loop which silently
   // narrows — the failure this file's own `[2025, 2026]` literal was — fails
   // here instead of reporting a finished sweep over less than it claims.
-  assert.equal(comparisons, 11520, 'comparisons made');
+  assert.equal(comparisons, 11640, 'comparisons made');
   assert.deepEqual([...differ].sort(), ['SC']);
 });
 

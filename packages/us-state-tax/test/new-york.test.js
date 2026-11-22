@@ -230,6 +230,246 @@ test('the 2026 derivation is internally consistent with the rate schedule', () =
 });
 
 // ---------------------------------------------------------------------------
+// 2027 — the second rate step, and the only figures in this package corroborated
+// by the statute's OTHER table rather than by a second reader of the same one
+// ---------------------------------------------------------------------------
+
+// S.3009-C, Part A cuts the bottom five rates in two steps of 0.1pp each. The
+// top four are untouched in both steps, which is the whole reason the recapture
+// rises while every rate falls.
+const LOWER_RATES = {
+  2025: [0.04, 0.045, 0.0525, 0.055, 0.06],
+  2026: [0.039, 0.044, 0.0515, 0.054, 0.059],
+  2027: [0.038, 0.043, 0.0505, 0.053, 0.058],
+};
+const TOP_RATES = [0.0685, 0.0965, 0.103, 0.109];
+
+test('the bottom five rates step twice, the top four never move, and no ceiling does', () => {
+  const ceilings = {};
+  for (const year of [2025, 2026, 2027]) {
+    const byStatus = getStateDefinition('NY', year).rate.byStatus;
+    for (const [status, brackets] of Object.entries(byStatus)) {
+      assert.deepEqual(
+        brackets.slice(0, 5).map((b) => b.rate),
+        LOWER_RATES[year],
+        `${status} ${year} lower rates`,
+      );
+      assert.deepEqual(
+        brackets.slice(5).map((b) => b.rate),
+        TOP_RATES,
+        `${status} ${year} top rates — S.3009-C left these alone`,
+      );
+      // The ceilings are § 601's dollar amounts and New York does not index
+      // them, so every year must present the identical nine.
+      const key = `${status}`;
+      const shape = brackets.map((b) => b.upTo).join('|');
+      ceilings[key] ??= shape;
+      assert.equal(shape, ceilings[key], `${status} ${year} bracket ceilings moved`);
+    }
+  }
+});
+
+// THE SECOND CHAIN, AND WHAT KIND OF CHAIN IT IS.
+//
+// This sandbox cannot reach nysenate.gov, so the five 2027 rates arrived from a
+// single transcription of S.3009-C. One chain is not this package's standard.
+//
+// The second chain is not a second reader of the rate schedule — it is the
+// statute's own recapture table, § 601(d), printed on different pages of the
+// same bill and in a different subsection, and MATHEMATICALLY DETERMINED by the
+// rates:
+//
+//     recapture at threshold T = (rate above T) x T - (tax on T)
+//
+// So a mistranscribed rate cannot agree with a correctly transcribed recapture
+// table. The test below asserts the agreement AND the sensitivity that makes the
+// agreement mean something: without the second half, "everything matches to
+// within a dollar" could be true of a table that says nothing.
+//
+// Transcribed from policyengine-us 2.152.15,
+// gov/states/ny/tax/income/supplemental/recapture_base/*.yaml, whose 2027 column
+// cites S3009C page 12. These are the fully-phased-in amounts, each one quoted
+// against the START of the AGI band it applies to — so the figure quoted at
+// $215,400 is the recapture completed at the $80,650 rung.
+const PUBLISHED_2027 = {
+  single: { 107_650: 568, 215_400: 2_829, 1_077_550: 33_001 },
+  marriedFilingSeparately: { 107_650: 568, 215_400: 2_829, 1_077_550: 33_001 },
+  marriedFilingJointly: { 107_650: 333, 161_550: 1_141, 323_200: 4_534, 2_155_350: 64_884 },
+  qualifyingSurvivingSpouse: {
+    107_650: 333,
+    161_550: 1_141,
+    323_200: 4_534,
+    2_155_350: 64_884,
+  },
+  headOfHousehold: { 107_650: 787, 269_300: 3_614, 1_616_450: 48_874 },
+};
+
+/** Every rung the derivation produces, keyed by the AGI the rung starts at. */
+const ladderOf = (brackets) =>
+  Object.fromEntries(recaptureLadder(brackets, 107_650).map((r) => [r.start, r.level]));
+
+test("the 2027 recapture table reproduces from the 2027 rates, and only from the right ones", () => {
+  const byStatus = getStateDefinition('NY', 2027).rate.byStatus;
+  let worst = 0;
+  let worstAt = '';
+  for (const [status, published] of Object.entries(PUBLISHED_2027)) {
+    const derived = ladderOf(byStatus[status]);
+    for (const [start, amount] of Object.entries(published)) {
+      const got = derived[start];
+      assert.ok(got !== undefined, `${status}: no rung at ${start}`);
+      const gap = Math.abs(got - amount);
+      if (gap > worst) {
+        worst = gap;
+        worstAt = `${status} @${start}`;
+      }
+      assert.ok(
+        gap <= 1.2,
+        `${status} @${start}: statute ${amount}, derived ${got} — a gap of ${gap}`,
+      );
+    }
+  }
+  //   The published table is built by accumulating TRUNCATED increments, so it
+  //   drifts below the exact derivation by up to about $1.13 — which is the same
+  //   behaviour already recorded for 2026 above, where it holds 567 against
+  //   568.25. Pinned, because if it ever grows the explanation has changed.
+  assert.ok(worst > 1 && worst < 1.2, `largest gap ${worst} at ${worstAt}`);
+});
+
+// HOW MUCH THE AGREEMENT IS WORTH, MEASURED RATHER THAN ASSERTED — AND IT IS
+// WORTH LESS THAN THE FIRST VERSION OF THIS TEST CLAIMED.
+//
+// The five rates are what one chain gave. The recapture table is what
+// corroborates them, and the corroboration is worth nothing unless a WRONG rate
+// would have disagreed by more than the $1.13 truncation drift above. The first
+// draft of this test asserted $8.50 — the first $8,500 of a single filer's
+// income at one step of the bill — and that is the sensitivity of the FIRST
+// rate, not of the least visible one. The 5.05% band is $2,200 wide.
+//
+// So the honest margin is thin for exactly one of the five, and that is a fact
+// about what this evidence can carry, not a reason to stop recording it:
+//
+//   rate     narrowest band across the five statuses     one step moves
+//   r1       $8,500   (single, separate)                    $8.50
+//   r2       $3,200   (single, separate)                    $3.20
+//   r3       $2,200   (single, separate)                    $2.20   <- weakest
+//   r4      $66,750   (single, separate)                   $66.75
+//   r5      $80,650   (the rung completes AT the ceiling)  $80.65
+test('a one-step error in ANY of the five 2027 rates would have disagreed by at least $1.95', () => {
+  const byStatus = getStateDefinition('NY', 2027).rate.byStatus;
+  let weakest = Infinity;
+  let weakestAt = '';
+  for (const [status, published] of Object.entries(PUBLISHED_2027)) {
+    const brackets = byStatus[status];
+    for (let i = 0; i < 5; i += 1) {
+      // Both directions. One step UP is harder to see than one step down,
+      // because the published table already sits BELOW the derivation, so a
+      // downward error adds to the drift and an upward error eats it.
+      for (const step of [-0.001, 0.001]) {
+        const wrong = brackets.map((b, j) => (j === i ? { ...b, rate: b.rate + step } : b));
+        const derived = ladderOf(wrong);
+        const biggest = Math.max(
+          ...Object.entries(published).map(([start, amount]) => Math.abs(derived[start] - amount)),
+        );
+        if (biggest < weakest) {
+          weakest = biggest;
+          weakestAt = `${status} r${i + 1} ${step > 0 ? 'up' : 'down'}`;
+        }
+      }
+    }
+  }
+  //   $1.95: the single filer's 5.05% band, one step too HIGH. The test above
+  //   accepts a gap of $1.20, so the weakest case is caught with a margin of
+  //   1.6x rather than the 7x the first draft of this comment claimed. Every
+  //   other one of the fifty cases is caught by $3.20 to $135.
+  assert.ok(
+    Math.abs(weakest - 1.95) < 0.005,
+    `the least visible single-step error moves the table by ${weakest} (${weakestAt})`,
+  );
+  assert.ok(weakest > 1.2, 'and it still clears the tolerance the agreement test allows');
+});
+
+test('the 2027 cut, like the 2026 one, is worth exactly nothing past the phase-in', () => {
+  const low = ny(300_000, { year: 2026 });
+  const high = ny(300_000, { year: 2027 });
+  money(high.taxBeforeCredits - low.taxBeforeCredits, -215.4, 'bracket tax fell by $215.40 again');
+  money(supplemental(high) - supplemental(low), 215.4, 'and the recapture rose by the same');
+  money(high.tax - low.tax, 0, 'so the New Yorker pays exactly the same for the third year');
+  // And it IS worth something below the phase-in, which is the other half.
+  assert.ok(ny(130_000, { year: 2027 }).tax < ny(130_000, { year: 2026 }).tax);
+});
+
+test('the Empire State child credit holds its flat amounts through 2027 and not past it', () => {
+  //   S.3009-C writes $1,000 / $500 for 2026 AND 2027 and then stops: from 2028
+  //   the credit reverts to the greater of 33% of a pre-TCJA federal credit or
+  //   $100 per child, which is not modelled here. So 2027 is the last year this
+  //   package can serve, and the reason is in the notes rather than in a guess.
+  for (const year of [2026, 2027]) {
+    const bands = getStateDefinition('NY', year).childCredit.amountByAge;
+    assert.deepEqual(
+      bands.map((b) => [b.maxAge, b.amount]),
+      [
+        [3, 1_000],
+        [16, 500],
+      ],
+      `${year} child credit bands`,
+    );
+  }
+  assert.equal(getStateDefinition('NY', 2025).childCredit.amountByAge[1].amount, 330);
+  const reverts = getStateDefinition('NY', 2027).notes.some(
+    (n) => n.includes('REVERTS AFTER 2027') && n.includes('2028'),
+  );
+  assert.ok(reverts, 'a year that is the last of a window has to say so');
+});
+
+test('A NEW YORK 2027 RETURN COMPUTES, AND SAYS WHAT IT CANNOT TELL A CITY RESIDENT', () => {
+  //   THE REGRESSION. Until the day 2027 was added, this threw a RangeError —
+  //   not from the rate schedule, from the NOTE that quantifies the New York City
+  //   tax for a caller who left `locality` out. It called
+  //   getLocalityDefinition('NYC', year) unconditionally, and New York City does
+  //   not serve 2027, so the first year the state's list and the locality's list
+  //   differed, the whole return was lost to a helpful sentence.
+  const r = ny(100_000, { year: 2027 });
+  assert.ok(r.tax > 0);
+  const note = r.notes.find((n) => n.startsWith('No locality was supplied'));
+  assert.ok(note, 'the note still appears');
+  assert.ok(note.includes('2025 and 2026'), 'and it names the years the city IS served for');
+  assert.ok(note.includes('1 January 2027'), 'and why 2027 is not one of them');
+  assert.ok(!note.includes('owes a further'), 'and it quotes no city figure it cannot compute');
+
+  // 2026 still gets the quantified version, which is the half a year gate can
+  // break silently.
+  const quantified = ny(100_000, { year: 2026 }).notes.find((n) =>
+    n.startsWith('No locality was supplied'),
+  );
+  assert.ok(quantified.includes('owes a further $'), '2026 still quantifies the city tax');
+});
+
+test('asking for New York City or Yonkers in 2027 is refused, not approximated', () => {
+  const call = (extra) =>
+    stateIncomeTax({
+      state: 'NY',
+      year: 2027,
+      filingStatus: 'single',
+      dependents: 0,
+      federal: {
+        adjustedGrossIncome: 100_000,
+        taxableIncome: 92_000,
+        deduction: 8_000,
+        deductionKind: 'standard',
+      },
+      ...extra,
+    });
+  //   The refusal is the right answer and the silence would not be: a 2027 city
+  //   figure does not exist, and the one a package would reach for — 2026's — is
+  //   the one the lapse makes a guess.
+  assert.throws(() => call({ locality: 'NYC' }), /NYC is supported but tax year 2027 is not/);
+  assert.throws(
+    () => call({ yonkersNonresidentEarnings: 50_000 }),
+    /YONKERS is supported but tax year 2027 is not/,
+  );
+});
+
+// ---------------------------------------------------------------------------
 // The ordinary return, the household credit, and the earned income credit
 // ---------------------------------------------------------------------------
 
