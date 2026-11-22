@@ -29064,7 +29064,7 @@ the note quoted under each group rather than trusting the count.
           credit:Empire State child credit: 10 -> 0
 ```
 
-> Matched on `1,000`: The Empire State child credit is computed from dependentAges: $1,000 for each child under 4 and $330 (2025) or $500 (2026) for each child aged 4 to 16, refundable. Supply an age for every dependent — a count cannot tell a toddler from a nineteen-year-old, and the two are worth $1,000 and nothing.
+> Matched on `1,000`: The Empire State child credit is computed from dependentAges: $1,000 for each child under 4 and $330 (2025) or $500 (2026 and 2027) for each child aged 4 to 16, refundable. Supply an age for every dependent — a count cannot tell a toddler from a nineteen-year-old, and the two are worth $1,000 and nothing.
 
 ### OH — 50 notch(es)
 

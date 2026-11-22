@@ -355,6 +355,29 @@ const CHECKS = [
     expect: (out) => out.match(/self-check: (.*)$/m)[1],
   },
   {
+    // THE HALF OF THE CLIFFS JOB THAT BROKE TWICE, AND IT NEEDS NO SWEEP.
+    //
+    // The check above runs the locator on synthetic notches. The one thing it
+    // does NOT do is regenerate `CLIFFS.md`, because that costs 2,100 sweeps and
+    // six minutes — so the report's own freshness has only ever been checked on
+    // the runner.
+    //
+    // Twice now the report has gone stale with the inventory untouched, both
+    // times because `CLIFFS.md` quotes the matched note VERBATIM and the note was
+    // edited: Day 80 (Kentucky's family size note) and Day 88 (New York's Empire
+    // State child credit note). Day 80's commit message ends by predicting
+    // exactly that — *"a check that will keep being discovered after the fact"* —
+    // and that prediction is the reason this line exists.
+    //
+    // **THE RULE: A FAILURE MODE WRITTEN DOWN AS A PREDICTION IS NOT A FINDING,
+    // IT IS A GATE SOMEBODY DECIDED NOT TO WRITE.** The expensive half of that
+    // job is the discontinuity search; the half that actually broke is a string
+    // comparison, and separating them makes it a local check that costs nothing.
+    label: 'every note CLIFFS.md quotes, against the notes the engine emits',
+    cmd: 'node tools/cliffs/quoted-notes.mjs --check',
+    expect: (out) => out.match(/^ok — (.*)$/m)?.[1],
+  },
+  {
     // LAST, AND IT IS THE ONLY CHECK HERE THAT LOOKS OUTSIDE THIS MACHINE.
     //
     // Day 78: CI had been red for three days and six commits and nothing here

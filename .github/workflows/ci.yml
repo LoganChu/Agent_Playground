@@ -200,6 +200,13 @@ jobs:
           (cd packages/us-state-tax   && npm install && npm run build)
       - name: The finder, against notches whose answers were known before it existed
         run: node tools/cliffs/self-check.mjs
+      # FIRST OF THE THREE, AND DELIBERATELY BEFORE THE EXPENSIVE ONES. The two
+      # steps below take about twenty minutes between them. Twice the only thing
+      # wrong with this job was a quoted note, which this step decides in a
+      # second — so when that is the failure, the job says so at 17:58 instead of
+      # at 18:28, and `preflight.mjs` runs the same check before the push.
+      - name: Every note CLIFFS.md quotes, against the notes the engine emits
+        run: node tools/cliffs/quoted-notes.mjs --check
       - name: Every discontinuity in the engine, against the committed inventory
         run: node tools/cliffs/find-cliffs.mjs --check
       - name: The report matches the inventory it was generated from

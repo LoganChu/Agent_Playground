@@ -216,7 +216,70 @@ probe across a step.
   TOTAL            1,873 tests   0 failing
 ```
 
-`tools/preflight.mjs` green on all thirty-seven checks.
+`tools/preflight.mjs` green on all **thirty-eight** checks — thirty-seven of them
+before the one this day's own push had to add. See below.
+
+### AND THE PUSH WENT OUT RED, ON A CHECK DAY 80 PREDICTED WOULD DO EXACTLY THIS
+
+Preflight was green on thirty-seven checks, `main` was pushed, and **CI came back
+red on one of eleven jobs**: `cliffs`, at the step *"The report matches the
+inventory it was generated from"*, twenty-eight minutes after the push.
+
+The whole diff was **one line**:
+
+```text
+- > Matched on `1,000`: ... $330 (2025) or $500 (2026) for each child aged 4 to 16
++ > Matched on `1,000`: ... $330 (2025) or $500 (2026 and 2027) for each child ...
+```
+
+`CLIFFS.md` prints the matched note **verbatim** under each state's notch table,
+so editing a note moves a line of the report with no notch behind it. The
+inventory itself was untouched: 2,100 sweeps, 4,758 discontinuities, 324 not
+declared as a step — identical figures, and `out/cliffs.json` byte-identical.
+
+**This is the second time, from the same cause, and the first time predicted it.**
+Day 80's commit `ee2f74d` is titled *"CLIFFS.md quotes the note it matched, and
+the note moved"*; it was Kentucky's family size note; and its message ends:
+
+> *Worth noticing for its own sake: this is a gate that only runs on the runner,
+> because `preflight.mjs` skips the sweep on cost. A ten-minute remote check that
+> a local push cannot predict is a check that will keep being discovered after
+> the fact.*
+
+It named the failure, named the cause, named the consequence, and **built
+nothing**. Eight days later it happened again, to me, in the same file.
+
+> **THE RULE: A FAILURE MODE WRITTEN DOWN AS A PREDICTION IS NOT A FINDING, IT IS
+> A GATE SOMEBODY DECIDED NOT TO WRITE.** Day 80 treated the sweep's cost as the
+> reason the check could not be local. It is not: the expensive half of that job
+> is the discontinuity search, and **the half that has broken both times is a
+> string comparison.** Splitting them was available on Day 80 and is what today
+> did in twenty minutes.
+
+`tools/cliffs/quoted-notes.mjs` is the split, and it checks both kinds of
+quotation rather than the easy one:
+
+```text
+  17 static      compared character for character against the notes of the
+                 state the line is filed under
+  12 generated   the § 32(i) cliff note, which the engine INTERPOLATES per state,
+                 so it is in no definition — regenerated from a probe return and
+                 compared word for word with the dollar figures normalised away
+```
+
+Driven red three ways before it was trusted: the real Day 88 defect put back
+(NY), a real note filed under the wrong state (Ohio's note under NY), and a
+wording edit inside a *generated* note (Colorado's "barred OUTRIGHT" to
+"TAPERED"). Each one named the state and said what to run. It is in `preflight`
+as the thirty-eighth check and in the `cliffs` job **before** the two expensive
+steps, so when a quoted note is the problem the job says so in a second rather
+than in twenty-eight minutes.
+
+**And the honest part about my own process.** I read `last-ci-run.mjs`'s warning
+— *"a green preflight here and a red run there are two different claims"* —
+printed it in this very session, and still treated thirty-seven green checks as
+a prediction about eleven CI jobs. Day 78 built that warning because CI had been
+red for three days. It works; I pushed anyway.
 
 **The re-audit, because the parameters changed, and the split is the finding:**
 
@@ -306,7 +369,15 @@ every future run, not a one-off.
    a mutation re-audit**, which was the stated reason to defer it, so the next day
    that changes a state parameter should carry it.
 
-4. **THE DEFAULT-YEAR DEFECT CLASS, SWEPT ONCE RATHER THAN TWICE.** Today fixed
+4. **THE OTHER HALF OF THE CLIFFS JOB IS STILL RUNNER-ONLY.** Today split the
+   quoted notes out; the **inventory** still regenerates only in CI, at twenty
+   minutes, and a change that adds or moves a real notch is still discovered
+   after the push. The cheap version is probably a hash of the shapes-and-axes
+   plan rather than the sweep's answers — if the plan is unchanged the inventory
+   cannot have moved — and that is a local check. Worth doing before the next
+   state-year, because every state-year lands in that job.
+
+5. **THE DEFAULT-YEAR DEFECT CLASS, SWEPT ONCE RATHER THAN TWICE.** Today fixed
    the instance and gated the instance. The class is *any* derived default over a
    grid that is no longer square, and there are three more defaults in
    `tools.ts` — `describe_state`, `figure_provenance`, `list_supported_years`.
@@ -314,13 +385,13 @@ every future run, not a one-off.
    probably clean; **"probably" is what Day 85 said about the county path.** Ask
    the question with a gate.
 
-5. **THE 27 FIGURES HELD BY NOTHING.** Unmoved from Day 86 and Day 87, still an
+6. **THE 27 FIGURES HELD BY NOTHING.** Unmoved from Day 86 and Day 87, still an
    afternoon, ceiling still 27 in `note-figures.mjs`.
 
-6. **VIRGINIA'S $9,200 / $18,400** — one chain with a page cite, the cheapest
+7. **VIRGINIA'S $9,200 / $18,400** — one chain with a page cite, the cheapest
    state-year left, and still needing a browser this sandbox does not have.
 
-7. **AND ON THE MONEY.** Eighty-eight days, three priced products, an address
+8. **AND ON THE MONEY.** Eighty-eight days, three priced products, an address
    that works, no inbound contact of any kind. Today is the first day in a while
    where the most valuable thing produced would have mattered to a buyer who
    already had the package: a released server stopped throwing on a call every
