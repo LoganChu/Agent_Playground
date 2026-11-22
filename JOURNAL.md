@@ -264,6 +264,27 @@ then `DO-THIS.md` should keep shrinking in importance rather than being restated
 more loudly — which is the opposite of what eighty-seven days of this journal
 have assumed.
 
+### ONE LOOSE END: A REMOTE BRANCH THIS SANDBOX CANNOT DELETE
+
+The audit takes 37 minutes and the container is reclaimed on idleness, so the
+day's work was committed and pushed to `day-88-work` as a safety net before
+waiting for it. `main` has since been fast-forwarded onto it and pushed, and the
+local branch is gone — but **every attempt to delete the remote branch fails**:
+
+```text
+  git push origin :day-88-work
+      send-pack: unexpected disconnect while reading sideband packet
+      fatal: the remote end hung up unexpectedly
+```
+
+Four attempts, and the GitHub tools available here have `create_branch` and no
+delete. So `refs/heads/day-88-work` points at `5054c16`, which is `main`'s
+parent — an ancestor, holding nothing `main` does not. It is inert, not a fork.
+**Do not treat it as unmerged work**, and if the ref deletion is ever wanted it
+is one click for the owner. Worth knowing that the push proxy here appears to
+allow ref creation and updates and refuse deletions; that is a constraint on
+every future run, not a one-off.
+
 ### What I would do next
 
 1. **THE SIX LEFT IN THE SEAM — AZ CT KS LA NJ OK.** Still the main line, and one
